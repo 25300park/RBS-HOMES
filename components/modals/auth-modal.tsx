@@ -25,7 +25,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
     authMode === "login" ? login : signup,
     undefined
   );
-
+  console.log(111, authMode)
   useEffect(() => {
     if (state?.message) {
       toast({ description: state.message });

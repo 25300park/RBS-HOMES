@@ -86,3 +86,42 @@
     @apply bg-background text-foreground;
   }
 }
+
+.swiper-button-next  { 
+  background-color: #fff !important;
+  height: 30px !important;
+  width: 30px !important;
+  box-shadow: 1px 1px 2px rgb(175, 175, 175);
+  border: 1px solid rgb(240, 240, 240);
+  border-radius: 4px;
+}
+.swiper-button-next::after { 
+  font-size: 16px !important;
+  color: rgb(162, 162, 162) !important;
+}
+
+.swiper-button-prev  { 
+  background-color: #fff !important;
+  height: 30px !important;
+  width: 30px !important;
+  box-shadow: 1px 1px 2px rgb(175, 175, 175);
+  border: 1px solid rgb(240, 240, 240);
+  border-radius: 4px;
+}
+.swiper-button-prev::after { 
+  font-size: 16px !important;
+  color: rgb(162, 162, 162) !important;
+}
+
+.swiper-pagination-bullet-active  {
+  color: #fff !important;
+  background: #fff !important;
+}
+
+.blur-card { 
+    backdrop-filter: blur(7px) saturate(93%);
+    -webkit-backdrop-filter: blur(7px) saturate(93%);
+    background-color: rgba(17, 25, 40, 0.78);
+    /* border-radius: 12px; */
+
+}

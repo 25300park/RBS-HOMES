@@ -1,9 +1,17 @@
-const HomePage = () => {
+import BannerGroup from "./components/banner-group";
+import MainList from "./components/main-list-section";
+import ServiceSection from "./components/service-section";
+
+const DashBoard = () => {
   return (
     <>
-      <div className="p-4">123123333</div>
+      <div className="">
+        <BannerGroup />
+        <MainList />
+        <ServiceSection />
+      </div>
     </>
   );
 };
 
-export default HomePage;
+export default DashBoard;

@@ -1,59 +1,86 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Navigation,
-  Pagination,
-  Scrollbar,
-  A11y,
-  Autoplay,
-} from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import "swiper/css/autoplay";
-export default function Banner() {
-  const [swiperInstance, setSwiperInstance] = useState<any>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const onSwiper = (swiper: any) => {
-    setSwiperInstance(swiper);
-    setActiveIndex(swiper.realIndex); // 초기 활성 슬라이드 인덱스 설정
-    swiper.on("slideChange", () => setActiveIndex(swiper.realIndex)); // 슬라이드 변경 시 인덱스 업데이트
+export interface MainSearchBarProps {
+  searchInputActive: boolean;
+  setSearchInputActive: (active: boolean) => void;
+}
+
+const MainSearchBar = ({
+  searchInputActive,
+  setSearchInputActive,
+}: MainSearchBarProps): React.ReactNode => {
+  const [activeTab, setActiveTab] = useState<"rent" | "buy">("buy");
+  const [locationActive, setLocationActive] = useState(false); // Location 클릭 상태
+
+  // location div 또는 Input 포커스 이벤트
+  const handleFocus = () => {
+    setSearchInputActive(true);
+    setLocationActive(false);
   };
 
-  // 특정 슬라이드로 이동 및 자동 재생 시작
-  const goToSlide = (index: any) => {
-    if (swiperInstance) {
-      swiperInstance.slideTo(index); // 슬라이드 이동
-    }
+  // location div 클릭 이벤트
+  const handleLocationClick = () => {
+    setSearchInputActive(true);
+    setLocationActive(true);
   };
 
   return (
-    <div className="relative">
-      <Swiper
-        modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
-        spaceBetween={10}
-        slidesPerView={1}
-        loop={true}
-        autoplay={{
-          delay: 7000,
-          disableOnInteraction: false, // 사용자 상호작용 후에도 자동 재생 계속
-        }}
-        pagination={{
-          clickable: true,
-        }}
-        onSwiper={onSwiper}
-        // onSlideChange={() => console.log("slide change")}
-        className="min-h-[330px] desk"
+    <div className="absolute z-10 flex flex-col justify-start items-start w-2/3 max-w-[1000px] h-[120px] top-32 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-card p-4 bg-white rounded-b-lg rounded-r-lg shadow-lg">
+      {/* Tab UI */}
+      <div className="flex space-x-1 mb-4 absolute top-[-40px] left-0 border-b-0">
+        <button
+          className={`px-8 py-2 rounded-t-lg rounded-b-none ${
+            activeTab === "buy" ? "blur-card text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("buy")}
+        >
+          Buy
+        </button>
+        <button
+          className={`px-8 py-2 rounded-t-lg rounded-b-none ${
+            activeTab === "rent" ? "blur-card text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("rent")}
+        >
+          Rent
+        </button>
+      </div>
+
+      {/* Search Input */}
+      <div
+        className={`search-container ${
+          searchInputActive ? "p-4 shadow-xl" : ""
+        } w-full transition-all duration-300 bg-white rounded-lg`}
       >
-        <SwiperSlide className="relative w-full min-h-[330px]">11</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[330px]">22</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[330px]">33</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[330px]">44</SwiperSlide>
-      </Swiper>
+        <div className="location-container border rounded-lg bg-[#f2f2f2] flex items-center">
+          <div
+            className="h-full w-[20%] px-6 border-r-2 cursor-pointer"
+            onClick={handleLocationClick}
+          >
+            location
+          </div>
+          <Input
+            type="text"
+            placeholder={`Search for ${
+              activeTab === "rent" ? "rental" : "buy"
+            } properties`}
+            className="w-full p-2 py-6 focus-visible:ring-0 border-none shadow-none text-md bg-[#f2f2f2]"
+            onFocus={handleFocus}
+          />
+        </div>
+        <div
+          className={`${
+            searchInputActive ? "block" : "hidden"
+          } min-h-64 my-4 border-t p-4 h-full rounded-b-lg`}
+        >
+          {locationActive ? "Location-based content" : "General content"}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default MainSearchBar;

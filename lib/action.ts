@@ -35,7 +35,7 @@ export async function signup(state: FormState, formData: FormData): Promise<Form
     data: {
       // username,
       email,
-      password_origin: password,
+      passwordOrigin: password,
       password: hashedPassword,
     },
   });
@@ -86,6 +86,8 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
     };
   }
 
+
   // 성공 시 상태와 함께 이메일 및 비밀번호 반환
   return { status: 200, message: "Login successful", email, password };
 }
+

@@ -11,8 +11,8 @@ const NavLinks = [
   { title: "rent", href: "/rent" },
   { title: "buy", href: "/buy" },
   // { title: "rent", href: "/rent" },
-  // { title: "rent", href: "/rent" },
   { title: "sell", href: "/sell", auth: true },
+  { title: "map", href: "/map" },
 ];
 
 const Header = ({}: HeaderProps): React.ReactNode => {
@@ -20,7 +20,6 @@ const Header = ({}: HeaderProps): React.ReactNode => {
   const { data: session, status } = useSession();
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  console.log(session, status);
   useEffect(() => {
     const handleScroll = () => {
       // 스크롤 위치에 따라 네브바 색상 변경
@@ -42,41 +41,69 @@ const Header = ({}: HeaderProps): React.ReactNode => {
   }, []);
 
   return (
-    <header className="h-16">
+    <header className="h-24">
       <nav
-        className={`fixed top-0 w-full transition-all duration-300 ${
+        className={`fixed top-0 w-full transition-all duration-300 bg-white ${
           navbarScrolled
-            ? "bg-white/10 backdrop-blur-sm shadow-lg"
-            : "bg-transparent"
-        } z-50 w-full h-24 flex items-center px-8 mx-auto justify-between`}
+            ? "h-16 shadow-lg"
+            : "h-24 bg-transparent"
+        } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">
           <div className="mr-16"> 로고 </div>
 
           {NavLinks.map((link) => (
             <Link key={link.title} href={link.href}>
-              <Button variant={"ghost"}>{link.title.toUpperCase()}</Button>
+              <Button
+                variant={"ghost"}
+                size={"lg"}
+                className="text-md text-[#6f6f6f]"
+              >
+                {link.title.toUpperCase()}
+              </Button>
             </Link>
           ))}
         </div>
         <div>
-          {status === "unauthenticated" ? (
+          {status === "loading" ? (
+            <div>로딩</div>
+          ) : status === "unauthenticated" ? (
             <>
-              <Button variant={"ghost"} onClick={() => openModal("login")}>
+              <Button
+                variant={"ghost"}
+                size={"lg"}
+                className="text-md text-[#6f6f6f]"
+                onClick={() => openModal("login")}
+              >
                 LOGIN
               </Button>
               <span className="text-zinc-200">|</span>
-              <Button variant={"ghost"} onClick={() => openModal("signup")}>
+              <Button
+                variant={"ghost"}
+                size={"lg"}
+                className="text-md text-[#6f6f6f]"
+                onClick={() => openModal("signup")}
+              >
                 SIGN-UP
               </Button>
             </>
           ) : (
             <>
-              <Button variant={"ghost"} onClick={() => {}}>
+              <Button
+                variant={"ghost"}
+                size={"lg"}
+                className="text-md text-[#6f6f6f]"
+                onClick={() => {}}
+              >
                 MY PAGE
               </Button>
               <span className="text-zinc-200 mx-3">|</span>
-              <Button variant={"ghost"} onClick={() => signOut()}>
+              <Button
+                variant={"ghost"}
+                size={"lg"}
+                className="text-md text-[#6f6f6f]"
+                onClick={() => signOut()}
+              >
                 LOGOUT
               </Button>
             </>
