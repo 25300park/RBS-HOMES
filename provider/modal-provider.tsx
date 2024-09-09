@@ -3,6 +3,7 @@
 import { useModalStore } from "@/store/use-modal-store";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import AuthModal from "@/components/modals/auth-modal";
+import FilterModal from "@/components/modals/filter-modal";
 // import ConfirmModal from "@/components/modals/ConfirmModal";
 // import AlertModal from "@/components/modals/AlertModal";
 
@@ -16,9 +17,9 @@ export const ModalProvider = () => {
     case 'signup':
       content = <AuthModal onClose={closeModal} />;
       break;
-    // case 'confirm':
-    //   content = <ConfirmModal onClose={closeModal} />;
-    //   break;
+    case 'filter':
+      content = <FilterModal onClose={closeModal} />;
+      break;
     // case 'alert':
     //   content = <AlertModal message={modalProps.message || "Something happened!"} onClose={closeModal} />;
     //   break;

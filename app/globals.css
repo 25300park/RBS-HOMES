@@ -125,3 +125,7 @@
     /* border-radius: 12px; */
 
 }
+
+.maplibregl-popup-content { 
+  padding: 16px !important;
+}

@@ -1,11 +1,13 @@
 // @/actions/auth.ts
 "use server";
 
+// 공통 액션들
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
 import { SignupFormSchema, FormState, LoginFormSchema } from "@/types/schema";
-import { signIn } from "next-auth/react";
 
+
+//로그인 회원가입 관련
 export async function signup(state: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = SignupFormSchema.safeParse({
     // username: formData.get("username"),
@@ -91,3 +93,47 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
   return { status: 200, message: "Login successful", email, password };
 }
 
+
+//유닛 관련
+
+
+export const getUnitList = async (searchParams: Record<string, string>): Promise<any> => {
+  const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
+  const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
+  const parking = searchParams.parking === 'true' ? true : undefined;
+  const city = searchParams.city || undefined;
+  const priceMin = searchParams.priceMin ? parseFloat(searchParams.priceMin) : undefined;
+  const priceMax = searchParams.priceMax ? parseFloat(searchParams.priceMax) : undefined;
+  const search = searchParams.search || undefined;
+
+  const data = await prisma.unit.findMany({
+    where: {
+      bed: bed ? { gte: bed } : undefined,
+      bath: bath ? { gte: bath } : undefined,
+      parking: parking !== undefined ? { gte: parking ? 1 : 0 } : undefined,
+      address2: city ? { equals: city } : undefined,
+      price:
+        priceMin !== undefined || priceMax !== undefined
+          ? {
+              gte: priceMin,
+              lte: priceMax,
+            }
+          : undefined,
+      OR: search
+        ? [
+            { title: { contains: search } },
+            { address3: { contains: search } },
+          ]
+        : undefined,
+    },
+  });
+  const units = data.map((unit: any) => ({
+    ...unit,
+    outstandingPayment: unit.outstandingPayment
+      ? parseFloat(unit.outstandingPayment.toString())
+      : null,
+    price: unit.price ? parseFloat(unit.price.toString()) : null,
+    priceRent: unit.priceRent ? parseFloat(unit.priceRent.toString()) : null,
+  }));
+  return { units };
+};

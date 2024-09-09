@@ -6,14 +6,8 @@ import { Units } from "@/mock/data";
 export interface MainListProps {}
 
 const MainList = async ({}: MainListProps) => {
-  // const { units } = await getMainUnitList();
-  const formattedUnits: Unit[] = Units.map((unit: any) => ({
-    ...unit,
-    outstanding_payment: unit.outstanding_payment
-      ? parseFloat(unit.outstanding_payment.toString())
-      : null,
-    price: unit.price ? parseFloat(unit.price.toString()) : null,
-  }));
+  const { units }: any = await getMainUnitList();
+
   return (
     <section className="max-w-[1140px] mx-auto py-12">
       <div>
@@ -21,20 +15,25 @@ const MainList = async ({}: MainListProps) => {
         <h4>Listings we think you’ll love.</h4>
       </div>
       <div className="grid grid-cols-4 gap-8">
-        {formattedUnits.length === 0 ? (
+        {units.length === 0 ? (
           <div>no result</div>
         ) : (
           <>
-            {formattedUnits.map((card, index) => (
+            {units.map((card: any, index: number) => (
               <PropertyCard
                 key={index}
                 title={card.title}
                 price={Number(card.price)}
+                sellType={card.sellType}
                 area={card.area}
-                location={card.address2 as string}
+                location={`${card.address2 as string},${
+                  card.address3 as string
+                },${card.address4 as string}`}
                 imageUrl={"/next.svg"}
-                postedDate={"2days ago"}
+                postedDate={"2 days ago"}
                 isVip={true}
+                bed={card.bed as number}
+                bath={card.bath as number}
               />
             ))}
           </>
