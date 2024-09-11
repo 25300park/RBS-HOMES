@@ -6,6 +6,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 
+// 세션 종료
 export interface HeaderProps {}
 const NavLinks = [
   { title: "rent", href: "/rent" },
@@ -41,16 +42,16 @@ const Header = ({}: HeaderProps): React.ReactNode => {
   }, []);
 
   return (
-    <header className="h-24">
+    <header className="h-20">
       <nav
         className={`fixed top-0 w-full transition-all duration-300 bg-white ${
           navbarScrolled
             ? "h-16 shadow-lg"
-            : "h-24 bg-transparent"
+            : "h-20 bg-transparent"
         } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">
-          <div className="mr-16"> 로고 </div>
+          <Link className="mr-16" href={"/"}> 로고 </Link>
 
           {NavLinks.map((link) => (
             <Link key={link.title} href={link.href}>

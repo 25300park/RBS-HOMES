@@ -88,7 +88,7 @@ export default function Map({ units }) {
   }, [units, setVisibleUnits]); // 스토어의 setVisibleUnits를 의존성에 추가
 
   return (
-    <div className="relative w-full h-[calc(100vh-6rem)]">
+    <div className="relative w-full h-[calc(100vh-5rem)]">
       {/* 로딩 표시 */}
       {isLoading && (
         <div className="absolute top-0 left-0 right-0 bg-white z-50 p-2 flex justify-center">

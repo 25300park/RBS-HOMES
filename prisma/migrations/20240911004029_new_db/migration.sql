@@ -19,7 +19,7 @@ CREATE TABLE `User` (
 
     UNIQUE INDEX `User_username_key`(`username`),
     UNIQUE INDEX `User_email_key`(`email`),
-    INDEX `IX_user_user_id`(`username`),
+    INDEX `ix_user_user_id`(`username`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -32,7 +32,7 @@ CREATE TABLE `Account` (
     `providerAccountId` VARCHAR(191) NOT NULL,
     `refreshToken` TEXT NULL,
     `accessToken` TEXT NULL,
-    `expiresAt` INTEGER NULL,
+    `expiresAt` DATETIME(3) NULL,
     `tokenType` VARCHAR(191) NULL,
     `scope` VARCHAR(191) NULL,
     `idToken` TEXT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE `Notice` (
     `state` INTEGER NOT NULL DEFAULT 0,
     `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    INDEX `IX_notice_state`(`state`),
+    INDEX `ix_notice_state`(`state`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -83,7 +83,7 @@ CREATE TABLE `Schedule` (
     `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `status` INTEGER NOT NULL,
 
-    INDEX `IX_schedule_unit_id`(`unitId`),
+    INDEX `ix_schedule_unit_id`(`unitId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -124,7 +124,7 @@ CREATE TABLE `Unit` (
     `latitude` DOUBLE NULL,
     `longitude` DOUBLE NULL,
 
-    INDEX `IX_unit_admin_id`(`adminId`),
+    INDEX `ix_unit_admin_id`(`adminId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

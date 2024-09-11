@@ -39,23 +39,37 @@ export const useMapStore = create<MapState>((set) => ({
     }),
 
   // 팝업 띄우기
-  showPopup: (unit) => set((state) => {
-    if (state.map && unit) {
-      if (state.popup) state.popup.remove(); // 기존 팝업 제거
-      const popup = new maptilersdk.Popup({ offset: 25 })
-        .setLngLat([unit.longitude, unit.latitude])
-        .setHTML(`
-          <div>
-            <img src="${unit.image}" alt="${unit.title}" class="w-full h-32 object-cover mb-2" />
-            <h3 class="text-lg font-bold">${unit.title}</h3>
-            <p class="text-sm text-gray-500 mb-2">${unit.description}</p>
+showPopup: (unit) => set((state) => {
+  if (state.map && unit) {
+    if (state.popup) state.popup.remove(); // 기존 팝업 제거
+    
+    const popup = new maptilersdk.Popup({
+      offset: 25, // 팝업의 오프셋을 추가
+      closeButton: false, // 닫기 버튼 제거
+      closeOnClick: false, // 팝업 외부 클릭 시 팝업 닫기 설정을 비활성화
+    })
+      .setLngLat([unit.longitude, unit.latitude])
+      .setHTML(`
+        <div>
+          <img src="${unit.images[0]}" alt="${unit.title}" style="width: 100%; min-width: 400px; height: 150px; object-fit: cover;" />
+          <div style="padding: 10px;">
+            <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${unit.address2,+" "+unit.address3 +" "+ unit.address4 + " " + unit.address1}</h3>
+            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+              ${unit.description ? unit.description : 'no memo'}
+            </div>
+            <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">
+              ${unit.priceRent.toLocaleString()} $
+            </div>
           </div>
-        `)
-        .addTo(state.map);
-      return { popup };
-    }
-    return {};
-  }),
+        </div>
+      `)
+      .addTo(state.map);
+
+    return { popup };
+  }
+  return {};
+}),
+
 
   // 팝업 제거
   clearPopup: () => set((state) => {

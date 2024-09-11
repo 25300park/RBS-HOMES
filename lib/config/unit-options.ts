@@ -1,4 +1,27 @@
-export const cities = {
+export const cities = [
+  { name: "All Cities", image: "/assets/images/cities/manila.jpg" },
+  { name: "Manila", image: "/assets/images/cities/manila.jpg" },
+  { name: "Cebu", image: "/assets/images/cities/manila.jpg" },
+  { name: "Taguig", image: "/assets/images/cities/manila.jpg" },
+  { name: "Makati", image: "/assets/images/cities/manila.jpg" },
+  { name: "Quezon", image: "/assets/images/cities/manila.jpg" },
+];
+
+export const furnitureOptions = [
+  { label: "No Preference", value: "none" },
+  { label: "Fully Furnished", value: "fully" },
+  { label: "Semi-Furnished", value: "semi" },
+  { label: "Unfurnished", value: "unfurnished" },
+];
+
+export const petPolicyOption = [
+  { label: "No Preference", value: "none" },
+  { label: "Allow", value: "Allow" },
+  { label: "Small Only", value: "Small Only" },
+  { label: "Not allowed", value: "Not allowed" },
+];
+
+export const citiesWithRange = {
   manila: {
     name: "Manila",
     bounds: [

@@ -1,123 +1,313 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useModalStore } from "@/store/use-modal-store";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Slider } from "../ui/slider"; // Custom Slider component
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import CityImgCard from "../ui/city-img-card";
+import { getUnitCount } from "@/lib/action";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useLoading } from "@/hooks/use-loading"; // 로딩 훅
+import { cities, furnitureOptions, petPolicyOption } from "@/lib/config/unit-options";
+
+
+
+interface Filters {
+  bed: string;
+  bath: string;
+  parking: string;
+  priceMin: string;
+  priceMax: string;
+  areaMin: string;
+  areaMax: string;
+  city: string;
+  furniture: string;
+  pet: string;
+}
 
 const FilterModal = ({ onClose }: { onClose: () => void }) => {
-  const { modalType } = useModalStore();
-  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [unitCount, setUnitCount] = useState(0);
+
+  const { isLoading, startLoading, stopLoading } = useLoading(); // 로딩 상태
 
   // 필터 상태 관리
-  const [filters, setFilters] = useState({
-    bed: searchParams.get("bed") || "",
-    bath: searchParams.get("bath") || "",
-    parking: searchParams.get("parking") === "true" || false,
-    priceMin: searchParams.get("priceMin") || "",
-    priceMax: searchParams.get("priceMax") || "",
-    city: searchParams.get("city") || "",
+  const [filters, setFilters] = useState<Filters>({
+    bed: searchParams.get("bed") || "0",
+    bath: searchParams.get("bath") || "0",
+    parking: searchParams.get("parking") || "0",
+    priceMin: searchParams.get("priceMin") || "0",
+    priceMax: searchParams.get("priceMax") || "1000000",
+    areaMin: searchParams.get("areaMin") || "0",
+    areaMax: searchParams.get("areaMax") || "500",
+    city: searchParams.get("city") || "All Cities",
+    furniture: searchParams.get("furniture") || "none",
+    pet: searchParams.get("pet") || "none",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFilters({
-      ...filters,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const debouncedFilters = useDebounce(filters, 800); // 500ms 디바운스
+
+  const updateFilter = (field: keyof Filters, value: string | number) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: value.toString(),
+    }));
+  };
+
+  const convertFiltersToRecord = (filters: Filters): Record<string, string> => {
+    return {
+      bed: filters.bed,
+      bath: filters.bath,
+      parking: filters.parking,
+      priceMin: filters.priceMin,
+      priceMax: filters.priceMax,
+      areaMin: filters.areaMin,
+      areaMax: filters.areaMax,
+      city: filters.city,
+      furniture: filters.furniture,
+      pet: filters.pet,
+    };
   };
 
   const applyFilters = () => {
-    const query = new URLSearchParams();
-    if (filters.bed) query.append("bed", filters.bed);
-    if (filters.bath) query.append("bath", filters.bath);
-    if (filters.parking) query.append("parking", filters.parking.toString());
-    if (filters.priceMin) query.append("priceMin", filters.priceMin);
-    if (filters.priceMax) query.append("priceMax", filters.priceMax);
-    if (filters.city) query.append("city", filters.city);
-
-    router.push(`${pathname}?${query.toString()}`);
+    const query = new URLSearchParams(convertFiltersToRecord(filters)).toString();
+    router.push(`${pathname}?${query}`);
     onClose();
   };
 
+  const adjustCount = (field: keyof Filters, increment: boolean) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: increment
+        ? (parseInt(prevFilters[field]) || 0) + 1
+        : Math.max(0, (parseInt(prevFilters[field]) || 0) - 1),
+    }));
+  };
+
+  const fetchUnitCount = async () => {
+    startLoading(); // 로딩 시작
+    const count = await getUnitCount(convertFiltersToRecord(debouncedFilters));
+    setUnitCount(count);
+    stopLoading(); // 로딩 종료
+  };
+
+  useEffect(() => {
+    fetchUnitCount();
+  }, [debouncedFilters]);
+
   return (
-    <>
+    <div className="p-4">
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">필터 </h2>
-        {/* <p className="text-gray-600">필터를 선택하여 검색 결과를 좁혀보세요.</p> */}
+        <h2 className="text-3xl font-bold text-gray-900">Filter</h2>
+        <p className="text-gray-600">
+          Narrow down the search results by selecting filters.
+        </p>
       </div>
 
-      {/* 필터 폼 */}
-      <form className="grid gap-4 py-4">
-        <Input
-          name="bed"
-          type="number"
-          placeholder="침실 수"
-          value={filters.bed}
-          onChange={handleInputChange}
-          className="mb-4 w-full"
-        />
-        <Input
-          name="bath"
-          type="number"
-          placeholder="욕실 수"
-          value={filters.bath}
-          onChange={handleInputChange}
-          className="mb-4 w-full"
-        />
-        <label className="flex items-center mb-4">
-          <input
-            name="parking"
-            type="checkbox"
-            checked={filters.parking}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          주차 가능
-        </label>
-        <Input
-          name="city"
-          type="text"
-          placeholder="도시"
-          value={filters.city}
-          onChange={handleInputChange}
-          className="mb-4 w-full"
-        />
-        <Input
-          name="priceMin"
-          type="number"
-          placeholder="최소 가격"
-          value={filters.priceMin}
-          onChange={handleInputChange}
-          className="mb-4 w-full"
-        />
-        <Input
-          name="priceMax"
-          type="number"
-          placeholder="최대 가격"
-          value={filters.priceMax}
-          onChange={handleInputChange}
-          className="mb-4 w-full"
-        />
+      {/* 로딩 중일 때 로딩 인디케이터 표시 */}
 
-        <Button type="button" className="w-full" onClick={applyFilters}>
-          필터 적용
-        </Button>
-      </form>
+        <form className="grid gap-4 py-4">
+          {/* Bed and Bath Selection */}
+          <div className="grid grid-cols-1 gap-4">
+            {/* Beds */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Beds</span>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("bed", false)}
+                >
+                  -
+                </button>
+                <span className="text-sm w-40 text-center">
+                  {parseInt(filters.bed) === 0
+                    ? "No Preference"
+                    : `${filters.bed}+`}
+                </span>
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("bed", true)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
 
-      {/* 모달 닫기 버튼 */}
+            {/* Baths */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Baths</span>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("bath", false)}
+                >
+                  -
+                </button>
+                <span className="text-sm w-40 text-center">
+                  {parseInt(filters.bath) === 0
+                    ? "No Preference"
+                    : `${filters.bath}+`}
+                </span>
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("bath", true)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Parking */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Parking</span>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("parking", false)}
+                >
+                  -
+                </button>
+                <span className="text-sm w-40 text-center">
+                  {parseInt(filters.parking) === 0
+                    ? "No Preference"
+                    : `${filters.parking}+`}
+                </span>
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount("parking", true)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Price Range Filter */}
+          <div className="my-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Price Range
+            </label>
+            <Slider
+              className="w-full"
+              value={[parseInt(filters.priceMin), parseInt(filters.priceMax)]}
+              onValueChange={(values) => {
+                updateFilter("priceMin", values[0]);
+                updateFilter("priceMax", values[1]);
+              }}
+              min={0}
+              max={1000000}
+              step={10000}
+            />
+            <div className="flex justify-between text-sm mt-2">
+              <span>{filters.priceMin}</span>
+              <span>{filters.priceMax}</span>
+            </div>
+          </div>
+
+          {/* Area Range Filter */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Area Range
+            </label>
+            <Slider
+              className="w-full"
+              value={[parseInt(filters.areaMin), parseInt(filters.areaMax)]}
+              onValueChange={(values) => {
+                updateFilter("areaMin", values[0]);
+                updateFilter("areaMax", values[1]);
+              }}
+              min={0}
+              max={500}
+              step={10}
+            />
+            <div className="flex justify-between text-sm mt-2">
+              <span>{filters.areaMin}</span>
+              <span>{filters.areaMax}</span>
+            </div>
+          </div>
+
+          {/* City Selection Filter */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold mb-2">Select City</h3>
+            <div className="grid grid-cols-3 gap-4">
+              {cities.map((city) => (
+                <CityImgCard
+                  key={city.name}
+                  city={city}
+                  onClick={() => updateFilter("city", city.name)}
+                  isActive={filters.city === city.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Furniture Selection Filter */}
+          <div className="">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Furniture
+            </label>
+            <Select
+              name="furniture"
+              value={filters.furniture}
+              onValueChange={(e) => updateFilter("furniture", e)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {furnitureOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Pet Policy Filter */}
+          <div className="">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pet Policy
+            </label>
+            <Select
+              name="pet"
+              value={filters.pet}
+              onValueChange={(e) => updateFilter("pet", e)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {petPolicyOption.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button type="button" className="w-full" onClick={applyFilters}>
+            Apply Filters {isLoading ? <div className="ml-6">loading...</div> : `(${unitCount} units available)`}
+          </Button>
+        </form>
+      
       <Button
         onClick={onClose}
         className="mt-6 w-full bg-gray-100 hover:bg-gray-200"
       >
-        닫기
+        Close
       </Button>
-    </>
+    </div>
   );
 };
 

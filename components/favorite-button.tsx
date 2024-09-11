@@ -13,7 +13,8 @@ const FavoriteButton = ({ isFavorite, onToggle }: FavoriteButtonProps) => {
   const { data: session } = useSession(); // 로그인 상태 확인
   const { openModal } = useModalStore(); // 로그인 모달 열기
 
-  const handleFavoriteClick = () => {
+  const handleFavoriteClick = (e:any) => {
+    e.stopPropagation();
     if (!session) {
       // 비로그인 상태인 경우 로그인 모달을 열기
       openModal("login");

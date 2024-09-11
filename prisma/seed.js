@@ -10,7 +10,18 @@ async function main() {
   const types = ['Condominium', 'TownHouse', 'House', 'Apartment'];
   const sellTypes = ['Rent', 'Sale'];
   const admins = [1, 2, 3]; // 어드민 아이디 배열
-
+  const furnitureOptions = [
+    { label: "No Preference", value: "none" },
+    { label: "Fully Furnished", value: "fully" },
+    { label: "Semi-Furnished", value: "semi" },
+    { label: "Unfurnished", value: "unfurnished" },
+  ];
+  const petPolicyOption = [
+    { label: "No Preference", value: "none" },
+    { label: "Allow", value: "Allow" },
+    { label: "Small Only", value: "Small Only" },
+    { label: "Not allowed", value: "Not allowed" },
+  ];
   // 샘플 주소 및 이미지
   const addresses = [
     {
@@ -40,7 +51,7 @@ async function main() {
       ],
     },
     {
-      address2: "Quezon City",
+      address2: "Manila",
       address3: "Eastwood City",
       address4: "Unit 1809",
       latitude: 14.6091,
@@ -55,15 +66,15 @@ async function main() {
   ];
 
   // 1만 개의 유닛 데이터 생성
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 5000; i++) {
     const randomType = types[Math.floor(Math.random() * types.length)];
     const randomSellType = sellTypes[Math.floor(Math.random() * sellTypes.length)];
     const randomAdminId = admins[Math.floor(Math.random() * admins.length)];
     const randomAddress = addresses[Math.floor(Math.random() * addresses.length)];
 
     // 좌표에 랜덤 변동 추가 (작은 오프셋)
-    const randomLatitude = randomAddress.latitude + (Math.random() * 0.01 - 0.005); // -0.005 ~ 0.005
-    const randomLongitude = randomAddress.longitude + (Math.random() * 0.01 - 0.005); // -0.005 ~ 0.005
+    const randomLatitude = randomAddress.latitude + (Math.random() * 0.01 - 0.008); // -0.005 ~ 0.005
+    const randomLongitude = randomAddress.longitude + (Math.random() * 0.01 - 0.008); // -0.005 ~ 0.005
 
     unitPromises.push(
       prisma.unit.create({
@@ -84,12 +95,13 @@ async function main() {
           bed: Math.floor(Math.random() * 5) + 1, // Random bed count (1~5)
           bath: Math.floor(Math.random() * 3) + 1, // Random bath count (1~3)
           parking: Math.floor(Math.random() * 2), // Random parking availability (0 or 1)
-          furniture: 'Partially Furnished',
+          furniture: furnitureOptions[Math.floor(Math.random() * 4)].value,
           interiored: 'Contemporary',
-          petPolicy: 'Not Allowed',
+          petPolicy: petPolicyOption[Math.floor(Math.random() * 4)].value,
           amenity: 'Gym, Spa',
           yearCompletion: '2015',
           outstandingPayment: Math.random() * 20000, // Random outstanding payment
+          price: 20000 + Math.random() * 30000, // Random rent price
           priceRent: 20000 + Math.random() * 30000, // Random rent price
           note: "Located near shopping centers.",
           requested: "Looking for a long-term lease.",
@@ -108,7 +120,7 @@ async function main() {
   // 모든 데이터 삽입
   await Promise.all(unitPromises);
 
-  console.log('Inserted 10,000 units');
+  console.log('Inserted 5,000 units');
 }
 
 main()

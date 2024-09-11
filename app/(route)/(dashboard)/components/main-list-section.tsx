@@ -1,7 +1,5 @@
 import PropertyCard from "@/components/ui/property-card";
 import { getMainUnitList } from "../action";
-import { Unit } from "@prisma/client";
-import { Units } from "@/mock/data";
 
 export interface MainListProps {}
 
