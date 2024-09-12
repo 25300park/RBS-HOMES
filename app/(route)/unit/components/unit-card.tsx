@@ -1,0 +1,109 @@
+"use client";
+
+import FavoriteButton from "@/components/favorite-button";
+import { useState } from "react";
+
+interface UnitCardProps {
+  unit: {
+    id: number;
+    title: string;
+    price: number | null;
+    area: number;
+    bed: number | null;
+    bath: number | null;
+    images: string[];
+    fullAddress: string;
+    note?: string | null;
+    admin: {
+      name: string | null;
+      company: string | null;
+      image: string | null;
+    };
+  };
+}
+
+const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
+  const { title, price, area, bed, bath, images, admin, fullAddress, note } =
+    unit;
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+  };
+
+  return (
+    <div className="bg-white  overflow-hidden border shadow-sm rounded-sm">
+      <div className="relative h-64">
+        <img
+          src={"/assets/images/cardtest.png"}
+          alt={title}
+          className={`absolute top-0 left-0 w-full h-full object-cover`}
+        />
+      </div>
+      <div className="">
+        <div className="p-4">
+          <h2 className="text-xl font-semibold mb-2 ">{title}</h2>
+          <div>{fullAddress}</div>
+          <div className="text-zinc-400 font-extralight text-sm">{note}</div>
+          <div className="flex justify-between md:block mt-4">
+            <div className=" font-bold text-2xl mb-1">
+              {/* text-[#0CB8C5] */}
+              ₱ {price?.toLocaleString()}
+            </div>
+            <div className="text-gray-500 text-sm flex gap-6">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/assets/icons/bed.png"
+                  width={16}
+                  height={16}
+                  alt="bed"
+                />
+                <p className="">{bed} Bedrooms</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <img
+                  src="/assets/icons/bed-1.png"
+                  width={16}
+                  height={16}
+                  alt="bath"
+                />
+                <p>{bath} Bath</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <img
+                  src="/assets/icons/sqm.png"
+                  width={16}
+                  height={16}
+                  alt="area"
+                />
+                <p>{area}m²</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between border-t px-4 py-3">
+          <div className="flex items-center gap-2">
+            <img
+              src={admin.image || "/assets/images/default-avatar.png"}
+              width={36}
+              height={36}
+              alt={admin.name || "Admin"}
+              className="rounded-full border"
+            />
+            <div>
+              <p>{admin.name}</p>
+              <p className="text-gray-500 text-xs">
+                {admin.company || "No company"}
+              </p>
+            </div>
+          </div>
+          <div className="border w-8 h-8 flex items-center justify-center shadow-sm rounded-sm">
+            <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UnitCard;

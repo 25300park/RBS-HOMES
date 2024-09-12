@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import MainBanner from "./main-banner";
-import MainSearchBar from "./search-bar";
+import MainSearchBar from "@/components/ui/search-bar";
 
 const BannerGroup = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);  // MainBanner와 MainSearchBar를 감싸는 전체 div

@@ -10,7 +10,6 @@ import FilterModal from "@/components/modals/filter-modal";
 export const ModalProvider = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
   if (!isOpen) return null;
-
   let content;
   switch (modalType) {
     case 'login':
@@ -18,7 +17,7 @@ export const ModalProvider = () => {
       content = <AuthModal onClose={closeModal} />;
       break;
     case 'filter':
-      content = <FilterModal onClose={closeModal} />;
+      content = <FilterModal onClose={closeModal} modalProps={modalProps}/>;
       break;
     // case 'alert':
     //   content = <AlertModal message={modalProps.message || "Something happened!"} onClose={closeModal} />;

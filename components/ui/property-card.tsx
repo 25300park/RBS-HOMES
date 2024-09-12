@@ -53,7 +53,8 @@ const PropertyCard = ({
           src={imageUrl}
           alt={title}
           fill
-          className="object-cover group-hover:scale-110 transition-all duration-300"
+          // group-hover:scale-110
+          className="object-cover  transition-all duration-300"
         />
         <div className="absolute bottom-0 bg-green-500 right-0">1</div>
       </div>

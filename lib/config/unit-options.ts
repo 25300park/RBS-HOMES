@@ -21,6 +21,19 @@ export const petPolicyOption = [
   { label: "Not allowed", value: "Not allowed" },
 ];
 
+export const sellTypeOption = [
+  { label: "No Preference", value: "none" },
+  { label: "Rent", value: "Rent" },
+  { label: "Buy", value: "Buy" },
+];
+export const typeOption = [
+  { label: "No Preference", value: "none" },
+  { label: "Condo", value: "Condo" },
+  { label: "Village", value: "Village" },
+  { label: "Apartment", value: "Apartment" },
+  { label: "Land", value: "Land" },
+];
+
 export const citiesWithRange = {
   manila: {
     name: "Manila",
@@ -72,3 +85,18 @@ export const citiesWithRange = {
     ],
   },
 };
+
+ export const LocationWithCites = {
+  "Metro Manila": ["Quezon City", "Makati", "Taguig", "Manila", "Mandaluyong", "Muntinlupa", "San Juan", "Las Piñas", "Parañaque", "Pasig"],
+  "Cebu": ["Cebu", "Lapu-Lapu", "Mandaue", "Naga", "Talisay", "Liloan", "Consolacion", "Minglanilla", "Compostela", "Cordova"],
+  "Cavite": ["Tagaytay", "Imus", "Dasmariñas", "Bacoor", "Alfonso", "General Trias", "Tanza", "Silang", "Carmona", "Naic"],
+  "Laguna": ["Santa Rosa", "Los Baños", "Calamba", "San Pedro", "Biñan", "Cabuyao"],
+  "Rizal": ["Antipolo", "Taytay", "Cainta"],
+  "Davao del Sur": ["Davao"],
+  "Pampanga": ["Angeles", "San Fernando", "Mexico", "Mabalacat", "Porac", "Bacolor"],
+  "Iloilo": ["Iloilo", "Pavia"],
+  "Batangas": ["Santo Tomas", "Batangas City", "Lipa", "Nasugbu", "San Juan", "Talisay"],
+  "Bulacan": ["San Jose del Monte", "Meycauayan", "Malolos"],
+  "Misamis Oriental": ["Cagayan de Oro"],
+  "Negros Oriental": ["Dumaguete", "Valencia", "Bacong", "Sibulan", "Bayawan"]
+}

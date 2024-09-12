@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import SearchInput from "@/components/ui/search-input";
 import { useState } from "react";
 
 export interface MainSearchBarProps {
@@ -50,35 +51,13 @@ const MainSearchBar = ({
       </div>
 
       {/* Search Input */}
-      <div
-        className={`search-container ${
-          searchInputActive ? "p-4 shadow-xl" : ""
-        } w-full transition-all duration-300 bg-white rounded-lg`}
-      >
-        <div className="location-container border rounded-lg bg-[#f2f2f2] flex items-center">
-          <div
-            className="h-full w-[20%] px-6 border-r-2 cursor-pointer"
-            onClick={handleLocationClick}
-          >
-            location
-          </div>
-          <Input
-            type="text"
-            placeholder={`Search for ${
-              activeTab === "rent" ? "rental" : "buy"
-            } properties`}
-            className="w-full p-2 py-6 focus-visible:ring-0 border-none shadow-none text-md bg-[#f2f2f2]"
-            onFocus={handleFocus}
-          />
-        </div>
-        <div
-          className={`${
-            searchInputActive ? "block" : "hidden"
-          } min-h-64 my-4 border-t p-4 h-full rounded-b-lg`}
-        >
-          {locationActive ? "Location-based content" : "General content"}
-        </div>
-      </div>
+      <SearchInput
+        searchInputActive={searchInputActive}
+        handleLocationClick={handleLocationClick}
+        activeTab={activeTab}
+        handleFocus={handleFocus}
+        locationActive={locationActive}
+      />
     </div>
   );
 };

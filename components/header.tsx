@@ -9,8 +9,8 @@ import { Button } from "./ui/button";
 // 세션 종료
 export interface HeaderProps {}
 const NavLinks = [
-  { title: "rent", href: "/rent" },
-  { title: "buy", href: "/buy" },
+  { title: "rent", href: "/unit/rent" },
+  { title: "buy", href: "/unit/buy" },
   // { title: "rent", href: "/rent" },
   { title: "sell", href: "/sell", auth: true },
   { title: "map", href: "/map" },
@@ -47,7 +47,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
         className={`fixed top-0 w-full transition-all duration-300 bg-white ${
           navbarScrolled
             ? "h-16 shadow-lg"
-            : "h-20 bg-transparent"
+            : "h-20 bg-transparent shadow-sm"
         } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">

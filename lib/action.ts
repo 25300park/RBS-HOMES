@@ -167,6 +167,8 @@ export const getUnitList = async (searchParams: Record<string, string>): Promise
 
 
 export const getUnitCount = async (searchParams: Record<string, string>): Promise<number> => {
+  const sellType = searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+  const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking ? parseInt(searchParams.parking) : undefined;
@@ -178,8 +180,6 @@ export const getUnitCount = async (searchParams: Record<string, string>): Promis
   const furniture = searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
-
-  // Price and Rent filters
   const priceFilter = priceMin !== undefined || priceMax !== undefined
     ? [
         {
@@ -208,6 +208,8 @@ export const getUnitCount = async (searchParams: Record<string, string>): Promis
   // 유닛의 개수를 카운트하는 함수
   const count = await prisma.unit.count({
     where: {
+      sellType: sellType ? { equals: sellType } : undefined,
+      type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
       parking: parking ? { gte: parking } : undefined,
