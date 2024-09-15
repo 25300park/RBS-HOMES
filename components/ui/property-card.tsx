@@ -15,6 +15,7 @@ export interface PropertyCardProps {
   sellType: string;
   bed: number;
   bath: number;
+  onClick?: (event: Event) => void;
 }
 
 const PropertyCard = ({
@@ -27,7 +28,8 @@ const PropertyCard = ({
   isVip = false,
   bed = 1,
   bath = 1,
-  sellType
+  sellType,
+  onClick,
 }: PropertyCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
 

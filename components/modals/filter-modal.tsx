@@ -40,7 +40,7 @@ interface Filters {
 
 interface FilterModalProps {
   onClose: () => void;
-  modalProps?: { withSellType: boolean; withType: boolean };
+  modalProps?: { withSellType: boolean; withType: boolean; sellType?: string;  };
 }
 
 const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {

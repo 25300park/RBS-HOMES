@@ -24,7 +24,7 @@ export const petPolicyOption = [
 export const sellTypeOption = [
   { label: "No Preference", value: "none" },
   { label: "Rent", value: "Rent" },
-  { label: "Buy", value: "Buy" },
+  { label: "Buy", value: "Sale" },
 ];
 export const typeOption = [
   { label: "No Preference", value: "none" },

@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useModalStore } from "@/store/use-modal-store";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 
 // 세션 종료
-export interface HeaderProps {}
+export interface HeaderProps {
+  session: any;
+}
+
 const NavLinks = [
   { title: "rent", href: "/unit/rent" },
   { title: "buy", href: "/unit/buy" },
@@ -16,9 +19,8 @@ const NavLinks = [
   { title: "map", href: "/map" },
 ];
 
-const Header = ({}: HeaderProps): React.ReactNode => {
+const Header = ({ session }: HeaderProps): React.ReactNode => {
   const { openModal } = useModalStore();
-  const { data: session, status } = useSession();
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
@@ -45,13 +47,14 @@ const Header = ({}: HeaderProps): React.ReactNode => {
     <header className="h-20">
       <nav
         className={`fixed top-0 w-full transition-all duration-300 bg-white ${
-          navbarScrolled
-            ? "h-16 shadow-lg"
-            : "h-20 bg-transparent shadow-sm"
+          navbarScrolled ? "h-16 shadow-lg" : "h-20 bg-transparent shadow-sm"
         } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">
-          <Link className="mr-16" href={"/"}> 로고 </Link>
+          <Link className="mr-16" href={"/"}>
+            {" "}
+            로고{" "}
+          </Link>
 
           {NavLinks.map((link) => (
             <Link key={link.title} href={link.href}>
@@ -66,9 +69,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
           ))}
         </div>
         <div>
-          {status === "loading" ? (
-            <div>로딩</div>
-          ) : status === "unauthenticated" ? (
+       { session === null ? (
             <>
               <Button
                 variant={"ghost"}
@@ -90,14 +91,16 @@ const Header = ({}: HeaderProps): React.ReactNode => {
             </>
           ) : (
             <>
-              <Button
-                variant={"ghost"}
-                size={"lg"}
-                className="text-md text-[#6f6f6f]"
-                onClick={() => {}}
-              >
-                MY PAGE
-              </Button>
+              <Link href={'/account'}>
+                <Button
+                  variant={"ghost"}
+                  size={"lg"}
+                  className="text-md text-[#6f6f6f]"
+                  onClick={() => {}}
+                >
+                  MY ACCOUNT
+                </Button>
+              </Link>
               <span className="text-zinc-200 mx-3">|</span>
               <Button
                 variant={"ghost"}

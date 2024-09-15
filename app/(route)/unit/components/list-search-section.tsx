@@ -2,16 +2,13 @@
 
 import { useRef, useEffect, useState } from "react";
 import SearchInput from "@/components/ui/search-input";
-import { useModalStore } from "@/store/use-modal-store";
-import { usePathname, useRouter } from "next/navigation";
+import FilterButton from "@/components/ui/filter-btn";
+import FilterResetButton from "@/components/ui/filter-reset-btn";
 
 const ListSearchSection = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const path = usePathname();
   const [searchInputActive, setSearchInputActive] = useState(false);
   const [locationActive, setLocationActive] = useState(false);
-  const { openModal } = useModalStore();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,9 +38,6 @@ const ListSearchSection = () => {
     setLocationActive(true);
   };
 
-  const resetFilters = () => {
-    router.push(`${path}`);
-  };
   return (
     <>
       <div className="relative my-6 w-full">
@@ -56,16 +50,9 @@ const ListSearchSection = () => {
           />
         </section>
         <section className="pt-16">
-          <div
-            onClick={() =>
-              openModal("filter", { withSellType: true, withType: true })
-            }
-          >
-            필터
-          </div>
-          <div onClick={resetFilters} className="cursor-pointer">
-            Reset Filters
-          </div>
+          <FilterButton withSellType withType />
+          <FilterResetButton />
+          <div>맵전환 버튼</div>
         </section>
       </div>
     </>

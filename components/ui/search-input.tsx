@@ -45,7 +45,7 @@ const SearchInput = ({
           searchInputActive ? "block" : "hidden"
         } min-h-64 my-4 border-t p-4 h-full rounded-b-lg`}
       >
-        {locationActive ? "Location-based content" : "General content"}
+        {locationActive ? "Location-based content 검색은 어떻게하나요 ?" : "General content 검색은 어떻게하나요 ?"}
       </div>
     </form>
   );

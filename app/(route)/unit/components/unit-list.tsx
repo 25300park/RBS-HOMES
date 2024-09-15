@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Spinner from "@/components/ui/spinner";
 import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
@@ -37,35 +38,51 @@ interface Unit {
   };
 }
 
-const UnitList: React.FC = () => {
+const UnitList = () => {
   const [units, setUnits] = useState<Unit[]>([]);
+  const [totalUnit, setTotalUnit] = useState();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const { isLoading, startLoading, stopLoading } = useLoading();
+  const searchParams = useSearchParams();
 
-  const fetchUnits = async () => {
+  const fetchUnits = async (reset = false) => {
     startLoading();
     const limit = 10;
+    const query = searchParams.toString();
     try {
-      const response = await fetch(`/api/units?page=${page}&limit=${limit}`);
+      const response = await fetch(
+        `/api/units?page=${page}&limit=${limit}&${query}`
+      );
       const data = await response.json();
 
-      setUnits((prevUnits) => [...prevUnits, ...data.units]);
+      if (reset) {
+        setUnits(data.units); // 필터 변경 시 기존 데이터를 덮어씀
+      } else {
+        setUnits((prevUnits) => [...prevUnits, ...data.units]); // 스크롤 시 데이터 추가
+      }
+      setTotalUnit(data.total);
       setHasMore(
         data.units.length > 0 && units.length + data.units.length < data.total
       );
-
-      setTimeout(() => {
-        stopLoading();
-      }, 500); // 500ms 딜레이
     } catch (error) {
       console.error("Error fetching units:", error);
-      stopLoading(); // 오류 발생 시 즉시 로딩 종료
+    } finally {
+      setTimeout(stopLoading, 900);
     }
   };
 
+  // 필터 변경 시 동작
   useEffect(() => {
-    fetchUnits();
+    setPage(1); // 페이지 초기화
+    fetchUnits(true); // 필터 변경 시 기존 데이터 초기화
+  }, [searchParams]);
+
+  // 페이지 변경(무한 스크롤) 시 동작
+  useEffect(() => {
+    if (page > 1) {
+      fetchUnits(); // 페이지 증가 시 데이터 추가
+    }
   }, [page]);
 
   const { lastElementRef } = useObserver(
@@ -80,8 +97,8 @@ const UnitList: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6">
-      아이콘, 블랙으로 디자인 새롭게
-      <div className="grid grid-cols-2  gap-6">
+      {totalUnit}
+      <div className="grid grid-cols-2 gap-6">
         {units.map((unit, index) => (
           <div
             key={unit.id + Math.random()}

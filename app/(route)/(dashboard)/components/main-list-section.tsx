@@ -1,5 +1,6 @@
 import PropertyCard from "@/components/ui/property-card";
 import { getMainUnitList } from "../action";
+import Link from "next/link";
 
 export interface MainListProps {}
 
@@ -18,21 +19,23 @@ const MainList = async ({}: MainListProps) => {
         ) : (
           <>
             {units.map((card: any, index: number) => (
-              <PropertyCard
-                key={index}
-                title={card.title}
-                price={Number(card.price)}
-                sellType={card.sellType}
-                area={card.area}
-                location={`${card.address2 as string},${
-                  card.address3 as string
-                },${card.address4 as string}`}
-                imageUrl={"/next.svg"}
-                postedDate={"2 days ago"}
-                isVip={true}
-                bed={card.bed as number}
-                bath={card.bath as number}
-              />
+              <Link href={`/unit/detail/${card.id}`}>
+                <PropertyCard
+                  key={index}
+                  title={card.title}
+                  price={Number(card.price)}
+                  sellType={card.sellType}
+                  area={card.area}
+                  location={`${card.address2 as string},${
+                    card.address3 as string
+                  },${card.address4 as string}`}
+                  imageUrl={"/next.svg"}
+                  postedDate={"2 days ago"}
+                  isVip={true}
+                  bed={card.bed as number}
+                  bath={card.bath as number}
+                />
+              </Link>
             ))}
           </>
         )}

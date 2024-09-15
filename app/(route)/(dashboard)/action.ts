@@ -5,7 +5,7 @@ import { Unit } from "@prisma/client";
 
 export const getMainUnitList = async (): Promise<any> => {
   const units = await prisma.unit.findMany({
-    take : 16,
+    take : 8,
   });
   // const formattedUnits: Unit[] = units.map((unit:any) => ({
   //   ...unit,

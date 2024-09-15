@@ -1,6 +1,7 @@
 import { getUnitsWithAdmin } from "../action";
 import ListSearchSection from "../components/list-search-section";
 import UnitList from "../components/unit-list";
+import UnitListPagination from "../components/unit-list-pagination";
 
 export interface BuyHomeProps {}
 
@@ -10,7 +11,8 @@ const BuyHome = async ({}: BuyHomeProps) => {
   return (
     <section className="max-w-[1140px] mx-auto">
       <ListSearchSection />
-      <UnitList />
+      {/* <UnitList/> */}
+      <UnitListPagination />
 
     </section>
   );
