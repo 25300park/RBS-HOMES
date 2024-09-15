@@ -14,7 +14,8 @@ const FavoriteButton = ({ isFavorite, onToggle }: FavoriteButtonProps) => {
   const { openModal } = useModalStore(); // 로그인 모달 열기
 
   const handleFavoriteClick = (e: any) => {
-    e.stopPropagation();
+    e.stopPropagation(); 
+    e.preventDefault(); 
     if (!session) {
       // 비로그인 상태인 경우 로그인 모달을 열기
       openModal("login");

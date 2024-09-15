@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/spinner";
 import { useLoading } from "@/hooks/use-loading";
 import UnitCard from "./unit-card";
 import Pagination from "@/components/ui/pagination";
+import Link from "next/link";
 
 interface Unit {
   id: number;
@@ -89,9 +90,9 @@ const UnitListPagination = () => {
       ) : (
         <div className="grid grid-cols-2 gap-6">
           {units.map((unit) => (
-            <div key={unit.id}>
+            <Link key={unit.id} href={`/unit/detail/${unit.id}`}>
               <UnitCard unit={unit} />
-            </div>
+            </Link>
           ))}
         </div>
       )}

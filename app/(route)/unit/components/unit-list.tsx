@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams,useRouter } from "next/navigation";
 import Spinner from "@/components/ui/spinner";
 import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
@@ -45,7 +45,7 @@ const UnitList = () => {
   const [hasMore, setHasMore] = useState(true);
   const { isLoading, startLoading, stopLoading } = useLoading();
   const searchParams = useSearchParams();
-
+  const router = useRouter();
   const fetchUnits = async (reset = false) => {
     startLoading();
     const limit = 10;
@@ -103,6 +103,7 @@ const UnitList = () => {
           <div
             key={unit.id + Math.random()}
             ref={units.length === index + 1 ? lastElementRef : null}
+            onClick={() => router.push(`/unit/detail/${unit.id}`)}
           >
             <UnitCard unit={unit} />
           </div>

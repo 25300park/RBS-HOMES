@@ -1,15 +1,14 @@
-import { getUnitsWithAdmin } from "../action";
 import ListSearchSection from "../components/list-search-section";
-import UnitList from "../components/unit-list";
 import UnitListPagination from "../components/unit-list-pagination";
 
 export interface BuyHomeProps {}
 
 
 const BuyHome = async ({}: BuyHomeProps) => {
-  // const units = await getUnitsWithAdmin();
   return (
     <section className="max-w-[1140px] mx-auto">
+  RENT 는 무한스크롤 버전, 여긴 페이지네이션 버전
+
       <ListSearchSection />
       {/* <UnitList/> */}
       <UnitListPagination />

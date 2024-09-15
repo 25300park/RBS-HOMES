@@ -16,7 +16,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
       <div className="flex space-x-8">
         {/* Left Section - Property Info and Slider */}
         <div className="flex-1 space-y-8">
-          <div className="w-[800px]">
+          <div className="w-[900px]">
             <ThumbSlider imageUrls={property.images} /> {/* 이미지 슬라이더 */}
           </div>
           <PropertyInfo property={property} /> {/* 유닛의 상세 정보 */}
@@ -25,14 +25,14 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
             longitude={property.longitude}
           />
           {/* 유닛 위치 지도 */}
-          <NearbyPlaces
+          {/* <NearbyPlaces
             latitude={property.latitude}
             longitude={property.longitude}
-          />
+          /> */}
         </div>
 
         {/* Right Section - Admin Info (Sticky) */}
-        <div className="w-[270px]">
+        <div className="w-full">
           <AdminInfo admin={property.admin} />
         </div>
       </div>

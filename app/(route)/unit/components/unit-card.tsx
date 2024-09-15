@@ -2,6 +2,8 @@
 
 import FavoriteButton from "@/components/favorite-button";
 import { useState } from "react";
+import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
+import { FaRegUser } from "react-icons/fa";
 
 interface UnitCardProps {
   unit: {
@@ -47,8 +49,7 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
           <div className="text-zinc-400 font-extralight text-sm">{note}</div>
           <div className="flex justify-between md:block mt-4">
             <div className=" font-bold text-2xl mb-1">
-              {/* text-[#0CB8C5] */}
-              ₱ {price?.toLocaleString()}
+              {/* text-[#0CB8C5] */}₱ {price?.toLocaleString()}
             </div>
             <div className="text-gray-500 text-sm flex gap-6">
               <div className="flex items-center gap-2">
@@ -83,13 +84,12 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
         </div>
         <div className="flex items-center justify-between border-t px-4 py-3">
           <div className="flex items-center gap-2">
-            <img
-              src={admin.image || "/assets/images/default-avatar.png"}
-              width={36}
-              height={36}
-              alt={admin.name || "Admin"}
-              className="rounded-full border"
-            />
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={`${admin.image}`} />
+              <AvatarFallback>
+                <FaRegUser className="text-2xl" />
+              </AvatarFallback>
+            </Avatar>
             <div>
               <p>{admin.name}</p>
               <p className="text-gray-500 text-xs">

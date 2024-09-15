@@ -19,9 +19,8 @@ const MainList = async ({}: MainListProps) => {
         ) : (
           <>
             {units.map((card: any, index: number) => (
-              <Link href={`/unit/detail/${card.id}`}>
+              <Link href={`/unit/detail/${card.id}`} key={index}>
                 <PropertyCard
-                  key={index}
                   title={card.title}
                   price={Number(card.price)}
                   sellType={card.sellType}
