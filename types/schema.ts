@@ -49,3 +49,25 @@ export type SessionPayload = {
   user_id: string | number;
   expires_at: Date;
 };
+
+
+export const stepOneSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters long"),
+  ownerName: z.string().min(3, "Owner's name must be at least 3 characters long"),
+  // location: z.string().min(5, "Location must be at least 5 characters long"),
+  // description: z.string().min(10, "Description must be at least 10 characters long"),
+  price: z.number().min(1, "Price must be a positive number"),
+  saleType: z.string().min(1, "Sale type must be specified"),
+  unitType: z.string().min(1, "Unit type must be specified"),
+});
+
+// Validation schema for Step 2
+export const stepTwoSchema = z.object({
+  bed: z.number().min(1, "At least 1 bedroom is required"), 
+  bath: z.number().min(1, "At least 1 bathroom is required"), 
+  parking: z.number().min(0, "Parking space must be a non-negative number"),
+  furniture: z.string().min(1, "Furniture information is required"),
+  interiored: z.string().min(1, "Interior status is required"), 
+  petPolicy: z.string().min(1, "Pet policy is required"),
+  // amenity: z.array(z.string()).min(1, "At least one amenity must be selected"), 
+});

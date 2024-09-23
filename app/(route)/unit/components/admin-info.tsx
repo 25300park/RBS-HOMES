@@ -22,7 +22,7 @@ const AdminInfo: React.FC<AdminInfoProps> = ({ admin }) => {
           </AvatarFallback>
         </Avatar>
       </div>
-      전체 디자인 필요
+       상세페이지 전체 디자인 확인 필요// 내주변 추가 및 관련 상품(조건을 어떻게 할 것인가) 조회수 ? 등체크
       <div className="p-6 pt-2">
         <p className="mb-2">
           <strong className="text-gray-600">Name: </strong>{" "}

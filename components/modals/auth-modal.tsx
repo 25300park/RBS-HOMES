@@ -33,7 +33,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
         signIn("credentials", {
           email: state.email,
           password: state.password,
-          redirect: false,
+          redirect: true,
         })
           .then((result) => {
             if (!result?.error) {
@@ -51,7 +51,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
   // 구글 로그인 처리 및 토스트 메시지 띄우기
   const handleGoogleSignIn = async () => {
-    const result = await signIn("google", { redirect: false });
+    const result = await signIn("google", { redirect: true });
     if (!result?.error) {
       toast({
         description: "Google login successful!",

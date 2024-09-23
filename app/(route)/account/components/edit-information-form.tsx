@@ -27,6 +27,7 @@ const EditInformationForm = ({
   return (
     <form>
       {/* Personal Information */}
+   휴대폰 인증방법 , 기타 필수 입력부분 신청후 관리자에서 승인 시 매물등록이 가능한 단계로 변경 ?
       <section className="my-8">
         <h2 className="text-xl font-bold mb-4">Personal Information</h2>
         <div className="flex justify-center my-8">
@@ -99,76 +100,7 @@ const EditInformationForm = ({
         </div>
       </section>
 
-      {/* Invoice Information */}
-      <section className=" py-8 border-t">
-        <h2 className="text-xl font-bold mb-4">Invoice Information</h2>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* Buyer Name */}
-          <div>
-            <label className="block text-sm mb-1 text-gray-700">
-              Buyer Name
-            </label>
-            <Input
-              type="text"
-              placeholder="Enter buyer's name"
-              value={buyerName}
-              onChange={(e) => setBuyerName(e.target.value)}
-            />
-          </div>
-
-          {/* Email for Invoice */}
-          <div>
-            <label className="block text-sm mb-1 text-gray-700">
-              Email for Invoice
-            </label>
-            <Input
-              type="email"
-              placeholder="Enter invoice email"
-              value={invoiceEmail}
-              onChange={(e) => setInvoiceEmail(e.target.value)}
-            />
-          </div>
-
-          {/* Company Name */}
-          <div>
-            <label className="block text-sm mb-1 text-gray-700">
-              Company Name
-            </label>
-            <Input
-              type="text"
-              placeholder="Enter company name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-          </div>
-
-          {/* Tax Code */}
-          <div>
-            <label className="block text-sm mb-1 text-gray-700">Tax Code</label>
-            <Input
-              type="text"
-              placeholder="e.g., 1234567890 or 1234567890-123"
-              value={invoiceTaxCode}
-              onChange={(e) => setInvoiceTaxCode(e.target.value)}
-            />
-            <p className="text-gray-500 text-sm">
-              Tax code must be 10 or 13 digits
-            </p>
-          </div>
-
-          {/* Address */}
-          <div className="col-span-2">
-            <label className="block text-sm mb-1 text-gray-700">Address</label>
-            <Input
-              type="text"
-              placeholder="Enter your address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          </div>
-        </div>
-      </section>
       {/* Save Changes Button */}
       <div className="flex justify-end">
         <Button
@@ -183,3 +115,75 @@ const EditInformationForm = ({
 };
 
 export default EditInformationForm;
+
+
+      // {/* Invoice Information */}
+      // <section className=" py-8 border-t">
+      //   <h2 className="text-xl font-bold mb-4">Invoice Information</h2>
+
+      //   <div className="grid grid-cols-2 gap-6">
+      //     {/* Buyer Name */}
+      //     <div>
+      //       <label className="block text-sm mb-1 text-gray-700">
+      //         Buyer Name
+      //       </label>
+      //       <Input
+      //         type="text"
+      //         placeholder="Enter buyer's name"
+      //         value={buyerName}
+      //         onChange={(e) => setBuyerName(e.target.value)}
+      //       />
+      //     </div>
+
+      //     {/* Email for Invoice */}
+      //     <div>
+      //       <label className="block text-sm mb-1 text-gray-700">
+      //         Email for Invoice
+      //       </label>
+      //       <Input
+      //         type="email"
+      //         placeholder="Enter invoice email"
+      //         value={invoiceEmail}
+      //         onChange={(e) => setInvoiceEmail(e.target.value)}
+      //       />
+      //     </div>
+
+      //     {/* Company Name */}
+      //     <div>
+      //       <label className="block text-sm mb-1 text-gray-700">
+      //         Company Name
+      //       </label>
+      //       <Input
+      //         type="text"
+      //         placeholder="Enter company name"
+      //         value={companyName}
+      //         onChange={(e) => setCompanyName(e.target.value)}
+      //       />
+      //     </div>
+
+      //     {/* Tax Code */}
+      //     <div>
+      //       <label className="block text-sm mb-1 text-gray-700">Tax Code</label>
+      //       <Input
+      //         type="text"
+      //         placeholder="e.g., 1234567890 or 1234567890-123"
+      //         value={invoiceTaxCode}
+      //         onChange={(e) => setInvoiceTaxCode(e.target.value)}
+      //       />
+      //       <p className="text-gray-500 text-sm">
+      //         Tax code must be 10 or 13 digits
+      //       </p>
+      //     </div>
+
+      //     {/* Address */}
+      //     <div className="col-span-2">
+      //       <label className="block text-sm mb-1 text-gray-700">Address</label>
+      //       <Input
+      //         type="text"
+      //         placeholder="Enter your address"
+      //         value={address}
+      //         onChange={(e) => setAddress(e.target.value)}
+      //       />
+      //     </div>
+      //   </div>
+      // </section>

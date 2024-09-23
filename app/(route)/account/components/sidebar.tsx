@@ -23,7 +23,6 @@ export default function Sidebar({ session }: SidebarProps) {
       router.push(link);
     }
   };
-  console.log(pathname + "?" + searchParams);
   const isActiveCheck = (isTab: boolean, link: string) => {
     if (isTab) {
       return pathname + "?" + searchParams === link;
@@ -32,11 +31,11 @@ export default function Sidebar({ session }: SidebarProps) {
     }
   };
   return (
-    <aside className="h-[calc(100vh-5rem)] w-64 bg-white shadow-lg border-r">
+    <aside className="h-[calc(100vh-5rem)] w-64 bg-white shadow-sm">
       <div className="flex flex-col h-full">
         {/* 유저 간단 프로필 */}
         <div className="flex justify-start w-full gap-2 py-6 px-4">
-          <Avatar className="w-16 h-16 cursor-pointer border">
+          <Avatar className="w-16 h-16 cursor-pointer">
             <AvatarImage src={session.user.image} />
             <AvatarFallback>
               <FaRegUser className="text-3xl" />

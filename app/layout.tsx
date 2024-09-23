@@ -28,9 +28,9 @@ export default async function RootLayout({
       <body className={inter.className}>
         <AuthProvider session={session}>
           <ModalProvider />
-          <Toaster />
           {children}
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

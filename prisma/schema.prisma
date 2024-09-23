@@ -97,7 +97,7 @@ model Unit {
   title              String   @db.VarChar(500) // 유닛의 제목
   type               String   // 유닛의 타입 (예: 아파트, 빌라 등)
   sellType           String   // 판매 유형 (예: 매매, 임대 등)
-  address1           Int      // 우편번호
+  address1           Int?      // 우편번호
   address2           String?  @db.VarChar(200) // 도시
   address3           String?  @db.VarChar(200) // 상세주소 (예: 도로명, 건물명 등)
   address4           String?  @db.VarChar(200) // 추가 주소 정보 (예: 아파트 동, 호수 등)
@@ -119,7 +119,7 @@ model Unit {
   priceRent          Decimal? @db.Decimal(18, 2) // 렌트시 가격
   note               String?  @db.Text // 추가 메모
   requested          String?  @db.Text // 요청 사항
-  images             Json?    // 이미지 정보 (최대 9장)
+  images             Json?    // 이미지 정보
   mapinfo            String?  @db.VarChar(500) // 지도 정보 (위치 관련 정보)
   status             Int      @default(0) // 유닛 상태 (예: 활성화, 비활성화)
   lastUpdate         DateTime @default(now()) // 마지막 업데이트 시간

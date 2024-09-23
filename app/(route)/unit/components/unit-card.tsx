@@ -34,7 +34,7 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
   };
 
   return (
-    <div className="bg-white  overflow-hidden border shadow-sm rounded-sm">
+    <div className="bg-white  overflow-hidden border shadow-sm rounded-sm cursor-pointer">
       <div className="relative h-64">
         <img
           src={"/assets/images/cardtest.png"}

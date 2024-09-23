@@ -10,7 +10,7 @@ const MainList = async ({}: MainListProps) => {
   return (
     <section className="max-w-[1140px] mx-auto py-12">
       <div>
-        <h3>Recomment For you</h3>
+        <h3>Recomment For you 메인화면 디자인민 컨텐츠 정리, 광고 유무체크</h3>
         <h4>Listings we think you’ll love.</h4>
       </div>
       <div className="grid grid-cols-4 gap-8">
