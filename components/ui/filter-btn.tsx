@@ -8,7 +8,7 @@ import { Button } from "./button";
 // 필터 설정을 위한 인터페이스
 interface Filters {
   type: string;
-  sellType: string;
+  // sellType: string;
   bed: string;
   bath: string;
   parking: string;
@@ -25,9 +25,10 @@ interface Filters {
 export interface FilterButtonProps {
   withType?: boolean;
   withSellType?: boolean;
+  sellType?: string;
 }
 
-const FilterButton = ({ withSellType = false, withType = false }: FilterButtonProps) => {
+const FilterButton = ({ withSellType = false, withType = false, sellType }: FilterButtonProps) => {
   const { openModal } = useModalStore();
   const searchParams = useSearchParams();
   const [activeFilterCount, setActiveFilterCount] = useState(0);
@@ -35,7 +36,7 @@ const FilterButton = ({ withSellType = false, withType = false }: FilterButtonPr
   useEffect(() => {
     const defaultFilters: Filters = {
       type: "none",
-      sellType: "none",
+      // sellType: "none",
       bed: "0",
       bath: "0",
       parking: "0",
@@ -60,7 +61,7 @@ const FilterButton = ({ withSellType = false, withType = false }: FilterButtonPr
   }, [searchParams]);
 
   const openModalHandler = () => {
-    openModal("filter", { withSellType, withType });
+    openModal("filter", { withSellType, withType, sellType });
   };
 
   return <Button onClick={openModalHandler}>필터 버튼 {activeFilterCount}</Button>;

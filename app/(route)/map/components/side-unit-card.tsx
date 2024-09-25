@@ -39,41 +39,38 @@ const SideUnitCard = ({
   return (
     <article
       onClick={onClick}
-      className="w-full max-w-sm bg-white  overflow-hidden relative cursor-pointer group  transition-all duration-300 "
+      className="w-full bg-white  overflow-hidden relative cursor-pointer group  transition-all duration-300 flex gap-2 p-4 border-b"
     >
-      {/* VIP Badge */}
-      {isVip && (
-        <span
+        {/* <span
           className={`absolute top-2 left-2 ${
             sellType === "Rent" ? " bg-yellow-400" : "bg-green-400"
           } text-white text-xs font-bold px-2 py-1 rounded z-20`}
         >
           {sellType}
-        </span>
-      )}
-      <span className="absolute top-2 right-2 z-20">
+        </span> */}
+      {/* <span className="absolute top-2 right-2 z-20">
         <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} />
-      </span>
+      </span> */}
 
       {/* Image */}
-      <div className="relative w-full h-64 rounded-xl">
+      <div className="relative h-[112px] w-[144px]">
         <Image
           src={imageUrl}
           alt={title}
           fill
-          className="object-cover  transition-all duration-300 rounded-xl"
+          className="object-cover  transition-all duration-300 rounded-md"
         />
-        <div className="absolute bottom-0 bg-green-500 right-0">1</div>
+        {/* <div className="absolute bottom-0 bg-green-500 right-0">1</div> */}
       </div>
 
       {/* Content */}
-      <div className=" py-2">
+      <div className=" w-1/2 h-full flex flex-col justify-between">
         <h3 className="text-lg font-semibold truncate">{title}</h3>
         <div className="text-gray-600 text-sm mb-2 ... truncate">
           {location}
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <span className=" text-lg  mr-2">
             ${" "}
             {price?.toLocaleString("en-US", {

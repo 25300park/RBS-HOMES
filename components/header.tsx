@@ -12,8 +12,8 @@ export interface HeaderProps {
 }
 
 const NavLinks = [
-  { title: "rent", href: "/unit/rent" },
-  { title: "buy", href: "/unit/buy" },
+  { title: "rent", href: "/map/rent" },
+  { title: "buy", href: "/map/sale" },
   // { title: "rent", href: "/rent" },
   { title: "sell", href: "/sell", auth: true },
   { title: "map", href: "/map" },

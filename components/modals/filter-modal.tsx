@@ -49,7 +49,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   const pathname = usePathname();
   const [unitCount, setUnitCount] = useState(0);
   const { isLoading, startLoading, stopLoading } = useLoading(); // 로딩 상태
-
+  console.log(modalProps?.sellType)
 
   // 필터 상태 관리
   const [filters, setFilters] = useState<Filters>({
@@ -112,7 +112,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
   const fetchUnitCount = async () => {
     startLoading(); // 로딩 시작
-    const count = await getUnitCount(convertFiltersToRecord(debouncedFilters));
+    const count = await getUnitCount(convertFiltersToRecord(debouncedFilters), modalProps?.sellType);
     setUnitCount(count);
     stopLoading(); // 로딩 종료
   };

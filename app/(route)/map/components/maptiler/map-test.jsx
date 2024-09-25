@@ -10,13 +10,13 @@ import { useMapStore } from '@/store/use-map-store';
 export default function Map({ units }) {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const center = { lng: 121.774, lat: 12.8797 }; // 필리핀 중심 좌표
-  const zoom = 6;
+  const center = { lng: 121.0563, lat: 14.5377 }; // 필리핀 BGC 중심 좌표
+  const zoom = 13;
   const { setMapInstance, setVisibleUnits } = useMapStore();
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
   const bounds = [
-    [114.57, 4.215],  // 남서쪽
-    [127.59, 21.18],  // 북동쪽
+    [114.57, 4.215], // 남서쪽 경계
+    [127.59, 21.18], // 북동쪽 경계
   ];
 
   // 디바운스된 유닛 업데이트 함수
@@ -35,21 +35,23 @@ export default function Map({ units }) {
     if (!map.current) {
       map.current = new maptilersdk.Map({
         container: mapContainer.current,
-        style: maptilersdk.MapStyle.STREETS,
+        style: maptilersdk.MapStyle.STREETS, // 지도 스타일 설정
         center: [center.lng, center.lat],
         zoom: zoom,
         minZoom: 5,
-        maxZoom: 19,
+        maxZoom: 17,
         maxBounds: bounds,
       });
 
+      // 지도의 스타일이 로드되었을 때만 마커 추가
       map.current.on('style.load', () => {
         if (units && units.length > 0) {
           addMarkersAndClusters(map.current, units); // 마커와 클러스터 추가
         }
       });
 
-      map.current.on('moveend', updateVisibleUnits); // 지도 이동 후 유닛 업데이트
+      // 지도 이동 후 유닛 업데이트
+      map.current.on('moveend', updateVisibleUnits);
       setMapInstance(map.current);
     }
   }, [center.lng, center.lat, zoom, updateVisibleUnits, bounds, setMapInstance]);
@@ -58,9 +60,6 @@ export default function Map({ units }) {
   useEffect(() => {
     const updateMapData = async () => {
       setIsLoading(true); // 데이터 변경 시 로딩 시작
-
-      // 스토어의 visibleUnits 초기화
-      setVisibleUnits([]); // 스토어에 저장된 유닛 데이터 초기화
 
       // 'units' 소스가 이미 존재하는지 확인하고, 존재하면 삭제
       if (map.current.getSource('units')) {
@@ -80,7 +79,7 @@ export default function Map({ units }) {
           });
         }
       }
-      updateVisibleUnits()
+      updateVisibleUnits();
       setIsLoading(false); // 로딩 종료
     };
 
@@ -99,3 +98,4 @@ export default function Map({ units }) {
     </div>
   );
 }
+

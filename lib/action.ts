@@ -95,7 +95,7 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
 
 
 //유닛 관련
-export const getUnitList = async (searchParams: Record<string, string>): Promise<any> => {
+export const getUnitList = async (searchParams: Record<string, string>, sellType?: string): Promise<any> => {
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking ? parseInt(searchParams.parking) : undefined;
@@ -136,6 +136,7 @@ export const getUnitList = async (searchParams: Record<string, string>): Promise
   // 유닛 검색
   const data = await prisma.unit.findMany({
     where: {
+      sellType: sellType? sellType: undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
       parking: parking ? { gte: parking } : undefined,
@@ -166,8 +167,7 @@ export const getUnitList = async (searchParams: Record<string, string>): Promise
 };
 
 
-export const getUnitCount = async (searchParams: Record<string, string>): Promise<number> => {
-  const sellType = searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+export const getUnitCount = async (searchParams: Record<string, string>, sellType?: string): Promise<number> => {
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
