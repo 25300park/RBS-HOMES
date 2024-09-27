@@ -17,7 +17,7 @@ export const cities = [
 ];
 
 export const furnitureOptions = [
-  { label: "No Preference", value: "none" },
+  { label: "Any", value: "none" },
   { label: "Fully Furnished", value: "fully" },
   { label: "Semi-Furnished", value: "semi" },
   { label: "Unfurnished", value: "unfurnished" },
@@ -56,19 +56,19 @@ export const floorOption = [
 ];
 
 export const petPolicyOption = [
-  { label: "No Preference", value: "none" },
+  { label: "Any", value: "none" },
   { label: "Allow", value: "Allow" },
   { label: "Small Only", value: "Small Only" },
   { label: "Not allowed", value: "Not allowed" },
 ];
 
 export const sellTypeOption = [
-  { label: "No Preference", value: "none" },
-  { label: "Rent", value: "Rent" },
-  { label: "Buy", value: "Sale" },
+  { label: "Any", value: "none" },
+  { label: "Rent", value: "rent" },
+  { label: "Buy", value: "sale" },
 ];
 export const typeOption: typeOptionType[] = [
-  { label: "No Preference", value: "none", icon: BsBuildingsFill },
+  { label: "Any", value: "none", icon: BsBuildingsFill },
   { label: "Condo", value: "Condo", icon: BsBuildingsFill },
   { label: "House", value: "House", icon: FaHome },
   { label: "Apartment", value: "Apartment", icon: FaBuilding },

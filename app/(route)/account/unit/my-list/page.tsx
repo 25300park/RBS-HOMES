@@ -1,13 +1,20 @@
 import UnitListPagination from "@/app/(route)/unit/components/unit-list-pagination";
+import { getUnitListById } from "./action";
+import { MapComponent } from "@/app/(route)/map/components/map-component";
 
 export interface MyUnitListProps {
-  
-};
+  searchParams: any;
+}
 
-const MyUnitList = ({  }: MyUnitListProps): React.ReactNode => {
-  return <div>
-    개인이 등록한 유닛 리스트 보여주기 + 수정. 수정은 어떻게 이뤄질것인지 디자인 및 기획 필요
-  </div>
+const MyUnitList = async ({ searchParams }: MyUnitListProps) => {
+  const unitList = await getUnitListById(searchParams);
+  return (
+    <div>
+      <div className="w-full h-full">
+        <MapComponent units={unitList} owner />
+      </div>
+    </div>
+  );
 };
 
 export default MyUnitList;

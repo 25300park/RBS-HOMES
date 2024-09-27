@@ -6,7 +6,6 @@ export interface MapHomeProps {
   searchParams: any;
   params: any;
 }
-
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   const { type } = params;
   if (type !== "rent" && type !== "sale") {

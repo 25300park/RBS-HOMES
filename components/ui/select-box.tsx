@@ -11,6 +11,7 @@ interface SelectionBoxProps {
   onSelect: (value: string) => void;
   className?: string;
   boxClassName?: string;
+  textClassName?: string;
 }
 
 const SelectionBox: React.FC<SelectionBoxProps> = ({
@@ -19,6 +20,7 @@ const SelectionBox: React.FC<SelectionBoxProps> = ({
   onSelect,
   className = "",
   boxClassName = "",
+  textClassName = "",
 }) => {
   return (
     <div className={`flex space-x-4 ${className}`}>
@@ -41,7 +43,9 @@ const SelectionBox: React.FC<SelectionBoxProps> = ({
               {React.createElement(option.icon)} {/* 아이콘 생성 */}
             </div>
           )}
-          <span className="text-sm font-medium">{option.label}</span>
+          <span className={cn(`text-sm font-medium`, textClassName)}>
+            {option.label}
+          </span>
         </div>
       ))}
     </div>

@@ -1,11 +1,12 @@
 import { getUnitDetail } from "../../action";
 import DetailWrap from "../../components/detail-wrap";
-
+import { sleep } from "@/lib/utils";
 export interface UnitDetailProps {
   params: { id: string };
 }
 
 const UnitDetail = async ({ params }: UnitDetailProps) => {
+  await sleep(2000)
   const unitId = parseInt(params?.id);
 
   if (!unitId || isNaN(unitId)) {

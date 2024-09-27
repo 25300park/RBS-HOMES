@@ -6,7 +6,6 @@ export interface MainListProps {}
 
 const MainList = async ({}: MainListProps) => {
   const { units }: any = await getMainUnitList();
-
   return (
     <section className="max-w-[1140px] mx-auto py-12">
       <div>

@@ -11,13 +11,13 @@ async function main() {
   const sellTypes = ['Rent', 'Sale'];
   const admins = [1, 2, 3]; // 어드민 아이디 배열
   const furnitureOptions = [
-    { label: "No Preference", value: "none" },
+    { label: "Any", value: "none" },
     { label: "Fully Furnished", value: "fully" },
     { label: "Semi-Furnished", value: "semi" },
     { label: "Unfurnished", value: "unfurnished" },
   ];
   const petPolicyOption = [
-    { label: "No Preference", value: "none" },
+    { label: "Any", value: "none" },
     { label: "Allow", value: "Allow" },
     { label: "Small Only", value: "Small Only" },
     { label: "Not allowed", value: "Not allowed" },

@@ -11,10 +11,12 @@ import {
   SelectValue,
 } from "../ui/select";
 import CityImgCard from "../ui/city-img-card";
-import { getUnitCount } from "@/lib/action";
+import { getUnitCount, getUnitCountOwner } from "@/lib/action";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLoading } from "@/hooks/use-loading"; // 로딩 훅
+import SelectionBox from "@/components/ui/select-box";
+
 import {
   cities,
   sellTypeOption,
@@ -40,7 +42,7 @@ interface Filters {
 
 interface FilterModalProps {
   onClose: () => void;
-  modalProps?: { withSellType: boolean; withType: boolean; sellType?: string;  };
+  modalProps?: { withSellType: boolean; withType: boolean; sellType?: string };
 }
 
 const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
@@ -111,7 +113,12 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
   const fetchUnitCount = async () => {
     startLoading(); // 로딩 시작
-    const count = await getUnitCount(convertFiltersToRecord(debouncedFilters), modalProps?.sellType);
+    const count = modalProps?.withSellType
+      ? await getUnitCountOwner(convertFiltersToRecord(debouncedFilters))
+      : await getUnitCount(
+          convertFiltersToRecord(debouncedFilters),
+          modalProps?.sellType
+        );
     setUnitCount(count);
     stopLoading(); // 로딩 종료
   };
@@ -134,56 +141,58 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
       <form className="grid gap-4 py-4">
         {modalProps?.withSellType && (
           <div className="">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-500 mb-1">
               Sell Type
             </label>
-            <Select
-              name="sellType"
-              value={filters.sellType}
-              onValueChange={(e) => updateFilter("sellType", e)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sellTypeOption.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
 
-        {modalProps?.withType && (
-          <div className="">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Property Type
-            </label>
-            <Select
-              name="type"
-              value={filters.type}
-              onValueChange={(e) => updateFilter("type", e)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {typeOption.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SelectionBox
+              className="justify-between space-x-0 flex gap-2"
+              boxClassName="w-full h-12"
+              options={sellTypeOption}
+              selectedValue={filters.sellType}
+              onSelect={(e) => updateFilter("sellType", e)}
+            />
           </div>
         )}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">
+            Property Type
+          </label>
+          <SelectionBox
+            className="justify-between space-x-0 flex gap-2"
+            boxClassName="w-[79px] text-xs h-[75px]"
+            options={typeOption} // 아이콘이 있는 옵션을 전달
+            selectedValue={filters.type}
+            onSelect={(e) => updateFilter("type", e)} // 통합된 핸들러 사용
+            textClassName="text-xs"
+          />
+        </div>
+        {/* <div className="">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Property Type
+          </label>
+          <Select
+            name="type"
+            value={filters.type}
+            onValueChange={(e) => updateFilter("type", e)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {typeOption.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div> */}
         {/* Bed and Bath Selection */}
         <div className="grid grid-cols-1 gap-4">
           {/* Beds */}
           <div className="flex items-center justify-between">
-            <span className="text-sm">Beds</span>
+            <span className="text-sm text-zinc-500">Beds</span>
             <div className="flex items-center space-x-4">
               <button
                 type="button"
@@ -193,9 +202,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
                 -
               </button>
               <span className="text-sm w-40 text-center">
-                {parseInt(filters.bed) === 0
-                  ? "No Preference"
-                  : `${filters.bed}+`}
+                {parseInt(filters.bed) === 0 ? "Any" : `${filters.bed}+`}
               </span>
               <button
                 type="button"
@@ -209,7 +216,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
           {/* Baths */}
           <div className="flex items-center justify-between">
-            <span className="text-sm">Baths</span>
+            <span className="text-sm text-zinc-500">Baths</span>
             <div className="flex items-center space-x-4">
               <button
                 type="button"
@@ -219,9 +226,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
                 -
               </button>
               <span className="text-sm w-40 text-center">
-                {parseInt(filters.bath) === 0
-                  ? "No Preference"
-                  : `${filters.bath}+`}
+                {parseInt(filters.bath) === 0 ? "Any" : `${filters.bath}+`}
               </span>
               <button
                 type="button"
@@ -235,7 +240,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
           {/* Parking */}
           <div className="flex items-center justify-between">
-            <span className="text-sm">Parking</span>
+            <span className="text-sm text-zinc-500">Parking</span>
             <div className="flex items-center space-x-4">
               <button
                 type="button"
@@ -246,7 +251,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
               </button>
               <span className="text-sm w-40 text-center">
                 {parseInt(filters.parking) === 0
-                  ? "No Preference"
+                  ? "Any"
                   : `${filters.parking}+`}
               </span>
               <button
@@ -261,7 +266,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         </div>
         {/* Price Range Filter */}
         <div className="my-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-500 mb-1">
             Price Range
           </label>
           <Slider
@@ -276,17 +281,17 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             step={10000}
           />
           <div className="flex justify-between text-sm mt-2">
-            <span>{filters.priceMin}</span>
-            <span>{filters.priceMax}</span>
+            <span>{Number(filters.priceMin).toLocaleString()}</span>
+            <span>{Number(filters.priceMax).toLocaleString()}</span>
           </div>
         </div>
         {/* Area Range Filter */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-500 mb-1">
             Area Range
           </label>
           <Slider
-            className="w-full"
+            className="w-full bg-orange-300!"
             value={[parseInt(filters.areaMin), parseInt(filters.areaMax)]}
             onValueChange={(values) => {
               updateFilter("areaMin", values[0]);
@@ -359,7 +364,11 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
-        <Button type="button" className="w-full" onClick={applyFilters}>
+        <Button
+          type="button"
+          className="w-full py-6 bg-orange-400 hover:bg-orange-500"
+          onClick={applyFilters}
+        >
           Apply Filters ({isLoading ? "Loading" : unitCount} units available)
         </Button>
       </form>

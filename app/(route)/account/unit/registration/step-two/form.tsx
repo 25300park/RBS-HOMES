@@ -24,7 +24,7 @@ export default function StepTwoForm() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     area: "",
-    floor: "",
+    floor: "1",
     bed: "1",
     bath: "1",
     parking: "0",

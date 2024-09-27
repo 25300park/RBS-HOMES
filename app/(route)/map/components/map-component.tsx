@@ -10,10 +10,11 @@ import FilterButton from "@/components/ui/filter-btn";
 
 interface MapProps {
   units: any[];
-  type: "rent" | "sale";
+  type?: "rent" | "sale";
+  owner? : boolean;
 }
 
-export const MapComponent = ({ units, type }: MapProps) => {
+export const MapComponent = ({ units, type,owner }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const autocompleteRef = useRef<HTMLInputElement>(null); // 검색 인풋 Ref
   const { setLoading, isSidebarOpen } = useMapStore();
@@ -128,7 +129,7 @@ export const MapComponent = ({ units, type }: MapProps) => {
           </button>
         </div>
         <div className="flex gap-2">
-          <FilterButton sellType={type} isActive />
+          <FilterButton sellType={type} isActive withSellType={owner}/>
         </div>
       </div>
 
