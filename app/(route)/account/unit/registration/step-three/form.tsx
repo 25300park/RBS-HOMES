@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import { FaTrash, FaEye } from "react-icons/fa";
-import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
+import { FaTrash } from "react-icons/fa";
 import { SubmitButton } from "@/components/ui/submit-btn";
 import Spinner from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -12,116 +11,181 @@ import { Textarea } from "@/components/ui/textarea";
 import { MdCloudUpload } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 import { useModalStore } from "@/store/use-modal-store";
+import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
 
 export default function StepThreeForm() {
   const router = useRouter();
   const { openModal } = useModalStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    images: [] as File[], // 이미지 파일을 관리하는 배열
-    mainImageIndex: 0, // 메인 이미지 인덱스
-    note: "", // 텍스트 에디터에서 저장할 노트
+    images: [] as {
+      file: File;
+      preview: string;
+      name: string;
+      size: number;
+      url?: string;
+      progress?: number;
+      showProgress: boolean;
+    }[],
+    note: "",
   });
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 상태 관리
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 관리
-  const [errors, setErrors] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const savedData = loadFromLocalStorage("step3");
     if (savedData) {
-      const images = savedData.images.map((imageData: File) => imageData);
-  
+      const { note, images } = savedData;
       setFormData((prev) => ({
         ...prev,
-        images,
+        note: note || "",
+        images:
+          images?.map((img: any) => ({ ...img, showProgress: false })) || [],
       }));
-  
-      // Blob을 사용하여 이미지 미리보기 생성
-      const previews = images.map((file: any) => URL.createObjectURL(file));
-      setImagePreviews(previews);
     }
-    setIsLoading(false); // 로딩 완료 후 상태 업데이트
+    setIsLoading(false);
   }, []);
-  
-  
+
   const formatFileSize = (size: number) => {
-    // 파일 크기를 KB 또는 MB로 변환
     if (size < 1024) return size + " B";
     if (size < 1024 * 1024) return (size / 1024).toFixed(2) + " KB";
     return (size / (1024 * 1024)).toFixed(2) + " MB";
   };
 
-  const onDrop = (acceptedFiles: File[]) => {
-    // 허용된 파일 확장자
-    const validFileTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const uploadToS3 = async (files: File[], indices: number[]) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
 
-    const invalidFiles = acceptedFiles.filter(
+    return new Promise<string[]>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/image-upload/unit");
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setFormData((prev) => ({
+            ...prev,
+            images: prev.images.map((img, i) =>
+              indices.includes(i)
+                ? { ...img, progress, showProgress: true }
+                : img
+            ),
+          }));
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.uploadedUrls);
+        } else {
+          reject("Upload failed");
+        }
+      };
+
+      xhr.onerror = () => reject("Upload failed");
+      xhr.send(formData);
+    });
+  };
+
+  const onDrop = async (acceptedFiles: File[]) => {
+    const validFileTypes = ["image/png", "image/jpeg", "image/jpg"];
+    const currentFileNames = formData.images.map((img) => img.name);
+    const uniqueFiles = acceptedFiles.filter(
       (file) =>
-        !validFileTypes.includes(file.type) || file.size > 2 * 1024 * 1024
+        validFileTypes.includes(file.type) &&
+        file.size <= 2 * 1024 * 1024 &&
+        !currentFileNames.includes(file.name)
     );
 
-    // 조건에 맞지 않는 파일에 대해 알림
-    if (invalidFiles.length > 0) {
-      invalidFiles.forEach((file) => {
-        if (!validFileTypes.includes(file.type)) {
-          toast({
-            title: "File type not supported",
-            variant: "default",
-            description: `${file.name} is not a valid file type. Only PNG and JPG files are allowed.`,
-          });
-        } else if (file.size > 2 * 1024 * 1024) {
-          toast({
-            title: "File size exceeds",
-            variant: "default",
-            description: `${file.name} exceeds the 2MB size limit.`,
-          });
-        }
+    if (uniqueFiles.length < acceptedFiles.length) {
+      toast({
+        title: "Duplicate or invalid files",
+        description:
+          "Some files were either duplicates or exceeded size/type limits.",
       });
-      return; // 유효하지 않은 파일이 있을 때 처리를 중단
     }
 
-    // 유효한 파일들만 처리
-    const validImages = acceptedFiles.filter(
-      (file) =>
-        validFileTypes.includes(file.type) && file.size <= 2 * 1024 * 1024
+    const newImages = uniqueFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+      size: file.size,
+      progress: 0,
+      showProgress: true,
+    }));
+
+    const startIndex = formData.images.length;
+    const newImageIndices = Array.from(
+      { length: newImages.length },
+      (_, i) => startIndex + i
     );
 
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...validImages],
+      images: [...prev.images, ...newImages],
     }));
 
-    const previews = validImages.map((file) => URL.createObjectURL(file));
-    setImagePreviews((prevPreviews) => [...prevPreviews, ...previews]);
+    try {
+      const urls = await uploadToS3(uniqueFiles, newImageIndices);
+      setFormData((prev) => ({
+        ...prev,
+        images: prev.images.map((img, index) =>
+          newImageIndices.includes(index)
+            ? {
+                ...img,
+                url: urls[newImageIndices.indexOf(index)],
+                progress: 100,
+              }
+            : img
+        ),
+      }));
+
+      setTimeout(() => {
+        setFormData((prev) => ({
+          ...prev,
+          images: prev.images.map((img, index) =>
+            newImageIndices.includes(index)
+              ? { ...img, showProgress: false }
+              : img
+          ),
+        }));
+      }, 500);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Uploading files failed",
+      });
+    }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { "image/*": [] }, // 드래그 가능한 이미지 타입 제한
+    accept: { "image/*": [] },
     multiple: true,
   });
 
-  // 이미지 제거 핸들러
   const handleRemoveImage = (index: number) => {
-    const updatedImages = [...formData.images];
-    updatedImages.splice(index, 1);
-
-    const updatedPreviews = [...imagePreviews];
-    updatedPreviews.splice(index, 1);
-
     setFormData((prev) => ({
       ...prev,
-      images: updatedImages,
+      images: prev.images.filter((_, i) => i !== index),
     }));
-    setImagePreviews(updatedPreviews);
   };
 
-  // 다음 단계로 이동
   const handleNext = () => {
-    setIsSubmitting(true); // 제출 중 상태로 변경
-    saveToLocalStorage("step3", formData);
+    const dataToSave = {
+      note: formData.note,
+      images: formData.images.map(({ name, size, preview, url }) => ({
+        name,
+        size,
+        preview,
+        url,
+      })),
+    };
+    saveToLocalStorage("step3", dataToSave);
+
+    setIsSubmitting(true);
     setTimeout(() => {
       router.push("/account/unit/registration/review");
     }, 1000);
@@ -129,7 +193,7 @@ export default function StepThreeForm() {
 
   return (
     <div
-      className={`p-6 bg-white  ${
+      className={`p-6 bg-white ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >
@@ -139,15 +203,6 @@ export default function StepThreeForm() {
         </div>
       ) : (
         <>
-          {errors.length > 0 && (
-            <div className="text-red-500 mb-4">
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          )}
-
-          {/* Drag & Drop 영역 */}
           <section className="flex gap-4 h-[500px]">
             <div
               {...getRootProps()}
@@ -156,7 +211,6 @@ export default function StepThreeForm() {
               <MdCloudUpload className="text-6xl text-orange-300" />
               <input {...getInputProps()} />
               <p className="text-2xl">Drag and Drop images here</p>
-              <p className="text-xl text-zinc-500">or</p>
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 className="p-6 bg-orange-400 hover:bg-orange-500"
@@ -165,44 +219,42 @@ export default function StepThreeForm() {
               </Button>
             </div>
 
-            {/* 이미지 미리보기 및 관리 UI */}
-            {imagePreviews.length > 0 && (
+            {formData.images.length > 0 && (
               <div className="w-full use-scroll pb-2">
                 <div className="overflow-y-scroll h-full scrollbar-thumb-gray-400 scrollbar-track-gray-100 pr-4 use-scroll p-4 rounded-md">
-                  <ul className="">
-                    {imagePreviews.map((preview, index) => (
+                  <ul>
+                    {formData.images.map((image, index) => (
                       <li
                         key={index}
-                        className={`flex items-center justify-between py-2 ${
-                          index !== imagePreviews.length - 1
+                        className={`flex relative items-center justify-between py-2 ${
+                          index !== formData.images.length - 1
                             ? "border-b border-zinc-200"
                             : ""
                         }`}
                       >
                         <div className="flex items-center">
                           <img
-                            src={preview}
+                            src={image.url ? image.url : image.preview}
                             alt="preview"
                             className="w-16 h-16 object-cover rounded-md mr-4 cursor-pointer"
                             onClick={() =>
-                              openModal("preview", {
-                                imagePreview: preview,
-                                imageName: formData.images[index].name,
-                                imageSize: formatFileSize(
-                                  formData.images[index].size
-                                ),
-                                imageType: formData.images[index].type,
-                              })
+                              openModal(
+                                "preview",
+                                image.url ? image.url : image.preview
+                              )
                             }
                           />
 
                           <div className="flex flex-col">
-                            <span>{formData.images[index].name}</span>
+                            <span className="text-sm text-zinc-500">
+                              {image.name}
+                            </span>
                             <span className="text-gray-500 text-xs">
-                              {formatFileSize(formData.images[index].size)}
+                              {formatFileSize(image.size)}
                             </span>
                           </div>
                         </div>
+
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
@@ -212,6 +264,15 @@ export default function StepThreeForm() {
                             <FaTrash />
                           </Button>
                         </div>
+
+                        {image.showProgress && (
+                          <div className="w-5/6 h-1 bg-gray-300 mt-2 rounded-full absolute bottom-1 right-0">
+                            <div
+                              className="h-full bg-orange-300 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${image.progress}%` }}
+                            />
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -220,7 +281,6 @@ export default function StepThreeForm() {
             )}
           </section>
 
-          {/* Rich Text Editor (노트) */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-medium text-zinc-500">
               Notes

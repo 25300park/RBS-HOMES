@@ -8,7 +8,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions as any);
-
   if (!session) {
     return <p>You need to be logged in to access this page.</p>;
   }

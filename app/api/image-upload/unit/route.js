@@ -1,19 +1,20 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth'; 
+import { authOptions } from "@/lib/auth"; // next-auth 설정 파일 경로에 맞게 변경
 
 const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION as string,
+  region: process.env.NEXT_PUBLIC_AWS_REGION ,
   credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY as string,
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID ,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY ,
   },
 });
 
-export async function POST(req: any) {
+export async function POST(req) {
   try {
     // 세션에서 유저 ID를 가져옴
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: 'User is not authenticated' }, { status: 401 });
     }
@@ -23,7 +24,7 @@ export async function POST(req: any) {
     const files = formData.getAll('files');
 
     const uploadPromises = [];
-    const uploadedUrls: string[] = [];
+    const uploadedUrls = [];
 
     for (const file of files) {
       const arrayBuffer = await file.arrayBuffer();

@@ -4,15 +4,11 @@ import React, { useState } from "react";
 
 interface PreviewModalProps {
   onClose: () => void;
-  modalProps?: {
-    imagePreview: string;
-    imageName: string;
-    imageSize: string;
-    imageType: string;
-  };
+  modalProps?: string;
 }
 
 const PreviewModal: React.FC<PreviewModalProps> = ({ onClose, modalProps }) => {
+  console.log(modalProps)
   const [imageDimensions, setImageDimensions] = useState<{
     width: number;
     height: number;
@@ -29,10 +25,10 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ onClose, modalProps }) => {
   return (
     <div>
       <h3 className="text-xl font-bold mb-4">Preview Image</h3>
-      {modalProps?.imagePreview && (
+    
         <div className="w-full">
           <img
-            src={modalProps.imagePreview}
+            src={modalProps}
             alt="Preview"
             onLoad={handleImageLoad}
             // style={{
@@ -58,7 +54,6 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ onClose, modalProps }) => {
             )}
           </div> */}
         </div>
-      )}
     </div>
   );
 };
