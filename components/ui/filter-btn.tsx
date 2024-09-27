@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useModalStore } from "@/store/use-modal-store";
+import { FaSliders } from "react-icons/fa6";
 import { Button } from "./button";
+import FilterResetButton from "@/components/ui/filter-reset-btn";
 
 // 필터 설정을 위한 인터페이스
 interface Filters {
   type: string;
-  // sellType: string;
+  sellType: string;
   bed: string;
   bath: string;
   parking: string;
@@ -26,46 +28,117 @@ export interface FilterButtonProps {
   withType?: boolean;
   withSellType?: boolean;
   sellType?: string;
+  isActive?: boolean;
 }
 
-const FilterButton = ({ withSellType = false, withType = false, sellType }: FilterButtonProps) => {
+const FilterButton = ({
+  withSellType = false,
+  withType = false,
+  sellType,
+  isActive = false,
+}: FilterButtonProps) => {
   const { openModal } = useModalStore();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeFilterCount, setActiveFilterCount] = useState(0);
+  const [activeFilters, setActiveFilters] = useState<
+    { key: string; value: string }[]
+  >([]);
+
+  const defaultFilters: Filters = {
+    type: "none",
+    sellType: "none",
+    bed: "0",
+    bath: "0",
+    parking: "0",
+    priceMin: "0",
+    priceMax: "1000000",
+    areaMin: "0",
+    areaMax: "500",
+    city: "All Cities",
+    furniture: "none",
+    pet: "none",
+  };
 
   useEffect(() => {
-    const defaultFilters: Filters = {
-      type: "none",
-      // sellType: "none",
-      bed: "0",
-      bath: "0",
-      parking: "0",
-      priceMin: "0",
-      priceMax: "1000000",
-      areaMin: "0",
-      areaMax: "500",
-      city: "All Cities",
-      furniture: "none",
-      pet: "none",
-    };
+    // 활성화된 필터 카운트 계산 및 필터 리스트 업데이트
+    const filters = Array.from(searchParams.entries())
+      .filter(
+        ([key, value]) =>
+          value && value !== defaultFilters[key as keyof Filters]
+      )
+      .map(([key, value]) => ({ key, value })); // [string, string]을 { key, value }로 변환
 
-    // searchParams.entries()로 반복 가능한 형식으로 변환
-    const filterCount = Array.from(searchParams.entries()).reduce((count, [key, value]) => {
-      if (value && value !== defaultFilters[key as keyof Filters]) {
-        return count + 1;
-      }
-      return count;
-    }, 0);
-
-    setActiveFilterCount(filterCount);
+    setActiveFilterCount(filters.length);
+    setActiveFilters(filters); // 활성화된 필터 리스트 저장
   }, [searchParams]);
+
+  // 필터 제거 핸들러
+  const removeFilter = (filterKey: string) => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set(
+      filterKey,
+      defaultFilters[filterKey as keyof Filters] || ""
+    );
+
+    router.push(`?${newSearchParams.toString()}`);
+  };
 
   const openModalHandler = () => {
     openModal("filter", { withSellType, withType, sellType });
   };
 
-  return <Button onClick={openModalHandler}>필터 버튼 {activeFilterCount}</Button>;
+  return (
+    <div className="w-full space-y-4">
+      <div className="flex w-full gap-4">
+        <Button
+          onClick={openModalHandler}
+          className={`${
+            activeFilterCount > 0 ? "border-orange-400 border-2" : "border"
+          } py-5 space-x-3 relative`}
+          variant={"outline"}
+        >
+          <FaSliders className={` text-orange-400`} />
+          <p>Filters</p>
+          {activeFilterCount > 0 && (
+            <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
+              {activeFilterCount}
+            </span>
+          )}
+          {/* {activeFilterCount} */}
+        </Button>
+        <FilterResetButton />
+      </div>
+      {activeFilterCount > 0 && (
+        <div className="pt-4 w-full border-t">
+          {isActive && activeFilters.length > 0 && (
+            <div>
+              <h4 className="mb-4">Active filter list</h4>
+              <div className="grid grid-cols-2 gap-2 ">
+                {activeFilters.map(({ key, value }) => (
+                  <div
+                    key={key}
+                    className="flex items-center rounded-sm border px-3 py-2 justify-between relative"
+                  >
+                    <span className="text-[10px] text-gray-400">
+                      {key.toUpperCase()}
+                    </span>
+                    <span className="text-sm text-gray-600">{value}</span>
+                    <button
+                      onClick={() => removeFilter(key)}
+                      className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
-
 
 export default FilterButton;

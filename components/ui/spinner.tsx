@@ -1,8 +1,18 @@
-import React from 'react';
+import React from "react";
+import { cn } from "@/lib/utils";
 
-const Spinner: React.FC = () => {
+interface SpinnerProps {
+  className?: string;
+}
+
+const Spinner = ({ className }: SpinnerProps) => {
   return (
-    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+    <div
+      className={cn(
+        "animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500",
+        className
+      )}
+    ></div>
   );
 };
 

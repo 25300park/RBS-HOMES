@@ -13,7 +13,7 @@ const FilterResetButton = ({  }: FilterResetButtonProps): React.ReactNode => {
   const resetFilters = () => {
     router.push(`${path}`);
   };
-  return <Button onClick={ resetFilters }>Filter Clear</Button>
+  return <Button onClick={ resetFilters } className="py-5 border-2 border-gray-50 text-gray-400" variant={"ghost"}>Clear all</Button>
 };
 
 export default FilterResetButton;

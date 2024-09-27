@@ -47,7 +47,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
     <header className="h-20">
       <nav
         className={`fixed top-0 w-full transition-all duration-300 bg-white ${
-          navbarScrolled ? "h-16 shadow-lg" : "h-20 bg-transparent shadow-sm"
+          navbarScrolled ? "h-16 shadow-lg" : "h-20 bg-transparent border-b"
         } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">

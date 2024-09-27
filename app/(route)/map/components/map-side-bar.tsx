@@ -12,7 +12,7 @@ import { useLoading } from "@/hooks/use-loading";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"; // 화살표 아이콘
 
 export interface MapSideBarProps {
-  type : "rent" | "sale"
+  type? : "rent" | "sale"
 }
 
 const MapSideBar = ({type}: MapSideBarProps) => {
@@ -90,9 +90,6 @@ const MapSideBar = ({type}: MapSideBarProps) => {
           isSidebarOpen ? "block" : "hidden"
         }`}
       >
-        <FilterButton sellType={type}/>
-        <FilterResetButton />
-
         {/* 금액 정렬 선택 드롭다운 */}
         <div className="p-4">
           <label htmlFor="sortOrder" className="block mb-2 text-sm font-medium">

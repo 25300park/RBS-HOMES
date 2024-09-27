@@ -52,8 +52,8 @@ export type SessionPayload = {
 
 
 export const stepOneSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters long"),
-  ownerName: z.string().min(3, "Owner's name must be at least 3 characters long"),
+  title: z.string().min(3, "Title must be specified"),
+  ownerName: z.string().min(3, "Owner's name must be specified"),
   // location: z.string().min(5, "Location must be at least 5 characters long"),
   // description: z.string().min(10, "Description must be at least 10 characters long"),
   price: z.number().min(1, "Price must be a positive number"),

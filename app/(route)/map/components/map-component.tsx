@@ -5,13 +5,15 @@ import { loadGoogleMapsAPI } from "@/lib/google";
 import { MarkerManager } from "./marker-manager"; // MarkerManager 컴포넌트
 import { useMapStore } from "@/store/use-map-store";
 import { Input } from "@/components/ui/input";
-import { FaSearch } from "react-icons/fa"
+import { FaSearch } from "react-icons/fa";
+import FilterButton from "@/components/ui/filter-btn";
 
 interface MapProps {
   units: any[];
+  type: "rent" | "sale";
 }
 
-export const MapComponent = ({ units }: MapProps) => {
+export const MapComponent = ({ units, type }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const autocompleteRef = useRef<HTMLInputElement>(null); // 검색 인풋 Ref
   const { setLoading, isSidebarOpen } = useMapStore();
@@ -24,16 +26,57 @@ export const MapComponent = ({ units }: MapProps) => {
         { lat: 21.18, lng: 127.59 } // 필리핀 경계
       );
 
+      const mapStyle = [
+        {
+          featureType: "poi.business", // 상가 정보 삭제
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "transit", // 교통 정보 삭제
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "poi", // 모든 POI
+          elementType: "labels", // 레이블을 숨김
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "poi.business", // 상가 정보 숨김
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "poi.school", // 학교 정보 숨김
+          stylers: [{ visibility: "on" }],
+        },
+        {
+          featureType: "poi.government", // 정부 관련 POI 숨김
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "poi.place_of_worship", // 종교 관련 POI 숨김
+          stylers: [{ visibility: "off" }],
+        },
+        {
+          featureType: "poi.park", // 공원 정보만 표시
+          stylers: [{ visibility: "on" }],
+        },
+        {
+          featureType: "transit", // 교통 정보 숨김
+          stylers: [{ visibility: "off" }],
+        },
+      ];
+
       const initializedMap = new google.maps.Map(
         mapRef.current as HTMLDivElement,
         {
-          center: { lat: 14.5377, lng: 121.0563 },
+          center: { lat: 14.5877, lng: 121.0563 },
           zoom: 13,
           minZoom: 5,
           maxZoom: 20,
           disableDefaultUI: true,
           gestureHandling: "greedy",
           zoomControl: true,
+          styles: mapStyle,
           restriction: {
             latLngBounds: bounds,
             strictBounds: true,
@@ -75,14 +118,17 @@ export const MapComponent = ({ units }: MapProps) => {
         <div className="flex items-center mb-2">
           {/* 검색 인풋 필드 */}
           <Input
-            ref={autocompleteRef} 
+            ref={autocompleteRef}
             type="text"
             placeholder="Search area in the Philippines"
-            className="h-8 w-72 px-3 border border-orange-400 rounded-none rounded-l-sm  focus:outline-none focus-visible:ring-0"
+            className="h-8 w-72 px-3 py-5  rounded-none rounded-l-sm  focus:outline-none focus-visible:ring-0"
           />
-          <button className="bg-orange-400 h-8 px-3 border border-orange-400 rounded-r-sm flex items-center justify-center">
-          <FaSearch className="text-white"/>
+          <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
+            <FaSearch className="text-white" />
           </button>
+        </div>
+        <div className="flex gap-2">
+          <FilterButton sellType={type} isActive />
         </div>
       </div>
 

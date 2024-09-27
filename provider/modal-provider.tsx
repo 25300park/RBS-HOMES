@@ -4,6 +4,7 @@ import { useModalStore } from "@/store/use-modal-store";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import AuthModal from "@/components/modals/auth-modal";
 import FilterModal from "@/components/modals/filter-modal";
+import PreviewModal from "@/components/modals/preview-modal";
 // import ConfirmModal from "@/components/modals/ConfirmModal";
 // import AlertModal from "@/components/modals/AlertModal";
 
@@ -19,9 +20,9 @@ export const ModalProvider = () => {
     case 'filter':
       content = <FilterModal onClose={closeModal} modalProps={modalProps}/>;
       break;
-    // case 'alert':
-    //   content = <AlertModal message={modalProps.message || "Something happened!"} onClose={closeModal} />;
-    //   break;
+    case 'preview':
+      content = <PreviewModal modalProps={modalProps} onClose={closeModal} />;
+      break;
     default:
       return null;
   }
@@ -29,7 +30,7 @@ export const ModalProvider = () => {
   return (
     <Dialog open={isOpen} onOpenChange={closeModal}>
       <DialogTitle></DialogTitle>
-      <DialogContent className="sm:max-w-[1024px]" >
+      <DialogContent className="" >
         {content}
       </DialogContent>
     </Dialog>

@@ -2,10 +2,10 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 
-const steps = ["step-one", "step-two", "step-three", "review"];
+const steps = ["Basic Info", "Detail", "Images", "Review"];
 const stepRoute = ["step-one", "step-two", "step-three", "review"];
 
 export default function StepNavigation() {
@@ -48,27 +48,57 @@ export default function StepNavigation() {
       router.push(newRoute);
     }
   };
-  
+
   return (
-    <div className="flex justify-center space-x-4 mb-6 ">
+    <div className="flex  justify-center my-10">
       {steps.map((step, index) => (
-        <button
-          key={index}
-          onClick={() => handleStepClick(index)}
-          className={`relative py-2 px-6 rounded-full font-medium text-sm 
+        <div key={index} className="flex items-center">
+          <div
+            onClick={() => handleStepClick(index)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <button
+              className={`relative h-10 w-10 rounded-md font-medium text-md flex items-center justify-center
             ${
-              index === currentStep
-                ? "bg-blue-500 text-white shadow-lg"
+              completedSteps.includes(index)
+                ? "bg-orange-400 text-white shadow-md shadow-orange-200"
                 : "bg-gray-200 text-gray-600"
             }
-            transition duration-300 ease-in-out transform hover:scale-105
           `}
-        >
-          {step}
-          {completedSteps.includes(index) && (
-            <FaCheckCircle className="absolute -top-2 -right-2 text-green-500" />
+            >
+              {completedSteps.includes(index) ? (
+                <div>
+                  <FaCheck />
+                </div>
+              ) : (
+                index + 1
+              )}
+              {/* {completedSteps.includes(index) && (
+              <FaCheckCircle className="absolute -top-2 -right-2 text-green-500" />
+            )} */}
+            </button>
+            <div
+              className={`
+                hover:text-orange-500
+                ${
+                  index === currentStep
+                    ? "text-orange-500" // 완료된 스텝의 라인은 주황색
+                    : "text-gray-300" // 나머지 스텝은 회색 라인
+                }`}
+            >
+              {step}
+            </div>
+          </div>
+          {index < steps.length - 1 && (
+            <div
+              className={`w-10 h-[2px] mx-2 ${
+                completedSteps.includes(index)
+                  ? "bg-orange-500" // 완료된 스텝의 라인은 주황색
+                  : "bg-gray-300" // 나머지 스텝은 회색 라인
+              }`}
+            />
           )}
-        </button>
+        </div>
       ))}
     </div>
   );

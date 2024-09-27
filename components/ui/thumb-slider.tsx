@@ -34,7 +34,7 @@ const ThumbSlider: React.FC<ThumbSliderProps> = ({ imageUrls }) => {
             <img
               src={url}
               alt={`Main Image ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </SwiperSlide>
         ))}

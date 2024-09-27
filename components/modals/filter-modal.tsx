@@ -49,7 +49,6 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   const pathname = usePathname();
   const [unitCount, setUnitCount] = useState(0);
   const { isLoading, startLoading, stopLoading } = useLoading(); // 로딩 상태
-  console.log(modalProps?.sellType)
 
   // 필터 상태 관리
   const [filters, setFilters] = useState<Filters>({

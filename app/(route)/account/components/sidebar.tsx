@@ -31,7 +31,7 @@ export default function Sidebar({ session }: SidebarProps) {
     }
   };
   return (
-    <aside className="h-[calc(100vh-5rem)] w-64 bg-white shadow-sm">
+    <aside className="h-[calc(100vh-5rem)] w-64 bg-white shadow-sm border-r">
       <div className="flex flex-col h-full">
         {/* 유저 간단 프로필 */}
         <div className="flex justify-start w-full gap-2 py-6 px-4">
@@ -49,7 +49,7 @@ export default function Sidebar({ session }: SidebarProps) {
           </div>
         </div>
 
-        <div className="flex flex-col h-full justify-between py-4 border-t">
+        <div className="flex flex-col h-full justify-between py-4 ">
           <nav className="flex flex-col flex-1 ">
             {accountSideBarOption.map((option) => (
               <div key={option.name} className="py-2">

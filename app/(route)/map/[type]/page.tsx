@@ -1,7 +1,7 @@
 import { getUnitList } from "@/lib/action";
 import MapSideBar from "../components/map-side-bar";
 import { MapComponent } from "../components/map-component";
-
+import { notFound } from "next/navigation";
 export interface MapHomeProps {
   searchParams: any;
   params: any;
@@ -9,6 +9,9 @@ export interface MapHomeProps {
 
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   const { type } = params;
+  if (type !== "rent" && type !== "sale") {
+    notFound();
+  }
   const { units } = await getUnitList(searchParams, type);
 
   return (
@@ -16,10 +19,10 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
       <div className="flex h-[calc(100vh-5rem)] border-t">
         {/* 맵 */}
         <div className="w-full h-full">
-          <MapComponent units={units} />
+          <MapComponent units={units} type={type} />
         </div>
         {/* 사이드바 */}
-        <MapSideBar type={type} />
+        <MapSideBar />
       </div>
     </div>
   );
