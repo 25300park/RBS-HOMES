@@ -6,6 +6,8 @@ import { useState } from "react";
 
 export interface SideUnitCardProps {
   onClick?: (event: any) => void;
+  onMouseLeave?: (event: any) => void;
+  onMouseEnter?: (event: any) => void;
   title: string;
   price: number;
   area: number;
@@ -30,6 +32,8 @@ const SideUnitCard = ({
   bath = 1,
   sellType,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: SideUnitCardProps): React.ReactNode => {
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -39,9 +43,11 @@ const SideUnitCard = ({
   return (
     <article
       onClick={onClick}
-      className="w-full bg-white  overflow-hidden relative cursor-pointer group  transition-all duration-300 flex gap-2 p-4 border-b"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className="w-full bg-white  overflow-hidden relative cursor-pointer group  transition-all duration-300 flex gap-2 p-4 border-b hover:bg-zinc-100"
     >
-        {/* <span
+      {/* <span
           className={`absolute top-2 left-2 ${
             sellType === "Rent" ? " bg-yellow-400" : "bg-green-400"
           } text-white text-xs font-bold px-2 py-1 rounded z-20`}

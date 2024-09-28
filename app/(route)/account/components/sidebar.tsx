@@ -27,9 +27,13 @@ export default function Sidebar({ session }: SidebarProps) {
     if (isTab) {
       return pathname + "?" + searchParams === link;
     } else {
+      if (link === "/account/unit/registration/step-one") {
+        return pathname.startsWith("/account/unit/registration");
+      }
       return pathname.includes(link);
     }
   };
+
   return (
     <aside className="h-[calc(100vh-5rem)] w-64 bg-white shadow-sm border-r">
       <div className="flex flex-col h-full">
@@ -55,7 +59,7 @@ export default function Sidebar({ session }: SidebarProps) {
               <div key={option.name} className="py-2">
                 <h3 className="text-lg font-bold mb-2">{option.name}</h3>
                 {option.children.map((child) => {
-                  const isActive = isActiveCheck(child.isTab, child.link)
+                  const isActive = isActiveCheck(child.isTab, child.link);
                   return (
                     <button
                       key={child.name}

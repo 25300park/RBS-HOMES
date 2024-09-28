@@ -13,14 +13,16 @@ const NearbyPlaces: React.FC<NearbyPlacesProps> = ({ latitude, longitude }) => {
 
   useEffect(() => {
     const fetchNearbyPlaces = async () => {
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_KEY; 
-      const radius = 1000; // 반경 1km
-      const type = "restaurant"; // 예시로 주변 식당을 가져옴
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=${type}&key=${apiKey}`;
-
       try {
-        const response = await axios.get(url);
-        console.log(response)
+        const response = await axios.get(`/api/nearby`, {
+          params: {
+            latitude,
+            longitude,
+            radius: 1000, // 반경 1km
+            type: "restaurant", // 예시로 주변 식당을 가져옴
+          },
+        });
+        console.log(response.data);
         setPlaces(response.data.results);
       } catch (error) {
         console.error("Error fetching nearby places:", error);

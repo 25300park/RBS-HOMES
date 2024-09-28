@@ -1,6 +1,8 @@
 import { BsBuildingsFill } from "react-icons/bs";
 import { FaHome, FaBuilding, FaWarehouse, FaHotel } from "react-icons/fa";
-
+import { PiIslandFill } from "react-icons/pi";
+import { MdHolidayVillage } from "react-icons/md";
+import { AiFillMessage } from "react-icons/ai";
 export interface typeOptionType {
   label: string;
   value: string;
@@ -18,11 +20,14 @@ export const cities = [
 
 export const furnitureOptions = [
   { label: "Any", value: "none" },
-  { label: "Fully Furnished", value: "fully" },
+  { label: "Fully-Furnished", value: "fully" },
   { label: "Semi-Furnished", value: "semi" },
   { label: "Unfurnished", value: "unfurnished" },
 ];
-
+export const interioredOption = [
+  { label: "Interiored", value: "Interiored" },
+  { label: "Non Interiored", value: "Non Interiored" },
+];
 export const parkingOption = [
   { label: "0", value: "0" },
   { label: "1", value: "1" },
@@ -32,6 +37,7 @@ export const parkingOption = [
   { label: "5+", value: "5" },
 ];
 export const bedOption = [
+  { label: "studio", value: "0" },
   { label: "1", value: "1" },
   { label: "2", value: "2" },
   { label: "3", value: "3" },
@@ -69,10 +75,11 @@ export const sellTypeOption = [
 ];
 export const typeOption: typeOptionType[] = [
   { label: "Any", value: "none", icon: BsBuildingsFill },
-  { label: "Condo", value: "Condo", icon: BsBuildingsFill },
-  { label: "House", value: "House", icon: FaHome },
-  { label: "Apartment", value: "Apartment", icon: FaBuilding },
-  { label: "Hotel", value: "Hotel", icon: FaHotel },
+  { label: "Condo", value: "condo", icon: BsBuildingsFill },
+  { label: "village", value: "village", icon: MdHolidayVillage },
+  { label: "Apartment", value: "apartment", icon: FaBuilding },
+  { label: "Land", value: "land", icon: PiIslandFill },
+  { label: "etc.,", value: "etc", icon: AiFillMessage  },
 ];
 
 export const citiesWithRange = {

@@ -161,7 +161,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
           <SelectionBox
             className="justify-between space-x-0 flex gap-2"
             boxClassName="w-[79px] text-xs h-[75px]"
-            options={typeOption} // 아이콘이 있는 옵션을 전달
+            options={typeOption.slice(0,4)} // 아이콘이 있는 옵션을 전달
             selectedValue={filters.type}
             onSelect={(e) => updateFilter("type", e)} // 통합된 핸들러 사용
             textClassName="text-xs"

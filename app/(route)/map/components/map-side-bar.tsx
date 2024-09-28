@@ -12,10 +12,10 @@ import { useLoading } from "@/hooks/use-loading";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"; // 화살표 아이콘
 
 export interface MapSideBarProps {
-  type? : "rent" | "sale"
+  type?: "rent" | "sale";
 }
 
-const MapSideBar = ({type}: MapSideBarProps) => {
+const MapSideBar = ({ type }: MapSideBarProps) => {
   const router = useRouter();
   const { openModal } = useModalStore();
   const {
@@ -23,24 +23,22 @@ const MapSideBar = ({type}: MapSideBarProps) => {
     isSidebarOpen,
     toggleSidebar,
     setMapCenterAndZoom,
-    isLoading: mapLoading, // 기존의 로딩 상태
+    setHoverUnitId,
+    isLoading: mapLoading,
   } = useMapStore();
-
-  // 무한 스크롤 로딩 상태 관리 훅
+  console.log(visibleUnits);
   const { isLoading, startLoading, stopLoading } = useLoading();
-
-  // 무한 스크롤 구현을 위한 상태
-  const [loadedUnits, setLoadedUnits] = useState<any[]>([]); // 불러온 유닛 데이터
-  const [page, setPage] = useState(1); // 현재 페이지 번호
-  const pageSize = 20; // 한 번에 불러올 데이터 수
-  const hasMore = loadedUnits.length < visibleUnits.length; // 더 로드할 데이터가 있는지 확인
+  const [loadedUnits, setLoadedUnits] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const hasMore = loadedUnits.length < visibleUnits.length;
 
   // 정렬 상태 관리
-  const [sortOrder, setSortOrder] = useState<"low" | "high">("low"); // "낮은 금액순" 또는 "높은 금액순" 선택
+  const [sortOrder, setSortOrder] = useState<"low" | "high">("low");
 
   // 페이지 단위로 데이터 로드
   const loadMoreUnits = () => {
-    startLoading(); // 로딩 시작
+    startLoading();
     const sortedUnits = sortUnits(visibleUnits);
     const nextPageUnits = sortedUnits.slice(
       (page - 1) * pageSize,
@@ -50,8 +48,8 @@ const MapSideBar = ({type}: MapSideBarProps) => {
       // 임의의 지연 시간 추가
       setLoadedUnits((prev) => [...prev, ...nextPageUnits]);
       setPage((prev) => prev + 1);
-      stopLoading(); // 로딩 종료
-    }, 1000); // 1초 지연 (실제 데이터 로드 시간이 있으면 그에 맞게 설정)
+      stopLoading();
+    }, 1000);
   };
 
   // 정렬 함수
@@ -71,8 +69,8 @@ const MapSideBar = ({type}: MapSideBarProps) => {
   // visibleUnits가 변경되거나 정렬 순서가 변경될 때마다 초기화
   useEffect(() => {
     const sortedUnits = sortUnits(visibleUnits);
-    setLoadedUnits(sortedUnits.slice(0, pageSize)); // 처음 20개만 로드
-    setPage(2); // 페이지를 초기화
+    setLoadedUnits(sortedUnits.slice(0, pageSize));
+    setPage(2);
   }, [visibleUnits, sortOrder]);
 
   const handleUnitClick = (unitId: number) => {
@@ -116,6 +114,8 @@ const MapSideBar = ({type}: MapSideBarProps) => {
             <div className="grid grid-cols-1">
               {loadedUnits.map((card: any, index: number) => (
                 <SideUnitCard
+                  onMouseEnter={() => setHoverUnitId(card.id)}
+                  onMouseLeave={() => setHoverUnitId(null)}
                   onClick={() => handleUnitClick(card.id)}
                   key={index}
                   title={card.title}

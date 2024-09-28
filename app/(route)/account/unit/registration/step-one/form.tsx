@@ -20,13 +20,14 @@ export default function StepOneForm() {
     ownerName: "",
     location: "",
     price: "",
-    saleType: "Rent",
-    unitType: "Condo",
+    saleType: "rent",
+    unitType: "condo",
+    ownerEmail: "",
+    ownerMobile: "",
     addressSelf: "", // 유저가 입력한 추가 주소 정보
   });
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [isSubmitting, setIsSubmitting] = useState(false); // 제출 로딩 상태
-  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     // 로컬 스토리지 데이터 불러오기
@@ -107,11 +108,11 @@ export default function StepOneForm() {
         <div>
           {/* Address Search */}
           <div className="md:col-span-2">
-            <section className="grid grid-cols-2 md:grid-cols-2 gap-6">
+            <section className="grid grid-cols-2 md:grid-cols-2 gap-6 gap-y-4">
               {/* Title */}
               <div className="col-span-2">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Title
+                  Title (required)
                 </label>
                 <Input
                   type="text"
@@ -138,47 +139,89 @@ export default function StepOneForm() {
                 />
               </div>
 
-              {/* Price */}
-              <div>
-                <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Price
-                </label>
-                <Input
-                  type="text"
-                  name="price"
-                  value={formData.price || ""}
-                  onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Enter price"
-                  className="w-full border border-gray-300 rounded-md text-right text-lg "
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                />
+              <div className="flex gap-4">
+                {/* Price */}
+                <div className="w-full">
+                  <label className="block text-xs mb-1 font-medium text-zinc-500">
+                    Price (required)
+                  </label>
+                  <Input
+                    type="text"
+                    name="price"
+                    value={formData.price || ""}
+                    onChange={(e) =>
+                      handleChange(e.target.name, e.target.value)
+                    }
+                    placeholder="Enter price"
+                    className="w-full border border-gray-300 rounded-md text-right"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                  />
+                </div>
+                {/* Sell Type */}
+                <div className="">
+                  <label className="block text-xs mb-1 font-medium text-zinc-500">
+                    Sell Type
+                  </label>
+                  <SelectionBox
+                    options={sellTypeOption.slice(1)} // 아이콘이 없는 옵션을 전달
+                    selectedValue={formData.saleType}
+                    onSelect={(value) => handleChange("saleType", value)} // 통합된 핸들러 사용
+                    className="w-full space-x-0 flex gap-2"
+                    boxClassName="h-11"
+                  />
+                </div>
               </div>
-
-              {/* Property Type */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">
-                  Property Type
-                </label>
-                <SelectionBox
-                  options={typeOption.slice(1)} // 아이콘이 있는 옵션을 전달
-                  selectedValue={formData.unitType}
-                  onSelect={(value) => handleChange("unitType", value)} // 통합된 핸들러 사용
-                />
-              </div>
-
-              {/* Sell Type */}
-              <div>
-                <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Sell Type
-                </label>
-                <SelectionBox
-                  options={sellTypeOption.slice(1)} // 아이콘이 없는 옵션을 전달
-                  selectedValue={formData.saleType}
-                  onSelect={(value) => handleChange("saleType", value)} // 통합된 핸들러 사용
-                  className="w-full"
-                  boxClassName="h-12"
-                />
+              <div className="flex col-span-2 gap-6">
+                <div className="w-full">
+                  <div className="w-full mb-4">
+                    <label className="block text-xs mb-1 font-medium text-zinc-500">
+                      Owner Contact No.
+                    </label>
+                    <Input
+                      type="text"
+                      name="ownerMobile"
+                      value={formData.ownerMobile || ""}
+                      onChange={(e) =>
+                        handleChange(e.target.name, e.target.value)
+                      }
+                      placeholder="Enter owner's contact number"
+                      className="w-full border border-gray-300 rounded-md"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block text-xs mb-1 font-medium text-zinc-500">
+                      Owner E-mail
+                    </label>
+                    <Input
+                      type="text"
+                      name="ownerEmail"
+                      value={formData.ownerEmail || ""}
+                      onChange={(e) =>
+                        handleChange(e.target.name, e.target.value)
+                      }
+                      placeholder="Enter owner's e-mail"
+                      className="w-full border border-gray-300 rounded-md"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  </div>
+                </div>
+                {/* Property Type */}
+                <div className="w-full h-full flex flex-col justify-end">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    Property Type
+                  </label>
+                  <SelectionBox
+                    options={typeOption.slice(1)} // 아이콘이 있는 옵션을 전달
+                    selectedValue={formData.unitType}
+                    onSelect={(value) => handleChange("unitType", value)} // 통합된 핸들러 사용
+                    className="space-x-0 flex justify-between"
+                    boxClassName=""
+                  />
+                </div>
               </div>
             </section>
             <label className="block text-xs mb-1 font-medium text-zinc-500 mt-12">

@@ -5,6 +5,8 @@
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
 import { SignupFormSchema, FormState, LoginFormSchema } from "@/types/schema";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 //로그인 회원가입 관련
 export async function signup(
@@ -253,6 +255,9 @@ export const getUnitCount = async (
 export const getUnitCountOwner = async (
   searchParams: Record<string, string>
 ): Promise<number> => {
+  const session: any = await getServerSession(authOptions as any);
+  const adminId = session.user.id;
+
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const sellType =
     searchParams.sellType !== "none" ? searchParams.sellType : undefined;
@@ -299,6 +304,7 @@ export const getUnitCountOwner = async (
   // 유닛의 개수를 카운트하는 함수
   const count = await prisma.unit.count({
     where: {
+      adminId: adminId,
       sellType: sellType ? { equals: sellType } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,

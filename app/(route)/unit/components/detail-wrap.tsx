@@ -24,10 +24,10 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
             longitude={property.longitude}
           />
           {/* 유닛 위치 지도 */}
-          {/* <NearbyPlaces
+          <NearbyPlaces
             latitude={property.latitude}
             longitude={property.longitude}
-          /> */}
+          />
         </div>
 
         {/* Right Section - Admin Info (Sticky) */}

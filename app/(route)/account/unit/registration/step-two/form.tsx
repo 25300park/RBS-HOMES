@@ -13,6 +13,7 @@ import {
   bedOption,
   bathOption,
   parkingOption,
+  interioredOption,
   floorOption,
 } from "@/lib/config/unit-options";
 import SelectionBox from "@/components/ui/select-box";
@@ -24,12 +25,12 @@ export default function StepTwoForm() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     area: "",
-    floor: "1",
-    bed: "1",
+    floor: "",
+    bed: "0",
     bath: "1",
     parking: "0",
     furniture: "unfurnished", // 가구 상태 기본값 설정
-    interiored: "",
+    interiored: "Interiored",
     petPolicy: "Not allowed", // 애완동물 정책 기본값 설정
     yearCompletion: "",
     outstandingPayment: "",
@@ -66,19 +67,28 @@ export default function StepTwoForm() {
     const result = stepTwoSchema.safeParse({
       ...formData,
       area: parseInt(formData.area),
-      floor: parseInt(formData.floor || "0"),
+      floor: parseInt(formData.floor || ""),
       bed: parseInt(formData.bed || "0"),
       bath: parseInt(formData.bath || "0"),
       parking: parseInt(formData.parking || "0"),
-      outstandingPayment: parseFloat(formData.outstandingPayment || "0.00"),
+      outstandingPayment: parseFloat(formData.outstandingPayment || "0"),
     });
 
     if (!result.success) {
-      // setErrors(result.error.issues.map((issue) => issue.message));
+      console.log(result.error.issues.map((issue) => issue));
       toast({
-        variant: "destructive",
         title: "Incomplete Step",
-        description: result.error.issues.map((issue) => issue.message),
+        variant: "destructive",
+        description: (
+          <div>
+            {result.error.issues.map((issue, index) => (
+              <p key={index} className="text-lg  font-semibold">
+                {issue.path[0]}- {issue.message}
+                <br />
+              </p>
+            ))}
+          </div>
+        ),
       });
     } else {
       setIsSubmitting(true);
@@ -123,6 +133,7 @@ export default function StepTwoForm() {
                 onSelect={(value) => handleChange("bed", value)}
                 className="w-full"
                 boxClassName="h-12 w-12"
+                textClassName="text-xs"
               />
             </div>
 
@@ -137,19 +148,7 @@ export default function StepTwoForm() {
                 onSelect={(value) => handleChange("bath", value)}
                 className="w-full"
                 boxClassName="h-12 w-12"
-              />
-            </div>
-            {/* 층수 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Floor
-              </label>
-              <SelectionBox
-                options={floorOption}
-                selectedValue={formData.floor}
-                onSelect={(value) => handleChange("floor", value)}
-                className="w-full"
-                boxClassName="h-12 w-12"
+                textClassName="text-xs"
               />
             </div>
 
@@ -164,8 +163,11 @@ export default function StepTwoForm() {
                 onSelect={(value) => handleChange("parking", value)}
                 className="w-full"
                 boxClassName="h-12 w-12"
+                textClassName="text-xs"
               />
             </div>
+            <div />
+            {/* 내부 인테리어 상태 */}
 
             {/* 가구 상태 */}
             <div>
@@ -178,6 +180,7 @@ export default function StepTwoForm() {
                 onSelect={(value) => handleChange("furniture", value)}
                 className="w-full"
                 boxClassName="h-12 w-40"
+                textClassName="text-xs"
               />
             </div>
             {/* 애완동물 정책 */}
@@ -191,19 +194,24 @@ export default function StepTwoForm() {
                 onSelect={(value) => handleChange("petPolicy", value)}
                 className="w-full"
                 boxClassName="h-12 w-40"
+                textClassName="text-xs"
               />
             </div>
-
-            {/* 편의시설 (어매니티) */}
             <div className="col-span-2">
-              <TagInput
-                label="Amenities List"
-                value={formData.amenity}
-                onChange={(value) =>
-                  setFormData({ ...formData, amenity: value })
-                }
+              <label className="block text-xs font-medium text-zinc-500 mb-1">
+                Interior Condition
+              </label>
+              <SelectionBox
+                options={interioredOption}
+                selectedValue={formData.interiored}
+                onSelect={(value) => handleChange("interiored", value)}
+                className="w-full"
+                textClassName="text-xs"
+                boxClassName="h-12 w-40"
               />
             </div>
+            {/* 편의시설 (어매니티) */}
+
             {/* 면적 (평방미터) */}
             <div>
               <label className="block text-xs font-medium text-zinc-500 mb-1">
@@ -218,20 +226,21 @@ export default function StepTwoForm() {
                 className="w-full border border-gray-300 rounded-md"
               />
             </div>
-            {/* 내부 인테리어 상태 */}
+            {/* 층수 */}
             <div>
               <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Interior Condition
+                Floor
               </label>
               <Input
                 type="text"
-                name="interiored"
-                value={formData.interiored}
+                name="floor"
+                value={formData.floor}
                 onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Interior Condition"
+                placeholder="floor of building"
                 className="w-full border border-gray-300 rounded-md"
               />
             </div>
+
             {/* 완공 연도 */}
             <div>
               <label className="block text-xs font-medium text-zinc-500 mb-1">
@@ -249,18 +258,28 @@ export default function StepTwoForm() {
               />
             </div>
 
-            {/* 미납 금액 */}
+            {/* 커미션 */}
             <div>
               <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Outstanding Payment
+                Commission
               </label>
               <Input
                 type="text"
                 name="outstandingPayment"
                 value={formData.outstandingPayment}
                 onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Outstanding Payment"
-                className="w-full border border-gray-300 rounded-md text-right text-lg"
+                placeholder="Commission"
+                className="w-full border border-gray-300 rounded-md text-right"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <TagInput
+                label="Amenities List"
+                value={formData.amenity}
+                onChange={(value) =>
+                  setFormData({ ...formData, amenity: value })
+                }
               />
             </div>
           </div>

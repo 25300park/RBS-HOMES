@@ -91,6 +91,7 @@ export default function AddressSearch({ formData, setFormData }: any) {
         // 폼 상태 업데이트
         setFormData({
           ...formData,
+          loaction: formattedAddress,
           address1: addressComponents.postalCode || "", // 우편번호
           address2:
             `${addressComponents.city}, ${addressComponents.region}` || "", // 도시와 지역 결합
@@ -98,6 +99,7 @@ export default function AddressSearch({ formData, setFormData }: any) {
           latitude: latitude, // 위도
           longitude: longitude, // 경도
           fullAddress: formattedAddress, // 전체 주소 저장
+        
         });
 
         // 검색어 필드 업데이트
