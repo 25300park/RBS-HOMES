@@ -75,7 +75,6 @@ export default function StepTwoForm() {
     });
 
     if (!result.success) {
-      console.log(result.error.issues.map((issue) => issue));
       toast({
         title: "Incomplete Step",
         variant: "destructive",

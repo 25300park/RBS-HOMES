@@ -56,11 +56,11 @@ export default function StepThreeForm() {
   const uploadToS3 = async (files: File[], indices: number[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
-
+  
     return new Promise<string[]>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/image-upload/unit");
-
+  
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const progress = (event.loaded / event.total) * 100;
@@ -74,21 +74,21 @@ export default function StepThreeForm() {
           }));
         }
       };
-
+  
       xhr.onload = () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          resolve(response.uploadedUrls);
+          resolve(response.uploadedUrls); // URL을 반환
         } else {
           reject("Upload failed");
         }
       };
-
+  
       xhr.onerror = () => reject("Upload failed");
       xhr.send(formData);
     });
   };
-
+  
   const onDrop = async (acceptedFiles: File[]) => {
     const validFileTypes = ["image/png", "image/jpeg", "image/jpg"];
     const currentFileNames = formData.images.map((img) => img.name);
@@ -98,7 +98,7 @@ export default function StepThreeForm() {
         file.size <= 2 * 1024 * 1024 &&
         !currentFileNames.includes(file.name)
     );
-
+  
     if (uniqueFiles.length < acceptedFiles.length) {
       toast({
         title: "Duplicate or invalid files",
@@ -106,7 +106,7 @@ export default function StepThreeForm() {
           "Some files were either duplicates or exceeded size/type limits.",
       });
     }
-
+  
     const newImages = uniqueFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
@@ -115,33 +115,39 @@ export default function StepThreeForm() {
       progress: 0,
       showProgress: true,
     }));
-
+  
     const startIndex = formData.images.length;
     const newImageIndices = Array.from(
       { length: newImages.length },
       (_, i) => startIndex + i
     );
-
+  
+    // 우선 이미지를 업데이트하여 미리보기를 표시
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...newImages],
     }));
-
+  
     try {
+      // 업로드를 진행하고 URL을 반환
       const urls = await uploadToS3(uniqueFiles, newImageIndices);
+  
+      // 업로드가 완료된 후에 이미지 업데이트
       setFormData((prev) => ({
         ...prev,
-        images: prev.images.map((img, index) =>
-          newImageIndices.includes(index)
+        images: prev.images.map((img, index) => {
+          const urlIndex = newImageIndices.indexOf(index);
+          return urlIndex !== -1
             ? {
                 ...img,
-                url: urls[newImageIndices.indexOf(index)],
+                url: urls[urlIndex], // 정확히 매칭되는 URL로 대체
                 progress: 100,
               }
-            : img
-        ),
+            : img;
+        }),
       }));
-
+  
+      // Progress 바 숨기기
       setTimeout(() => {
         setFormData((prev) => ({
           ...prev,
@@ -159,6 +165,7 @@ export default function StepThreeForm() {
       });
     }
   };
+  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,

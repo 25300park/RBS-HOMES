@@ -126,7 +126,6 @@ export const getUnitList = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
-  console.log(sellType);
   // 가격과 가격 임대 필터 처리
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined

@@ -63,7 +63,7 @@ export const stepOneSchema = z.object({
 
 // Validation schema for Step 2
 export const stepTwoSchema = z.object({
-  bed: z.number().min(1, "At least 1 bedroom is required"),
+  bed: z.number().min(0, "At least 1 bedroom is required"),
   bath: z.number().min(1, "At least 1 bathroom is required"),
   area: z.number().min(1, "Area is required"),
   floor: z.number().min(1, "Floor of building is required"),

@@ -13,7 +13,7 @@ const MyUnitList = async ({ searchParams }: MyUnitListProps) => {
     <div>
       <div className="flex h-[calc(100vh-5rem)] border-t">
         <div className="w-full h-full">
-          <MapComponent units={unitList} owner />
+          <MapComponent units={unitList} owner key={"owner"}/>
         </div>
         <MapSideBar />
       </div>

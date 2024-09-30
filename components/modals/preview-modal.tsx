@@ -8,7 +8,6 @@ interface PreviewModalProps {
 }
 
 const PreviewModal: React.FC<PreviewModalProps> = ({ onClose, modalProps }) => {
-  console.log(modalProps)
   const [imageDimensions, setImageDimensions] = useState<{
     width: number;
     height: number;

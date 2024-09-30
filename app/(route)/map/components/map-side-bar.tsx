@@ -26,7 +26,6 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
     setHoverUnitId,
     isLoading: mapLoading,
   } = useMapStore();
-  console.log(visibleUnits);
   const { isLoading, startLoading, stopLoading } = useLoading();
   const [loadedUnits, setLoadedUnits] = useState<any[]>([]);
   const [page, setPage] = useState(1);
