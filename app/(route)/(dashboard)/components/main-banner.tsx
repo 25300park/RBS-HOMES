@@ -53,12 +53,11 @@ export default function MainBanner({ onBannerClick }: MainBannerProps) {
         }}
         onSwiper={onSwiper}
         // onSlideChange={() => console.log("slide change")}
-        className="min-h-[330px] h-auto desk bg-[#0CB8C5]"
+        className=" h-auto desk "
       >
-        <SwiperSlide className="relative w-full min-h-[420px] h-auto">11</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[420px] h-auto">22</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[420px] h-auto">33</SwiperSlide>
-        <SwiperSlide className="relative w-full min-h-[420px] h-auto">44</SwiperSlide>
+        <SwiperSlide className="relative w-full  h-auto">
+          <img src="/assets/images/banner.png" alt="banner" className="object-cover w-full h-full"/>
+        </SwiperSlide>
       </Swiper>
     </div>
   );

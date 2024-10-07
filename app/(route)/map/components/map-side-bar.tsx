@@ -79,7 +79,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
   return (
     <aside
       className={`fixed top-20 right-0 h-full bg-white border-l transition-all duration-300 ${
-        isSidebarOpen ? "w-[400px]" : "w-0"
+        isSidebarOpen ? "w-[400px] sm:w-full" : "w-0"
       }`}
     >
       <div
@@ -146,23 +146,25 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
       </div>
 
       {/* 사이드바 열고 닫기 버튼 */}
+      <div>
+        {isSidebarOpen ? (
+          <button
+            onClick={() => toggleSidebar(!isSidebarOpen)}
+            className="absolute top-[26px] -left-12 bg-white border rounded-md p-2 shadow-lg transform -translate-y-1/2"
+          >
+            <IoIosArrowForward size={24} />
+          </button>
+        ) : (
+          <button
+            onClick={() => toggleSidebar(!isSidebarOpen)}
+            className="absolute top-[8px] w-40 -left-44 bg-white p-2 rounded-md border flex items-center gap-4 shadow-lg"
+          >
+            <IoIosArrowBack size={24} />
+            <p>Show list</p>
+          </button>
+        )}
+      </div>
 
-      {isSidebarOpen ? (
-        <button
-          onClick={() => toggleSidebar(!isSidebarOpen)}
-          className="absolute top-[26px] -left-12 bg-white border rounded-md p-2 shadow-lg transform -translate-y-1/2"
-        >
-          <IoIosArrowForward size={24} />
-        </button>
-      ) : (
-        <button
-          onClick={() => toggleSidebar(!isSidebarOpen)}
-          className="absolute top-[8px] w-40 -left-44 bg-white p-2 rounded-md border flex items-center gap-4 shadow-lg"
-        >
-          <IoIosArrowBack size={24} />
-          <p>Show list</p>
-        </button>
-      )}
     </aside>
   );
 };

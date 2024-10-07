@@ -11,7 +11,7 @@ export default async function layout({
     <div>
       <Header session={session} />
       {children}
-      <div className="h-96 w-full bg-gray-100"> 푸터</div>
+      <div className="h-96 w-full bg-gray-100 sm:hidden"> 푸터</div>
     </div>
   );
 }

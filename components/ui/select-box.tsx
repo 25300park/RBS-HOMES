@@ -23,7 +23,7 @@ const SelectionBox: React.FC<SelectionBoxProps> = ({
   textClassName = "",
 }) => {
   return (
-    <div className={`flex space-x-4 ${className}`}>
+    <div className={cn(`flex space-x-4`, className)}>
       {options.map((option) => (
         <div
           key={option.value}

@@ -12,7 +12,6 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
     notFound();
   }
   const { units } = await getUnitList(searchParams, type);
-  console.log(123, units)
   return (
     <div>
       <div className="flex h-[calc(100vh-5rem)] border-t">

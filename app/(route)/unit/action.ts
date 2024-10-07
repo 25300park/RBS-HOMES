@@ -73,7 +73,7 @@ export async function getUnitsWithAdmin(
     priceMin !== undefined || priceMax !== undefined
       ? [
           { price: { gte: priceMin, lte: priceMax } },
-          { priceRent: { gte: priceMin, lte: priceMax } },
+          // { priceRent: { gte: priceMin, lte: priceMax } },
         ]
       : [];
 

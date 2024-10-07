@@ -125,7 +125,7 @@ export default function StepOneForm() {
               </div>
 
               {/* Owner's Name */}
-              <div>
+              <div className="">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
                   Owner Name
                 </label>
@@ -139,7 +139,7 @@ export default function StepOneForm() {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 w-full">
                 {/* Price */}
                 <div className="w-full">
                   <label className="block text-xs mb-1 font-medium text-zinc-500">

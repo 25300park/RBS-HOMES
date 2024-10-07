@@ -115,7 +115,7 @@ export const MapComponent = ({ units, type,owner }: MapProps) => {
         isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
       } h-[calc(100vh-5rem)]`}
     >
-      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border">
+      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border sm:hidden">
         <div className="flex items-center mb-2">
           {/* 검색 인풋 필드 */}
           <Input
@@ -128,7 +128,7 @@ export const MapComponent = ({ units, type,owner }: MapProps) => {
             <FaSearch className="text-white" />
           </button>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 ">
           <FilterButton sellType={type} isActive withSellType={owner}/>
         </div>
       </div>

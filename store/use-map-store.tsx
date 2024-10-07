@@ -80,7 +80,7 @@ export const useMapStore = create<MapState>((set) => ({
               <div style="font-size: 14px; color: #666; margin-bottom: 5px;">${
                 unit.description ? unit.description : "no memo"
               }</div>
-              <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.priceRent.toLocaleString()} $</div>
+              <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.price.toLocaleString()} $</div>
             </div>
           </div>
         `

@@ -25,7 +25,7 @@ const BannerGroup = () => {
 
   return (
     <>
-      <div ref={wrapperRef} className="relative px-1">
+      <div ref={wrapperRef} className="relative px-1 max-h-[60vh]">
         <MainSearchBar
           searchInputActive={searchInputActive}
           setSearchInputActive={setSearchInputActive}

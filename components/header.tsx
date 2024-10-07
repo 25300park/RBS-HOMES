@@ -5,6 +5,7 @@ import { useModalStore } from "@/store/use-modal-store";
 import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { useRouter, usePathname } from "next/navigation"; 
 
 // 세션 종료
 export interface HeaderProps {
@@ -14,15 +15,15 @@ export interface HeaderProps {
 const NavLinks = [
   { title: "rent", href: "/map/rent" },
   { title: "buy", href: "/map/sale" },
-  // { title: "rent", href: "/rent" },
   { title: "sell", href: "/sell", auth: true },
-  { title: "map", href: "/map" },
 ];
 
 const Header = ({ session }: HeaderProps): React.ReactNode => {
   const { openModal } = useModalStore();
+  const pathName = usePathname()
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const router = useRouter(); // useRouter 사용
   useEffect(() => {
     const handleScroll = () => {
       // 스크롤 위치에 따라 네브바 색상 변경
@@ -44,16 +45,15 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
   }, []);
 
   return (
-    <header className="h-20">
+    <header className="h-20 fixed top-0 z-50">
       <nav
-        className={`fixed top-0 w-full transition-all duration-300 bg-white ${
-          navbarScrolled ? "h-16 shadow-lg" : "h-20 bg-transparent border-b"
-        } z-50 w-full  flex items-center px-8 mx-auto justify-between`}
+        className={`fixed top-0 w-full transition-all duration-300 bg-transparent ${
+          navbarScrolled ? "h-16 shadow-lg bg-white" : "h-20 bg-transparent"
+        } z-50 w-full flex items-center px-8 mx-auto justify-between`}
       >
         <div className="flex items-center">
           <Link className="mr-16" href={"/"}>
-            {" "}
-            로고{" "}
+            <img src="/assets/images/RBS_logo.png" alt="logo" />
           </Link>
 
           {NavLinks.map((link) => (
@@ -61,7 +61,10 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
               <Button
                 variant={"ghost"}
                 size={"lg"}
-                className="text-md text-[#6f6f6f]"
+                // 링크가 활성화되면 주황색 배경 추가
+                className={`text-md text-[#6f6f6f] ${
+                  pathName === link.href ? "bg-orange-500 text-white" : ""
+                }`}
               >
                 {link.title.toUpperCase()}
               </Button>
@@ -69,7 +72,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
           ))}
         </div>
         <div>
-       { session === null ? (
+          {session === null ? (
             <>
               <Button
                 variant={"ghost"}
@@ -79,7 +82,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
               >
                 LOGIN
               </Button>
-              <span className="text-zinc-200">|</span>
+              <span className="text-[#717171]">|</span>
               <Button
                 variant={"ghost"}
                 size={"lg"}
@@ -101,7 +104,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
                   MY ACCOUNT
                 </Button>
               </Link>
-              <span className="text-zinc-200 mx-3">|</span>
+              <span className="text-[#717171] mx-3">|</span>
               <Button
                 variant={"ghost"}
                 size={"lg"}

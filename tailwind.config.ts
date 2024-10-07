@@ -19,12 +19,10 @@ const config: Config = {
       // => @media (max-width: 1279px) { ... }
 
       '2lg': {'max': '1123px'},
-      // => @media (max-width: 1023px)  이게 기본 lg{ ... }
 
       
-      'lg': {'max': '767px'},
+      'lg': {'max': '1023px'},
       // => @media (max-width: 1023px) { ... }
-
       'md': {'max': '767px'},
       // => @media (max-width: 767px) { ... }
 

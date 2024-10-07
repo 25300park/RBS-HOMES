@@ -35,7 +35,7 @@ const SearchInput = ({
             placeholder={`Search for ${
               activeTab === "rent" ? "rental" : "buy"
             } properties`}
-            className="w-full p-2 py-6 focus-visible:ring-0 border-none shadow-none text-md bg-[#f2f2f2]"
+            className="w-full p-2 py-8 focus-visible:ring-0 border-none shadow-none text-md bg-[#f2f2f2]"
             onFocus={handleFocus}
           />
           <Button className="absolute right-3 w-24 bg-[#0eb8c5] hover:bg-[#0eb9c566]">Search</Button>
