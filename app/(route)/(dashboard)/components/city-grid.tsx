@@ -31,8 +31,8 @@ const cities = [
 ];
 
 const CityGrid = () => (
-  <div className="max-w-[1140px] mx-auto my-20">
-    <h3>Popular Places</h3>
+  <div className="max-w-[1140px] mx-auto ">
+    <h3 className="text-[#00092B] font-semibold text-xl mb-3">POPULAR PLACES</h3>
     <div
       className="grid grid-cols-1 md:grid-cols-3 gap-6"
       style={{

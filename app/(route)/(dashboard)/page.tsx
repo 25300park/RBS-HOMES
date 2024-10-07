@@ -8,9 +8,11 @@ const DashBoard = () => {
     <>
       <div className="">
         <BannerGroup />
-        <MainList />
-        <CityGrid />
-        <ServiceSection />
+        <div className="relative -top-40">
+          <MainList />
+          <CityGrid />
+          <ServiceSection />
+        </div>
       </div>
     </>
   );

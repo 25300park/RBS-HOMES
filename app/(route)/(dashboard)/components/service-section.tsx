@@ -4,11 +4,9 @@ export interface ServiceSectionProps {}
 
 const ServiceSection = ({}: ServiceSectionProps): React.ReactNode => {
   return (
-    <section className="py-20 bg-zinc-50">
+    <section className="py-20">
       <div className="max-w-[1140px] mx-auto">
-        <h2 className="text-[40px] font-bold text-[#03B5C3]">
-          Mr.Homes services
-        </h2>
+      <h3 className="text-[#00092B] font-semibold text-xl mb-3">MR.HOMES SERVICES</h3>
         <p className="mt-1 text-gray-400">
           Investigate housing trends, reflect them in residential spaces, and
           provide services to improve them.

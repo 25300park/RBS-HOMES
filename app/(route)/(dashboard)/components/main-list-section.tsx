@@ -8,11 +8,11 @@ const MainList = async ({}: MainListProps) => {
   const { units }: any = await getMainUnitList();
   return (
     <section className="max-w-[1140px] mx-auto py-12">
-      <div>
+      {/* <div>
         <h3>Recomment For you 메인화면 디자인민 컨텐츠 정리, 광고 유무체크</h3>
         <h4>Listings we think you’ll love.</h4>
-      </div>
-      <div className="grid grid-cols-4 gap-8">
+      </div> */}
+      <div className="grid grid-cols-4 gap-8 relative z-10">
         {units.length === 0 ? (
           <div>no result</div>
         ) : (
@@ -27,8 +27,8 @@ const MainList = async ({}: MainListProps) => {
                   location={`${card.address2 as string},${
                     card.address3 as string
                   },${card.address4 as string}`}
-                  imageUrl={"/next.svg"}
-                  postedDate={"2 days ago"}
+                  imageUrl={JSON.parse(card.images)[0]}
+                  postedDate={"2 DAYS"}
                   isVip={true}
                   bed={card.bed as number}
                   bath={card.bath as number}

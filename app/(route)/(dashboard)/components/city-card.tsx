@@ -6,7 +6,7 @@ export interface CityCardProps {
 };
 
 const CityCard = ({ name, listings, imageUrl, description }: CityCardProps) => (
-  <div className="relative overflow-hidden rounded-lg shadow-lg h-full min-h-[300px]">
+  <div className="relative overflow-hidden rounded-lg shadow-lg h-full min-h-[210px]">
     <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
     
     {/* 그라데이션 배경 */}
