@@ -1,16 +1,15 @@
-import Link from 'next/link';
-import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok } from 'react-icons/fa';
+import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 py-10 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center">
+    <footer className="bg-gray-100 py-16 px-4 ">
+      <div className="max-w-6xl mx-auto flex md:flex-col flex-row justify-between items-start md:items-center">
         {/* Navigation Links */}
-        <div className="w-full md:w-auto flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
+        <div className="md:w-full  flex md:flex-col flex-row  text-center md:text-left justify-evenly w-full">
           {/* Company Section */}
-          <div className="mb-6 md:mb-0">
-            <h4 className="text-lg font-semibold text-gray-800">Company</h4>
-            <ul className="mt-4 space-y-2 text-gray-600">
+          <div className="md:mb-6 mb-0">
+            <h4 className="text-lg font-semibold text-[#00092B]">Company</h4>
+            <ul className="mt-4 space-y-2 text-zinc-500">
               <li>
                 <Link href="#">About Us</Link>
               </li>
@@ -27,12 +26,12 @@ const Footer = () => {
           </div>
 
           {/* Vertical Divider */}
-          <div className="hidden md:block w-px bg-gray-300 h-24" />
+          <div className="md:hidden block w-px bg-gray-300 h-40" />
 
           {/* Explore Section */}
-          <div className="mb-6 md:mb-0">
-            <h4 className="text-lg font-semibold text-gray-800">Explore</h4>
-            <ul className="mt-4 space-y-2 text-gray-600">
+          <div className="md:mb-6 mb-0">
+            <h4 className="text-lg font-semibold text-[#00092B]">Explore</h4>
+            <ul className="mt-4 space-y-2 text-zinc-500">
               <li>
                 <Link href="#">Blog</Link>
               </li>
@@ -49,12 +48,12 @@ const Footer = () => {
           </div>
 
           {/* Vertical Divider */}
-          <div className="hidden md:block w-px bg-gray-300 h-24" />
+          <div className="md:hidden block w-px bg-gray-300 h-40" />
 
           {/* ToS & Privacy Section */}
           <div>
-            <h4 className="text-lg font-semibold text-gray-800">ToS & PRP</h4>
-            <ul className="mt-4 space-y-2 text-gray-600">
+            <h4 className="text-lg font-semibold text-[#00092B]">ToS & PRP</h4>
+            <ul className="mt-4 space-y-2 text-zinc-500">
               <li>
                 <Link href="#">Terms of Service</Link>
               </li>
@@ -67,23 +66,23 @@ const Footer = () => {
       </div>
 
       {/* Social Media Icons */}
-      <div className="mt-10 flex justify-center space-x-6 text-gray-600">
+      <div className="mt-16 flex justify-center space-x-14 text-zinc-500">
         <Link href="#">
-          <FaInstagram size={30} className="text-[#E1306C]" />
+          <img src="/assets/icons/footer/instagram.png" alt="insta" />
         </Link>
         <Link href="#">
-          <FaFacebookF size={30} className="text-[#3b5998]" />
+          <img src="/assets/icons/footer/facebook.png" alt="face" />
         </Link>
         <Link href="#">
-          <FaYoutube size={30} className="text-[#FF0000]" />
+          <img src="/assets/icons/footer/youtube.png" alt="youtube" />
         </Link>
         <Link href="#">
-          <FaTiktok size={30} className="text-[#000000]" />
+          <img src="/assets/icons/footer/tiktok.png" alt="tiktok" />
         </Link>
       </div>
 
       {/* Copyright */}
-      <div className="mt-8 text-center text-gray-500">
+      <div className="mt-8 text-center text-gray-400 text-xs">
         Copyright © 2024 Mr.Homes. All Rights Reserved.
       </div>
     </footer>

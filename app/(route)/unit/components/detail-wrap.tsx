@@ -4,6 +4,7 @@ import AdminInfo from "./admin-info";
 import PropertyInfo from "./property-info";
 import StaticMap from "@/components/ui/static-map";
 import NearbyPlaces from "./near-by-places";
+import ImageGallery from "@/components/ui/image-gallery";
 
 interface DetailWrapProps {
   property: any;
@@ -15,8 +16,9 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
       <div className="flex space-x-8">
         {/* Left Section - Property Info and Slider */}
         <div className="flex-1 space-y-8">
-          <div className="w-[900px]">
-            <ThumbSlider imageUrls={JSON.parse(property.images)} /> {/* 이미지 슬라이더 */}
+          <div className="w-full">
+            {/* <ThumbSlider imageUrls={JSON.parse(property.images)} />  */}
+            <ImageGallery images={JSON.parse(property.images)}/>
           </div>
           <PropertyInfo property={property} /> {/* 유닛의 상세 정보 */}
           <StaticMap
@@ -31,9 +33,9 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
         </div>
 
         {/* Right Section - Admin Info (Sticky) */}
-        <div className="w-full">
+        {/* <div className="w-full">
           <AdminInfo admin={property.admin} />
-        </div>
+        </div> */}
       </div>
     </div>
   );

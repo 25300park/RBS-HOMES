@@ -5,7 +5,8 @@ import { useModalStore } from "@/store/use-modal-store";
 import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { useRouter, usePathname } from "next/navigation"; 
+import { useRouter, usePathname } from "next/navigation";
+import HeaderUserProfile from "./ui/header-user-profile";
 
 // 세션 종료
 export interface HeaderProps {
@@ -20,7 +21,7 @@ const NavLinks = [
 
 const Header = ({ session }: HeaderProps): React.ReactNode => {
   const { openModal } = useModalStore();
-  const pathName = usePathname()
+  const pathName = usePathname();
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const router = useRouter(); // useRouter 사용
@@ -94,7 +95,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
             </>
           ) : (
             <>
-              <Link href={'/account'}>
+              {/* <Link href={"/account"}>
                 <Button
                   variant={"ghost"}
                   size={"lg"}
@@ -112,7 +113,8 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
                 onClick={() => signOut()}
               >
                 LOGOUT
-              </Button>
+              </Button> */}
+              <HeaderUserProfile session={session} />
             </>
           )}
         </div>
@@ -122,3 +124,4 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
 };
 
 export default Header;
+

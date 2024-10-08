@@ -9,6 +9,7 @@ import {
   Autoplay,
 } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import Image from "next/image";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -55,8 +56,14 @@ export default function MainBanner({ onBannerClick }: MainBannerProps) {
         // onSlideChange={() => console.log("slide change")}
         className=" h-auto desk "
       >
-        <SwiperSlide className="relative w-full  h-auto">
-          <img src="/assets/images/banner.png" alt="banner" className="object-cover w-full h-full"/>
+        <SwiperSlide className="relative w-full min-h-[600px]">
+          <Image
+            src="/assets/images/banner.png"
+            alt="banner"
+            fill
+            objectFit="cover"
+            priority={true}
+          />
         </SwiperSlide>
       </Swiper>
     </div>

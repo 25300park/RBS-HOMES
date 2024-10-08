@@ -27,12 +27,12 @@ const MainSearchBar = ({
   };
 
   return (
-    <div className="absolute top-1/2 z-40 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 h-[100px] max-w-[1000px] px-8 flex flex-col justify-start items-start bg-white p-4 blur-card rounded-b-lg shadow-lg z-10">
+    <div className="absolute top-1/2 z-40 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 h-[100px] max-w-[1000px] px-8 flex flex-col justify-start items-start bg-white p-4 blur-card rounded-b-lg shadow-lg ">
       {/* Tab UI */}
       <div className="flex mb-4 absolute top-[-40px] left-0 border-b-0 w-full">
         <button
           className={`px-8 py-2 rounded-t-lg rounded-b-none w-full ${
-            activeTab === "buy" ? "blur-card text-white" : "bg-gray-200"
+            activeTab === "buy" ? "blur-card text-white" : "bg-[#ffffffd8] text-gray-400"
           }`}
           onClick={() => setActiveTab("buy")}
         >

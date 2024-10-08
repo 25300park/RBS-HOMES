@@ -13,7 +13,7 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="flex">
+    <div className="flex mt-20">
       <Sidebar session={session}/>
       <section className="bg-zinc-50 flex-1">{children}</section>
     </div>
