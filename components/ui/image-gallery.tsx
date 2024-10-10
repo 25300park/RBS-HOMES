@@ -2,8 +2,6 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -16,128 +14,90 @@ interface ImageGalleryProps {
   onViewAllClick?: () => void; // 'View all photos' 클릭 시 호출될 함수
 }
 
-const ImageGallery = ({ images, onViewAllClick }: ImageGalleryProps) => {
-  const mainImage = images[0]; // 첫 번째 이미지를 메인 이미지로 설정
+const ImageGallery = ({ images }: ImageGalleryProps) => {
   const sideImages = images.slice(1, 5); // 나머지 이미지를 사이드 이미지로 설정 (최대 4개)
 
   return (
-    <div>
-      <div className="grid grid-cols-4 gap-2">
+    <Drawer>
+      <div className="grid grid-cols-4 gap-2 relative">
         {/* 메인 이미지 */}
-        <div className="col-span-2 row-span-2">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <img
-                src={mainImage}
-                alt="Main"
-                className="w-full h-full object-cover rounded-lg cursor-pointer"
-                style={{ aspectRatio: "4/3" }} // 이미지 비율을 4:3으로 설정
-              />
-            </DrawerTrigger>
-
-            <DrawerContent className="h-screen">
-              {/* 화살표 아이콘으로 닫기 버튼 */}
-              <DrawerClose className="absolute top-4 left-4">
-                <IoIosArrowBack size={30} className="text-gray-700 cursor-pointer" />
-              </DrawerClose>
-
-              <DrawerHeader>
-                <DrawerTitle>Image Gallery</DrawerTitle>
-                <DrawerDescription>View all images below.</DrawerDescription>
-              </DrawerHeader>
-
-              {/* 이미지 갤러리 그리드 */}
-              <div className="grid grid-cols-3 gap-4 p-4 overflow-y-auto">
-                {images.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Gallery ${index}`}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
+        <DrawerTrigger asChild>
+          <div className="col-span-2 row-span-2">
+            <img
+              src={images[0]}
+              alt="Main"
+              className="w-full h-full object-cover rounded-lg cursor-pointer"
+              style={{ aspectRatio: "4/3" }} // 메인 이미지 비율
+            />
+          </div>
+        </DrawerTrigger>
 
         {/* 사이드 이미지들 */}
         {sideImages.map((image, index) => (
-          <div key={index} className="relative">
-            <Drawer>
-              <DrawerTrigger asChild>
-                <img
-                  src={image}
-                  alt={`Side ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg cursor-pointer"
-                  style={{ aspectRatio: "1/1" }} // 사이드 이미지 비율을 1:1로 설정
-                />
-              </DrawerTrigger>
-
-              <DrawerContent className="h-screen">
-                {/* 화살표 아이콘으로 닫기 버튼 */}
-                <DrawerClose className="absolute top-4 left-4">
-                  <IoIosArrowBack size={30} className="text-gray-700 cursor-pointer" />
-                </DrawerClose>
-
-                <DrawerHeader>
-                  <DrawerTitle>Image Gallery</DrawerTitle>
-                  <DrawerDescription>View all images below.</DrawerDescription>
-                </DrawerHeader>
-
-                {/* 이미지 갤러리 그리드 */}
-                <div className="grid grid-cols-3 gap-4 p-4 overflow-y-auto">
-                  {images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Gallery ${index}`}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ))}
-                </div>
-              </DrawerContent>
-            </Drawer>
-          </div>
+          <DrawerTrigger asChild key={index}>
+            <div className="relative">
+              <img
+                src={image}
+                alt={`Side ${index + 1}`}
+                className="w-full h-full object-cover rounded-lg cursor-pointer"
+                style={{ aspectRatio: "1/1" }} // 사이드 이미지 비율
+              />
+            </div>
+          </DrawerTrigger>
         ))}
 
-        {/* 마지막 이미지에 "Show all photos" 버튼 추가 */}
-        {images.length > 5 && (
-          <div className="relative">
-            <button
-              onClick={onViewAllClick}
-              className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md text-sm font-semibold flex items-center"
+        {/* "Show all photos" 버튼 */}
+        <DrawerTrigger asChild>
+          <button className="absolute right-5 bottom-5 bg-white px-4 py-2 rounded-lg shadow-md text-sm font-semibold flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              className="w-5 h-5 mr-2"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-5 h-5 mr-2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-              Show all photos
-            </button>
-          </div>
-        )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+            Show all photos
+          </button>
+        </DrawerTrigger>
 
-        {/* 이미지가 4개 미만일 경우 빈 칸 처리 */}
+        {/* 빈 공간 처리 */}
         {sideImages.length < 4 &&
           [...Array(4 - sideImages.length)].map((_, index) => (
             <div
               key={index}
-              className="bg-gray-200 rounded-lg"
-              style={{ aspectRatio: "1/1" }} // 빈칸도 1:1 비율 유지
+              className="bg-gray-50 rounded-lg"
+              style={{ aspectRatio: "1/1" }}
             ></div>
           ))}
       </div>
-    </div>
+
+      {/* DrawerContent에 전체 이미지 표시 */}
+      <DrawerContent className="h-screen">
+        <DrawerClose className="absolute top-4 left-4">
+          <IoIosArrowBack size={30} className="text-gray-700 cursor-pointer" />
+        </DrawerClose>
+        <DrawerHeader>
+          <DrawerTitle>Image Gallery</DrawerTitle>
+        </DrawerHeader>
+        <div className="grid grid-cols-3 gap-4 p-4 overflow-y-auto">
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Gallery ${index}`}
+              className="w-full max-h-[600px] object-cover rounded-lg"
+            />
+          ))}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

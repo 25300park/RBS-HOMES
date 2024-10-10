@@ -56,11 +56,11 @@ export default function StepThreeForm() {
   const uploadToS3 = async (files: File[], indices: number[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
-  
+
     return new Promise<string[]>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/image-upload/unit");
-  
+
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const progress = (event.loaded / event.total) * 100;
@@ -74,7 +74,7 @@ export default function StepThreeForm() {
           }));
         }
       };
-  
+
       xhr.onload = () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -83,12 +83,12 @@ export default function StepThreeForm() {
           reject("Upload failed");
         }
       };
-  
+
       xhr.onerror = () => reject("Upload failed");
       xhr.send(formData);
     });
   };
-  
+
   const onDrop = async (acceptedFiles: File[]) => {
     const validFileTypes = ["image/png", "image/jpeg", "image/jpg"];
     const currentFileNames = formData.images.map((img) => img.name);
@@ -98,7 +98,7 @@ export default function StepThreeForm() {
         file.size <= 2 * 1024 * 1024 &&
         !currentFileNames.includes(file.name)
     );
-  
+
     if (uniqueFiles.length < acceptedFiles.length) {
       toast({
         title: "Duplicate or invalid files",
@@ -106,7 +106,7 @@ export default function StepThreeForm() {
           "Some files were either duplicates or exceeded size/type limits.",
       });
     }
-  
+
     const newImages = uniqueFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
@@ -115,23 +115,23 @@ export default function StepThreeForm() {
       progress: 0,
       showProgress: true,
     }));
-  
+
     const startIndex = formData.images.length;
     const newImageIndices = Array.from(
       { length: newImages.length },
       (_, i) => startIndex + i
     );
-  
+
     // 우선 이미지를 업데이트하여 미리보기를 표시
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...newImages],
     }));
-  
+
     try {
       // 업로드를 진행하고 URL을 반환
       const urls = await uploadToS3(uniqueFiles, newImageIndices);
-  
+
       // 업로드가 완료된 후에 이미지 업데이트
       setFormData((prev) => ({
         ...prev,
@@ -146,7 +146,7 @@ export default function StepThreeForm() {
             : img;
         }),
       }));
-  
+
       // Progress 바 숨기기
       setTimeout(() => {
         setFormData((prev) => ({
@@ -165,7 +165,6 @@ export default function StepThreeForm() {
       });
     }
   };
-  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -178,6 +177,15 @@ export default function StepThreeForm() {
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleSetMainImage = (index: number) => {
+    setFormData((prev) => {
+      const updatedImages = [...prev.images];
+      const mainImage = updatedImages.splice(index, 1)[0];
+      updatedImages.unshift(mainImage); // 메인 이미지를 배열의 0번째로 이동
+      return { ...prev, images: updatedImages };
+    });
   };
 
   const handleNext = () => {
@@ -262,7 +270,20 @@ export default function StepThreeForm() {
                           </div>
                         </div>
 
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-2">
+                          {index === 0 ? (
+                            <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-semibold">
+                              Main
+                            </span>
+                          ) : (
+                            <span
+                              className=" hover:underline px-2 py-1 rounded text-xs cursor-pointer"
+                              onClick={() => handleSetMainImage(index)}
+                            >
+                              Set as Main
+                            </span>
+                          )}
+
                           <Button
                             variant="ghost"
                             className="text-orange-500 hover:text-orange-500"

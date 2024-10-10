@@ -13,8 +13,9 @@ export const getUnitListById = async (
   if (!adminId) {
     return { message: "Invalid access" };
   }
+  const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
-  const sellType = searchParams.sellType ? searchParams.sellType : undefined;
+  const sellType = searchParams.sellType !== "none" ? searchParams.sellType : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
     ? parseInt(searchParams.parking)
@@ -60,6 +61,7 @@ export const getUnitListById = async (
   const data = await prisma.unit.findMany({
     where: {
       adminId : adminId,
+      type: type ? { equals: type } : undefined,
       sellType: sellType ? sellType : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,

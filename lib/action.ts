@@ -103,6 +103,7 @@ export const getUnitList = async (
   searchParams: Record<string, string>,
   sellType?: string
 ): Promise<any> => {
+  const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
@@ -149,6 +150,7 @@ export const getUnitList = async (
   const data = await prisma.unit.findMany({
     where: {
       sellType: sellType ? sellType : undefined,
+      type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
       parking: parking ? { gte: parking } : undefined,

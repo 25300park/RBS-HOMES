@@ -5,19 +5,29 @@ export async function GET(req: Request) {
   const latitude = searchParams.get("latitude");
   const longitude = searchParams.get("longitude");
   const radius = searchParams.get("radius") || "1000"; // 기본 반경 1km
-  const type = searchParams.get("type") || "restaurant"; // 기본으로 식당 조회
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_KEY;
 
   if (!latitude || !longitude) {
     return NextResponse.json({ error: "Missing latitude or longitude" }, { status: 400 });
   }
 
-  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=${type}&key=${apiKey}`;
+  const types = ["restaurant", "hospital", "pharmacy", "school", "park", "museum"];
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return NextResponse.json(data);
+    const fetchPromises = types.map((type) => {
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=${type}&key=${apiKey}`;
+      return fetch(url).then((response) => response.json());
+    });
+
+    // 모든 요청이 완료될 때까지 기다림
+    const results = await Promise.all(fetchPromises);
+
+    const categorizedResults = types.reduce<Record<string, any[]>>((acc, type, index) => {
+      acc[type] = results[index].results;
+      return acc;
+    }, {}); 
+
+    return NextResponse.json(categorizedResults);
   } catch (error) {
     console.error("Error fetching nearby places:", error);
     return NextResponse.json({ error: "Failed to fetch nearby places" }, { status: 500 });

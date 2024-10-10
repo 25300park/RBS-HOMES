@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 py-16 px-4 ">
+    <footer className="bg-[#f7f7f7] border-t py-16 px-4 ">
       <div className="max-w-6xl mx-auto flex md:flex-col flex-row justify-between items-start md:items-center">
         {/* Navigation Links */}
         <div className="md:w-full  flex md:flex-col flex-row  text-center md:text-left justify-evenly w-full">

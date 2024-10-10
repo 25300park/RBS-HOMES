@@ -46,9 +46,9 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
   }, []);
 
   return (
-    <header className="h-20 fixed top-0 z-50">
+    <header className="h-20 ">
       <nav
-        className={`fixed top-0 w-full transition-all duration-300 bg-transparent ${
+        className={`fixed top-0 w-full transition-all duration-300 border-b bg-white ${
           navbarScrolled ? "h-16 shadow-lg bg-white" : "h-20 bg-transparent"
         } z-50 w-full flex items-center px-8 mx-auto justify-between`}
       >
@@ -114,7 +114,7 @@ const Header = ({ session }: HeaderProps): React.ReactNode => {
               >
                 LOGOUT
               </Button> */}
-              <HeaderUserProfile session={session} />
+              <HeaderUserProfile session={session}/>
             </>
           )}
         </div>
