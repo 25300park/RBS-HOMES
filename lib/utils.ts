@@ -59,15 +59,16 @@ export const getRelativeTime = (date: Date) => {
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return rtf.format(-diffInDays, 'day');
+  
+  // 일주일 이상 경과 시 절대 날짜로 표시
+  if (diffInDays >= 7) {
+    return new Intl.DateTimeFormat('en', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(date));
   }
 
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return rtf.format(-diffInMonths, 'month');
-  }
-
-  const diffInYears = Math.floor(diffInMonths / 12);
-  return rtf.format(-diffInYears, 'year');
+  // 일주일 이내면 상대적인 날짜로 표시
+  return rtf.format(-diffInDays, 'day');
 };

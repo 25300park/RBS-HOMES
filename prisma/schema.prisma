@@ -15,11 +15,11 @@ model User {
   image          String?    @db.VarChar(500) // 사용자 프로필 이미지 URL 또는 경로
   password       String?    @db.VarChar(255) // 비밀번호 해시 (선택적)
   passwordOrigin String?    @db.VarChar(255) // 비밀번호 원본 (선택적)
-  level          Int        @default(1) // 사용자 레벨
+  level          Int        @default(1) // 사용자 레벨 1: 일반유저 2: 면허o 브로커  3: 면허x 브로커
   name           String?    @db.VarChar(50) // 이름
   mobile         String?    @db.VarChar(50) // 연락처
   facebook       String?    @db.VarChar(500) // 페이스북 정보
-  status         Int        @default(-1) // 상태 -1 일반유저 0 브로커(승인시) 1정지
+  status         Int        @default(-1) // 상태 -1 일반유저 0 관리자
   company        String?    @db.VarChar(50) // 회사
   license        String?    @db.VarChar(50) // 면허
   regdate        DateTime   @default(now()) // 등록일
@@ -30,7 +30,7 @@ model User {
   favorites      Favorite[] // 즐겨찾기
   loginLog       LoginLog[] // 로그인 기록
 
-  @@index([username], map: "ix_user_user_id")
+  @@index([id], map: "ix_user_user_id")
 }
 
 model Account {
@@ -80,15 +80,19 @@ model Notice {
 }
 
 model Schedule {
-  id      Int      @id @default(autoincrement()) // 고유 아이디
-  unitId  Int // 유닛 ID
-  title   String   @db.VarChar(255) // 제목
-  regdate DateTime @default(now()) // 등록일
-  status  Int // 상태
-
-  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade) // 유닛과의 관계
-
-  @@index([unitId], map: "ix_schedule_unit_id")
+  id          Int       @id @default(autoincrement()) // 고유 아이디
+  unitId      Int // 유닛 ID
+  userId      Int?
+  username    String    @db.VarChar(50) //유저 ID
+  email       String    @db.VarChar(300) // 이메일
+  mobile      String    @db.VarChar(50) // 연락처
+  requestDate DateTime? //신청 희망일
+  date        DateTime? //미팅날짜
+  message     String    @db.VarChar(255) // 내용
+  regdate     DateTime  @default(now()) // 등록일
+  status      Int       @default(0) // 0: 신청 1:대기 2:확정 3:취소
+  lastUpdate  DateTime  @default(now()) // 마지막 업데이트 시간
+  regId       Int?
 }
 
 model Unit {
@@ -129,7 +133,6 @@ model Unit {
   longitude          Float? // 경도
 
   admin     User       @relation(fields: [adminId], references: [id], onDelete: Cascade) // User 모델과의 관계
-  schedule  Schedule[] // 유닛과 관련된 일정들
   favorites Favorite[] // 즐겨찾기
 
   @@index([adminId], map: "ix_unit_admin_id")

@@ -19,7 +19,7 @@ const MainList = async ({}: MainListProps) => {
                   title={card.title}
                   price={Number(card.price)}
                   sellType={card.sellType}
-                  area={card.area}
+                  area={card.area} 
                   location={`${card.address2 as string},${
                     card.address3 as string
                   },${card.address4 as string}`}

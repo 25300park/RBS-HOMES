@@ -23,6 +23,7 @@ export default function Sidebar({ session }: SidebarProps) {
       router.push(link);
     }
   };
+
   const isActiveCheck = (isTab: boolean, link: string) => {
     if (isTab) {
       return pathname + "?" + searchParams === link;
@@ -53,29 +54,49 @@ export default function Sidebar({ session }: SidebarProps) {
           </div>
         </div>
 
-        <div className="flex flex-col h-full justify-between py-4 ">
+        <div className="flex flex-col h-full justify-between py-4">
           <nav className="flex flex-col flex-1 ">
-            {accountSideBarOption.map((option) => (
-              <div key={option.name} className="py-2">
-                <h3 className="text-lg font-bold mb-2">{option.name}</h3>
-                {option.children.map((child) => {
-                  const isActive = isActiveCheck(child.isTab, child.link);
-                  return (
-                    <button
-                      key={child.name}
-                      className={`text-left w-full text-gray-700 hover:text-black border-l-4 ${
-                        isActive
-                          ? "font-bold text-black border-blue-500"
-                          : "border-transparent"
-                      }`}
-                      onClick={() => handleNavigation(child.link, child.isTab)}
-                    >
-                      {child.name}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
+            {accountSideBarOption.map((option) => {
+              // children이 없는 경우 (Dashboard와 같은 경우)만 링크로 처리
+              if (option.children.length === 0 && option.link) {
+                const isActive = pathname === option.link;
+                return (
+                  <button
+                    key={option.name}
+                    className={`text-left w-full text-gray-700 hover:text-black border-l-4 ${
+                      isActive
+                        ? "font-bold text-black border-blue-500"
+                        : "border-transparent"
+                    } py-2`}
+                    onClick={() => handleNavigation(option.link, false)}
+                  >
+                    {option.name}
+                  </button>
+                );
+              }
+
+              return (
+                <div key={option.name} className="py-2">
+                  <h3 className="text-lg font-bold mb-2">{option.name}</h3>
+                  {option.children.map((child) => {
+                    const isActive = isActiveCheck(child.isTab, child.link);
+                    return (
+                      <button
+                        key={child.name}
+                        className={`text-left w-full text-gray-700 hover:text-black border-l-4 ${
+                          isActive
+                            ? "font-bold text-black border-blue-500"
+                            : "border-transparent"
+                        }`}
+                        onClick={() => handleNavigation(child.link, child.isTab)}
+                      >
+                        {child.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </nav>
 
           <Button

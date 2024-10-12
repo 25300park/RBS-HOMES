@@ -1,6 +1,7 @@
 export const accountSideBarOption = [
   {
     name: "Dashboard",
+    link: "/account",
     children: [],
   },
   {

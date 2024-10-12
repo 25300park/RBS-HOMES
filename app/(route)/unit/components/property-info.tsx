@@ -86,9 +86,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
           <div className="border-b border-gray-200 py-8 text-gray-700 space-y-4">
             <h3 className="text-xl font-medium text-gray-800">Description</h3>
             <p className="text-base">
-              {property.note} Amazing panoramic Castle with big pool 17X7mt. The
-              property is surrounded by vineyards and olive groves! Located In
-              the heart of Tuscany between Florence and Siena!
+              {property.note} 
             </p>
           </div>
 
@@ -211,7 +209,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
         </div>
 
         {/* sticky */}
-        <div className="w-[320px] border sticky h-[200px] top-20 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between">
+        <div className="w-[500px] border sticky h-[200px] top-20 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between">
           <p className="text-2xl font-semibold text-gray-900 mt-2">
             $
             {Number(property.price)?.toLocaleString("en-US", {

@@ -131,7 +131,6 @@ export const getUnitDetail = async (unitId: number) => {
     },
     include: {
       admin: true,
-      schedule: true,
     },
   });
   return { unitDetail };

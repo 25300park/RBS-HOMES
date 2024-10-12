@@ -11,11 +11,11 @@ import { IoIosArrowBack } from "react-icons/io"; // 화살표 아이콘 추가
 
 interface ImageGalleryProps {
   images: string[]; // 이미지 URL 배열을 props로 받음
-  onViewAllClick?: () => void; // 'View all photos' 클릭 시 호출될 함수
 }
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
   const sideImages = images.slice(1, 5); // 나머지 이미지를 사이드 이미지로 설정 (최대 4개)
+  const remainingImageCount = images.length - 5; // 5번째 이후의 이미지 개수 계산
 
   return (
     <Drawer>
@@ -26,7 +26,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             <img
               src={images[0]}
               alt="Main"
-              className="w-full h-full object-cover rounded-lg cursor-pointer"
+              className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-85"
               style={{ aspectRatio: "4/3" }} // 메인 이미지 비율
             />
           </div>
@@ -39,9 +39,17 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
               <img
                 src={image}
                 alt={`Side ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg cursor-pointer"
+                className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-85"
                 style={{ aspectRatio: "1/1" }} // 사이드 이미지 비율
               />
+              {/* 마지막 이미지 위에 오버레이로 더 많은 이미지 개수 표시 */}
+              {index === sideImages.length - 1 && remainingImageCount > 0 && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg cursor-pointer">
+                  <span className="text-white text-3xl font-semibold">
+                    +{remainingImageCount}
+                  </span>
+                </div>
+              )}
             </div>
           </DrawerTrigger>
         ))}

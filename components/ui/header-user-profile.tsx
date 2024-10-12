@@ -1,3 +1,5 @@
+"use client";
+
 import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
 import {
@@ -6,7 +8,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import Link from "next/link";
-import Image from "next/image"; 
+import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 export default function HeaderUserProfile({ session }: any) {
   return (
@@ -59,9 +62,7 @@ export default function HeaderUserProfile({ session }: any) {
             <p className="text-xs text-gray-500">function2</p>
             <p className="text-lg font-bold text-orange-500">btn</p>
           </div>
-          <button className="bg-white border rounded-full p-2">
-            +
-          </button>
+          <button className="bg-white border rounded-full p-2">+</button>
         </div>
 
         {/* 메뉴 항목 */}
@@ -96,7 +97,10 @@ export default function HeaderUserProfile({ session }: any) {
         </ul>
 
         {/* 로그아웃 버튼 */}
-        <button className="w-full bg-gray-200 text-gray-700 rounded-md p-2 mt-4">
+        <button
+          className="w-full bg-gray-200 text-gray-700 rounded-md p-2 mt-4"
+          onClick={() => signOut()}
+        >
           Log-out
         </button>
       </HoverCardContent>

@@ -33,10 +33,10 @@ export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
   const markerClustererRef = useRef<MarkerClusterer | null>(null); // 클러스터러 참조
   const markerMap = useRef<Map<number, google.maps.Marker>>(new Map());
   const clusterMap = useRef<Map<string, any>>(new Map()); // 클러스터 추적용
-
   const debouncedUpdate = useDebouncedCallback(
     async (map: google.maps.Map, units: Unit[]) => {
       setLoading(true);
+
       const mapBounds = map.getBounds();
       if (mapBounds) {
         const visibleUnits = units.filter((unit) =>
@@ -82,8 +82,11 @@ export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
   useEffect(() => {
     const createMarkers = () => {
       return units.map((unit) => {
+        const lat = parseFloat(unit.latitude);
+        const lng = parseFloat(unit.longitude);
+        
         const marker = new google.maps.Marker({
-          position: { lat: unit.latitude, lng: unit.longitude },
+          position: { lat, lng },
           icon: {
             url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
               generateMarkerSVG(false)

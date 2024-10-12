@@ -39,7 +39,7 @@ const PropertyCard = ({
   return (
     <div className="w-[280px] relative cursor-pointer group  transition-all duration-300 bg-white rounded-md">
       {/* VIP Badge */}
-      {isVip && (
+      {/* {isVip && (
         <span
           className={`absolute top-2 left-2 px-4 ${
             sellType === "Rent" ? "bg-[#010272]" : "bg-orange-500"
@@ -47,7 +47,7 @@ const PropertyCard = ({
         >
           {sellType.toUpperCase()}
         </span>
-      )}
+      )} */}
 
       {/* Image */}
       <div className="relative h-48 rounded-md overflow-hidden">
@@ -71,12 +71,13 @@ const PropertyCard = ({
         </div>
 
         <div className="flex items-center my-2">
-          <span className="text-orange-500 text-md font-semibold text-right w-full mr-2">
-            ${" "}
+          <span className="text-md font-semibold w-full mr-2">
+          ₱{" "}
             {price?.toLocaleString("en-US", {
               // style: "currency",
               currency: "USD",
             })}
+            <span className="ml-2 text-sm font-medium text-gray-500">by {sellType}</span>
           </span>
         </div>
 
