@@ -50,7 +50,7 @@ export default function StepNavigation() {
   };
 
   return (
-    <div className="flex  justify-center my-10">
+    <div className="flex  justify-center py-10">
       {steps.map((step, index) => (
         <div key={index} className="flex items-center">
           <div

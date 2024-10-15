@@ -44,3 +44,9 @@ export const accountSideBarOption = [
     children: [],
   },
 ];
+
+export const UserLevelOptions = [
+  { label: "Tenant/Buyer", value: "1" },
+  { label: "Agent", value: "2" },
+  { label: "Owner", value: "4" },
+];

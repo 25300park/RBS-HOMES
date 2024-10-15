@@ -35,13 +35,13 @@ export default function AccountManagement() {
         {/* Tabs */}
         <div className="flex  w-full">
           <button
-            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "EditInformation" ? "border-red-500" : ""}`}
+            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "EditInformation" ? "border-orange-500" : ""}`}
             onClick={() => router.push("/account/management?tabs=EditInformation")}
           >
             Edit Information
           </button>
           <button
-            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "RegisterBroker" ? "border-red-500" : ""}`}
+            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "RegisterBroker" ? "border-orange-500" : ""}`}
             onClick={() => router.push("/account/management?tabs=RegisterBroker")}
           >
             Register as Professional Broker

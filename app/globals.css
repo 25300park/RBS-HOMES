@@ -145,7 +145,7 @@
 .marked-dot::before {
   content: '';
   position: absolute;
-  top: 2px;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
   width: 8px;
@@ -153,3 +153,4 @@
   background-color: rgb(250, 109, 1); /* 원하는 색상으로 변경 */
   border-radius: 50%;
 }
+

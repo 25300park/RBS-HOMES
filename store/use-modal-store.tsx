@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type ModalType = "login" | "signup" | "confirm" | "alert" | "filter" | 'preview' | null;
+type ModalType = "login" | "signup" | "confirm" | "alert" | "filter" | 'preview' | 'schedule' | null;
 
 interface ModalState {
   isOpen: boolean;

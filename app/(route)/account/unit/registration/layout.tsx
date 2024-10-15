@@ -7,9 +7,9 @@ export default async function layout({
 }>) {
   return (
     <div className="w-full bg-white h-full">
-      <div className="h-28 border-b flex items-end px-12 py-4 bg-zinc-50">
+      {/* <div className="h-28 border-b flex items-end px-12 py-4 bg-zinc-50">
         <h2 className="font-semibold text-2xl">Unit Registeration</h2>
-      </div>
+      </div> */}
       <div className="">
         <StepNavigation />
         {children}
