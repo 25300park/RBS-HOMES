@@ -3,7 +3,19 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
+import z from "zod";
+import { revalidatePath } from "next/cache"; 
+// 스케줄 추가를 위한 Zod 스키마
+const scheduleSchema = z.object({
+  title: z
+    .string()
+    .max(100, "Title must be 100 characters or fewer")
+    .nonempty("Title is required"),
+  date: z.date().refine((val) => val !== null, {
+    message: "Date is required and cannot be null",
+  }), 
+  unitId: z.number().nullable(), 
+});
 export const getUserSchedules = async () => {
   const session: any = await getServerSession(authOptions as any);
 
@@ -47,17 +59,17 @@ export const getUnitDetails = async (unitId: number) => {
         id: unitId,
       },
       select: {
-        id: true, // 유닛 ID
-        title: true, // 유닛 제목
-        type: true, // 유닛 타입
-        sellType: true, // 판매 유형
-        fullAdress: true, // 풀주소
-        ownerName: true, // 소유주 이름
-        ownerMobile: true, // 소유주 연락처
-        ownerEmail: true, // 소유주 이메일
-        images: true, // 유닛 이미지
-        price: true, // 유닛 가격
-        status: true, // 유닛 상태
+        id: true, 
+        title: true, 
+        type: true, 
+        sellType: true, 
+        fullAdress: true, 
+        ownerName: true, 
+        ownerMobile: true, 
+        ownerEmail: true, 
+        images: true, 
+        price: true, 
+        status: true, 
       },
     });
 
@@ -67,10 +79,97 @@ export const getUnitDetails = async (unitId: number) => {
 
     return {
       ...unit,
-      price: unit.price?.toString() || "0", 
+      price: unit.price?.toString() || "0",
     };
   } catch (error) {
     console.error(`Error fetching unit details for unitId: ${unitId}`, error);
     throw new Error("Failed to fetch unit details");
+  }
+};
+
+export const getUnitSceduleList = async () => {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+
+    if (!session || !session.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = session.user.id;
+
+    const units = await prisma.unit.findMany({
+      where: { adminId: userId },
+      select: {
+        id: true,
+        title: true,
+        fullAdress: true,
+        price: true,
+        images: true, 
+      },
+    });
+    const data = units.map((unit: any) => ({
+      ...unit,
+      price: unit.price ? parseFloat(unit.price.toString()) : null,
+      images: unit.images ? JSON.parse(unit.images) : [],
+    }));
+    return { data };
+  } catch (error) {
+    console.error(`Error fetching schedule unit list`);
+    throw new Error("Failed to fetch unit details");
+  }
+};
+
+export const addSchedule = async (
+  title: string,
+  date: Date,
+  unitId: number
+) => {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+
+    if (!session || !session.user?.id) {
+      throw new Error("User not authenticated");
+    }
+    const user = session.user;
+    const userId = session.user.id;
+
+    // Title validation using zod
+    const validationResult = scheduleSchema.safeParse({ title, date, unitId });
+
+    if (!validationResult.success) {
+      return {
+        status: 400,
+        message: validationResult.error.errors
+          .map((error) => error.message)
+          .join(", "),
+      };
+    }
+
+    // Prisma DB에 새로운 스케줄 추가
+    await prisma.schedule.create({
+      data: {
+        userId: userId,
+        email: user.email,
+        username: user.username,
+        mobile: user.mobile,
+        message: validationResult.data.title,
+        date: validationResult.data.date,
+        unitId: validationResult.data.unitId
+          ? validationResult.data.unitId
+          : -1,
+        status: 2, 
+      },
+    });
+    revalidatePath('/account');
+    return {
+      status: 200,
+      message: "Schedule successfully added",
+    };
+  } catch (error) {
+    console.error("Error adding schedule:", error);
+    return {
+      status: 400,
+      message: "Failed to add schedule",
+    };
   }
 };

@@ -4,43 +4,39 @@ import { FaRegUser } from "react-icons/fa";
 import { AiTwotoneSetting } from "react-icons/ai";
 
 interface UserProfileAvatarProps {
-  admin: any;
+  imageUrl: string;
+  onImageSelect: (file: File | null) => void; // 부모 컴포넌트에 이미지 전달
 }
 
-export default function UserProfileAvatar({ admin }: UserProfileAvatarProps) {
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+export default function UserProfileAvatar({
+  imageUrl,
+  onImageSelect,
+}: UserProfileAvatarProps) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedImage(file);
       setPreviewImage(URL.createObjectURL(file)); // 미리보기 설정
+      onImageSelect(file); // 부모 컴포넌트에 파일 전달
     }
   };
 
   return (
     <div className="relative w-fit cursor-pointer">
-      {/* Avatar */}
       <label className="relative cursor-pointer">
         <Avatar className="w-24 h-24 cursor-pointer border">
-          <AvatarImage
-            src={previewImage || admin.image}
-          />
+          <AvatarImage src={previewImage || imageUrl} />
           <AvatarFallback>
             <FaRegUser className="text-4xl" />
           </AvatarFallback>
         </Avatar>
-
-        {/* 파일 업로드 input */}
         <input
           type="file"
           accept="image/*"
-          className="hidden" // input을 화면에서 숨김
+          className="hidden"
           onChange={handleImageChange}
         />
-
-        {/* + 아이콘 (우측 하단) */}
         <AiTwotoneSetting className="absolute bottom-0 right-0 text-2xl" />
       </label>
     </div>

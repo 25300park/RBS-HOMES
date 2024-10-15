@@ -46,7 +46,7 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
-
+console.log(unitDetails)
   const prevMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
@@ -120,7 +120,7 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
 
         days.push(
           <div
-            className={`relative flex-1 h-24 border rounded-lg cursor-pointer transition-all duration-150 ease-in-out ${
+            className={`relative flex-1 h-28 border rounded-lg cursor-pointer transition-all duration-150 ease-in-out ${
               !isSameMonth(day, monthStart)
                 ? "border-gray-100"
                 : isSelected
@@ -211,7 +211,12 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
       {renderCells()}
       {/* 선택된 날짜의 스케줄 및 유닛 상세 정보 표시 */}
       <div className="mt-6">
-        <div onClick={() => openModal("schedule", )}>test</div>
+        <div
+          onClick={() => openModal("schedule")}
+          className="fixed bottom-10 right-10 rounded-full bg-orange-200 text-orange-800 flex items-center justify-center shadow-lg font-bold text-xl cursor-pointer"
+        >
+          스케줄 추가
+        </div>
         {/* <ScheduleModal units={[]} date={selectedDate} /> */}
         <h3 className="text-lg font-semibold">
           {selectedDate
@@ -233,6 +238,11 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
                   {/* 유닛 디테일이 존재할 경우 표시 */}
                   {unitDetail && (
                     <div className="mt-2 p-2 bg-blue-100 border border-blue-200 rounded-lg">
+                      <img
+                        src={JSON.parse(unitDetail.data.images)[0]}
+                        alt="unit image"
+                        className="w-20 h-20 object-cover"
+                      />
                       <p className=" text-blue-700">{unitDetail.data.title}</p>
                       <p className=" text-blue-700">
                         {unitDetail.data.fullAdress}

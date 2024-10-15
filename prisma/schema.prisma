@@ -17,7 +17,7 @@ model User {
   passwordOrigin String?    @db.VarChar(255) // 비밀번호 원본 (선택적)
   level          Int        @default(1) // 사용자 0: 관리자 레벨 1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너
   name           String?    @db.VarChar(50) // 이름
-  mobile         String?    @db.VarChar(50) // 연락처
+  phone         String?    @db.VarChar(50) // 연락처
   facebook       String?    @db.VarChar(500) // 페이스북 정보
   status         Int        @default(-1) // -1: 정상 0: 정지 1: 탈퇴
   // verifyStatus   Int?        @default(-1) // 0:신청 1: 승인 (휴대폰 인증)
@@ -84,12 +84,17 @@ model Schedule {
   id          Int       @id @default(autoincrement()) // 고유 아이디
   unitId      Int // 유닛 ID
   userId      Int?
-  username    String    @db.VarChar(50) //유저 ID
-  email       String    @db.VarChar(300) // 이메일
-  mobile      String    @db.VarChar(50) // 연락처
+  username    String?   @db.VarChar(50) //유저 ID
+  email       String?   @db.VarChar(300) // 이메일
+  mobile      String?   @db.VarChar(50) // 연락처
   requestDate DateTime? //신청 희망일
   date        DateTime? //미팅날짜
-  message     String    @db.VarChar(255) // 내용
+  startedAt   DateTime?
+  endedAt     DateTime?
+  title       String?   @db.VarChar(100)
+  message     String?   @db.VarChar(255) // 제목
+  desc        String?   @db.VarChar(255) //내용 
+  location    String?   @db.VarChar(255) //위치
   regdate     DateTime  @default(now()) // 등록일
   status      Int       @default(0) // 0: 신청 1:대기 2:확정 3:취소
   lastUpdate  DateTime  @default(now()) // 마지막 업데이트 시간

@@ -6,30 +6,71 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import SelectionBox from "@/components/ui/select-box";
 import { UserLevelOptions } from "@/lib/config/account-options";
-
+import { editUserProfile } from "../management/action";
+import { useSession} from "next-auth/react";
 export interface EditInformationFormProps {
   session: any;
 }
 
-const EditInformationForm = ({
-  session,
-}: EditInformationFormProps): React.ReactNode => {
-  const [fullName, setFullName] = useState(session?.user.name);
-  const [userLevel, setUserLevel] = useState(String(session?.user.level));
-  const [phone, setPhone] = useState("");
+const EditInformationForm = ({ session }: EditInformationFormProps) => {
+  const { update } = useSession(); 
+  const [name, setName] = useState(session?.user.name);
+  const [level, setLevel] = useState(String(session?.user.level));
+  const [phone, setPhone] = useState(session?.user.phone);
   const [email, setEmail] = useState(session?.user.email);
-  const handleSaveChanges = () => {};
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState(session?.user.image || null);
+  const handleSaveChanges = async (e: any) => {
+    e.preventDefault();
+    
+    if (selectedImage) {
+      const formData = new FormData();
+      formData.append("file", selectedImage);
+
+      try {
+        const response = await fetch("/api/image-upload/profile", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        setImageUrl(data.imageUrl)
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        return;
+      }
+    }
+
+    // 프로필 수정 API 호출
+    try {
+      const response = await editUserProfile({
+        name,
+        phone,
+        profileImage: imageUrl, // 업로드된 이미지 URL을 전달 (없으면 null)
+        level,
+      });
+
+      if (response.status === 200) {
+       await update({name, phone, level,  image: imageUrl? imageUrl: null})
+        console.log("Profile updated successfully");
+      } else {
+        console.error("Profile update failed:", response.message);
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
+  };
 
   return (
     <form>
-      {/* Personal Information */}
       <section className="my-8">
         <h2 className="text-xl font-bold mb-4">Personal Information</h2>
         <div className="flex justify-center my-8">
-          <UserProfileAvatar admin={session.user} />
+        <UserProfileAvatar
+            imageUrl={imageUrl}
+            onImageSelect={setSelectedImage}
+          />
         </div>
         <div className="grid grid-cols-2 gap-6">
-          {/* Full Name */}
           <div>
             <label className="block text-xs mb-1 font-medium text-zinc-500">
               Full Name
@@ -37,29 +78,27 @@ const EditInformationForm = ({
             <Input
               type="text"
               placeholder={session?.user.name ?? "Enter your name"}
-              value={fullName ?? ""}
-              onChange={(e) => setFullName(e.target.value)}
+              value={name ?? ""}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
         </div>
       </section>
-      {/* Contact Information */}
-      <section className=" py-8 border-t">
+      <section className="py-8 border-t">
         <h2 className="text-xl font-bold mb-4">Contact Information</h2>
-        <div className=" my-6">
+        <div className="my-6">
           <label className="block text-xs mb-1 font-medium text-zinc-500">
             User Type
           </label>
           <SelectionBox
             options={UserLevelOptions}
-            selectedValue={userLevel}
-            onSelect={(value) => setUserLevel(value)}
+            selectedValue={level}
+            onSelect={(value) => setLevel(value)}
             className="w-full space-x-0 flex gap-2"
             boxClassName="h-11 w-32"
           />
         </div>
         <div className="grid grid-cols-2 gap-6">
-          {/* Primary Phone Number */}
           <div>
             <label className="block text-xs mb-1 font-medium text-zinc-500">
               Primary Phone Number
@@ -70,13 +109,7 @@ const EditInformationForm = ({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
-            <div className="text-orange-500 text-sm mt-2 font-semibold">
-              If you want to sell your home, you need to provide your phone
-              number.
-            </div>
           </div>
-
-          {/* Email */}
           <div>
             <label className="block text-xs mb-1 font-medium text-zinc-500">
               Email
@@ -91,11 +124,10 @@ const EditInformationForm = ({
           </div>
         </div>
       </section>
-      {/* Save Changes Button */}
       <div className="flex justify-end">
         <Button
           className="bg-blue-400 text-white hover:bg-blue-300"
-          onClick={handleSaveChanges}
+          onClick={(e) => handleSaveChanges(e)}
         >
           Save Changes
         </Button>

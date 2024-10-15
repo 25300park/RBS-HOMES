@@ -211,7 +211,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
         {/* sticky */}
         <div className="w-[500px] border sticky h-[200px] top-20 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between">
           <p className="text-2xl font-semibold text-gray-900 mt-2">
-            $
+             ₱ 
             {Number(property.price)?.toLocaleString("en-US", {
               minimumFractionDigits: 0,
             })}
