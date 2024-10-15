@@ -16,7 +16,6 @@ export const editUserProfile = async ({ name, phone, profileImage, level }: any)
   if (!session || !session.user?.id) {
     throw new Error("User not authenticated");
   }
-
   const validationResult = profileSchema.safeParse({ name, phone, profileImage });
   if (!validationResult.success) {
     return {
@@ -24,7 +23,6 @@ export const editUserProfile = async ({ name, phone, profileImage, level }: any)
       message: validationResult.error.errors.map((e) => e.message).join(", "),
     };
   }
-
   try {
     await prisma.user.update({
       where: { id: session.user.id },

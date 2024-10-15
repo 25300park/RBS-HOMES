@@ -1,20 +1,19 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
 import { accountSideBarOption } from "@/lib/config/account-options";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
-interface SidebarProps {
-  session: any;
-}
+interface SidebarProps {}
 
-export default function Sidebar({ session }: SidebarProps) {
+export default function Sidebar({}: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
 
   const handleNavigation = (link: string, isTab: boolean) => {
     if (isTab) {
@@ -41,7 +40,7 @@ export default function Sidebar({ session }: SidebarProps) {
         {/* 유저 간단 프로필 */}
         <div className="flex justify-start w-full gap-2 py-6 px-4">
           <Avatar className="w-16 h-16 cursor-pointer">
-            <AvatarImage src={session.user.image} />
+            <AvatarImage src={session?.user.image || ""} />
             <AvatarFallback>
               <FaRegUser className="text-3xl" />
             </AvatarFallback>
@@ -88,7 +87,9 @@ export default function Sidebar({ session }: SidebarProps) {
                             ? "font-bold text-black border-blue-500"
                             : "border-transparent"
                         }`}
-                        onClick={() => handleNavigation(child.link, child.isTab)}
+                        onClick={() =>
+                          handleNavigation(child.link, child.isTab)
+                        }
                       >
                         {child.name}
                       </button>

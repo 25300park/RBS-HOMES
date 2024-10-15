@@ -18,7 +18,6 @@ const scheduleSchema = z.object({
 });
 export const getUserSchedules = async () => {
   const session: any = await getServerSession(authOptions as any);
-
   if (!session || !session.user?.id) {
     throw new Error("User not authenticated");
   }

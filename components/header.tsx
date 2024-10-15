@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useModalStore } from "@/store/use-modal-store";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { useRouter, usePathname } from "next/navigation";
@@ -10,7 +10,6 @@ import HeaderUserProfile from "./ui/header-user-profile";
 
 // 세션 종료
 export interface HeaderProps {
-  session: any;
 }
 
 const NavLinks = [
@@ -19,7 +18,8 @@ const NavLinks = [
   { title: "sell", href: "/sell", auth: true },
 ];
 
-const Header = ({ session }: HeaderProps): React.ReactNode => {
+const Header = ({  }: HeaderProps): React.ReactNode => {
+  const { data:session } = useSession()
   const { openModal } = useModalStore();
   const pathName = usePathname();
   const [navbarScrolled, setNavbarScrolled] = useState(false);

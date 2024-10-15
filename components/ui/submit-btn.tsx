@@ -3,7 +3,7 @@ import Spinner from '@/components/ui/spinner';
 
 interface SubmitButtonProps {
   isSubmitting: boolean;
-  onClick: () => void;
+  onClick: any;
   label: string;
   disabled?: boolean;
 }

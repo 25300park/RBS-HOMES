@@ -15,7 +15,7 @@ export default async function RootLayout({
   return (
     // max-h-[calc(100vh-80px)]
     <div className="flex">
-      <Sidebar session={session}/>
+      <Sidebar />
       <section className="bg-zinc-50 flex-1">{children}</section>
     </div>
   );

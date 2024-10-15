@@ -1,32 +1,34 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth'; // next-auth에서 세션 가져오기
-
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION as string,
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
   credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY as string,
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
   },
 });
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     // 세션에서 유저 정보 가져오기
-    const session = await getServerSession();
-
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ error: 'User is not authenticated' }, { status: 401 });
+      return NextResponse.json(
+        { error: "User is not authenticated" },
+        { status: 401 }
+      );
     }
 
     const userId = session.user.id; // 세션에서 유저 ID 가져오기
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file");
 
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -51,7 +53,10 @@ export async function POST(req: Request) {
     // 유저 프로필 업데이트 로직 추가 필요 (DB에 imageUrl 저장)
     return NextResponse.json({ imageUrl }, { status: 200 });
   } catch (error) {
-    console.error('Upload failed:', error);
-    return NextResponse.json({ error: 'Error uploading profile image' }, { status: 500 });
+    console.error("Upload failed:", error);
+    return NextResponse.json(
+      { error: "Error uploading profile image" },
+      { status: 500 }
+    );
   }
 }

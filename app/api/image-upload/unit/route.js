@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth'; 
-import { authOptions } from "@/lib/auth"; // next-auth 설정 파일 경로에 맞게 변경
+import { authOptions } from "@/lib/auth"; 
 
 const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_AWS_REGION ,

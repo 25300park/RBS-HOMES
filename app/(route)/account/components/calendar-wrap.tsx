@@ -55,7 +55,6 @@ const CalendarWrap = ({ markedDate, schedules }: CalendarWrapProps) => {
           mode="single"
           selected={selectedDate}
           onSelect={setSelectedDate}
-          markedDates={markedDate}
           className="rounded-md border shadow w-fit bg-white"
         />
       </div>

@@ -3,71 +3,105 @@
 import { useState } from "react";
 import UserProfileAvatar from "../components/user-profile-upload";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import SelectionBox from "@/components/ui/select-box";
 import { UserLevelOptions } from "@/lib/config/account-options";
 import { editUserProfile } from "../management/action";
-import { useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
+
+import { SubmitButton } from "@/components/ui/submit-btn"; // SubmitButton 사용
+
 export interface EditInformationFormProps {
   session: any;
 }
 
 const EditInformationForm = ({ session }: EditInformationFormProps) => {
-  const { update } = useSession(); 
-  const [name, setName] = useState(session?.user.name);
-  const [level, setLevel] = useState(String(session?.user.level));
-  const [phone, setPhone] = useState(session?.user.phone);
-  const [email, setEmail] = useState(session?.user.email);
+  const { update } = useSession();
+  const { toast } = useToast();
+  const [name, setName] = useState(session?.user.name || "");
+  const [level, setLevel] = useState(String(session?.user.level || 1));
+  const [phone, setPhone] = useState(session?.user.phone || "");
+  const [email, setEmail] = useState(session?.user.email || "");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState(session?.user.image || null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 버튼 중복 클릭 방지용 상태
+
   const handleSaveChanges = async (e: any) => {
-    e.preventDefault();
-    
+    setIsSubmitting(true); 
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    let uploadedImageUrl = imageUrl; // 기본적으로 현재의 imageUrl을 유지
+  
     if (selectedImage) {
       const formData = new FormData();
       formData.append("file", selectedImage);
-
+  
       try {
         const response = await fetch("/api/image-upload/profile", {
           method: "POST",
           body: formData,
         });
         const data = await response.json();
-        setImageUrl(data.imageUrl)
+  
+        if (!response.ok || !data.imageUrl) {
+          throw new Error("Image upload failed");
+        }
+  
+        uploadedImageUrl = data.imageUrl; 
+        setSelectedImage(null); // 업로드 후 초기화
+        setImageUrl(uploadedImageUrl); // 이미지 URL 업데이트
       } catch (error) {
         console.error("Image upload failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Image upload failed",
+          description: "please try again later",
+        });
+        setIsSubmitting(false); // 실패 시 다시 활성화
         return;
       }
     }
-
+  
     // 프로필 수정 API 호출
     try {
       const response = await editUserProfile({
         name,
         phone,
-        profileImage: imageUrl, // 업로드된 이미지 URL을 전달 (없으면 null)
+        profileImage: uploadedImageUrl, 
         level,
       });
-
+  
       if (response.status === 200) {
-       await update({name, phone, level,  image: imageUrl? imageUrl: null})
-        console.log("Profile updated successfully");
+        await update({ name, phone, level, image: uploadedImageUrl });
+        toast({
+          title: "Profile updated successfully",
+        });
       } else {
-        console.error("Profile update failed:", response.message);
+        toast({
+          variant: "destructive",
+          title: "Profile update failed",
+          description: "please try again later",
+        });
       }
     } catch (error) {
       console.error("Error saving changes:", error);
+      toast({
+        variant: "destructive",
+        title: "Error Saving",
+        description: "please contact the administrator",
+      });
+    } finally {
+      setIsSubmitting(false); // 완료 후 버튼 활성화
     }
   };
-
+  
   return (
     <form>
       <section className="my-8">
         <h2 className="text-xl font-bold mb-4">Personal Information</h2>
         <div className="flex justify-center my-8">
-        <UserProfileAvatar
-            imageUrl={imageUrl}
-            onImageSelect={setSelectedImage}
+          <UserProfileAvatar
+            imageUrl={imageUrl || null} 
+            onImageSelect={setSelectedImage} 
           />
         </div>
         <div className="grid grid-cols-2 gap-6">
@@ -125,12 +159,13 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
         </div>
       </section>
       <div className="flex justify-end">
-        <Button
-          className="bg-blue-400 text-white hover:bg-blue-300"
-          onClick={(e) => handleSaveChanges(e)}
-        >
-          Save Changes
-        </Button>
+        {/* SubmitButton 사용 */}
+        <SubmitButton
+          isSubmitting={isSubmitting}
+          onClick={handleSaveChanges}
+          label="Save Changes"
+          disabled={isSubmitting}
+        />
       </div>
     </form>
   );
