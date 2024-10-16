@@ -73,13 +73,13 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
       if (response.status === 200) {
         await update({ name, phone, level, image: uploadedImageUrl });
         toast({
-          title: "Profile updated successfully",
+          title:  response.message,
         });
       } else {
         toast({
           variant: "destructive",
           title: "Profile update failed",
-          description: "please try again later",
+          description: response.message,
         });
       }
     } catch (error) {

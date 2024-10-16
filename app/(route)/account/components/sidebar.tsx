@@ -6,6 +6,7 @@ import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
 import { accountSideBarOption } from "@/lib/config/account-options";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { UserLevelOptions } from "@/lib/config/account-options";
 
 interface SidebarProps {}
 
@@ -15,6 +16,7 @@ export default function Sidebar({}: SidebarProps) {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
+  
   const handleNavigation = (link: string, isTab: boolean) => {
     if (isTab) {
       router.push(`${link}`);
@@ -49,7 +51,13 @@ export default function Sidebar({}: SidebarProps) {
             <h3 className="text-xl font-semibold mt-2">
               {session?.user?.name || "Guest"}
             </h3>
-            <p className="text-sm text-gray-500">유저 인증단계 설정</p>
+            <p className="text-sm text-gray-500">
+              {
+                UserLevelOptions.find(
+                  (v) => v.value == String(session?.user.level)
+                )?.label
+              }
+            </p>
           </div>
         </div>
 

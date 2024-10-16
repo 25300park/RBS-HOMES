@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/use-auth-store";
 import EditInformationForm from "../components/edit-information-form";
 import RegisterBrokerForm from "../components/register-broker-form";
+import { LodaingUi } from "@/components/ui/loading-ui";
 
 export default function AccountManagement() {
   const { session } = useAuthStore();
@@ -12,7 +13,9 @@ export default function AccountManagement() {
   const router = useRouter();
 
   if (session === null) {
-    return <div>loading...</div>;
+    return (
+     <LodaingUi />
+    );
   }
 
   const renderTabContent = () => {
@@ -35,14 +38,22 @@ export default function AccountManagement() {
         {/* Tabs */}
         <div className="flex  w-full">
           <button
-            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "EditInformation" ? "border-orange-500" : ""}`}
-            onClick={() => router.push("/account/management?tabs=EditInformation")}
+            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${
+              currentTab === "EditInformation" ? "border-orange-500" : ""
+            }`}
+            onClick={() =>
+              router.push("/account/management?tabs=EditInformation")
+            }
           >
             Edit Information
           </button>
           <button
-            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${currentTab === "RegisterBroker" ? "border-orange-500" : ""}`}
-            onClick={() => router.push("/account/management?tabs=RegisterBroker")}
+            className={`text-lg  w-1/2 text-center cursor-pointer border-b-2 ${
+              currentTab === "RegisterBroker" ? "border-orange-500" : ""
+            }`}
+            onClick={() =>
+              router.push("/account/management?tabs=RegisterBroker")
+            }
           >
             Register as Professional Broker
           </button>
