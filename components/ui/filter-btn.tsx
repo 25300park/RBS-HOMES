@@ -23,7 +23,6 @@ interface Filters {
   pet: string;
 }
 
-// 필터 버튼 컴포넌트
 export interface FilterButtonProps {
   withType?: boolean;
   withSellType?: boolean;
@@ -60,14 +59,17 @@ const FilterButton = ({
     pet: "none",
   };
 
+  const validFilterKeys = Object.keys(defaultFilters); // 기본 필터 키 목록
+
   useEffect(() => {
     // 활성화된 필터 카운트 계산 및 필터 리스트 업데이트
     const filters = Array.from(searchParams.entries())
       .filter(
         ([key, value]) =>
-          value && value !== defaultFilters[key as keyof Filters]
+          validFilterKeys.includes(key) && // 필터에 해당하는 키만 포함
+          value !== defaultFilters[key as keyof Filters] // 디폴트 필터와 다른 값만 카운팅
       )
-      .map(([key, value]) => ({ key, value })); // [string, string]을 { key, value }로 변환
+      .map(([key, value]) => ({ key, value }));
 
     setActiveFilterCount(filters.length);
     setActiveFilters(filters); // 활성화된 필터 리스트 저장
@@ -105,7 +107,6 @@ const FilterButton = ({
               {activeFilterCount}
             </span>
           )}
-          {/* {activeFilterCount} */}
         </Button>
         <FilterResetButton />
       </div>
@@ -114,7 +115,7 @@ const FilterButton = ({
           {isActive && activeFilters.length > 0 && (
             <div>
               <h4 className="mb-4">Active filter list</h4>
-              <div className="grid grid-cols-2 gap-2 ">
+              <div className="grid grid-cols-2 gap-2">
                 {activeFilters.map(({ key, value }) => (
                   <div
                     key={key}

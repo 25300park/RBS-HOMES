@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useModalStore } from "@/store/use-modal-store";
 import {
   format,
@@ -13,6 +13,7 @@ import {
   isSameDay,
   addMonths,
   subMonths,
+  addWeeks,
 } from "date-fns";
 
 interface Schedule {
@@ -42,11 +43,49 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 선택된 날짜
   const [selectedSchedules, setSelectedSchedules] = useState<Schedule[]>([]); // 선택된 날짜의 스케줄
   const [unitDetails, setUnitDetails] = useState<UnitDetail[]>([]); // 여러 unit 데이터를 관리할 배열
+  const [upcomingSchedules, setUpcomingSchedules] = useState<Schedule[]>([]); // 앞으로 일주일 동안의 스케줄
+  const [upcomingUnitDetails, setUpcomingUnitDetails] = useState<UnitDetail[]>([]); // 앞으로 일주일 동안의 유닛 상세 정보
   const { openModal } = useModalStore();
+
+  useEffect(() => {
+    // 첫 렌더링 시 오늘 날짜의 스케줄을 설정
+    const today = new Date();
+    onDateClick(today, schedules.filter((schedule: any) =>
+      isSameDay(new Date(schedule.date), today)
+    ));
+
+    // 앞으로 일주일 동안의 스케줄을 설정
+    const nextWeek = addWeeks(today, 1);
+    const upcoming = schedules.filter(
+      (schedule: Schedule) =>
+        schedule.date >= today && schedule.date <= nextWeek
+    );
+
+    setUpcomingSchedules(upcoming);
+
+    // unitId가 -1이 아닌 스케줄들에 대해 unit 데이터를 가져오는 프로미스 배열 생성
+    const unitPromises = upcoming
+      .filter((schedule: any) => schedule.unitId !== -1)
+      .map((schedule: any) =>
+        fetchUnitDetails(schedule.unitId).then((data) => ({
+          unitId: schedule.unitId,
+          data,
+        }))
+      );
+
+    Promise.all(unitPromises)
+      .then((fetchedUnits) => {
+        setUpcomingUnitDetails(fetchedUnits);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch unit details for upcoming schedules:", error);
+      });
+  }, [schedules]);
+
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
-console.log(unitDetails)
+
   const prevMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
@@ -258,6 +297,47 @@ console.log(unitDetails)
           </ul>
         ) : (
           <p className="text-gray-600 mt-4">No schedules for this date.</p>
+        )}
+      </div>
+
+      {/* 앞으로 일주일 동안의 스케줄 목록 */}
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold">Upcoming Schedules (Next 7 Days)</h3>
+        {upcomingSchedules.length > 0 ? (
+          <ul className="mt-4 space-y-2">
+            {upcomingSchedules.map((schedule) => {
+              const unitDetail = upcomingUnitDetails.find(
+                (unit) => unit.unitId === schedule.unitId
+              );
+              return (
+                <li key={schedule.id} className="">
+                  <p className=" text-orange-800">{schedule.message}</p>
+                  <p className="text-sm text-gray-600">
+                    {format(new Date(schedule.date), "PPP, p")}
+                  </p>
+                  {/* 유닛 디테일이 존재할 경우 표시 */}
+                  {unitDetail && (
+                    <div className="mt-2 p-2 bg-blue-100 border border-blue-200 rounded-lg">
+                      <img
+                        src={JSON.parse(unitDetail.data.images)[0]}
+                        alt="unit image"
+                        className="w-20 h-20 object-cover"
+                      />
+                      <p className=" text-blue-700">{unitDetail.data.title}</p>
+                      <p className=" text-blue-700">
+                        {unitDetail.data.fullAdress}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Price: {unitDetail.data.price}
+                      </p>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-gray-600 mt-4">No upcoming schedules.</p>
         )}
       </div>
     </div>

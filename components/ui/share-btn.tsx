@@ -18,7 +18,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { useToast } from "@/hooks/use-toast";
 
-export function ShareBtn() {
+export function ShareBtn({ darkmode = false }: { darkmode?: boolean }) {
   const isMobile = useMediaQuery("(max-width: 640px)"); // sm 사이즈 이하인 경우 모바일
   const { toast } = useToast();
   const currentUrl =
@@ -60,7 +60,11 @@ export function ShareBtn() {
         <Button
           variant="outline"
           onClick={handleMobileShare}
-          className="bg-black text-white"
+          className={`${
+            darkmode
+              ? "bg-black text-white hover:bg-[#4a4a4a] hover:text-white"
+              : "bg-white text-black shadow-none"
+          }`}
         >
           Share
         </Button>
@@ -69,7 +73,11 @@ export function ShareBtn() {
           <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="bg-black text-white border-none hover:bg-[#4a4a4a] hover:text-white flex items-center"
+              className={`${
+                darkmode
+                  ? "bg-black text-white hover:bg-[#4a4a4a] hover:text-white"
+                  : "bg-white text-black shadow-none"
+              } border-none   flex items-center`}
             >
               <span className="text-lg mr-1">
                 <IoShareSocialOutline />
@@ -77,9 +85,11 @@ export function ShareBtn() {
               Share
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md dark">
+          <DialogContent className={`sm:max-w-md ${darkmode ? "dark" : " "}`}>
             <DialogHeader>
-              <DialogTitle className="text-white">Share link</DialogTitle>
+              <DialogTitle className={`${darkmode ? "text-white" : ""}`}>
+                Share link
+              </DialogTitle>
               <DialogDescription>
                 Anyone who has this link will be able to view this.
               </DialogDescription>
@@ -93,7 +103,7 @@ export function ShareBtn() {
                   id="link"
                   defaultValue={currentUrl}
                   readOnly
-                  className="dark text-white"
+                  className={`${darkmode ? "dark  text-white" : ""}`}
                 />
               </div>
               <Button
@@ -107,8 +117,8 @@ export function ShareBtn() {
               </Button>
             </div>
             <DialogFooter className="justify-start">
-              <DialogClose asChild > 
-                <Button type="button" variant="secondary" >
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
                   Close
                 </Button>
               </DialogClose>

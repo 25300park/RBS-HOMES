@@ -10,6 +10,8 @@ import FilterResetButton from "@/components/ui/filter-reset-btn";
 import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"; // 화살표 아이콘
+import { LodaingUi } from "@/components/ui/loading-ui";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export interface MapSideBarProps {
   type?: "rent" | "sale";
@@ -26,6 +28,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
     setHoverUnitId,
     isLoading: mapLoading,
   } = useMapStore();
+  const isMobile = useMediaQuery("(max-width: 640px)");
   const { isLoading, startLoading, stopLoading } = useLoading();
   const [loadedUnits, setLoadedUnits] = useState<any[]>([]);
   const [page, setPage] = useState(1);
@@ -73,7 +76,11 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
   }, [visibleUnits, sortOrder]);
 
   const handleUnitClick = (unitId: number) => {
-    router.push("/unit/detail/" + unitId);
+    if (isMobile) {
+      router.push("/unit/detail/" + unitId);
+    } else {
+      window.open("/unit/detail/" + unitId, "_blank");
+    }
   };
 
   return (
@@ -103,13 +110,32 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
           </select>
         </div>
 
+        <div className="hidden md:block">
+        {isSidebarOpen ? (
+          <button
+            onClick={() => toggleSidebar(!isSidebarOpen)}
+            className=""
+          >
+            <IoIosArrowForward size={24} />
+          </button>
+        ) : (
+          <button
+            onClick={() => toggleSidebar(!isSidebarOpen)}
+            className=""
+          >
+            <IoIosArrowBack size={24} />
+            <p>Show list</p>
+          </button>
+        )}
+      </div>
+
         {/* 기존 로딩 상태 처리 */}
         {mapLoading ? (
-          <div className="p-4">Loading map data...</div>
+          <div className="p-4"><LodaingUi /></div>
         ) : (
           <>
             {/* 총 유닛 개수 표시 */}
-            <div className="p-4">Total Units: {visibleUnits.length}</div>
+            <div className="p-4 w-full text-center text-sm border-b">All Search Results <span className="font-bold">{visibleUnits.length}</span> units</div>
             <div className="grid grid-cols-1">
               {loadedUnits.map((card: any, index: number) => (
                 <SideUnitCard
@@ -124,7 +150,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
                   location={`${card.address2 as string},${
                     card.address3 as string
                   },${card.address4 as string}`}
-                  imageUrl={"/assets/images/cardtest.png"}
+                  imageUrl={card.images[0]}
                   postedDate={"2 days ago"}
                   isVip={true}
                   bed={card.bed as number}
@@ -164,7 +190,6 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
           </button>
         )}
       </div>
-
     </aside>
   );
 };

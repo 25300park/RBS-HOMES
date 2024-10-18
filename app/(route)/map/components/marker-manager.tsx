@@ -33,6 +33,7 @@ export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
   const markerClustererRef = useRef<MarkerClusterer | null>(null); // 클러스터러 참조
   const markerMap = useRef<Map<number, google.maps.Marker>>(new Map());
   const clusterMap = useRef<Map<string, any>>(new Map()); // 클러스터 추적용
+  
   const debouncedUpdate = useDebouncedCallback(
     async (map: google.maps.Map, units: Unit[]) => {
       setLoading(true);

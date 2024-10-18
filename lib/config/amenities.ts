@@ -1,23 +1,20 @@
 import {
-  FaSwimmingPool,
-  FaDumbbell,
-  FaMountain,
-  FaPlay,
-  FaRulerVertical,
-  FaWindowMaximize,
-  FaTree,
-  FaSpa,
-  FaShieldAlt,
-  FaConciergeBell,
-  FaBook,
-  FaWater,
-  FaRunning,
-  FaShoppingBag,
-} from "react-icons/fa";
-import {
   MdOutlineCleaningServices,
   MdOutlineSecurity,
   MdOutlineLibraryBooks,
+  MdOutlinePool,
+  MdOutlineFitnessCenter,
+  MdOutlineLandscape,
+  MdOutlineToys,
+  MdOutlineRule,
+  MdOutlineAspectRatio,
+  MdOutlineLocalFlorist,
+  MdOutlineSpa,
+  MdOutlineShield,
+  MdOutlineSupportAgent,
+  MdOutlineWater,
+  MdOutlineSportsHandball,
+  MdOutlineShoppingBag,
 } from "react-icons/md";
 import { GiWindowBars } from "react-icons/gi";
 
@@ -27,20 +24,20 @@ export interface Amenity {
 }
 
 export const amenitiesData: Amenity[] = [
-  { label: "Open Views", icon: FaMountain }, // Open Views -> Mountain view icon
-  { label: "Water Views", icon: FaWater }, // Water Views -> Water icon
-  { label: "Gym", icon: FaDumbbell }, // Gym -> Dumbbell icon
-  { label: "Playroom", icon: FaPlay }, // Playroom -> Play icon
-  { label: "High Ceilings", icon: FaRulerVertical }, // High Ceilings -> Ruler for height
-  { label: "Oversized Windows", icon: FaWindowMaximize }, // Oversized Windows -> Window icon
-  { label: "Soundproof Windows", icon: GiWindowBars }, // Soundproof Windows -> Window with bars icon
-  { label: "Garden", icon: FaTree }, // Garden -> Tree icon
-  { label: "Spa", icon: FaSpa }, // Spa -> Spa icon
-  { label: "Sauna", icon: FaSpa }, // Sauna -> Spa icon as no specific sauna icon exists
-  { label: "24/7 Security", icon: MdOutlineSecurity }, // 24/7 Security -> Security icon
-  { label: "Concierge/Lounge", icon: FaConciergeBell }, // Concierge/Lounge -> Concierge bell icon
-  { label: "Library/Study Hall", icon: MdOutlineLibraryBooks }, // Library/Study Hall -> Library books icon
-  { label: "Pool", icon: FaSwimmingPool }, // Pool -> Swimming pool icon
-  { label: "Jogging Trail", icon: FaRunning }, // Jogging Trail -> Running icon
-  { label: "Retail Area", icon: FaShoppingBag }, // Retail Area -> Shopping bag icon
+  { label: "Mountain View", icon: MdOutlineLandscape },
+  { label: "Water View", icon: MdOutlineWater },
+  { label: "Gym", icon: MdOutlineFitnessCenter },
+  { label: "Playroom", icon: MdOutlineToys },
+  { label: "High Ceiling", icon: MdOutlineRule },
+  { label: "Large Windows", icon: MdOutlineAspectRatio },
+  { label: "Soundproof", icon: GiWindowBars },
+  { label: "Garden", icon: MdOutlineLocalFlorist },
+  { label: "Spa", icon: MdOutlineSpa },
+  { label: "Sauna", icon: MdOutlineSpa },
+  { label: "24/7 Security", icon: MdOutlineSecurity },
+  { label: "Concierge", icon: MdOutlineSupportAgent },
+  { label: "Library", icon: MdOutlineLibraryBooks },
+  { label: "Pool", icon: MdOutlinePool },
+  { label: "Jogging", icon: MdOutlineSportsHandball },
+  { label: "Retail", icon: MdOutlineShoppingBag },
 ];

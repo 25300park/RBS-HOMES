@@ -1,6 +1,17 @@
+'use client'
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
+
 const Footer = () => {
+  const pathName = usePathname();
+
+  // 특정 경로일 때 푸터 렌더링을 막음
+  const hiddenPaths = ["/map", "/account/unit/my-list"];
+  const shouldRenderFooter = !hiddenPaths.some(path => pathName.startsWith(path));
+
+  if (!shouldRenderFooter) return null; 
+  
   return (
     <footer className="bg-[#f7f7f7] border-t py-16 px-4 ">
       <div className="max-w-6xl mx-auto flex md:flex-col flex-row justify-between items-start md:items-center">

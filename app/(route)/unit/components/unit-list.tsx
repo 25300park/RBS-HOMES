@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams,useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Spinner from "@/components/ui/spinner";
 import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
@@ -40,20 +40,28 @@ interface Unit {
 
 const UnitList = () => {
   const [units, setUnits] = useState<Unit[]>([]);
-  const [totalUnit, setTotalUnit] = useState();
+  const [totalUnit, setTotalUnit] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const { isLoading, startLoading, stopLoading } = useLoading();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const fetchUnits = async (reset = false) => {
     startLoading();
     const limit = 10;
-    const query = searchParams.toString();
+    const pageQuery = `page=${page}&limit=${limit}`;
+    const query = searchParams ? searchParams.toString() : "";
+
     try {
-      const response = await fetch(
-        `/api/units?page=${page}&limit=${limit}&${query}`
-      );
+      // query가 없을 때도 URL이 잘못되지 않도록 처리
+      const url = query
+        ? `/api/units?${pageQuery}&${query}`
+        : `/api/units?${pageQuery}`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch units");
+
       const data = await response.json();
 
       if (reset) {
@@ -61,14 +69,13 @@ const UnitList = () => {
       } else {
         setUnits((prevUnits) => [...prevUnits, ...data.units]); // 스크롤 시 데이터 추가
       }
+
       setTotalUnit(data.total);
-      setHasMore(
-        data.units.length > 0 && units.length + data.units.length < data.total
-      );
+      setHasMore(data.units.length > 0 && units.length + data.units.length < data.total);
     } catch (error) {
       console.error("Error fetching units:", error);
     } finally {
-      setTimeout(stopLoading, 900);
+      stopLoading();
     }
   };
 
@@ -97,11 +104,11 @@ const UnitList = () => {
 
   return (
     <div className="container mx-auto py-6">
-      {totalUnit}
+      <p>Total Units: {totalUnit}</p>
       <div className="grid grid-cols-2 gap-6">
         {units.map((unit, index) => (
           <div
-            key={unit.id + Math.random()}
+            key={unit.id}
             ref={units.length === index + 1 ? lastElementRef : null}
             onClick={() => router.push(`/unit/detail/${unit.id}`)}
           >

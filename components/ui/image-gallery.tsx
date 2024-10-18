@@ -89,23 +89,37 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         </div>
 
         {/* 첫 번째 DrawerContent에 전체 이미지 표시 */}
-        <DrawerContent className="h-screen">
-          <DrawerClose className="absolute top-4 left-4 hover:bg-[#4a4a4a]">
-            <IoIosArrowBack
-              size={30}
-              className="text-gray-700 cursor-pointer"
-            />
-          </DrawerClose>
-          <div className="grid grid-cols-3 gap-4 p-4 overflow-y-auto">
-            {images.map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt={`Gallery ${index}`}
-                className="w-full max-h-[600px] object-cover rounded-lg cursor-pointer"
-                onClick={() => handleImageClick(index)} // 클릭 시 두 번째 드로어 열기
+        <DrawerContent className="h-screen rounded-none border-none">
+          <div className="fixed top-6 text-white w-full flex justify-between items-center px-10">
+            <DrawerClose className="hover:bg-gray-100 rounded-full p-1">
+              <IoIosArrowBack
+                size={24}
+                className="text-gray-700 cursor-pointer"
               />
-            ))}
+            </DrawerClose>
+
+            {/* 이미지 인덱스 표시 */}
+            {selectedImageIndex !== null && (
+              <div>
+                {selectedImageIndex + 1} / {images.length}
+              </div>
+            )}
+            <div>
+              <ShareBtn />
+            </div>
+          </div>
+          <div className="overflow-y-auto">
+            <div className="grid grid-cols-3 gap-4 p-4  pt-16 max-w-[1120px] mx-auto">
+              {images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Gallery ${index}`}
+                  className="w-full max-h-[600px] object-cover  cursor-pointer"
+                  onClick={() => handleImageClick(index)} // 클릭 시 두 번째 드로어 열기
+                />
+              ))}
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
@@ -118,7 +132,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           hiddenBar
         >
           <div className="fixed top-10 text-white w-full flex justify-between items-center px-20">
-            <DrawerClose className="flex items-center text-sm gap-2">
+            <DrawerClose className="flex items-center text-sm gap-2 hover:bg-[#4a4a4a] p-2 px-3 rounded-lg ">
               <IoMdClose size={20} className="text-white cursor-pointer" />
               Close
             </DrawerClose>
@@ -129,7 +143,9 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 {selectedImageIndex + 1} / {images.length}
               </div>
             )}
-            <div><ShareBtn /></div>
+            <div>
+              <ShareBtn darkmode/>
+            </div>
           </div>
 
           <div className="flex items-center justify-center w-full relative">

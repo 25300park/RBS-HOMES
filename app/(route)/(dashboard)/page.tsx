@@ -1,21 +1,19 @@
-import BannerGroup from "./components/banner-group";
-import CityGrid from "./components/city-grid";
+// pages/index.tsx
 import MainList from "./components/main-list-section";
-import ServiceSection from "./components/service-section";
+import BannerGroup from "./components/banner-group";
+import FilterButton from "@/components/ui/filter-btn";
+import { getMainList } from "./action"; 
 
-const DashBoard = () => {
+export default async function DashBoard({ searchParams }: { searchParams: any }) {
+  // const { units, total } = await getMainList(1, 10, searchParams);
+
   return (
-    <>
-      <div className="">
-        <BannerGroup />
-        <div className="relative -top-32">
-          <MainList />
-          <CityGrid />
-          <ServiceSection />
-        </div>
+    <div>
+      <BannerGroup />
+      <div className="mt-2">
+        <FilterButton />
+        <MainList   />
       </div>
-    </>
+    </div>
   );
-};
-
-export default DashBoard;
+}

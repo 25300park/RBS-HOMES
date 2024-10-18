@@ -1,27 +1,19 @@
-"use client";
-
 import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import Link from "next/link";
-import Image from "next/image";
 import { signOut } from "next-auth/react";
 
 export default function HeaderUserProfile({ session }: any) {
   return (
     <HoverCard openDelay={0.5}>
       <HoverCardTrigger className="cursor-pointer">
-        <div className="flex bg-white items-center py-1 w-[146px] justify-evenly shadow-lg rounded-[20px]">
+        <div className="flex bg-white items-center py-1  px-3 justify-between  border rounded-3xl gap-2">
           <img src="/assets/icons/alarm.png" alt="alarm" />
-          {/* <img src="/assets/icons/alarm_on.png" alt="alarm"/> */}
-          <Avatar className="bg-white  flex items-center">
+          <Avatar className="bg-white  flex items-center w-[34px]">
             <AvatarImage
               src={session.user.image}
-              className="w-[34px] h-[34px]"
+              className="w-[34px] h-[34px] rounded-full"
             />
             <AvatarFallback className="w-[34px] h-[34px]">
               <FaRegUser className="text-lg " />
@@ -30,7 +22,7 @@ export default function HeaderUserProfile({ session }: any) {
         </div>
       </HoverCardTrigger>
 
-      <HoverCardContent className="w-[300px] bg-white shadow-lg rounded-lg p-4">
+      <HoverCardContent  align="end" className="w-[300px] bg-white shadow-lg rounded-lg p-4">
         {/* 상단 프로필 이미지와 정보 */}
         <div className="flex items-center mb-4">
           <Avatar className="w-12 h-12 rounded-full mr-3">

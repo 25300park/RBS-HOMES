@@ -4,8 +4,7 @@ export const useObserver = (callback: () => void, hasMore: boolean, isLoading: b
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (isLoading) return; // 로딩 중일 때는 실행하지 않음
-    if (!hasMore) return; // 더 이상 가져올 데이터가 없으면 실행하지 않음
+    if (isLoading || !hasMore) return; // 로딩 중이거나 더 이상 데이터가 없을 때 중단
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {

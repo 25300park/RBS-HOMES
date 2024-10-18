@@ -26,11 +26,11 @@ const BannerGroup = () => {
   return (
     <>
       <div ref={wrapperRef} className="relative px-1 max-h-[60vh]">
-        <MainSearchBar
+        {/* <MainSearchBar
           searchInputActive={searchInputActive}
           setSearchInputActive={setSearchInputActive}
-        />
-        <MainBanner onBannerClick={() => setSearchInputActive(false)}/>
+        /> */}
+        {/* <MainBanner onBannerClick={() => setSearchInputActive(false)}/> */}
       </div>
     </>
   );
