@@ -73,12 +73,12 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className="relative flex items-center px-10 border-b pt-4 w-full">
+    <div className="relative flex items-center px-10 border-b pt-4 w-full md:px-4">
       {/* 왼쪽 화살표 */}
       {showLeftArrow && (
         <button
           onClick={scrollLeft}
-          className="absolute left-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl  bottom-6"
+          className="absolute left-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl  bottom-6 md:left-4"
         >
           <MdOutlineArrowBack className="text-xl" />
         </button>
@@ -87,21 +87,21 @@ const MainAmenityList = () => {
       {/* 슬라이더 */}
       <div className="relative w-full flex items-center">
         {showLeftArrow && (
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
         )}
         {showRightArrow && (
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
         )}
 
         <div
           ref={sliderRef}
-          className="flex gap-5 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar"
+          className="flex gap-5 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar md:gap-2"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {amenitiesData.map((amenity, i) => (
             <div
               key={i}
-              className={`flex flex-col justify-center items-center min-w-[100px] h-full cursor-pointer group group-active:scale-90 duration-500 transition-all
+              className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] h-full cursor-pointer group group-active:scale-90 duration-500 transition-all
                 ${selectedAmenity === amenity.label ? "" : ""}`} // 선택된 어메니티 강조
               onClick={() => handleAmenityClick(amenity.label)} // 클릭 시 어메니티 필터 적용
             >
@@ -126,7 +126,7 @@ const MainAmenityList = () => {
       {showRightArrow && (
         <button
           onClick={scrollRight}
-          className="absolute right-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl bottom-6"
+          className="absolute right-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl bottom-6 md:right-4"
         >
           <MdOutlineArrowForward className="text-xl" />
         </button>

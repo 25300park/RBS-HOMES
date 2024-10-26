@@ -184,11 +184,11 @@ const MainList: React.FC = () => {
       )}
 
       {!hasMore && units.length > 0 && !isFetching && (
-        <div className="text-center py-6 text-gray-600">No more results</div>
+        <div className="text-center py-20 text-gray-600">No more results</div>
       )}
 
       {units.length === 0 && !isFetching && !error && (
-        <div className="text-center py-6 text-gray-600">No results found</div>
+        <div className="text-center py-20 text-gray-600">No results found</div>
       )}
     </div>
   );

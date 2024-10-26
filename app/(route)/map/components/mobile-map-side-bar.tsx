@@ -15,6 +15,8 @@ export interface MobileMapSideBarProps {
   type?: "rent" | "sale";
 }
 
+type SheetPosition = 'minimized' | 'half' | 'full';
+
 const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
   const router = useRouter();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
   const { isLoading, startLoading, stopLoading } = useLoading();
   const [loadedUnits, setLoadedUnits] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [sheetPosition, setSheetPosition] = useState<SheetPosition>('minimized');
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [currentY, setCurrentY] = useState(0);
@@ -43,18 +45,27 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
 
   const DRAG_THRESHOLD = 50;
 
-  const toggleExpanded = (expand?: boolean) => {
-    const newState = expand ?? !isExpanded;
-    setIsExpanded(newState);
+  const snapToPosition = (position: SheetPosition) => {
+    if (!sheetRef.current) return;
 
-    if (sheetRef.current) {
-      sheetRef.current.style.transform = newState
-        ? "translateY(0%)"
-        : "translateY(calc(100% - 60px))";
+    let translateY = '0%';
+    switch (position) {
+      case 'minimized':
+        translateY = 'calc(100% - 60px)';
+        break;
+      case 'half':
+        translateY = '55%';  // 약간 더 높게 설정하여 45vh 정도 보이도록
+        break;
+      case 'full':
+        translateY = '0%';
+        break;
     }
 
+    sheetRef.current.style.transform = `translateY(${translateY})`;
+    setSheetPosition(position);
+
     // 축소할 때 스크롤 위치 초기화
-    if (!newState && contentRef.current) {
+    if (position === 'minimized' && contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
   };
@@ -76,29 +87,41 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
     setCurrentY(currentTouch);
     const deltaY = currentTouch - startY;
 
-    if (isExpanded) {
-      // 컨텐츠가 최상단에 있을 때만 드래그 허용
-      if (contentRef.current && contentRef.current.scrollTop <= 0) {
-        // 아래로 드래그할 때
-        if (deltaY > 0) {
-          e.preventDefault(); // 스크롤 방지
-          e.stopPropagation(); // 이벤트 전파 방지
-          if (sheetRef.current) {
-            const movePercent = (deltaY / window.innerHeight) * 100;
-            sheetRef.current.style.transform = `translateY(${movePercent}%)`;
+    if (contentRef.current && contentRef.current.scrollTop <= 0) {
+      switch (sheetPosition) {
+        case 'full':
+          if (deltaY > 0 && deltaY <= window.innerHeight * 0.6) {
+            e.preventDefault();
+            if (sheetRef.current) {
+              const movePercent = (deltaY / window.innerHeight) * 100;
+              sheetRef.current.style.transform = `translateY(${movePercent}%)`;
+            }
           }
-        }
-      }
-    } else {
-      // 축소상태에서 위로 드래그
-      if (deltaY < 0) {
-        if (sheetRef.current) {
-          const movePercent = Math.max(
-            0,
-            100 - (Math.abs(deltaY) / window.innerHeight) * 100
-          );
-          sheetRef.current.style.transform = `translateY(calc(${movePercent}% - 60px))`;
-        }
+          break;
+
+        case 'half':
+          e.preventDefault();
+          if (sheetRef.current) {
+            const baseOffset = 55; // 기본 half 위치
+            const movePercent = baseOffset + (deltaY / window.innerHeight) * 100;
+            const clampedPercent = Math.max(0, Math.min(95, movePercent));
+            sheetRef.current.style.transform = `translateY(${clampedPercent}%)`;
+          }
+          break;
+
+        case 'minimized':
+          if (deltaY < 0) {
+            e.preventDefault();
+            if (sheetRef.current) {
+              const baseOffset = 100;
+              const movePercent = Math.max(
+                55,
+                baseOffset - (Math.abs(deltaY) / window.innerHeight) * 100
+              );
+              sheetRef.current.style.transform = `translateY(calc(${movePercent}% - 60px))`;
+            }
+          }
+          break;
       }
     }
   };
@@ -109,24 +132,41 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
 
     const deltaY = currentY - startY;
 
-    if (isExpanded) {
-      // 컨텐츠가 최상단에 있을 때만 드래그 동작 처리
-      if (contentRef.current && contentRef.current.scrollTop <= 0) {
-        if (deltaY > DRAG_THRESHOLD) {
-          toggleExpanded(false);
-          return;
+    switch (sheetPosition) {
+      case 'full':
+        if (contentRef.current?.scrollTop === 0 && deltaY > DRAG_THRESHOLD) {
+          snapToPosition('half');
+        } else {
+          snapToPosition('full');
         }
-      }
-      // 드래그가 임계값을 넘지 않으면 원래 상태로 복귀
-      toggleExpanded(true);
-    } else {
-      if (deltaY < -DRAG_THRESHOLD) {
-        toggleExpanded(true);
-      } else {
-        toggleExpanded(false);
-      }
+        break;
+
+      case 'half':
+        if (deltaY > DRAG_THRESHOLD) {
+          snapToPosition('minimized');
+        } else if (deltaY < -DRAG_THRESHOLD) {
+          snapToPosition('full');
+        } else {
+          snapToPosition('half');
+        }
+        break;
+
+      case 'minimized':
+        if (deltaY < -DRAG_THRESHOLD) {
+          snapToPosition('half');
+        } else {
+          snapToPosition('minimized');
+        }
+        break;
     }
   };
+
+  const handleHeaderClick = () => {
+    if (sheetPosition === 'minimized') {
+      snapToPosition('full');
+    }
+  };
+
   const handleContentScroll = () => {
     if (!contentRef.current) return;
     setContentScrollTop(contentRef.current.scrollTop);
@@ -134,7 +174,7 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
 
   // Data loading and sorting logic
   const loadMoreUnits = () => {
-    if (!isExpanded) return;
+    if (sheetPosition === 'minimized') return;
 
     startLoading();
     const sortedUnits = sortUnits(visibleUnits);
@@ -168,14 +208,19 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
   };
 
   return (
-    <div className="hidden md:block fixed inset-0 pointer-events-none">
+    <div 
+      className="hidden md:block fixed inset-0 pointer-events-none"
+      style={{ overscrollBehavior: 'none' }}
+    >
       <div
         ref={sheetRef}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto transition-transform duration-300 ease-out overscroll-none"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-none"
         style={{
           height: "95vh",
           transform: "translateY(calc(100% - 60px))",
-          touchAction: "none",
+          touchAction: "pan-x",
+          overscrollBehavior: 'none',
+          transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' // 더 느린 애니메이션과 부드러운 이징
         }}
       >
         {/* Handle bar */}
@@ -185,7 +230,7 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          onClick={() => !isExpanded && toggleExpanded(true)}
+          onClick={handleHeaderClick}
         >
           <div className="w-full h-full flex flex-col justify-center items-center">
             <div className="w-16 h-1 bg-gray-300 rounded-full mb-2"></div>
@@ -194,8 +239,8 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
                 {visibleUnits.length} units found
               </span>
               <IoIosArrowDown
-                className={`transform transition-transform ${
-                  isExpanded ? "rotate-180" : ""
+                className={`transform transition-transform duration-500 ${
+                  sheetPosition === 'full' ? "rotate-180" : ""
                 }`}
               />
             </div>
@@ -205,7 +250,11 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
         {/* Content Area */}
         <div
           ref={contentRef}
-          className="px-4 overflow-y-auto h-[calc(100%-4rem)] overscroll-none"
+          className="px-4 overflow-y-auto h-[calc(100%-4rem)]"
+          style={{ 
+            overscrollBehavior: 'contain',
+            touchAction: 'pan-x pan-y'
+          }}
           onScroll={handleContentScroll}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -260,9 +309,9 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
         </div>
 
         {/* Map Toggle Button - 전체화면일 때만 표시 */}
-        {isExpanded && (
+        {sheetPosition === 'full' && (
           <button
-            onClick={() => toggleExpanded(false)}
+            onClick={() => snapToPosition('minimized')}
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2"
           >
             <Map size={20} />

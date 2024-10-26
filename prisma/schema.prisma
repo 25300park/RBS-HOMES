@@ -124,7 +124,7 @@ model Unit {
   furniture          String?  @db.VarChar(50) // 가구 정보
   interiored         String?  @db.VarChar(50) // 내부 인테리어 상태
   petPolicy          String?  @db.VarChar(50) // 애완동물 정책
-  amenity            Json? //편의시설정보 
+  amenity            String? //편의시설정보 
   yearCompletion     String?  @db.Char(10) // 완공 연도
   outstandingPayment Decimal? @db.Decimal(18, 2) // 커미션
   price              Decimal? @db.Decimal(18, 2) // 가격

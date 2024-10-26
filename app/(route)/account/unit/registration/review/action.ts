@@ -39,7 +39,7 @@ export async function registerUnit(data: any) {
       longitude: data.longitude,
     };
 
-    const newUnit = await prisma.unit.create({
+     await prisma.unit.create({
       data: transformedData, // 클라이언트로부터 받은 데이터를 Prisma에 저장
     });
 

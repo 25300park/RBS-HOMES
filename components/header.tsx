@@ -9,6 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
 import { IoMapOutline, IoListOutline, IoSearch } from "react-icons/io5";
 import { amenitiesData } from "@/lib/config/amenities";
+import GoogleSearchBar from "./ui/google-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
 export interface HeaderProps {}
 
@@ -47,7 +48,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
     <header className="w-full">
       {/* 헤더 */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-gray-200 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-gray-200 md:hidden ${
           navbarScrolled ? "h-20  bg-white" : "h-44 bg-white"
         } w-full flex flex-col items-center`}
       >
@@ -62,11 +63,11 @@ const Header = ({}: HeaderProps): React.ReactNode => {
 
           {/* 가운데: View 버튼들 */}
           {(pathName !== "/" || (pathName === "/" && !navbarScrolled)) && (
-            <div className="flex items-center gap-6 ">
+            <div className="flex items-center gap-8 ">
               <Link
                 href={"/"}
-                className={`p-4 rounded-full border flex items-center gap-2 ${
-                  pathName === "/" ? "border-orange-500" : "border-gray-200"
+                className={`hover:border-gray-200 border-b flex items-center gap-2 ${
+                  pathName === "/" ? "text-black border-gray-200" : "text-gray-400 border-transparent"
                 }`}
               >
                 <IoListOutline className="text-xl" />
@@ -74,10 +75,10 @@ const Header = ({}: HeaderProps): React.ReactNode => {
               </Link>
               <Link
                 href={"/map/rent"}
-                className={`p-4 rounded-full border flex items-center gap-2 ${
+                className={` flex items-center hover:border-gray-200 border-b gap-2 ${
                   pathName.startsWith("/map")
-                    ? "border-orange-500"
-                    : "border-gray-200"
+                    ? "text-black border-gray-200"
+                    : "text-gray-400 border-transparent"
                 }`}
               >
                 <IoMapOutline className="text-xl" />
@@ -116,43 +117,44 @@ const Header = ({}: HeaderProps): React.ReactNode => {
 
         {/* 검색바: 메인 페이지에만 표시 */}
         {pathName === "/" && (
-          <div
-            className={`transition-all duration-300 ease-in-out max-w-[800px] ${
-              navbarScrolled
-                ? "fixed top-6 w-[450px] h-12 mt-0 transform -translate-y-2"
-                : "w-full h-16 mt-4"
-            } flex items-center justify-between bg-white rounded-full shadow-lg py-4 px-2 border`}
-          >
-            <input
-              type="text"
-              placeholder="search"
-              className={`w-[90%] pl-6 ${
-                navbarScrolled ? "text-sm" : "text-lg"
-              } text-gray-700 placeholder-gray-400 focus:outline-none`}
-            />
-            <Button
-              variant={"default"}
-              size={"icon"}
-              className={`bg-orange-500 text-white rounded-full hover:bg-orange-600 ${
-                navbarScrolled ? "w-8 h-8" : "w-12 h-12"
-              }`}
-            >
-              <IoSearch
-                className={`${navbarScrolled ? "text-lg" : "text-2xl"}`}
-              />
-            </Button>
-          </div>
+          // <div
+          //   className={`transition-all duration-300 ease-in-out max-w-[800px] ${
+          //     navbarScrolled
+          //       ? "fixed top-6 w-[450px] h-12 mt-0 transform -translate-y-2"
+          //       : "w-full h-16 mt-4"
+          //   } flex items-center justify-between bg-white rounded-full shadow-lg py-4 px-2 border`}
+          // >
+          //   <input
+          //     type="text"
+          //     placeholder="search"
+          //     className={`w-[90%] pl-6 ${
+          //       navbarScrolled ? "text-sm" : "text-lg"
+          //     } text-gray-700 placeholder-gray-400 focus:outline-none`}
+          //   />
+          //   <Button
+          //     variant={"default"}
+          //     size={"icon"}
+          //     className={`bg-orange-500 text-white rounded-full hover:bg-orange-600 ${
+          //       navbarScrolled ? "w-8 h-8" : "w-12 h-12"
+          //     }`}
+          //   >
+          //     <IoSearch
+          //       className={`${navbarScrolled ? "text-lg" : "text-2xl"}`}
+          //     />
+          //   </Button>
+          // </div>
+          <GoogleSearchBar navbarScrolled={navbarScrolled}/>
         )}
       </nav>
 
       {/* 페이지의 나머지 콘텐츠 (헤더 아래) */}
-      <div className={`${pathName === "/" ? "mt-44" : "mt-20"} `}> </div>
+      <div className={`${pathName === "/" ? "mt-44" : "mt-20"} md:mt-0`}> </div>
       <div
         className={`${
           navbarScrolled
-            ? "fixed bg-white top-20 z-50 transition-all duration-300"
+            ? "fixed bg-white top-20 z-50 transition-all duration-300 md:top-0 "
             : "mt-20 bg-white"
-        } w-full`}
+        } w-full md:mt-0`}
       >
         {pathName === "/" && <MainAmenityList />}
       </div>
