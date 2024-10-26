@@ -18,7 +18,6 @@ const Header = ({}: HeaderProps): React.ReactNode => {
   const pathName = usePathname();
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const router = useRouter();
-  console.log(pathName);
   useEffect(() => {
     if (pathName === "/") {
       const handleScroll = () => {
@@ -127,7 +126,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
             <input
               type="text"
               placeholder="search"
-              className={`w-full pl-6 ${
+              className={`w-[90%] pl-6 ${
                 navbarScrolled ? "text-sm" : "text-lg"
               } text-gray-700 placeholder-gray-400 focus:outline-none`}
             />
@@ -135,19 +134,19 @@ const Header = ({}: HeaderProps): React.ReactNode => {
               variant={"default"}
               size={"icon"}
               className={`bg-orange-500 text-white rounded-full hover:bg-orange-600 ${
-                navbarScrolled ? "p-3" : "p-6"
+                navbarScrolled ? "w-8 h-8" : "w-12 h-12"
               }`}
-            ></Button>
+            >
+              <IoSearch
+                className={`${navbarScrolled ? "text-lg" : "text-2xl"}`}
+              />
+            </Button>
           </div>
         )}
       </nav>
 
       {/* 페이지의 나머지 콘텐츠 (헤더 아래) */}
-      <div
-        className={`${
-          pathName === "/" ? "mt-44" : "mt-20"
-        } `}
-      >{" "}</div>
+      <div className={`${pathName === "/" ? "mt-44" : "mt-20"} `}> </div>
       <div
         className={`${
           navbarScrolled
@@ -155,7 +154,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
             : "mt-20 bg-white"
         } w-full`}
       >
-        <MainAmenityList />
+        {pathName === "/" && <MainAmenityList />}
       </div>
     </header>
   );

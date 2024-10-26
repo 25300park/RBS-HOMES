@@ -2,6 +2,8 @@ import { getUnitList } from "@/lib/action";
 import MapSideBar from "../components/map-side-bar";
 import { MapComponent } from "../components/map-component";
 import { notFound } from "next/navigation";
+import MobileMapSideBar from "@/app/(route)/map/components/mobile-map-side-bar";
+
 export interface MapHomeProps {
   searchParams: any;
   params: any;
@@ -19,7 +21,7 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
         <div className="w-full h-full">
           <MapComponent units={units} type={type} key={units} />
         </div>
-        {/* 사이드바 */}
+        <MobileMapSideBar />
         <MapSideBar />
       </div>
     </div>

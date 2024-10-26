@@ -85,7 +85,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
 
   return (
     <aside
-      className={`fixed top-20 right-0 h-full bg-white border-l transition-all duration-300 ${
+      className={`fixed top-20 right-0 h-full bg-white border-l transition-all duration-300 md:hidden ${
         isSidebarOpen ? "w-[400px] sm:w-full" : "w-0"
       }`}
     >
@@ -109,25 +109,6 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
             <option value="high">높은 금액순</option>
           </select>
         </div>
-
-        <div className="hidden md:block">
-        {isSidebarOpen ? (
-          <button
-            onClick={() => toggleSidebar(!isSidebarOpen)}
-            className=""
-          >
-            <IoIosArrowForward size={24} />
-          </button>
-        ) : (
-          <button
-            onClick={() => toggleSidebar(!isSidebarOpen)}
-            className=""
-          >
-            <IoIosArrowBack size={24} />
-            <p>Show list</p>
-          </button>
-        )}
-      </div>
 
         {/* 기존 로딩 상태 처리 */}
         {mapLoading ? (

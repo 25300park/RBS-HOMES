@@ -28,8 +28,10 @@ export async function GET(req: Request) {
   try {
     // 필터링된 데이터를 가져오는 함수를 사용
     const { units, total } = await getFilteredUnits(page, limit, filters);
+    // console.log(units, total)
     return NextResponse.json({ units, total });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
   }
 }
@@ -49,8 +51,10 @@ async function getFilteredUnits(page: number, limit: number, searchParams: Recor
   const furniture = searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
-  const amenity = searchParams.amenity ? searchParams.amenity.split(",") : [];
-
+  const amenity = searchParams.amenity
+  ? decodeURIComponent(searchParams.amenity).split(",").map(a => a.trim()) // 공백 제거 및 디코딩
+  : [];
+  console.log(amenity)
   // 가격 필터 처리
   const priceFilter = priceMin !== undefined || priceMax !== undefined
     ? {

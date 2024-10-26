@@ -9,7 +9,8 @@ const config: Config = {
   ],
   theme: {
 		screens: {
-      '3xl': {'max': '1535px'},
+			'4xl': {'max': '1880px'},
+      '3xl': {'max': '1640px'},
       // => @media (max-width: 1535px) { ... }
 
       '2xl': {'max': '1400px'},
@@ -18,10 +19,11 @@ const config: Config = {
       'xl': {'max': '1295px'},
       // => @media (max-width: 1279px) { ... }
 
-      '2lg': {'max': '1123px'},
+      '2lg': {'max': '1128px'},
 
       
       'lg': {'max': '1023px'},
+			'tlg': {'max': '950px'},
       // => @media (max-width: 1023px) { ... }
       'md': {'max': '767px'},
       // => @media (max-width: 767px) { ... }
@@ -29,7 +31,7 @@ const config: Config = {
       'sm': {'max': '639px'},
       // => @media (max-width: 639px) { ... }
 
-      'xs': {'max': '420px'},
+      'xs': {'max': '550px'},
       'ssm': {'max': '300px'},
       // => @media (max-width: 639px) { ... }
     },

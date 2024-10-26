@@ -2,6 +2,7 @@ import UnitListPagination from "@/app/(route)/unit/components/unit-list-paginati
 import { getUnitListById } from "./action";
 import { MapComponent } from "@/app/(route)/map/components/map-component";
 import MapSideBar from "@/app/(route)/map/components/map-side-bar";
+import MobileMapSideBar from "@/app/(route)/map/components/mobile-map-side-bar";
 
 export interface MyUnitListProps {
   searchParams: any;
@@ -15,6 +16,8 @@ const MyUnitList = async ({ searchParams }: MyUnitListProps) => {
         <div className="w-full h-full">
           <MapComponent units={unitList} owner key={"owner"}/>
         </div>
+        
+        <MobileMapSideBar />
         <MapSideBar />
       </div>
     </div>

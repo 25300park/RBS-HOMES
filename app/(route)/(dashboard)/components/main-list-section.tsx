@@ -1,87 +1,194 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useObserver } from "@/hooks/use-observer";
+import ListCard from "@/components/ui/list-card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Unit {
+  id: string;
+  title: string;
+  price: number;
+  address3: string;
+  outstandingPayment: number;
+  area: number;
+  location: string;
+  images: any;
+  postedDate: string;
+  isUrgent?: boolean;
+  sellType: string;
+  bed: number;
+  bath: number;
+  fullAdress: string;
+}
+
+interface FetchResponse {
+  units: Unit[];
+  total: number;
+}
+
+const LIMIT = 12;
 
 const MainList: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams(); // SearchParams는 컴포넌트 내에서 처리
-  const [units, setUnits] = useState<any[]>([]);
+  const searchParams = useSearchParams();
+  const [units, setUnits] = useState<Unit[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const initialLoadCompleted = useRef<boolean>(false);
 
-  const limit = 10;
+  // 데이터 fetch 함수
+  const fetchData = async (pageNum: number, append: boolean = false) => {
+    if (isFetching) return;
 
-  // 데이터 로드 함수
-  const fetchData = useCallback(async (page: number, append: boolean = false) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    params.set("limit", limit.toString());
-
-    setIsFetching(true);
     try {
-      const response = await fetch(`/api/units?${params.toString()}`);
-      const data = await response.json();
+      setIsFetching(true);
+      setError(null);
 
-      if (data?.units?.length) {
-        setUnits((prev) => (append ? [...prev, ...data.units] : data.units)); // 데이터 추가 또는 덮어쓰기
+      // 이전 요청 중단
+      if (initialLoadCompleted.current) {
+        abortControllerRef.current?.abort();
+      }
+
+      abortControllerRef.current = new AbortController();
+
+      // 쿼리 파라미터 생성
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", pageNum.toString());
+      params.set("limit", LIMIT.toString());
+
+      const response = await fetch(`/api/units?${params.toString()}`, {
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error occurred. (${response.status})`);
+      }
+
+      const data = (await response.json()) as FetchResponse;
+
+      if (data?.units) {
+        setUnits(prev => append ? [...prev, ...data.units] : data.units);
         setTotal(data.total);
-        setHasMore(data.units.length > 0 && units.length + data.units.length < data.total); // 더 로드할 데이터가 있는지 확인
+        setHasMore(
+          data.units.length === LIMIT && 
+          data.total > (append ? units.length + data.units.length : data.units.length)
+        );
       } else {
         setHasMore(false);
       }
     } catch (error) {
-      console.error("Failed to fetch units", error);
+      if (error instanceof Error && error.name !== "AbortError") {
+        setError(error.message);
+        console.error("Failed to fetch units:", error);
+      }
     } finally {
       setIsFetching(false);
+      setIsInitialLoading(false);
+      if (!initialLoadCompleted.current) {
+        initialLoadCompleted.current = true;
+      }
     }
-  }, [searchParams, units.length]);
+  };
 
-  // 페이지가 바뀔 때마다 호출
+  // searchParams 변경 시 첫 페이지로 초기화하여 데이터 로드
   useEffect(() => {
-    if (page === 1) {
-      fetchData(page, false); // 첫 페이지일 때는 데이터를 덮어쓰기
-    } else {
-      fetchData(page, true); // 이후 페이지는 데이터를 추가
+    if (initialLoadCompleted.current) {
+      setPage(1);
+      setUnits([]);
+      setHasMore(true);
+      fetchData(1, false);
     }
-  }, [page, searchParams]);
-
-  // 필터가 변경될 때마다 페이지를 1로 초기화하고 데이터 새로 가져옴
-  useEffect(() => {
-    setPage(1); // 페이지를 1로 초기화
-    fetchData(1, false); // 필터 변경 시 첫 페이지부터 새로 로드
   }, [searchParams]);
 
-  const loadMoreUnits = useCallback(() => {
-    if (!hasMore || isFetching) return;
-    setPage((prev) => prev + 1); // 다음 페이지로 이동
-  }, [hasMore, isFetching]);
+  // 첫 렌더링 시 데이터 로드
+  useEffect(() => {
+    fetchData(1, false);
+  }, []);
 
-  const { lastElementRef } = useObserver(loadMoreUnits, hasMore, isFetching); // 무한스크롤 트리거
+  // 페이지 변경 시 데이터 로드
+  useEffect(() => {
+    if (page > 1) {
+      fetchData(page, true);
+    }
+  }, [page]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  const loadMoreUnits = () => {
+    if (!hasMore || isFetching) return;
+    setPage(prev => prev + 1);
+  }
+  
+  const { lastElementRef } = useObserver(loadMoreUnits, hasMore, isFetching);
+
+  const handleUnitClick = useCallback((unitId: string) => {
+    router.push(`/unit/detail/${unitId}`);
+  }, [router]);
+
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
+        <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Skeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="unit-list">
-        {units.map((unit: any, index: number) => (
-          <div
-            key={`${unit.id}-${index}`}
-            ref={units.length === index + 1 ? lastElementRef : null} // 마지막 요소에 ref를 설정하여 감지
-            onClick={() => router.push(`/unit/detail/${unit.id}`)}
-            className="cursor-pointer"
-          >
-            <div className="h-44">{unit.id}</div>
-          </div>
+    <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
+      {error && (
+        <div className="text-red-600 p-4 mb-4 bg-red-50 rounded-lg text-center">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
+        {units.map((unit, index) => (
+          <ListCard
+            ref={index === units.length - 1 ? lastElementRef : null}
+            key={unit.id}
+            title={unit.title}
+            price={unit.price}
+            area={unit.area}
+            location={unit.fullAdress}
+            imageUrl={unit.images ? JSON.parse(unit.images)[0] : ""}
+            postedDate={unit.postedDate}
+            bed={unit.bed}
+            bath={unit.bath}
+            sellType={unit.sellType}
+            isUrgent={unit.isUrgent}
+            onClick={() => handleUnitClick(unit.id)}
+          />
         ))}
       </div>
-      {isFetching && <div className="text-center py-4">Loading more units...</div>}
-      {!hasMore && units.length > 0 && (
-        <div className="text-center py-4">No more units to load</div>
+
+      {isFetching && !isInitialLoading && (
+        <div className="text-center py-8">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        </div>
       )}
-      {units.length === 0 && !isFetching && (
-        <div className="text-center py-4">No units found</div>
+
+      {!hasMore && units.length > 0 && !isFetching && (
+        <div className="text-center py-6 text-gray-600">No more results</div>
+      )}
+
+      {units.length === 0 && !isFetching && !error && (
+        <div className="text-center py-6 text-gray-600">No results found</div>
       )}
     </div>
   );
