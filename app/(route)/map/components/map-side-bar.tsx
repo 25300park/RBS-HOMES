@@ -85,12 +85,12 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
 
   return (
     <aside
-      className={`fixed top-20 right-0 h-full bg-white border-l transition-all duration-300 md:hidden ${
+      className={`fixed top-40 right-0 h-full bg-white border-l transition-all duration-300 md:hidden ${
         isSidebarOpen ? "w-[400px] sm:w-full" : "w-0"
       }`}
     >
       <div
-        className={`relative h-[calc(100%-80px)] overflow-y-scroll ${
+        className={`relative h-[calc(100%-160px)] overflow-y-scroll ${
           isSidebarOpen ? "block" : "hidden"
         }`}
       >

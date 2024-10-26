@@ -128,17 +128,17 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   }, [debouncedFilters]);
 
   return (
-    <div className="p-4">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">Filter</h2>
-        <p className="text-gray-600">
+    <div className="px-2">
+      <div className="text-left mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Filter</h2>
+        <p className="text-gray-400 text-xs">
           Narrow down the search results by selecting filters.
         </p>
       </div>
 
       {/* 로딩 중일 때 로딩 인디케이터 표시 */}
 
-      <form className="grid gap-4 py-4">
+      <form className="grid gap-4 pt-4">
         {modalProps?.withSellType && (
           <div className="">
             <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -161,7 +161,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
           <SelectionBox
             className="justify-between space-x-0 flex "
             boxClassName="w-[73px] text-xs h-[75px]"
-            options={typeOption.slice(0,5)} // 아이콘이 있는 옵션을 전달
+            options={typeOption.slice(0, 5)} // 아이콘이 있는 옵션을 전달
             selectedValue={filters.type}
             onSelect={(e) => updateFilter("type", e)} // 통합된 핸들러 사용
             textClassName="text-xs"
@@ -364,21 +364,22 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
-        <Button
-          type="button"
-          className="w-full py-6 bg-orange-400 hover:bg-orange-500"
-          onClick={applyFilters}
-        >
-          Apply Filters ({isLoading ? "Loading" : unitCount} units available)
-        </Button>
+        <div className="flex flex-row-reverse justify-between mt-8">
+          <Button
+            type="button"
+            className=" py-6 bg-orange-400 hover:bg-orange-500"
+            onClick={applyFilters}
+          >
+            Apply Filters ({isLoading ? "Loading" : unitCount} units available)
+          </Button>
+          <Button
+            onClick={onClose}
+            className="mt-0   hover:bg-gray-100 text-gray-800 bg-white border-none  py-6"
+          >
+            Clear all
+          </Button>
+        </div>
       </form>
-
-      <Button
-        onClick={onClose}
-        className="mt-6 w-full bg-gray-100 hover:bg-gray-200 text-gray-300 hover:text-gray-500"
-      >
-        Close
-      </Button>
     </div>
   );
 };

@@ -18,7 +18,7 @@ const GoogleSearchBar = ({ navbarScrolled }: { navbarScrolled: boolean }) => {
         const autocompleteInstance = new google.maps.places.Autocomplete(
           searchInputRef.current,
           {
-            types: ["geocode"],
+            types: ['(cities)'],
             componentRestrictions: { country: "ph" }, // 필리핀 내 지역 제한
           }
         );

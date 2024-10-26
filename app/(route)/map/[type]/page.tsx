@@ -9,17 +9,14 @@ export interface MapHomeProps {
   params: any;
 }
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
-  const { type } = params;
-  if (type !== "rent" && type !== "sale") {
-    notFound();
-  }
-  const { units } = await getUnitList(searchParams, type);
+
+  const { units } = await getUnitList(searchParams);
   return (
     <div>
-      <div className="flex h-[calc(100vh-5rem)] border-t">
+      <div className="flex h-[calc(100vh-10rem)] relative top-20">
         {/* 맵 */}
         <div className="w-full h-full">
-          <MapComponent units={units} type={type} key={units} />
+          <MapComponent units={units}  key={units} />
         </div>
         <MobileMapSideBar />
         <MapSideBar />

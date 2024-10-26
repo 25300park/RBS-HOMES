@@ -146,17 +146,17 @@ const Header = ({}: HeaderProps): React.ReactNode => {
           <GoogleSearchBar navbarScrolled={navbarScrolled}/>
         )}
       </nav>
-
+ <nav className="hidden md:block h-20">123</nav>
       {/* 페이지의 나머지 콘텐츠 (헤더 아래) */}
       <div className={`${pathName === "/" ? "mt-44" : "mt-20"} md:mt-0`}> </div>
       <div
         className={`${
           navbarScrolled
-            ? "fixed bg-white top-20 z-50 transition-all duration-300 md:top-0 "
+            ? "fixed bg-white top-20 z-30 transition-all duration-300 md:top-0 "
             : "mt-20 bg-white"
         } w-full md:mt-0`}
       >
-        {pathName === "/" && <MainAmenityList />}
+        {(pathName === '/' || pathName.includes('map')) && <MainAmenityList />}
       </div>
     </header>
   );

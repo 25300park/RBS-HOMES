@@ -6,7 +6,7 @@ export interface UnitDetailProps {
 }
 
 const UnitDetail = async ({ params }: UnitDetailProps) => {
-  await sleep(2000)
+  await sleep(200)
   const unitId = parseInt(params?.id);
 
   if (!unitId || isNaN(unitId)) {
@@ -14,7 +14,6 @@ const UnitDetail = async ({ params }: UnitDetailProps) => {
   }
 
   const { unitDetail } = await getUnitDetail(unitId);
-
   return (
     <div className="max-w-[1140px] mx-auto">
       <DetailWrap property={unitDetail} />

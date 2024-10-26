@@ -113,7 +113,7 @@ export const MapComponent = ({ units, type,owner }: MapProps) => {
     <div
       className={`relative w-full ${
         isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
-      } h-[calc(100vh-5rem)]`}
+      } h-[calc(100vh-10rem)]`}
     >
       <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
         <div className="flex items-center mb-2">
