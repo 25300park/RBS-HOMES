@@ -128,7 +128,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   }, [debouncedFilters]);
 
   return (
-    <div className="px-2">
+    <div className="px-2 md:p-6 md:pb-10">
       <div className="text-left mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Filter</h2>
         <p className="text-gray-400 text-xs">
@@ -322,7 +322,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
           </div> */}
         {/* Furniture Selection Filter */}
         <div className="">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-500 mb-2">
             Furniture
           </label>
           <Select
@@ -344,7 +344,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         </div>
         {/* Pet Policy Filter */}
         <div className="">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-500 mb-2">
             Pet Policy
           </label>
           <Select

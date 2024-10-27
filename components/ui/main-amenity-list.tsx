@@ -73,7 +73,7 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className="relative flex items-center px-10 border-b pt-4 w-full md:px-4">
+    <div className="relative flex items-center px-10 border-b pt-4 w-full md:px-4 md:pt-0">
       {/* 왼쪽 화살표 */}
       {showLeftArrow && (
         <button
@@ -101,19 +101,19 @@ const MainAmenityList = () => {
           {amenitiesData.map((amenity, i) => (
             <div
               key={i}
-              className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] h-full cursor-pointer group group-active:scale-90 duration-500 transition-all
+              className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] h-full cursor-pointer group group-active:scale-90 duration-200 transition-all
                 ${selectedAmenity === amenity.label ? "" : ""}`} // 선택된 어메니티 강조
               onClick={() => handleAmenityClick(amenity.label)} // 클릭 시 어메니티 필터 적용
             >
-              <span className="text-gray-600 text-2xl group group-active:text-[22px] duration-500 transition-all">
+              <span className="text-gray-600 text-2xl group group-active:text-[22px] duration-200 transition-all">
                 {<amenity.icon />}
               </span>
               <span
                 className={`${
                   selectedAmenity === amenity.label
                     ? "border-black"
-                    : "border-transparent"
-                } text-xs w-fit border-b-2 pb-3 text-center pt-2 group group-active:scale-90 duration-300 transition-all`}
+                    : "border-transparent "
+                }  text-xs w-fit border-b-2 pb-3 text-center pt-2 group group-active:scale-90 group-hover:border-gray-200 duration-300 transition-all`}
               >
                 {amenity.label}
               </span>

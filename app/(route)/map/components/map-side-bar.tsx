@@ -95,7 +95,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
         }`}
       >
         {/* 금액 정렬 선택 드롭다운 */}
-        <div className="p-4">
+        {/* <div className="p-4">
           <label htmlFor="sortOrder" className="block mb-2 text-sm font-medium">
             정렬 기준:
           </label>
@@ -108,7 +108,7 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
             <option value="low">낮은 금액순</option>
             <option value="high">높은 금액순</option>
           </select>
-        </div>
+        </div> */}
 
         {/* 기존 로딩 상태 처리 */}
         {mapLoading ? (

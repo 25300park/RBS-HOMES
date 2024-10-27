@@ -67,14 +67,16 @@ const Header = ({}: HeaderProps): React.ReactNode => {
               <Link
                 href={"/"}
                 className={`hover:border-gray-200 border-b flex items-center gap-2 ${
-                  pathName === "/" ? "text-black border-gray-200" : "text-gray-400 border-transparent"
+                  pathName === "/"
+                    ? "text-black border-gray-200"
+                    : "text-gray-400 border-transparent"
                 }`}
               >
                 <IoListOutline className="text-xl" />
                 <p>View as list</p>
               </Link>
               <Link
-                href={"/map/rent"}
+                href={"/map"}
                 className={` flex items-center hover:border-gray-200 border-b gap-2 ${
                   pathName.startsWith("/map")
                     ? "text-black border-gray-200"
@@ -117,46 +119,24 @@ const Header = ({}: HeaderProps): React.ReactNode => {
 
         {/* 검색바: 메인 페이지에만 표시 */}
         {pathName === "/" && (
-          // <div
-          //   className={`transition-all duration-300 ease-in-out max-w-[800px] ${
-          //     navbarScrolled
-          //       ? "fixed top-6 w-[450px] h-12 mt-0 transform -translate-y-2"
-          //       : "w-full h-16 mt-4"
-          //   } flex items-center justify-between bg-white rounded-full shadow-lg py-4 px-2 border`}
-          // >
-          //   <input
-          //     type="text"
-          //     placeholder="search"
-          //     className={`w-[90%] pl-6 ${
-          //       navbarScrolled ? "text-sm" : "text-lg"
-          //     } text-gray-700 placeholder-gray-400 focus:outline-none`}
-          //   />
-          //   <Button
-          //     variant={"default"}
-          //     size={"icon"}
-          //     className={`bg-orange-500 text-white rounded-full hover:bg-orange-600 ${
-          //       navbarScrolled ? "w-8 h-8" : "w-12 h-12"
-          //     }`}
-          //   >
-          //     <IoSearch
-          //       className={`${navbarScrolled ? "text-lg" : "text-2xl"}`}
-          //     />
-          //   </Button>
-          // </div>
-          <GoogleSearchBar navbarScrolled={navbarScrolled}/>
+          <GoogleSearchBar navbarScrolled={navbarScrolled} />
         )}
       </nav>
- <nav className="hidden md:block h-20">123</nav>
+      <nav className="hidden h-20 fixed top-0 w-full px-6 bg-white z-50 md:flex items-center">
+        {pathName === "/" && (
+          <GoogleSearchBar navbarScrolled={navbarScrolled} isMobile/>
+        )}
+      </nav>
       {/* 페이지의 나머지 콘텐츠 (헤더 아래) */}
-      <div className={`${pathName === "/" ? "mt-44" : "mt-20"} md:mt-0`}> </div>
+      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"}`}> </div>
       <div
         className={`${
           navbarScrolled
-            ? "fixed bg-white top-20 z-30 transition-all duration-300 md:top-0 "
+            ? "fixed bg-white top-20 z-30 transition-all duration-300"
             : "mt-20 bg-white"
         } w-full md:mt-0`}
       >
-        {(pathName === '/' || pathName.includes('map')) && <MainAmenityList />}
+        {(pathName === "/" || pathName.includes("map")) && <MainAmenityList />}
       </div>
     </header>
   );
