@@ -11,6 +11,7 @@ import { IoMapOutline, IoListOutline, IoSearch } from "react-icons/io5";
 import { amenitiesData } from "@/lib/config/amenities";
 import GoogleSearchBar from "./ui/google-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
+import MainFilterGroup from "./ui/main-filter-group";
 export interface HeaderProps {}
 
 const Header = ({}: HeaderProps): React.ReactNode => {
@@ -124,11 +125,13 @@ const Header = ({}: HeaderProps): React.ReactNode => {
       </nav>
       <nav className="hidden h-20 fixed top-0 w-full px-6 bg-white z-50 md:flex items-center">
         {pathName === "/" && (
-          <GoogleSearchBar navbarScrolled={navbarScrolled} isMobile/>
+          <GoogleSearchBar navbarScrolled={navbarScrolled} isMobile />
         )}
       </nav>
       {/* 페이지의 나머지 콘텐츠 (헤더 아래) */}
-      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"}`}> </div>
+      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"}`}>
+        {" "}
+      </div>
       <div
         className={`${
           navbarScrolled
@@ -136,7 +139,12 @@ const Header = ({}: HeaderProps): React.ReactNode => {
             : "mt-20 bg-white"
         } w-full md:mt-0`}
       >
-        {(pathName === "/" || pathName.includes("map")) && <MainAmenityList />}
+        {(pathName === "/" || pathName.includes("map")) && (
+          <div className="flex w-full  md:flex-col  pt-4 px-20 3xl:px-12 xs:px-4 border-b md:pt-0 md:gap-4 ">
+            <MainFilterGroup />
+            <MainAmenityList />
+          </div>
+        )}
       </div>
     </header>
   );

@@ -10,7 +10,6 @@ export default async function DashBoard({ searchParams }: { searchParams: any })
     <div>
       <BannerGroup />
       <div className="mt-2">
-        <FilterButton />
         <MainList   />
       </div>
     </div>

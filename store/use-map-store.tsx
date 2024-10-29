@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import * as maptilersdk from "@maptiler/sdk";
 
+type SheetPosition = 'minimized' | 'half' | 'full';
+
 interface MapState {
   visibleUnits: any[];
   visibleUnitCount: number;
@@ -8,8 +10,10 @@ interface MapState {
   isSidebarOpen: boolean;
   map: any | null;
   popup: any | null;
-  isLoading: boolean; // 로딩 상태 추가
+  isLoading: boolean;
   hoverUnitId?: number | null;
+  sheetPosition: SheetPosition;
+  setSheetPosition: (position: SheetPosition) => void;
 
   setVisibleUnitCount: (count: number) => void;
   setVisibleUnits: (units: any[]) => void;
@@ -20,8 +24,8 @@ interface MapState {
   clearSelectedUnit: () => void;
   showPopup: (unit: any) => void;
   clearPopup: () => void;
-  setLoading: (loading: boolean) => void; // 로딩 상태 변경 함수
-  setHoverUnitId: (unitId: number | null) => void; // 로딩 상태 변경 함수
+  setLoading: (loading: boolean) => void;
+  setHoverUnitId: (unitId: number | null) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -31,9 +35,12 @@ export const useMapStore = create<MapState>((set) => ({
   isSidebarOpen: true,
   map: null,
   popup: null,
-  isLoading: false, // 초기값 false
+  isLoading: false,
   hoverUnitId: null,
+  sheetPosition: 'minimized', // 추가된 상태
 
+  //  액션
+  setSheetPosition: (position) => set({ sheetPosition: position }),
   setVisibleUnits: (units) => {
     set({ visibleUnits: units });
   },
@@ -50,7 +57,6 @@ export const useMapStore = create<MapState>((set) => ({
       return state;
     }),
   setHoverUnitId: (unitId) => set({ hoverUnitId: unitId }),
-  // 팝업 띄우기
   showPopup: (unit) =>
     set((state) => {
       if (state.map && unit) {
@@ -100,5 +106,5 @@ export const useMapStore = create<MapState>((set) => ({
       return { popup: null };
     }),
 
-  setLoading: (loading: boolean) => set({ isLoading: loading }), // 로딩 상태 변경 함수
+  setLoading: (loading: boolean) => set({ isLoading: loading }),
 }));

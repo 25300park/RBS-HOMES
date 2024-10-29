@@ -28,6 +28,7 @@ export interface FilterButtonProps {
   withSellType?: boolean;
   sellType?: string;
   isActive?: boolean;
+  withClear?: boolean;
 }
 
 const FilterButton = ({
@@ -35,6 +36,7 @@ const FilterButton = ({
   withType = false,
   sellType,
   isActive = false,
+  withClear = false,
 }: FilterButtonProps) => {
   const { openModal } = useModalStore();
   const searchParams = useSearchParams();
@@ -91,16 +93,20 @@ const FilterButton = ({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="space-y-4">
       <div className="flex w-full gap-4">
         <Button
           onClick={openModalHandler}
           className={`${
-            activeFilterCount > 0 ? "border-orange-400 border-2" : "border"
+            activeFilterCount > 0 ? "border-orange-400 " : "border"
           } py-5 space-x-3 relative`}
           variant={"outline"}
         >
-          <FaSliders className={` text-orange-400`} />
+          <FaSliders
+            className={`${
+              activeFilterCount > 0 ? "text-orange-400 " : "text-[#A9A9A9]"
+            }  `}
+          />
           <p>Filters</p>
           {activeFilterCount > 0 && (
             <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
@@ -108,9 +114,9 @@ const FilterButton = ({
             </span>
           )}
         </Button>
-        <FilterResetButton />
+        {withClear && <FilterResetButton />}
       </div>
-      {activeFilterCount > 0 && (
+      {(activeFilterCount > 0 && withClear) && (
         <div className="pt-4 w-full border-t">
           {isActive && activeFilters.length > 0 && (
             <div>

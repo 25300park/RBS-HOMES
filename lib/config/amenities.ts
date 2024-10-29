@@ -40,4 +40,5 @@ export const amenitiesData: Amenity[] = [
   { label: "Pool", icon: MdOutlinePool },
   { label: "Jogging", icon: MdOutlineSportsHandball },
   { label: "Retail", icon: MdOutlineShoppingBag },
+
 ];

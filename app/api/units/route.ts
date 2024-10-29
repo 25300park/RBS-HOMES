@@ -4,36 +4,54 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from '@prisma/client';
 
+type SortOption = 'latest' | 'oldest' | 'priceAsc' | 'priceDesc';
+
+interface FilterParams {
+  type?: string;
+  sellType?: string;
+  bed?: string;
+  bath?: string;
+  parking?: string;
+  city?: string;
+  priceMin?: string;
+  priceMax?: string;
+  areaMin?: string;
+  areaMax?: string;
+  furniture?: string;
+  pet?: string;
+  search?: string;
+  amenities?: string;
+  sort?: string;
+}
+
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "5");
-
-  // searchParams를 필터링 조건으로 변환
-  const filters: Record<string, string> = {
-    type: searchParams.get("type") || "none",
-    sellType: searchParams.get("sellType") || "none",
-    bed: searchParams.get("bed") || "",
-    bath: searchParams.get("bath") || "",
-    parking: searchParams.get("parking") || "",
-    city: searchParams.get("city") || "All Cities",
-    priceMin: searchParams.get("priceMin") || "",
-    priceMax: searchParams.get("priceMax") || "",
-    areaMin: searchParams.get("areaMin") || "",
-    areaMax: searchParams.get("areaMax") || "",
-    furniture: searchParams.get("furniture") || "none",
-    pet: searchParams.get("pet") || "none",
-    search: searchParams.get("search") || "",
-    amenity: searchParams.get("amenity") || "",
-  };
-
   try {
-    // 필터링된 데이터를 가져오는 함수를 사용
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "5");
+    
+    const filters: FilterParams = {
+      type: searchParams.get("type") || "none",
+      sellType: searchParams.get("sellType") || "none",
+      bed: searchParams.get("bed") || "",
+      bath: searchParams.get("bath") || "",
+      parking: searchParams.get("parking") || "",
+      city: searchParams.get("city") || "All Cities",
+      priceMin: searchParams.get("priceMin") || "",
+      priceMax: searchParams.get("priceMax") || "",
+      areaMin: searchParams.get("areaMin") || "",
+      areaMax: searchParams.get("areaMax") || "",
+      furniture: searchParams.get("furniture") || "none",
+      pet: searchParams.get("pet") || "none",
+      search: searchParams.get("search") || "",
+      amenities: searchParams.get("amenities") || "",
+      sort: searchParams.get("sort") || "latest",
+    };
+
     const { units, total } = await getFilteredUnits(page, limit, filters);
-    // console.log(units, total)
     return NextResponse.json({ units, total });
   } catch (error) {
-    console.log(error);
+    console.error("API Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch data" },
       { status: 500 }
@@ -41,89 +59,84 @@ export async function GET(req: Request) {
   }
 }
 
-// 필터링된 유닛 목록을 가져오는 함수
+const getAmenityFilter = (amenities: string[]) => {
+  if (!amenities.length) return undefined;
+
+  return {
+    AND: [
+      { amenity: { not: null } },
+      { amenity: { not: '[]' } },
+      ...amenities.map(amenity => ({
+        amenity: { contains: amenity }
+      }))
+    ]
+  };
+};
+
+const getSearchFilter = (search?: string) => {
+  if (!search) return undefined;
+  
+  return {
+    OR: [
+      { title: { contains: search } },
+      { address3: { contains: search } },
+    ]
+  };
+};
+
+const getPriceFilter = (priceMin?: number, priceMax?: number) => {
+  if (!priceMin && !priceMax) return undefined;
+  
+  return {
+    price: {
+      gte: priceMin || undefined,
+      lte: priceMax || undefined,
+    }
+  };
+};
+
+const getSortOption = (sort: SortOption): Prisma.UnitOrderByWithRelationInput => {
+  const sortOptions: Record<SortOption, Prisma.UnitOrderByWithRelationInput> = {
+    latest: { lastUpdate: Prisma.SortOrder.desc },  // 최신순
+    oldest: { lastUpdate: Prisma.SortOrder.asc },   // 오래된순
+    priceAsc: { price: Prisma.SortOrder.asc },
+    priceDesc: { price: Prisma.SortOrder.desc }
+  };
+
+  return sortOptions[sort] || sortOptions.latest;
+};
+
+const parseNumericValue = (value: string | undefined): number | undefined => {
+  if (!value) return undefined;
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? undefined : parsed;
+};
+
+
 async function getFilteredUnits(
   page: number,
   limit: number,
-  searchParams: Record<string, string>
+  params: FilterParams
 ) {
-  const type = searchParams.type !== "none" ? searchParams.type : undefined;
-  const sellType =
-    searchParams.sellType !== "none" ? searchParams.sellType : undefined;
-  const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
-  const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
-  const parking = searchParams.parking
-    ? parseInt(searchParams.parking)
-    : undefined;
-  const city =
-    searchParams.city !== "All Cities" ? searchParams.city : undefined;
-  const priceMin = searchParams.priceMin
-    ? parseFloat(searchParams.priceMin)
-    : undefined;
-  const priceMax = searchParams.priceMax
-    ? parseFloat(searchParams.priceMax)
-    : undefined;
-  const areaMin = searchParams.areaMin
-    ? parseFloat(searchParams.areaMin)
-    : undefined;
-  const areaMax = searchParams.areaMax
-    ? parseFloat(searchParams.areaMax)
-    : undefined;
-  const furniture =
-    searchParams.furniture !== "none" ? searchParams.furniture : undefined;
-  const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
-  const search = searchParams.search || undefined;
-  const amenity = searchParams.amenity
-    ? decodeURIComponent(searchParams.amenity)
-        .split(",")
-        .map((a) => a.trim()) // 공백 제거 및 디코딩
-    : [];
-  // 가격 필터 처리
-  const priceFilter =
-    priceMin !== undefined || priceMax !== undefined
-      ? {
-          price: {
-            gte: priceMin || undefined,
-            lte: priceMax || undefined,
-          },
-        }
-      : undefined;
+  // Parse filter values
+  const type = params.type !== "none" ? params.type : undefined;
+  const sellType = params.sellType !== "none" ? params.sellType : undefined;
+  const bed = parseNumericValue(params.bed);
+  const bath = parseNumericValue(params.bath);
+  const parking = parseNumericValue(params.parking);
+  const city = params.city !== "All Cities" ? params.city : undefined;
+  const priceMin = parseNumericValue(params.priceMin);
+  const priceMax = parseNumericValue(params.priceMax);
+  const areaMin = parseNumericValue(params.areaMin);
+  const areaMax = parseNumericValue(params.areaMax);
+  const furniture = params.furniture !== "none" ? params.furniture : undefined;
+  const pet = params.pet !== "none" ? params.pet : undefined;
+  const amenities = params.amenities ? 
+    decodeURIComponent(params.amenities).split(",").map(a => a.trim()) : 
+    [];
+  const sort = (params.sort as SortOption) || 'latest';
 
-  // 검색 필터 처리
-  const searchFilter = search
-    ? {
-        OR: [
-          { title: { contains: search } },
-          { address3: { contains: search } },
-        ],
-      }
-    : undefined;
-
-    const amenityFilter = amenity.length > 0
-    ? {
-        AND: [
-          {
-            amenity: {
-              not: null,
-            }
-          },
-          {
-            amenity: {
-              not: '[]'
-            }
-          },
-          {
-            amenity: {
-              contains: amenity[0]  // 단순 문자열 검색
-            }
-          }
-        ]
-      }
-    : undefined;
-  
-
-
-  // 전체 필터 조건 설정
+  // Build filter conditions
   const filterConditions = {
     type: type ? { equals: type } : undefined,
     sellType: sellType ? { equals: sellType } : undefined,
@@ -131,18 +144,18 @@ async function getFilteredUnits(
     bath: bath ? { gte: bath } : undefined,
     parking: parking ? { gte: parking } : undefined,
     address2: city ? { equals: city } : undefined,
-    area:
-      areaMin !== undefined || areaMax !== undefined
-        ? { gte: areaMin || undefined, lte: areaMax || undefined }
-        : undefined,
+    area: (areaMin || areaMax) ? {
+      gte: areaMin || undefined,
+      lte: areaMax || undefined
+    } : undefined,
     furniture: furniture ? { equals: furniture } : undefined,
     petPolicy: pet ? { equals: pet } : undefined,
-    ...(amenityFilter && { ...amenityFilter }),
-    ...(priceFilter && { ...priceFilter }),
-    ...(searchFilter && { ...searchFilter }),
+    ...getAmenityFilter(amenities),
+    ...getPriceFilter(priceMin, priceMax),
+    ...getSearchFilter(params.search),
   };
 
-  // 트랜잭션으로 findMany와 count 동시에 실행
+  // Execute transaction
   const [units, totalUnits] = await prisma.$transaction([
     prisma.unit.findMany({
       skip: (page - 1) * limit,
@@ -151,21 +164,22 @@ async function getFilteredUnits(
       include: {
         admin: true,
       },
+      orderBy: getSortOption(sort),
     }),
     prisma.unit.count({
       where: filterConditions,
     }),
-  ], 
-);
+  ]);
 
-  // Decimal 값을 변환하여 반환
-  const transformedUnits = units.map((unit) => ({
+  // Transform decimal values
+  const transformedUnits = units.map(unit => ({
     ...unit,
-    price: unit.price ? unit?.price?.toNumber() : unit.price,
-    outstandingPayment: unit.outstandingPayment
-      ? unit?.outstandingPayment?.toNumber()
-      : unit.outstandingPayment,
+    price: unit.price?.toNumber(),
+    outstandingPayment: unit.outstandingPayment?.toNumber(),
   }));
 
-  return { units: transformedUnits, total: totalUnits };
+  return { 
+    units: transformedUnits, 
+    total: totalUnits 
+  };
 }

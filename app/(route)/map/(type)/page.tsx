@@ -13,7 +13,7 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   const { units } = await getUnitList(searchParams);
   return (
     <div>
-      <div className="flex h-[calc(100vh-10rem)] relative top-20">
+      <div className="flex h-[calc(100vh-10rem)] md:h-screen relative md:static top-20">
         {/* 맵 */}
         <div className="w-full h-full">
           <MapComponent units={units}  key={units} />

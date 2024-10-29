@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "../ui/slider"; // Custom Slider component
+import { Slider } from "../ui/slider";
 import {
   Select,
   SelectContent,
@@ -10,15 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import CityImgCard from "../ui/city-img-card";
 import { getUnitCount, getUnitCountOwner } from "@/lib/action";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useLoading } from "@/hooks/use-loading"; // 로딩 훅
+import { useLoading } from "@/hooks/use-loading";
 import SelectionBox from "@/components/ui/select-box";
-
 import {
-  cities,
   sellTypeOption,
   typeOption,
   furnitureOptions,
@@ -42,85 +39,116 @@ interface Filters {
 
 interface FilterModalProps {
   onClose: () => void;
-  modalProps?: { withSellType: boolean; withType: boolean; sellType?: string };
+  modalProps?: { 
+    withSellType: boolean; 
+    withType: boolean; 
+    sellType?: string;
+  };
 }
+
+// 초기 필터 상태
+const initialFilters: Filters = {
+  type: "none",
+  sellType: "none",
+  bed: "0",
+  bath: "0",
+  parking: "0",
+  priceMin: "0",
+  priceMax: "1000000",
+  areaMin: "0",
+  areaMax: "500",
+  city: "All Cities",
+  furniture: "none",
+  pet: "none",
+};
 
 const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [unitCount, setUnitCount] = useState(0);
-  const { isLoading, startLoading, stopLoading } = useLoading(); // 로딩 상태
+  const { isLoading, startLoading, stopLoading } = useLoading();
 
-  // 필터 상태 관리
-  const [filters, setFilters] = useState<Filters>({
-    type: searchParams.get("type") || "none",
-    sellType: searchParams.get("sellType") || "none",
-    bed: searchParams.get("bed") || "0",
-    bath: searchParams.get("bath") || "0",
-    parking: searchParams.get("parking") || "0",
-    priceMin: searchParams.get("priceMin") || "0",
-    priceMax: searchParams.get("priceMax") || "1000000",
-    areaMin: searchParams.get("areaMin") || "0",
-    areaMax: searchParams.get("areaMax") || "500",
-    city: searchParams.get("city") || "All Cities",
-    furniture: searchParams.get("furniture") || "none",
-    pet: searchParams.get("pet") || "none",
-  });
+  // 필터 상태 초기화 - URL 파라미터 존재하면 사용
+  const [filters, setFilters] = useState<Filters>(() => ({
+    type: searchParams.get("type") || initialFilters.type,
+    sellType: searchParams.get("sellType") || initialFilters.sellType,
+    bed: searchParams.get("bed") || initialFilters.bed,
+    bath: searchParams.get("bath") || initialFilters.bath,
+    parking: searchParams.get("parking") || initialFilters.parking,
+    priceMin: searchParams.get("priceMin") || initialFilters.priceMin,
+    priceMax: searchParams.get("priceMax") || initialFilters.priceMax,
+    areaMin: searchParams.get("areaMin") || initialFilters.areaMin,
+    areaMax: searchParams.get("areaMax") || initialFilters.areaMax,
+    city: searchParams.get("city") || initialFilters.city,
+    furniture: searchParams.get("furniture") || initialFilters.furniture,
+    pet: searchParams.get("pet") || initialFilters.pet,
+  }));
 
-  const debouncedFilters = useDebounce(filters, 800); // 500ms 디바운스
+  const debouncedFilters = useDebounce(filters, 800);
 
+  // 필터 업데이트 함수
   const updateFilter = (field: keyof Filters, value: string | number) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setFilters(prev => ({
+      ...prev,
       [field]: value.toString(),
     }));
   };
 
-  const convertFiltersToRecord = (filters: Filters): Record<string, string> => {
-    return {
-      type: filters.type,
-      sellType: filters.sellType,
-      bed: filters.bed,
-      bath: filters.bath,
-      parking: filters.parking,
-      priceMin: filters.priceMin,
-      priceMax: filters.priceMax,
-      areaMin: filters.areaMin,
-      areaMax: filters.areaMax,
-      city: filters.city,
-      furniture: filters.furniture,
-      pet: filters.pet,
-    };
-  };
-
-  const applyFilters = () => {
-    const query = new URLSearchParams(
-      convertFiltersToRecord(filters)
-    ).toString();
-    router.push(`${pathname}?${query}`);
-    onClose();
-  };
-
+  // 숫자 필드 증감 함수
   const adjustCount = (field: keyof Filters, increment: boolean) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setFilters(prev => ({
+      ...prev,
       [field]: increment
-        ? (parseInt(prevFilters[field]) || 0) + 1
-        : Math.max(0, (parseInt(prevFilters[field]) || 0) - 1),
+        ? ((parseInt(prev[field]) || 0) + 1).toString()
+        : Math.max(0, (parseInt(prev[field]) || 0) - 1).toString(),
     }));
   };
 
+  // 필터 적용 함수
+  const applyFilters = () => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+    
+    // 필터 값 검사 및 적용
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === initialFilters[key as keyof Filters]) {
+        currentParams.delete(key);
+      } else {
+        currentParams.set(key, value);
+      }
+    });
+
+    router.push(`${pathname}?${currentParams.toString()}`);
+    onClose();
+  };
+
+  // 필터 초기화 함수
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
+  // 유닛 카운트 조회
   const fetchUnitCount = async () => {
-    startLoading(); // 로딩 시작
-    const count = modalProps?.withSellType
-      ? await getUnitCountOwner(convertFiltersToRecord(debouncedFilters))
-      : await getUnitCount(
-          convertFiltersToRecord(debouncedFilters),
-          modalProps?.sellType
-        );
-    setUnitCount(count);
-    stopLoading(); // 로딩 종료
+    try {
+      startLoading();
+      const filterRecord = Object.entries(debouncedFilters).reduce((acc, [key, value]) => {
+        if (value !== initialFilters[key as keyof Filters]) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
+      const count = modalProps?.withSellType
+        ? await getUnitCountOwner(filterRecord)
+        : await getUnitCount(filterRecord, modalProps?.sellType);
+      
+      setUnitCount(count);
+    } catch (error) {
+      console.error('Error fetching unit count:', error);
+      setUnitCount(0);
+    } finally {
+      stopLoading();
+    }
   };
 
   useEffect(() => {
@@ -136,15 +164,13 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         </p>
       </div>
 
-      {/* 로딩 중일 때 로딩 인디케이터 표시 */}
-
-      <form className="grid gap-4 pt-4">
+      <form className="grid gap-4 pt-4" onSubmit={(e) => e.preventDefault()}>
+        {/* Sell Type Selection */}
         {modalProps?.withSellType && (
-          <div className="">
+          <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
               Sell Type
             </label>
-
             <SelectionBox
               className="justify-between space-x-0 flex gap-2"
               boxClassName="w-full h-12"
@@ -154,117 +180,57 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             />
           </div>
         )}
+
+        {/* Property Type Selection */}
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">
             Property Type
           </label>
           <SelectionBox
-            className="justify-between space-x-0 flex "
+            className="justify-between space-x-0 flex"
             boxClassName="w-[73px] text-xs h-[75px]"
-            options={typeOption.slice(0, 5)} // 아이콘이 있는 옵션을 전달
+            options={typeOption.slice(0, 5)}
             selectedValue={filters.type}
-            onSelect={(e) => updateFilter("type", e)} // 통합된 핸들러 사용
+            onSelect={(e) => updateFilter("type", e)}
             textClassName="text-xs"
           />
         </div>
-        {/* <div className="">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Property Type
-          </label>
-          <Select
-            name="type"
-            value={filters.type}
-            onValueChange={(e) => updateFilter("type", e)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {typeOption.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div> */}
-        {/* Bed and Bath Selection */}
+
+        {/* Numeric Selectors */}
         <div className="grid grid-cols-1 gap-4">
-          {/* Beds */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-zinc-500">Beds</span>
-            <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("bed", false)}
-              >
-                -
-              </button>
-              <span className="text-sm w-40 text-center">
-                {parseInt(filters.bed) === 0 ? "Any" : `${filters.bed}+`}
-              </span>
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("bed", true)}
-              >
-                +
-              </button>
+          {[
+            { label: "Beds", field: "bed" },
+            { label: "Baths", field: "bath" },
+            { label: "Parking", field: "parking" },
+          ].map((item) => (
+            <div key={item.field} className="flex items-center justify-between">
+              <span className="text-sm text-zinc-500">{item.label}</span>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount(item.field as keyof Filters, false)}
+                >
+                  -
+                </button>
+                <span className="text-sm w-40 text-center">
+                  {parseInt(filters[item.field as keyof Filters]) === 0 
+                    ? "Any" 
+                    : `${filters[item.field as keyof Filters]}+`}
+                </span>
+                <button
+                  type="button"
+                  className="w-8 h-8 flex justify-center items-center border rounded-full"
+                  onClick={() => adjustCount(item.field as keyof Filters, true)}
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Baths */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-zinc-500">Baths</span>
-            <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("bath", false)}
-              >
-                -
-              </button>
-              <span className="text-sm w-40 text-center">
-                {parseInt(filters.bath) === 0 ? "Any" : `${filters.bath}+`}
-              </span>
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("bath", true)}
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Parking */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-zinc-500">Parking</span>
-            <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("parking", false)}
-              >
-                -
-              </button>
-              <span className="text-sm w-40 text-center">
-                {parseInt(filters.parking) === 0
-                  ? "Any"
-                  : `${filters.parking}+`}
-              </span>
-              <button
-                type="button"
-                className="w-8 h-8 flex justify-center items-center border rounded-full"
-                onClick={() => adjustCount("parking", true)}
-              >
-                +
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
-        {/* Price Range Filter */}
+
+        {/* Price Range Slider */}
         <div className="my-6">
           <label className="block text-sm font-medium text-zinc-500 mb-1">
             Price Range
@@ -285,13 +251,14 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             <span>{Number(filters.priceMax).toLocaleString()}</span>
           </div>
         </div>
-        {/* Area Range Filter */}
+
+        {/* Area Range Slider */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-zinc-500 mb-1">
             Area Range
           </label>
           <Slider
-            className="w-full bg-orange-300!"
+            className="w-full"
             value={[parseInt(filters.areaMin), parseInt(filters.areaMax)]}
             onValueChange={(values) => {
               updateFilter("areaMin", values[0]);
@@ -306,27 +273,13 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             <span>{filters.areaMax}</span>
           </div>
         </div>
-        {/* City Selection Filter */}
-        {/* <div className="mb-6">
-            <h3 className="text-lg font-bold mb-2">Select City</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {cities.map((city) => (
-                <CityImgCard
-                  key={city.name}
-                  city={city}
-                  onClick={() => updateFilter("city", city.name)}
-                  isActive={filters.city === city.name}
-                />
-              ))}
-            </div>
-          </div> */}
-        {/* Furniture Selection Filter */}
-        <div className="">
+
+        {/* Furniture Selection */}
+        <div>
           <label className="block text-sm font-medium text-zinc-500 mb-2">
             Furniture
           </label>
           <Select
-            name="furniture"
             value={filters.furniture}
             onValueChange={(e) => updateFilter("furniture", e)}
           >
@@ -342,13 +295,13 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
-        {/* Pet Policy Filter */}
-        <div className="">
+
+        {/* Pet Policy Selection */}
+        <div>
           <label className="block text-sm font-medium text-zinc-500 mb-2">
             Pet Policy
           </label>
           <Select
-            name="pet"
             value={filters.pet}
             onValueChange={(e) => updateFilter("pet", e)}
           >
@@ -364,17 +317,20 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Action Buttons */}
         <div className="flex flex-row-reverse justify-between mt-8">
           <Button
             type="button"
-            className=" py-6 bg-orange-400 hover:bg-orange-500"
+            className="py-6 bg-orange-400 hover:bg-orange-500"
             onClick={applyFilters}
           >
-            Apply Filters ({isLoading ? "Loading" : unitCount} units available)
+            Apply Filters ({isLoading ? "Loading..." : `${unitCount} units available`})
           </Button>
           <Button
-            onClick={onClose}
-            className="mt-0   hover:bg-gray-100 text-gray-800 bg-white border-none  py-6"
+            type="button"
+            onClick={clearFilters}
+            className="mt-0 hover:bg-gray-100 text-gray-800 bg-white border-none py-6"
           >
             Clear all
           </Button>

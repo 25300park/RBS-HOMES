@@ -15,8 +15,6 @@ export interface MobileMapSideBarProps {
   type?: "rent" | "sale";
 }
 
-type SheetPosition = 'minimized' | 'half' | 'full';
-
 const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
   const router = useRouter();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -28,136 +26,96 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
     isSidebarOpen,
     setHoverUnitId,
     isLoading: mapLoading,
+    sheetPosition,
+    setSheetPosition
   } = useMapStore();
 
   const { isLoading, startLoading, stopLoading } = useLoading();
   const [loadedUnits, setLoadedUnits] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [sheetPosition, setSheetPosition] = useState<SheetPosition>('minimized');
-  const [isDragging, setIsDragging] = useState(false);
-  const [startY, setStartY] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
-  const [contentScrollTop, setContentScrollTop] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [lastSwipeTime, setLastSwipeTime] = useState(0);
+  const [isAtTop, setIsAtTop] = useState(true);
 
   const pageSize = 20;
   const hasMore = loadedUnits.length < visibleUnits.length;
   const [sortOrder, setSortOrder] = useState<"low" | "high">("low");
 
-  const DRAG_THRESHOLD = 50;
-
-  const snapToPosition = (position: SheetPosition) => {
-    if (!sheetRef.current) return;
-
+  const TRANSITION_DURATION = 700;
+  const SWIPE_COOLDOWN = 800;    
+  const SWIPE_THRESHOLD = 10;      
+  const isTransitioning = useRef(false);
+  
+  const snapToPosition = (position: 'minimized' | 'half' | 'full') => {
+    if (!sheetRef.current || isTransitioning.current) return;
+  
+    isTransitioning.current = true;
     let translateY = '0%';
+      
     switch (position) {
       case 'minimized':
         translateY = 'calc(100% - 60px)';
         break;
       case 'half':
-        translateY = '55%';  // 약간 더 높게 설정하여 45vh 정도 보이도록
+        translateY = '55%';
         break;
       case 'full':
         translateY = '0%';
         break;
     }
-
+  
     sheetRef.current.style.transform = `translateY(${translateY})`;
     setSheetPosition(position);
-
-    // 축소할 때 스크롤 위치 초기화
-    if (position === 'minimized' && contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
+  
+    setTimeout(() => {
+      isTransitioning.current = false;
+      if (position === 'minimized' && contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+    }, TRANSITION_DURATION);
   };
-
+  
   const handleTouchStart = (e: React.TouchEvent) => {
-    setStartY(e.touches[0].clientY);
-    setCurrentY(e.touches[0].clientY);
-    setIsDragging(true);
-
+    setTouchStartY(e.touches[0].clientY);
     if (contentRef.current) {
-      setContentScrollTop(contentRef.current.scrollTop);
+      setIsAtTop(contentRef.current.scrollTop <= 1);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
+    const now = Date.now();
+    if (now - lastSwipeTime < SWIPE_COOLDOWN) {
+      return;
+    }
 
-    const currentTouch = e.touches[0].clientY;
-    setCurrentY(currentTouch);
-    const deltaY = currentTouch - startY;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStartY;
 
-    if (contentRef.current && contentRef.current.scrollTop <= 0) {
+    if (isAtTop && deltaY > SWIPE_THRESHOLD) {
+      e.preventDefault();
+      
       switch (sheetPosition) {
         case 'full':
-          if (deltaY > 0 && deltaY <= window.innerHeight * 0.6) {
-            e.preventDefault();
-            if (sheetRef.current) {
-              const movePercent = (deltaY / window.innerHeight) * 100;
-              sheetRef.current.style.transform = `translateY(${movePercent}%)`;
-            }
-          }
+          snapToPosition('half');
+          setLastSwipeTime(now);
           break;
-
         case 'half':
-          e.preventDefault();
-          if (sheetRef.current) {
-            const baseOffset = 55; // 기본 half 위치
-            const movePercent = baseOffset + (deltaY / window.innerHeight) * 100;
-            const clampedPercent = Math.max(0, Math.min(95, movePercent));
-            sheetRef.current.style.transform = `translateY(${clampedPercent}%)`;
-          }
-          break;
-
-        case 'minimized':
-          if (deltaY < 0) {
-            e.preventDefault();
-            if (sheetRef.current) {
-              const baseOffset = 100;
-              const movePercent = Math.max(
-                55,
-                baseOffset - (Math.abs(deltaY) / window.innerHeight) * 100
-              );
-              sheetRef.current.style.transform = `translateY(calc(${movePercent}% - 60px))`;
-            }
-          }
+          snapToPosition('minimized');
+          setLastSwipeTime(now);
           break;
       }
     }
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-
-    const deltaY = currentY - startY;
-
-    switch (sheetPosition) {
-      case 'full':
-        if (contentRef.current?.scrollTop === 0 && deltaY > DRAG_THRESHOLD) {
+    else if (deltaY < -SWIPE_THRESHOLD) {
+      switch (sheetPosition) {
+        case 'minimized':
           snapToPosition('half');
-        } else {
+          setLastSwipeTime(now);
+          break;
+        case 'half':
           snapToPosition('full');
-        }
-        break;
-
-      case 'half':
-        if (deltaY > DRAG_THRESHOLD) {
-          snapToPosition('minimized');
-        } else if (deltaY < -DRAG_THRESHOLD) {
-          snapToPosition('full');
-        } else {
-          snapToPosition('half');
-        }
-        break;
-
-      case 'minimized':
-        if (deltaY < -DRAG_THRESHOLD) {
-          snapToPosition('half');
-        } else {
-          snapToPosition('minimized');
-        }
-        break;
+          setLastSwipeTime(now);
+          break;
+      }
     }
   };
 
@@ -168,11 +126,11 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
   };
 
   const handleContentScroll = () => {
-    if (!contentRef.current) return;
-    setContentScrollTop(contentRef.current.scrollTop);
+    if (contentRef.current) {
+      setIsAtTop(contentRef.current.scrollTop <= 1);
+    }
   };
 
-  // Data loading and sorting logic
   const loadMoreUnits = () => {
     if (sheetPosition === 'minimized') return;
 
@@ -203,6 +161,13 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
     setPage(2);
   }, [visibleUnits, sortOrder]);
 
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+      setIsAtTop(true);
+    }
+  }, []);
+
   const handleUnitClick = (unitId: number) => {
     router.push("/unit/detail/" + unitId);
   };
@@ -218,18 +183,16 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
         style={{
           height: "95vh",
           transform: "translateY(calc(100% - 60px))",
-          touchAction: "pan-x",
+          touchAction: "pan-x pan-y",
           overscrollBehavior: 'none',
-          transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' // 더 느린 애니메이션과 부드러운 이징
+          transition: `transform ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`
         }}
       >
-        {/* Handle bar */}
         <div
           ref={handleRef}
           className="w-full h-16 select-none touch-none bg-white rounded-t-3xl"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
           onClick={handleHeaderClick}
         >
           <div className="w-full h-full flex flex-col justify-center items-center">
@@ -247,7 +210,6 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
           </div>
         </div>
 
-        {/* Content Area */}
         <div
           ref={contentRef}
           className="px-4 overflow-y-auto h-[calc(100%-4rem)]"
@@ -258,9 +220,7 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
           onScroll={handleContentScroll}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
-          {/* Sort Dropdown */}
           <div className="mb-4 sticky top-0 bg-white z-10 pt-2">
             <select
               value={sortOrder}
@@ -272,7 +232,6 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
             </select>
           </div>
 
-          {/* Units List */}
           {mapLoading ? (
             <div className="p-4">
               <LodaingUi />
@@ -308,7 +267,6 @@ const MobileMapSideBar = ({ type }: MobileMapSideBarProps) => {
           )}
         </div>
 
-        {/* Map Toggle Button - 전체화면일 때만 표시 */}
         {sheetPosition === 'full' && (
           <button
             onClick={() => snapToPosition('minimized')}

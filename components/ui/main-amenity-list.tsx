@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { MdOutlineArrowBack, MdOutlineArrowForward } from "react-icons/md";
-import { useSearchParams, useRouter, usePathname } from "next/navigation"; // URL 검색 파라미터 관리 훅
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { amenitiesData } from "@/lib/config/amenities";
 
 const MainAmenityList = () => {
@@ -11,122 +11,132 @@ const MainAmenityList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // 선택된 어메니티 필터 가져오기
-  const selectedAmenity = searchParams.get("amenity") || "";
+  const selectedAmenities = searchParams.get("amenities")?.split(",") || [];
 
-  const scrollLeft = () => {
+  // 스크롤 핸들
+  const handleScroll = (direction: "left" | "right") => {
     if (sliderRef.current) {
+      const scrollAmount = direction === "left" ? -500 : 500;
       sliderRef.current.scrollBy({
-        left: -500,
+        left: scrollAmount,
         behavior: "smooth",
       });
     }
   };
 
-  const scrollRight = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: 500,
-        behavior: "smooth",
-      });
-    }
-  };
-
+  // Update arrow visibility based on scroll position
   const updateArrowsVisibility = () => {
     if (sliderRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+      console.log(scrollLeft, scrollWidth, clientWidth);
       setShowLeftArrow(scrollLeft > 0);
       setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 1);
     }
   };
 
+  // 스크롤이벤추가
   useEffect(() => {
-    const handleResize = () => {
-      updateArrowsVisibility();
-    };
-
-    updateArrowsVisibility(); // 초기 업데이트
-    window.addEventListener("resize", handleResize); // 창 크기 변경 시 화살표 업데이트
-
-    if (sliderRef.current) {
-      sliderRef.current.addEventListener("scroll", updateArrowsVisibility);
-    }
+    const slider = sliderRef.current;
+    
+    updateArrowsVisibility();
+    
+    const handleResize = () => updateArrowsVisibility();
+    window.addEventListener("resize", handleResize);
+    slider?.addEventListener("scroll", updateArrowsVisibility);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      if (sliderRef.current) {
-        sliderRef.current.removeEventListener("scroll", updateArrowsVisibility);
-      }
+      slider?.removeEventListener("scroll", updateArrowsVisibility);
     };
   }, []);
 
-  // 어메니티 클릭 이벤트 핸들러 (한 가지 필터만 유지)
+  // 어메니티 선택
   const handleAmenityClick = (amenity: string) => {
-    // 현재 선택된 어메니티가 이미 선택된 경우 필터 제거
     const newParams = new URLSearchParams(searchParams.toString());
-    if (amenity === selectedAmenity) {
-      newParams.delete("amenity"); // 선택된 어메니티를 다시 클릭하면 필터 해제
+    
+    let newSelectedAmenities = [...selectedAmenities];
+    
+    if (selectedAmenities.includes(amenity)) {
+      newSelectedAmenities = newSelectedAmenities.filter(item => item !== amenity);
     } else {
-      newParams.set("amenity", amenity); // 새로운 어메니티 필터 적용
+      newSelectedAmenities.push(amenity);
     }
+
+    // Update URL params
+    if (newSelectedAmenities.length === 0) {
+      newParams.delete("amenities");
+    } else {
+      newParams.set("amenities", newSelectedAmenities.join(","));
+    }
+
     router.push(`${pathname}?${newParams.toString()}`);
   };
 
   return (
-    <div className="relative flex items-center px-10 border-b pt-4 w-full md:px-4 md:pt-0">
-      {/* 왼쪽 화살표 */}
+    <div className=" flex items-center px-10  md:px-4 md:pt-0 relative w-[84%] 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
+      {/* Left Arrow */}
       {showLeftArrow && (
         <button
-          onClick={scrollLeft}
-          className="absolute left-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl  bottom-6 md:left-4"
+          onClick={() => handleScroll("left")}
+          className="absolute left-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 
+                    transition-all border backdrop-blur-3xl bottom-6 md:left-4"
         >
           <MdOutlineArrowBack className="text-xl" />
         </button>
       )}
 
-      {/* 슬라이더 */}
+      {/* Slider Container */}
       <div className="relative w-full flex items-center">
+        {/* Gradient Overlays */}
         {showLeftArrow && (
-          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-16 
+                        bg-gradient-to-r from-white to-transparent pointer-events-none" />
         )}
         {showRightArrow && (
-          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-16 
+                        bg-gradient-to-l from-white to-transparent pointer-events-none" />
         )}
 
+        {/* Amenities List */}
         <div
           ref={sliderRef}
           className="flex gap-5 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar md:gap-2"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {amenitiesData.map((amenity, i) => (
-            <div
-              key={i}
-              className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] h-full cursor-pointer group group-active:scale-90 duration-200 transition-all
-                ${selectedAmenity === amenity.label ? "" : ""}`} // 선택된 어메니티 강조
-              onClick={() => handleAmenityClick(amenity.label)} // 클릭 시 어메니티 필터 적용
-            >
-              <span className="text-gray-600 text-2xl group group-active:text-[22px] duration-200 transition-all">
-                {<amenity.icon />}
-              </span>
-              <span
-                className={`${
-                  selectedAmenity === amenity.label
-                    ? "border-black"
-                    : "border-transparent "
-                }  text-xs w-fit border-b-2 pb-3 text-center pt-2 group group-active:scale-90 group-hover:border-gray-200 duration-300 transition-all`}
+          {amenitiesData.map((amenity, index) => {
+            const isSelected = selectedAmenities.includes(amenity.label);
+            
+            return (
+              <div
+                key={index}
+                className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] 
+                          h-full cursor-pointer group transition-all duration-200`}
+                onClick={() => handleAmenityClick(amenity.label)}
               >
-                {amenity.label}
-              </span>
-            </div>
-          ))}
+                <span className="text-gray-600 text-2xl group-active:text-[22px] 
+                              transition-all duration-200">
+                  {<amenity.icon />}
+                </span>
+                <span
+                  className={`text-xs w-fit pb-3 text-center pt-2 border-b-2
+                            transition-all duration-300 group-active:scale-90 
+                            group-hover:border-gray-200
+                            ${isSelected ? "border-black" : "border-transparent"}`}
+                >
+                  {amenity.label}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* 오른쪽 화살표 */}
+      {/* Right Arrow */}
       {showRightArrow && (
         <button
-          onClick={scrollRight}
-          className="absolute right-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl bottom-6 md:right-4"
+          onClick={() => handleScroll("right")}
+          className="absolute right-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 
+                    transition-all border backdrop-blur-3xl bottom-6 md:right-4"
         >
           <MdOutlineArrowForward className="text-xl" />
         </button>
