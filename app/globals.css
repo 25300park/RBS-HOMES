@@ -154,3 +154,7 @@
   border-radius: 50%;
 }
 
+
+.icon-orange { 
+  filter: invert(83%) sepia(45%) saturate(4992%) hue-rotate(332deg) brightness(101%) contrast(97%);
+}

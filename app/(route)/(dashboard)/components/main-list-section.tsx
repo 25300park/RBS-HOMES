@@ -74,11 +74,12 @@ const MainList: React.FC = () => {
       const data = (await response.json()) as FetchResponse;
 
       if (data?.units) {
-        setUnits(prev => append ? [...prev, ...data.units] : data.units);
+        setUnits((prev) => (append ? [...prev, ...data.units] : data.units));
         setTotal(data.total);
         setHasMore(
-          data.units.length === LIMIT && 
-          data.total > (append ? units.length + data.units.length : data.units.length)
+          data.units.length === LIMIT &&
+            data.total >
+              (append ? units.length + data.units.length : data.units.length)
         );
       } else {
         setHasMore(false);
@@ -128,14 +129,17 @@ const MainList: React.FC = () => {
 
   const loadMoreUnits = () => {
     if (!hasMore || isFetching) return;
-    setPage(prev => prev + 1);
-  }
-  
+    setPage((prev) => prev + 1);
+  };
+
   const { lastElementRef } = useObserver(loadMoreUnits, hasMore, isFetching);
 
-  const handleUnitClick = useCallback((unitId: string) => {
-    router.push(`/unit/detail/${unitId}`);
-  }, [router]);
+  const handleUnitClick = useCallback(
+    (unitId: string) => {
+      router.push(`/unit/detail/${unitId}`);
+    },
+    [router]
+  );
 
   if (isInitialLoading) {
     return (
@@ -188,7 +192,13 @@ const MainList: React.FC = () => {
       )}
 
       {units.length === 0 && !isFetching && !error && (
-        <div className="text-center py-20 text-gray-600">No results found</div>
+        <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
+          <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <Skeleton key={index} />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

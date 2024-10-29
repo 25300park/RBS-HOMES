@@ -63,6 +63,7 @@ const SideUnitCard = ({
         <Image
           src={imageUrl}
           alt={title}
+          sizes="(max-width: 768px) 100vw"
           fill
           className="object-cover  transition-all duration-300 rounded-md"
         />

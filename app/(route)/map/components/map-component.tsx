@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { loadGoogleMapsAPI } from "@/lib/google";
 import { MarkerManager } from "./marker-manager";
 import { useMapStore } from "@/store/use-map-store";
 import { Input } from "@/components/ui/input";
 import { FaSearch } from "react-icons/fa";
-import FilterButton from "@/components/ui/filter-btn";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface MapProps {
@@ -15,58 +14,54 @@ interface MapProps {
   owner?: boolean;
 }
 
-export const MapComponent = ({ units, type, owner }: MapProps) => {
+export const MapComponent = React.memo(({ units, type, owner }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const autocompleteRef = useRef<HTMLInputElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastCenterRef = useRef<google.maps.LatLng | null>(null);
-  const lastZoomRef = useRef<number | null>(null);
-
   const {
     setLoading,
     isSidebarOpen,
     sheetPosition,
-    map: mapInstance,
     setMapInstance,
   } = useMapStore();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const updateMapSize = () => {
+  const handleMapResize = useCallback(() => {
     if (!map) return;
-  
+    
+    // Store current state
     const center = map.getCenter();
     const zoom = map.getZoom();
-    
-    if (center && zoom) {
-      lastCenterRef.current = center;
-      lastZoomRef.current = zoom;
-    }
-  
-    requestAnimationFrame(() => {
+
+    // Trigger resize and restore state
+    setTimeout(() => {
       google.maps.event.trigger(map, 'resize');
-      
-      if (lastCenterRef.current && lastZoomRef.current) {
-        map.setCenter(lastCenterRef.current);
-        map.setZoom(lastZoomRef.current);
+      if (center && zoom) {
+        map.setCenter(center);
+        map.setZoom(zoom);
       }
-    });
-  };
-  
+    }, 100);
+  }, [map]);
+
+  // Sheet position change effect
   useEffect(() => {
     if (isMobile && map) {
-      const timeoutId = setTimeout(updateMapSize, 500);
-      return () => clearTimeout(timeoutId);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+      resizeTimeoutRef.current = setTimeout(handleMapResize, 300);
     }
-  }, [sheetPosition, map, isMobile]);
-  
-  
+  }, [sheetPosition, map, isMobile, handleMapResize]);
+
+  // Window resize handler
   useEffect(() => {
     const handleResize = () => {
-      if (map) {
-        updateMapSize();
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
       }
+      resizeTimeoutRef.current = setTimeout(handleMapResize, 300);
     };
 
     window.addEventListener("resize", handleResize);
@@ -76,11 +71,13 @@ export const MapComponent = ({ units, type, owner }: MapProps) => {
         clearTimeout(resizeTimeoutRef.current);
       }
     };
-  }, [map]);
+  }, [handleMapResize]);
 
-  // Google Maps 초기화
-  useEffect(() => {
-    loadGoogleMapsAPI().then((google) => {
+  const initializeMap = useCallback(async () => {
+    try {
+      const google = await loadGoogleMapsAPI();
+      if (!mapRef.current) return;
+
       const bounds = new google.maps.LatLngBounds(
         { lat: 4.215, lng: 114.57 },
         { lat: 21.18, lng: 127.59 }
@@ -88,112 +85,101 @@ export const MapComponent = ({ units, type, owner }: MapProps) => {
 
       const mapStyle = [
         {
-          featureType: "poi.business", // 상가 정보 삭제
+          featureType: "poi.business",
           stylers: [{ visibility: "off" }],
         },
         {
-          featureType: "transit", // 교통 정보 삭제
+          featureType: "transit",
           stylers: [{ visibility: "off" }],
         },
         {
-          featureType: "poi", // 모든 POI
-          elementType: "labels", // 레이블을 숨김
+          featureType: "poi",
+          elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
         {
-          featureType: "poi.business", // 상가 정보 숨김
-          stylers: [{ visibility: "off" }],
-        },
-        {
-          featureType: "poi.school", // 학교 정보 숨김
+          featureType: "poi.school",
           stylers: [{ visibility: "on" }],
         },
         {
-          featureType: "poi.government", // 정부 관련 POI 숨김
-          stylers: [{ visibility: "off" }],
-        },
-        {
-          featureType: "poi.place_of_worship", // 종교 관련 POI 숨김
-          stylers: [{ visibility: "off" }],
-        },
-        {
-          featureType: "poi.park", // 공원 정보만 표시
+          featureType: "poi.park",
           stylers: [{ visibility: "on" }],
-        },
-        {
-          featureType: "transit", // 교통 정보 숨김
-          stylers: [{ visibility: "off" }],
-        },
+        }
       ];
 
-      const initializedMap = new google.maps.Map(
-        mapRef.current as HTMLDivElement,
-        {
-          center: { lat: 14.5877, lng: 121.0563 },
-          zoom: 13,
-          minZoom: 5,
-          maxZoom: 20,
-          disableDefaultUI: true,
-          gestureHandling: "greedy",
-          zoomControl: true,
-          styles: mapStyle,
-          restriction: {
-            latLngBounds: bounds,
-            strictBounds: true,
-          },
-        }
-      );
+      const initializedMap = new google.maps.Map(mapRef.current, {
+        center: { lat: 14.5877, lng: 121.0563 },
+        zoom: 13,
+        minZoom: 5,
+        maxZoom: 20,
+        disableDefaultUI: true,
+        gestureHandling: "greedy",
+        zoomControl: true,
+        styles: mapStyle,
+        restriction: {
+          latLngBounds: bounds,
+          strictBounds: true,
+        },
+      });
 
-      setMap(initializedMap);
-      setMapInstance(initializedMap);
+      // Wait for the map to be fully loaded
+      google.maps.event.addListenerOnce(initializedMap, 'idle', () => {
+        setMap(initializedMap);
+        setMapInstance(initializedMap);
+        setLoading(false);
+      });
+
+    } catch (error) {
+      console.error('Error initializing map:', error);
       setLoading(false);
-    });
+    }
   }, [setLoading, setMapInstance]);
 
-  // 컨테이너 스타일 계산
+  useEffect(() => {
+    initializeMap();
+  }, [initializeMap]);
+
   const containerStyle = React.useMemo(() => {
+    const baseStyle = "relative w-full transition-all duration-500 ease-in-out";
+    
     if (!isMobile) {
-      return `relative w-full ${
-        isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
-      } h-full`;
+      return `${baseStyle} ${isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"} h-full`;
     }
 
+    // sheetPosition에 따른 높이 설정
     switch (sheetPosition) {
       case "full":
-        return "relative w-full h-[60px] transition-height duration-300 ease-in-out";
+        return `${baseStyle} h-[40vh]`;
       case "half":
-        return "relative w-full h-[calc(100vh-(100vh-55%))] transition-height duration-300 ease-in-out";
+        return `${baseStyle} h-[50vh]`;
       case "minimized":
+        return `${baseStyle} h-screen`;
       default:
-        return "relative w-full h-[calc(100vh-60px)] transition-height duration-300 ease-in-out";
+        return `${baseStyle} h-screen`;
     }
   }, [isMobile, isSidebarOpen, sheetPosition]);
 
-  return (
-    <div
-      className={containerStyle}
-      style={{
-        transitionProperty: "height",
-        willChange: "height",
-      }}
-    >
-      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
-        <div className="flex items-center mb-2">
-          <Input
-            ref={autocompleteRef}
-            type="text"
-            placeholder="Search area in the Philippines"
-            className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
-          />
-          <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
-            <FaSearch className="text-white" />
-          </button>
-        </div>
-        <div className="flex gap-2">
-          <FilterButton sellType={type} isActive withSellType={owner} />
-        </div>
+  const SearchInput = React.memo(() => (
+    <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
+      <div className="flex items-center">
+        <Input
+          ref={autocompleteRef}
+          type="text"
+          placeholder="Search area in the Philippines"
+          className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
+        />
+        <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
+          <FaSearch className="text-white" />
+        </button>
       </div>
+    </div>
+  ));
 
+
+
+  return (
+    <div  className={containerStyle}>
+      <SearchInput />
       <div
         ref={mapRef}
         className="absolute w-full h-full"
@@ -203,4 +189,6 @@ export const MapComponent = ({ units, type, owner }: MapProps) => {
       {map && <MarkerManager map={map} units={units} />}
     </div>
   );
-};
+});
+
+MapComponent.displayName = 'MapComponent';

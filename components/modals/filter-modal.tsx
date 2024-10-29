@@ -39,9 +39,9 @@ interface Filters {
 
 interface FilterModalProps {
   onClose: () => void;
-  modalProps?: { 
-    withSellType: boolean; 
-    withType: boolean; 
+  modalProps?: {
+    withSellType: boolean;
+    withType: boolean;
     sellType?: string;
   };
 }
@@ -84,12 +84,11 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
     furniture: searchParams.get("furniture") || initialFilters.furniture,
     pet: searchParams.get("pet") || initialFilters.pet,
   }));
-
   const debouncedFilters = useDebounce(filters, 800);
 
   // 필터 업데이트 함수
   const updateFilter = (field: keyof Filters, value: string | number) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [field]: value.toString(),
     }));
@@ -97,7 +96,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
   // 숫자 필드 증감 함수
   const adjustCount = (field: keyof Filters, increment: boolean) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [field]: increment
         ? ((parseInt(prev[field]) || 0) + 1).toString()
@@ -108,7 +107,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   // 필터 적용 함수
   const applyFilters = () => {
     const currentParams = new URLSearchParams(searchParams.toString());
-    
+
     // 필터 값 검사 및 적용
     Object.entries(filters).forEach(([key, value]) => {
       if (value === initialFilters[key as keyof Filters]) {
@@ -121,30 +120,59 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
     router.push(`${pathname}?${currentParams.toString()}`);
     onClose();
   };
-
-  // 필터 초기화 함수
   const clearFilters = () => {
-    setFilters(initialFilters);
+    const newFilters = { ...initialFilters };
+    
+    const currentSellType = searchParams.get("sellType");
+    if (currentSellType) {
+      newFilters.sellType = currentSellType;
+    }
+    
+    setFilters(newFilters);
   };
-
   // 유닛 카운트 조회
   const fetchUnitCount = async () => {
     try {
       startLoading();
-      const filterRecord = Object.entries(debouncedFilters).reduce((acc, [key, value]) => {
-        if (value !== initialFilters[key as keyof Filters]) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
+      const filterRecord = Object.entries(debouncedFilters).reduce(
+        (acc, [key, value]) => {
+          // 숫자형 필드는 0이면 제외
+          if (["bed", "bath", "parking"].includes(key) && value === "0") {
+            return acc;
+          }
 
-      const count = modalProps?.withSellType
-        ? await getUnitCountOwner(filterRecord)
-        : await getUnitCount(filterRecord, modalProps?.sellType);
-      
+          // none 값은 제외
+          if (
+            ["type", "sellType", "furniture", "pet"].includes(key) &&
+            value === "none"
+          ) {
+            return acc;
+          }
+
+          // price와 area의 min/max가 초기값이면 제외
+          if (key === "priceMin" && value === initialFilters.priceMin)
+            return acc;
+          if (key === "priceMax" && value === initialFilters.priceMax)
+            return acc;
+          if (key === "areaMin" && value === initialFilters.areaMin) return acc;
+          if (key === "areaMax" && value === initialFilters.areaMax) return acc;
+
+          // city가 All Cities면 제외
+          if (key === "city" && value === "All Cities") return acc;
+
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+      const sellType = modalProps?.sellType || filters.sellType;
+      const count = await getUnitCount(
+        filterRecord,
+        sellType !== "none" ? sellType : undefined
+      );
       setUnitCount(count);
     } catch (error) {
-      console.error('Error fetching unit count:', error);
+      console.error("Error fetching unit count:", error);
       setUnitCount(0);
     } finally {
       stopLoading();
@@ -156,15 +184,17 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   }, [debouncedFilters]);
 
   return (
-    <div className="px-2 md:p-6 md:pb-10">
-      <div className="text-left mb-6">
+    <div className="px-2 md:p-6 md:pb-10 md:h-[85vh] md:overflow-y-auto md:w-fit md:mx-auto">
+      {/* 헤더 섹션 */}
+      <div className="text-left mb-6 md:sticky md:-top-3 md:bg-white md:z-10 md:pb-4 md:shadow-sm">
         <h2 className="text-2xl font-bold text-gray-900">Filter</h2>
         <p className="text-gray-400 text-xs">
           Narrow down the search results by selecting filters.
         </p>
       </div>
-
-      <form className="grid gap-4 pt-4" onSubmit={(e) => e.preventDefault()}>
+  
+      {/* 폼 섹션 */}
+      <form className="grid gap-4 pt-4 md:pt-0" onSubmit={(e) => e.preventDefault()}>
         {/* Sell Type Selection */}
         {modalProps?.withSellType && (
           <div>
@@ -180,7 +210,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             />
           </div>
         )}
-
+  
         {/* Property Type Selection */}
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -195,7 +225,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             textClassName="text-xs"
           />
         </div>
-
+  
         {/* Numeric Selectors */}
         <div className="grid grid-cols-1 gap-4">
           {[
@@ -214,8 +244,8 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
                   -
                 </button>
                 <span className="text-sm w-40 text-center">
-                  {parseInt(filters[item.field as keyof Filters]) === 0 
-                    ? "Any" 
+                  {parseInt(filters[item.field as keyof Filters]) === 0
+                    ? "Any"
                     : `${filters[item.field as keyof Filters]}+`}
                 </span>
                 <button
@@ -229,7 +259,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </div>
           ))}
         </div>
-
+  
         {/* Price Range Slider */}
         <div className="my-6">
           <label className="block text-sm font-medium text-zinc-500 mb-1">
@@ -251,7 +281,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             <span>{Number(filters.priceMax).toLocaleString()}</span>
           </div>
         </div>
-
+  
         {/* Area Range Slider */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-zinc-500 mb-1">
@@ -273,7 +303,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             <span>{filters.areaMax}</span>
           </div>
         </div>
-
+  
         {/* Furniture Selection */}
         <div>
           <label className="block text-sm font-medium text-zinc-500 mb-2">
@@ -295,7 +325,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
-
+  
         {/* Pet Policy Selection */}
         <div>
           <label className="block text-sm font-medium text-zinc-500 mb-2">
@@ -317,9 +347,9 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             </SelectContent>
           </Select>
         </div>
-
+  
         {/* Action Buttons */}
-        <div className="flex flex-row-reverse justify-between mt-8">
+        <div className="flex flex-row-reverse justify-between mt-8 md:sticky md:bottom-0 md:bg-white md:py-4 md:-mx-6 md:px-6">
           <Button
             type="button"
             className="py-6 bg-orange-400 hover:bg-orange-500"

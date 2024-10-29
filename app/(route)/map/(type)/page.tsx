@@ -3,23 +3,22 @@ import MapSideBar from "../components/map-side-bar";
 import { MapComponent } from "../components/map-component";
 import { notFound } from "next/navigation";
 import MobileMapSideBar from "@/app/(route)/map/components/mobile-map-side-bar";
+import SideBarWrap from "../components/side-bar-wrap";
 
 export interface MapHomeProps {
   searchParams: any;
   params: any;
 }
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
-
   const { units } = await getUnitList(searchParams);
   return (
     <div>
       <div className="flex h-[calc(100vh-10rem)] md:h-screen relative md:static top-20">
         {/* 맵 */}
         <div className="w-full h-full">
-          <MapComponent units={units}  key={units} />
+          <MapComponent units={units} key={units} />
         </div>
-        <MobileMapSideBar />
-        <MapSideBar />
+        <SideBarWrap />
       </div>
     </div>
   );

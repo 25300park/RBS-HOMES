@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useModalStore } from "@/store/use-modal-store";
@@ -55,7 +54,14 @@ export const ModalProvider = () => {
   }
   return (
     <Drawer open={isOpen} onOpenChange={closeModal}>
-      <DrawerContent>{content}</DrawerContent>
+      <DrawerContent
+        className="
+        h-[85vh] 
+        overscroll-contain
+      "
+      >
+        {content}
+      </DrawerContent>
     </Drawer>
   );
 };

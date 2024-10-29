@@ -10,7 +10,7 @@ import FilterResetButton from "@/components/ui/filter-reset-btn";
 // 필터 설정을 위한 인터페이스
 interface Filters {
   type: string;
-  sellType: string;
+  // sellType: string;
   bed: string;
   bath: string;
   parking: string;
@@ -48,7 +48,7 @@ const FilterButton = ({
 
   const defaultFilters: Filters = {
     type: "none",
-    sellType: "none",
+    // sellType: "none",
     bed: "0",
     bath: "0",
     parking: "0",
