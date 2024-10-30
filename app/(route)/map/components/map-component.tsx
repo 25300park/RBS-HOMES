@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { FaSearch } from "react-icons/fa";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useDebouncedCallback } from "use-debounce";
+import { MobileMarkerManager } from "./mobile-marker-manager";
 
 interface MapProps {
   units: any[];
@@ -18,7 +19,7 @@ interface MapProps {
 
 const BOUNDS = {
   south: { lat: 4.215, lng: 114.57 },
-  north: { lat: 21.18, lng: 127.59 }
+  north: { lat: 21.18, lng: 127.59 },
 };
 
 const MAP_STYLE = [
@@ -45,7 +46,7 @@ const MAP_STYLE = [
   },
 ];
 
-const LoadingIndicator = React.memo(({ isLoading }: { isLoading: boolean }) => 
+const LoadingIndicator = React.memo(({ isLoading }: { isLoading: boolean }) =>
   isLoading ? (
     <div className="absolute left-1/2 transform -translate-x-1/2 top-20 md:top-28 z-50 transition-all duration-500 ease-in-out">
       <div className="bg-white p-4 shadow-2xl rounded-full">
@@ -55,21 +56,27 @@ const LoadingIndicator = React.memo(({ isLoading }: { isLoading: boolean }) =>
   ) : null
 );
 
-const SearchInput = React.memo(({ autocompleteRef }: { autocompleteRef: React.RefObject<HTMLInputElement> }) => (
-  <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
-    <div className="flex items-center">
-      <Input
-        ref={autocompleteRef}
-        type="text"
-        placeholder="Search area in the Philippines"
-        className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
-      />
-      <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
-        <FaSearch className="text-white" />
-      </button>
+const SearchInput = React.memo(
+  ({
+    autocompleteRef,
+  }: {
+    autocompleteRef: React.RefObject<HTMLInputElement>;
+  }) => (
+    <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
+      <div className="flex items-center">
+        <Input
+          ref={autocompleteRef}
+          type="text"
+          placeholder="Search area in the Philippines"
+          className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
+        />
+        <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
+          <FaSearch className="text-white" />
+        </button>
+      </div>
     </div>
-  </div>
-));
+  )
+);
 
 export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -78,7 +85,6 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
   const previousUnitsRef = useRef<any[]>([]);
   const mapInitializedRef = useRef(false);
   const unitsUpdateTimeoutRef = useRef<NodeJS.Timeout>();
-  
   const {
     setLoading,
     isSidebarOpen,
@@ -86,7 +92,6 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
     setMapInstance,
     setVisibleUnits,
     setVisibleUnitCount,
-    setSheetPosition,
     isLoading,
   } = useMapStore();
 
@@ -96,25 +101,26 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
 
   const containerStyle = React.useMemo(() => {
     const baseStyle = "relative transition-all duration-500 ease-in-out w-full";
-    
+
     if (!isMobile) {
-      return `${baseStyle} h-full ${isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"}`;
+      return `${baseStyle} h-full ${
+        isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
+      }`;
     }
 
-    switch (sheetPosition) {
-      case "full":
-        return `${baseStyle} h-screen`;
-      case "half":
-        return `${baseStyle} h-[60vh]`;
-      default:
-        return `${baseStyle} h-screen`;
-    }
+    // switch (sheetPosition) {
+    //   case "full":
+    //     return `${baseStyle} h-[60vh]`;
+    //   case "half":
+    //     return `${baseStyle} h-[60vh]`;
+    //   default:
+    //     return `${baseStyle} h-screen`;
+    // }
   }, [isMobile, isSidebarOpen, sheetPosition]);
-
 
   const initializeMap = useCallback(async () => {
     if (mapInitializedRef.current || !mapRef.current) return;
-    
+
     try {
       const google = await loadGoogleMapsAPI();
       const bounds = new google.maps.LatLngBounds(BOUNDS.south, BOUNDS.north);
@@ -145,31 +151,32 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
       console.error("Error initializing map:", error);
       setLoading(false);
     }
-  }, [setLoading, setMapInstance]); // 의존성 배열 최소화
+  }, [setLoading, setMapInstance]);
 
-  // 단일 units 업데이트 핸들러
-  const handleUnitsUpdate = useCallback((newUnits: any[]) => {
-    if (!map || !mapInitializedRef.current) return;
-    
-    if (unitsUpdateTimeoutRef.current) {
-      clearTimeout(unitsUpdateTimeoutRef.current);
-    }
+  const handleUnitsUpdate = useCallback(
+    (newUnits: any[]) => {
+      if (!map || !mapInitializedRef.current) return;
 
-    setLoading(true);
-    setShouldRenderMarkers(false);
+      if (unitsUpdateTimeoutRef.current) {
+        clearTimeout(unitsUpdateTimeoutRef.current);
+      }
 
-    unitsUpdateTimeoutRef.current = setTimeout(() => {
-      markerManagerRef.current = `marker-manager-${searchKey}-${Date.now()}`;
-      setShouldRenderMarkers(true);
-      setVisibleUnitCount(newUnits.length);
-      setLoading(false);
-    }, 100);
-  }, [map, searchKey, setLoading, setVisibleUnitCount]);
+      setLoading(true);
+      setShouldRenderMarkers(false);
 
-  // 초기화 Effect
+      unitsUpdateTimeoutRef.current = setTimeout(() => {
+        markerManagerRef.current = `marker-manager-${searchKey}-${Date.now()}`;
+        setShouldRenderMarkers(true);
+        setVisibleUnitCount(newUnits.length);
+        setLoading(false);
+      }, 100);
+    },
+    [map, searchKey, setLoading, setVisibleUnitCount]
+  );
+
   useEffect(() => {
     initializeMap();
-    
+
     return () => {
       if (unitsUpdateTimeoutRef.current) {
         clearTimeout(unitsUpdateTimeoutRef.current);
@@ -180,32 +187,14 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
     };
   }, [initializeMap, setVisibleUnits, setVisibleUnitCount]);
 
-  // units 변경 Effect
   useEffect(() => {
-    const hasUnitsChanged = JSON.stringify(units) !== JSON.stringify(previousUnitsRef.current);
+    const hasUnitsChanged =
+      JSON.stringify(units) !== JSON.stringify(previousUnitsRef.current);
     if (!hasUnitsChanged) return;
 
     previousUnitsRef.current = units;
     handleUnitsUpdate(units);
   }, [units, handleUnitsUpdate]);
-
-  // 모바일 리사이즈 Effect
-  useEffect(() => {
-    if (!map || !isMobile) return;
-    
-    const center = map.getCenter();
-    const zoom = map.getZoom();
-    
-    const timeoutId = setTimeout(() => {
-      google.maps.event.trigger(map, "resize");
-      if (center && zoom) {
-        map.setCenter(center);
-        map.setZoom(zoom);
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [sheetPosition, map, isMobile]);
 
   return (
     <div className={containerStyle}>
@@ -217,13 +206,26 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
         style={{ outline: "none" }}
         tabIndex={-1}
       />
-      {map && shouldRenderMarkers && units.length > 0 && (
-        <MarkerManager
-          key={markerManagerRef.current}
-          map={map}
-          units={units}
-        />
-      )}
+      {map &&
+        shouldRenderMarkers &&
+        units.length > 0 &&
+        (isMobile ? (
+          <MobileMarkerManager
+            key={markerManagerRef.current}
+            map={map}
+            units={units}
+          />
+        ) : (
+          <MarkerManager
+            key={markerManagerRef.current}
+            map={map}
+            units={units}
+          />
+        ))}
     </div>
   );
 });
+
+MapComponent.displayName = "MapComponent";
+LoadingIndicator.displayName = "LoadingIndicator";
+SearchInput.displayName = "SearchInput";

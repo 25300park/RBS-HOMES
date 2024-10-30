@@ -14,7 +14,7 @@ interface DetailWrapProps {
 
 const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
   return (
-    <div className="container mx-auto py-4">
+    <div className="container mx-auto py-4 md:py-0 md:px-4">
       {/* Left Section - Property Info and Slider */}
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between w-full">

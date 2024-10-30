@@ -42,12 +42,12 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
     <div className="my-6 space-y-8">
       {/* 상단 헤더 정보 */}
       <section className="">
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between md:flex-col  md:items-start">
           <div className="flex items-center">
             <MdPlace className="mr-2 text-2xl text-gray-600" />
 
             <div className="flex flex-col">
-              <p className="text-gray-800 mt-1 text-xl">
+              <p className="text-gray-800 mt-1 text-xl md:text-lg">
                 {property.address2}, {property.address3}, {property.address4}
               </p>
               <p>

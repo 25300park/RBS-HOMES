@@ -72,7 +72,7 @@ const MobileFooterNav =
       >
         <ul className="flex justify-around items-center h-full">
           {FooterNavList.map((item) => (
-            <Link href={item.href}>
+            <Link href={item.href} key={item.name}>
               <li
                 key={item.name}
                 className={`flex flex-col items-center text-xs text-gray-500 gap-1`}

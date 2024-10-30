@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import FavoriteButton from "@/components/favorite-button";
-import { useState } from "react";
+import React, { forwardRef } from "react";
 
 export interface SideUnitCardProps {
   onClick?: (event: any) => void;
@@ -18,9 +18,10 @@ export interface SideUnitCardProps {
   sellType: string;
   bed: number;
   bath: number;
+  style?: React.CSSProperties;
 }
 
-const SideUnitCard = ({
+const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(({
   title,
   price,
   area,
@@ -34,54 +35,37 @@ const SideUnitCard = ({
   onClick,
   onMouseEnter,
   onMouseLeave,
-}: SideUnitCardProps): React.ReactNode => {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
+  style,
+}, ref) => {
   return (
     <article
+      ref={ref}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="w-full bg-white  overflow-hidden relative cursor-pointer group  transition-all duration-300 flex gap-2 p-4 border-b hover:bg-zinc-100"
+      className="w-full bg-white overflow-hidden relative cursor-pointer group transition-all duration-300 flex gap-2 p-4 border-b hover:bg-zinc-100"
+      style={style}
     >
-      {/* <span
-          className={`absolute top-2 left-2 ${
-            sellType === "Rent" ? " bg-yellow-400" : "bg-green-400"
-          } text-white text-xs font-bold px-2 py-1 rounded z-20`}
-        >
-          {sellType}
-        </span> */}
-      {/* <span className="absolute top-2 right-2 z-20">
-        <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} />
-      </span> */}
-
-      {/* Image */}
       <div className="relative h-[112px] w-[144px]">
         <Image
           src={imageUrl}
           alt={title}
           sizes="(max-width: 768px) 100vw"
           fill
-          className="object-cover  transition-all duration-300 rounded-md"
+          className="object-cover transition-all duration-300 rounded-md"
         />
-        {/* <div className="absolute bottom-0 bg-green-500 right-0">1</div> */}
       </div>
 
-      {/* Content */}
-      <div className=" w-1/2 h-full flex flex-col justify-between">
+      <div className="w-1/2 h-full flex flex-col justify-between">
         <h3 className="text-lg font-semibold truncate">{title}</h3>
         <div className="text-gray-600 text-sm mb-2 ... truncate">
           {location}
         </div>
 
-        <div className="flex items-center ">
-          <span className=" text-lg  mr-2">
+        <div className="flex items-center">
+          <span className="text-lg mr-2">
             ${" "}
             {price?.toLocaleString("en-US", {
-              // style: "currency",
               currency: "USD",
             })}
           </span>
@@ -117,12 +101,12 @@ const SideUnitCard = ({
               <p>{area}m²</p>
             </div>
           </div>
-
-          {/* Favorite Button */}
         </div>
       </div>
     </article>
   );
-};
+});
+
+SideUnitCard.displayName = "SideUnitCard";
 
 export default SideUnitCard;

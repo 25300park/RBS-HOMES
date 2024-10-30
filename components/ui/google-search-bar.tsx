@@ -10,7 +10,7 @@ const GoogleSearchBar = ({
   navbarScrolled,
   isMobile,
 }: {
-  navbarScrolled: boolean;
+  navbarScrolled?: boolean;
   isMobile?: boolean;
 }) => {
   const router = useRouter();
@@ -80,7 +80,7 @@ const GoogleSearchBar = ({
           onClick={handleSearch}
           className={`bg-orange-500 text-white rounded-full hover:bg-orange-600 mr-2`}
         >
-          <IoSearch className={`${navbarScrolled ? "text-lg" : "text-2xl"}`} />
+          <IoSearch  />
         </Button>
       </div>
     );

@@ -39,6 +39,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
   const sheetRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
+  const firstCardRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
   const lastSwipeTimeRef = useRef(0);
   const isAtTopRef = useRef(true);
@@ -61,6 +62,21 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
     () => loadedUnits.length < visibleUnits.length,
     [loadedUnits.length, visibleUnits.length]
   );
+
+  useEffect(() => {
+    if (sheetRef.current) {
+      sheetRef.current.style.transform = "translateY(calc(100% - 60px))";
+      setSheetPosition("minimized");
+    }
+  }, [setSheetPosition, type]);
+
+  useEffect(() => {
+    if (sheetPosition === "full" && firstCardRef.current) {
+      firstCardRef.current.style.marginTop = "32px";
+    } else if (firstCardRef.current) {
+      firstCardRef.current.style.marginTop = "0px";
+    }
+  }, [sheetPosition]);
 
   const snapToPosition = useCallback(
     (position: "minimized" | "half" | "full") => {
@@ -99,7 +115,6 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
     }
   }, []);
 
-  // Touch event handling with passive: false
   useEffect(() => {
     const content = contentRef.current;
     const handle = handleRef.current;
@@ -227,7 +242,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
       sheetPosition === "full" && (
         <button
           onClick={() => snapToPosition("minimized")}
-          className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50"
         >
           <Map size={20} />
           <span>View Map</span>
@@ -238,16 +253,13 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
 
   return (
     <div className="md:block hidden fixed inset-0 pointer-events-none overscroll-contain">
+      {ViewMapButton}
       <div
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
         style={{
-          height: "calc(100vh - 64px)", 
-          transform: sheetPosition === "minimized"
-            ? "translateY(calc(100vh - 64px - 60px))"
-            : sheetPosition === "half"
-            ? "translateY(55%)"
-            : "translateY(-60px)", 
+          height: "calc(100vh - 64px)",
+          transform: "translateY(calc(100% - 60px))",
           touchAction: "pan-x pan-y",
           overscrollBehavior: "none",
           transition: `transform ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -256,12 +268,10 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
         {SheetHeader}
         <div
           ref={contentRef}
-          className="px-4 overflow-y-auto h-[calc(100%-4rem)] overscroll-contain"
+          className="px-4 overflow-y-auto h-[calc(100%-4rem)] overscroll-contain hide-scroll"
           style={{
             overscrollBehavior: "contain",
             touchAction: "pan-x pan-y",
-            paddingTop: sheetPosition === "full" ? "95px" : "0",
-            transition: `padding-top ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           }}
           onScroll={handleContentScroll}
         >
@@ -269,9 +279,10 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
             <LodaingUi />
           ) : (
             <div className="space-y-4 pb-20">
-              {loadedUnits.map((unit) => (
+              {loadedUnits.map((unit, index) => (
                 <SideUnitCard
-                  key={`${unit.id}-${unit.title}-${Date.now()}`} 
+                  ref={index === 0 ? firstCardRef : undefined}
+                  key={`${unit.id}-${unit.title}`}
                   onMouseEnter={() => setHoverUnitId(unit.id)}
                   onMouseLeave={() => setHoverUnitId(null)}
                   onClick={() => handleUnitClick(unit.id)}
@@ -297,7 +308,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
             </div>
           )}
         </div>
-        {ViewMapButton}
+
       </div>
     </div>
   );

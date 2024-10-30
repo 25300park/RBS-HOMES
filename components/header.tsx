@@ -12,6 +12,7 @@ import { amenitiesData } from "@/lib/config/amenities";
 import GoogleSearchBar from "./ui/google-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
 import MainFilterGroup from "./ui/main-filter-group";
+import { useMediaQuery } from "@/hooks/use-media-query";
 export interface HeaderProps {}
 
 const Header = ({}: HeaderProps): React.ReactNode => {
@@ -20,6 +21,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
   const pathName = usePathname();
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   useEffect(() => {
     if (pathName === "/") {
       const handleScroll = () => {
@@ -44,6 +46,10 @@ const Header = ({}: HeaderProps): React.ReactNode => {
       setNavbarScrolled(true);
     }
   }, [pathName]);
+
+  if (isMobile) {
+    return <MobHeader />;
+  }
 
   return (
     <header className="w-full">
@@ -151,3 +157,17 @@ const Header = ({}: HeaderProps): React.ReactNode => {
 };
 
 export default Header;
+
+const MobHeader = () => {
+  return (
+    <header>
+      <nav className="h-32 hidden md:flex fixed top-0 bg-white p-4 w-full  flex-col gap-2 z-50 border-b shadow-md">
+        <GoogleSearchBar isMobile />
+        <div>
+          <MainFilterGroup />
+        </div>
+      </nav>
+      <div className="mt-32"></div>
+    </header>
+  );
+};

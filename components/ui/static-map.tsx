@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 
 interface StaticMapProps {
   latitude: number;
@@ -8,19 +9,57 @@ interface StaticMapProps {
 }
 
 const StaticMap: React.FC<StaticMapProps> = ({ latitude, longitude }) => {
+  const [mapUrl, setMapUrl] = useState<string>("");
+  
+  useEffect(() => {
+    const mapOptions = {
+      center: `${latitude},${longitude}`,
+      zoom: 14,
+      size: "1200x300",
+      scale: 2,
+      format: "png",
+      language: "en",
+      markers: `color:red|label:•|${latitude},${longitude}`,
+      style: [
+        "feature:all|element:labels.text.fill|color:0x000000|weight:1",
+        "feature:water|element:geometry|color:0xc9c9c9",
+        "feature:landscape|element:geometry.fill|color:0xf5f5f5",
+        "feature:road|element:geometry.fill|color:0xffffff",
+        "feature:road|element:geometry.stroke|color:0xe5e5e5",
+        "feature:all|element:labels.text|weight:0.9",
+        "feature:all|element:labels.text.fill|color:0x303030"
+      ].join("&style="),
+    };
 
-  // Google Static Map URL에 마커 추가
-  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=14&size=1200x300&markers=color:red|${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_KEY}`;
+    const params = new URLSearchParams();
+    Object.entries(mapOptions).forEach(([key, value]) => {
+      params.append(key, value as string);
+    });
 
+    params.append("key", process.env.NEXT_PUBLIC_GOOGLE_KEY || "");
+
+    const finalUrl = `https://maps.googleapis.com/maps/api/staticmap?${params.toString()}`;
+    setMapUrl(finalUrl);
+  }, [latitude, longitude]);
 
   return (
     <div className="py-12 space-y-6 border-t">
-      <h3 className="text-xl font-medium text-gray-800">Where you’ll be</h3>
-      <img
-        src={mapUrl}
-        alt="Static Map with Marker"
-        className="w-full h-96 rounded-md shadow-lg"
-      />
+      <h3 className="text-xl font-medium text-gray-800">Location</h3>
+      <div className="relative w-full aspect-[4/1]  overflow-hidden shadow-lg">
+        {mapUrl && (
+          <img
+            src={mapUrl}
+            alt="Map Location"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'none';
+              console.error('Failed to load map image');
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
