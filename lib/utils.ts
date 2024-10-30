@@ -72,3 +72,12 @@ export const getRelativeTime = (date: Date) => {
   // 일주일 이내면 상대적인 날짜로 표시
   return rtf.format(-diffInDays, 'day');
 };
+
+
+export const generateMapKey = (searchParams: any) => {
+  const paramEntries = Object.entries(searchParams || {}).sort(([a], [b]) => a.localeCompare(b));
+  const paramString = paramEntries
+    .map(([key, value]) => `${key}=${Array.isArray(value) ? value.join(',') : value}`)
+    .join('&');
+  return `map-${paramString || 'default'}`;
+};

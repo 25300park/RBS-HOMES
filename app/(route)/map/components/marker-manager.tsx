@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import {
   SuperClusterAlgorithm,
   MarkerClusterer,
 } from "@googlemaps/markerclusterer";
 import { useMapStore } from "@/store/use-map-store";
 import { generateMarkerSVG, generateClusterSVG } from "@/lib/svg-gen";
-import { useDebouncedCallback } from "use-debounce";
 
 interface MarkerManagerProps {
   map: google.maps.Map;
@@ -21,40 +20,31 @@ interface Unit {
   [key: string]: any;
 }
 
-export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
-  const { setVisibleUnits, setLoading, setVisibleUnitCount, toggleSidebar, hoverUnitId } =
-    useMapStore();
-  const activeMarkerRef = useRef<google.maps.Marker | null>(null);
+interface ExtendedMarker extends google.maps.Marker {
+  unitData?: Unit;
+}
+
+export const MarkerManager = React.memo(({ map, units }: MarkerManagerProps) => {
+  const {
+    setVisibleUnits,
+    setLoading,
+    setVisibleUnitCount,
+    toggleSidebar,
+    hoverUnitId,
+  } = useMapStore();
+
+  const activeMarkerRef = useRef<ExtendedMarker | null>(null);
   const activeClusterRef = useRef<{
     marker: google.maps.Marker | null;
     size: number;
     count: number;
   } | null>(null);
-  const markerClustererRef = useRef<MarkerClusterer | null>(null); // 클러스터러 참조
-  const markerMap = useRef<Map<number, google.maps.Marker>>(new Map());
-  const clusterMap = useRef<Map<string, any>>(new Map()); // 클러스터 추적용
-  
-  const debouncedUpdate = useDebouncedCallback(
-    async (map: google.maps.Map, units: Unit[]) => {
-      setLoading(true);
+  const markerClustererRef = useRef<MarkerClusterer | null>(null);
+  const markerMap = useRef<Map<number, ExtendedMarker>>(new Map());
+  const clusterMap = useRef<Map<string, any>>(new Map());
+  const idleListenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
-      const mapBounds = map.getBounds();
-      if (mapBounds) {
-        const visibleUnits = units.filter((unit) =>
-          mapBounds.contains(
-            new google.maps.LatLng(unit.latitude, unit.longitude)
-          )
-        );
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        setVisibleUnits(visibleUnits);
-        setVisibleUnitCount(visibleUnits.length);
-      }
-      setLoading(false);
-    },
-    300
-  );
-
-  const deactivateCurrent = () => {
+  const deactivateCurrent = useCallback(() => {
     if (activeMarkerRef.current) {
       activeMarkerRef.current.setIcon({
         url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
@@ -75,196 +65,56 @@ export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
           scaledSize: new google.maps.Size(size, size),
         });
       }
-
       activeClusterRef.current = null;
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    const createMarkers = () => {
-      return units.map((unit) => {
-        const lat = parseFloat(unit.latitude);
-        const lng = parseFloat(unit.longitude);
-        
-        const marker = new google.maps.Marker({
-          position: { lat, lng },
-          icon: {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-              generateMarkerSVG(false)
-            )}`,
-            scaledSize: new google.maps.Size(40, 40),
-          },
-        });
-        markerMap.current.set(unit.id, marker);
-        marker.addListener("click", () => {
-          deactivateCurrent(); // 기존 마커 및 클러스터 비활성화
-          activeMarkerRef.current = marker;
-          toggleSidebar(true);
-          marker.setIcon({
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-              generateMarkerSVG(true)
-            )}`,
-            scaledSize: new google.maps.Size(40, 40),
-          });
-
-          setVisibleUnits([unit]);
-          setLoading(false);
-        });
-
-        marker.addListener("mouseover", () => {
-          if (marker !== activeMarkerRef.current) {
-            marker.setIcon({
-              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                generateMarkerSVG(true)
-              )}`,
-              scaledSize: new google.maps.Size(40, 40),
-            });
-          }
-        });
-
-        marker.addListener("mouseout", () => {
-          if (marker !== activeMarkerRef.current) {
-            marker.setIcon({
-              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                generateMarkerSVG(false)
-              )}`,
-              scaledSize: new google.maps.Size(40, 40),
-            });
-          }
-        });
-
-        return marker;
-      });
-    };
-
-    // 클러스터러 초기화
-    if (markerClustererRef.current) {
-      markerClustererRef.current.clearMarkers(); // 기존 클러스터 삭제
-    }
-
-    const markers = createMarkers();
-
-    markerClustererRef.current = new MarkerClusterer({
-      markers,
-      map,
-      algorithm: new SuperClusterAlgorithm({ maxZoom: 20, radius: 500 }),
-      renderer: {
-        render: ({ count, position, markers }) => {
-          const size = Math.min(80, 40 + count * 0.5);
-          const clusterSVG = generateClusterSVG(count, size, false);
-
-          const clusterMarker = new google.maps.Marker({
-            position,
-            icon: {
-              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                clusterSVG
-              )}`,
-              scaledSize: new google.maps.Size(size, size),
-            },
-          });
-
-          // 클러스터 추적을 위해 clusterMap에 저장
-          const clusterId = position.toString(); // 좌표를 문자열로 변환
-          clusterMap.current.set(clusterId, { clusterMarker, markers });
-
-          // 클러스터 클릭 시 활성화
-          clusterMarker.addListener("click", () => {
-            deactivateCurrent(); // 기존 마커 및 클러스터 비활성화
-            activeClusterRef.current = { marker: clusterMarker, size, count };
-
-            clusterMarker.setIcon({
-              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                generateClusterSVG(count, size, true)
-              )}`,
-              scaledSize: new google.maps.Size(size, size),
-            });
-          });
-
-          // 클러스터 hover 시 스타일 변경
-          clusterMarker.addListener("mouseover", () => {
-            if (activeClusterRef.current?.marker !== clusterMarker) {
-              const hoverClusterSVG = generateClusterSVG(count, size, true);
-              clusterMarker.setIcon({
-                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                  hoverClusterSVG
-                )}`,
-                scaledSize: new google.maps.Size(size, size),
-              });
-            }
-          });
-
-          clusterMarker.addListener("mouseout", () => {
-            if (activeClusterRef.current?.marker !== clusterMarker) {
-              const defaultClusterSVG = generateClusterSVG(count, size, false);
-              clusterMarker.setIcon({
-                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-                  defaultClusterSVG
-                )}`,
-                scaledSize: new google.maps.Size(size, size),
-              });
-            }
-          });
-
-          return clusterMarker;
-        },
-      },
-      onClusterClick: (_, cluster) => {
-        toggleSidebar(true);
-        const clusteredMarkers = cluster.markers as any;
-        const clusteredUnits = clusteredMarkers.map((marker: any) => {
-          return units.find(
-            (unit) =>
-              unit.latitude === marker.getPosition()?.lat() &&
-              unit.longitude === marker.getPosition()?.lng()
-          );
-        });
-
-        // 클러스터 내부 마커들의 데이터 표시
-        setLoading(true);
-        setTimeout(() => {
-          setVisibleUnits(
-            clusteredUnits.filter((unit: any): unit is Unit => !!unit)
-          );
-          setLoading(false);
-        }, 500);
-      },
+  const handleMarkerClick = useCallback((marker: ExtendedMarker, unit: Unit) => {
+    deactivateCurrent();
+    activeMarkerRef.current = marker;
+    toggleSidebar(true);
+    marker.setIcon({
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+        generateMarkerSVG(true)
+      )}`,
+      scaledSize: new google.maps.Size(40, 40),
     });
+    setVisibleUnits([unit]);
+    setLoading(false);
+  }, [deactivateCurrent, setVisibleUnits, setLoading, toggleSidebar]);
 
-    // 마커가 생성되고 난 후에 map bounds 내에 있는 units로 setVisibleUnits 호출
-    const mapBounds = map.getBounds();
-    if (mapBounds) {
-      const visibleUnits = units.filter((unit) =>
-        mapBounds.contains(
-          new google.maps.LatLng(unit.latitude, unit.longitude)
-        )
-      );
-      setVisibleUnits(visibleUnits); // 맵 바운드 내에 있는 유닛들만 반영
-    }
+  const createMarker = useCallback((unit: Unit): ExtendedMarker => {
+    const lat = parseFloat(unit.latitude.toString());
+    const lng = parseFloat(unit.longitude.toString());
 
-    // Map이 변경되었을 때 디바운스 처리
-    google.maps.event.addListener(map, "idle", () => {
-      debouncedUpdate(map, units);
-    });
+    const marker = new google.maps.Marker({
+      position: { lat, lng },
+      icon: {
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          generateMarkerSVG(false)
+        )}`,
+        scaledSize: new google.maps.Size(40, 40),
+      },
+    }) as ExtendedMarker;
 
-    // 컴포넌트 언마운트 시 클러스터러 제거
-    return () => {
-      if (markerClustererRef.current) {
-        markerClustererRef.current.clearMarkers();
-        markerClustererRef.current = null;
-      }
-    };
-  }, [map, units, setVisibleUnits, setLoading, debouncedUpdate]);
+    marker.unitData = unit;
+    markerMap.current.set(unit.id, marker);
 
-  useEffect(() => {
-    markerMap.current.forEach((marker, unitId) => {
-      if (unitId === hoverUnitId) {
+    marker.addListener("click", () => handleMarkerClick(marker, unit));
+
+    marker.addListener("mouseover", () => {
+      if (marker !== activeMarkerRef.current) {
         marker.setIcon({
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
             generateMarkerSVG(true)
           )}`,
           scaledSize: new google.maps.Size(40, 40),
         });
-      } else {
+      }
+    });
+
+    marker.addListener("mouseout", () => {
+      if (marker !== activeMarkerRef.current) {
         marker.setIcon({
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
             generateMarkerSVG(false)
@@ -274,36 +124,139 @@ export const MarkerManager = ({ map, units }: MarkerManagerProps) => {
       }
     });
 
-    // 클러스터 상태 업데이트
-    clusterMap.current.forEach(({ clusterMarker, markers }) => {
-      const containsHoveredUnit = markers.some((marker: any) => {
-        const unit = units.find(
-          (u) =>
-            u.latitude === marker.getPosition()?.lat() &&
-            u.longitude === marker.getPosition()?.lng()
-        );
-        return unit && unit.id === hoverUnitId;
+    return marker;
+  }, [handleMarkerClick]);
+
+  const updateVisibleUnits = useCallback(() => {
+    const currentBounds = map.getBounds();
+    if (!currentBounds) return;
+
+    const newVisibleUnits = units.filter((unit) =>
+      currentBounds.contains(
+        new google.maps.LatLng(unit.latitude, unit.longitude)
+      )
+    );
+    setVisibleUnits(newVisibleUnits);
+    setVisibleUnitCount(newVisibleUnits.length);
+  }, [map, units, setVisibleUnits, setVisibleUnitCount]);
+
+  // 마커 생성 및 클러스터링 설정
+  useEffect(() => {
+    if (!map || !units.length) return;
+
+    // 기존 리소스 정리
+    if (markerClustererRef.current) {
+      markerClustererRef.current.clearMarkers();
+    }
+    if (idleListenerRef.current) {
+      google.maps.event.removeListener(idleListenerRef.current);
+    }
+    markerMap.current.clear();
+    clusterMap.current.clear();
+
+    // 새로운 마커 생성
+    const markers = units.map(createMarker);
+
+    markerClustererRef.current = new MarkerClusterer({
+      markers,
+      map,
+      algorithm: new SuperClusterAlgorithm({ maxZoom: 20, radius: 350 }),
+      renderer: {
+        render: ({ count, position, markers }) => {
+          const uniqueUnits = new Set(
+            markers?.map((marker: any) => marker.unitData?.id).filter(Boolean)
+          );
+          const actualCount = uniqueUnits.size;
+          const size = Math.min(80, 40 + actualCount * 0.5);
+          
+          const clusterMarker = new google.maps.Marker({
+            position,
+            icon: {
+              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+                generateClusterSVG(actualCount, size, false)
+              )}`,
+              scaledSize: new google.maps.Size(size, size),
+            },
+          });
+
+          const clusterId = position.toString();
+          clusterMap.current.set(clusterId, {
+            clusterMarker,
+            markers,
+            actualCount,
+          });
+
+          clusterMarker.addListener("click", () => {
+            toggleSidebar(true);
+            const clusteredMarkers = markers as ExtendedMarker[];
+            const uniqueUnits = new Map<number, Unit>();
+            
+            clusteredMarkers.forEach((marker) => {
+              if (marker.unitData) {
+                uniqueUnits.set(marker.unitData.id, marker.unitData);
+              }
+            });
+
+            setLoading(true);
+            const visibleUnits = Array.from(uniqueUnits.values());
+            setVisibleUnits(visibleUnits);
+            setLoading(false);
+          });
+
+          return clusterMarker;
+        },
+      },
+    });
+
+    // Idle 이벤트 리스너 설정
+    idleListenerRef.current = google.maps.event.addListener(map, "idle", updateVisibleUnits);
+
+    // 초기 visible units 설정
+    updateVisibleUnits();
+
+    return () => {
+      if (markerClustererRef.current) {
+        markerClustererRef.current.clearMarkers();
+        markerClustererRef.current = null;
+      }
+      if (idleListenerRef.current) {
+        google.maps.event.removeListener(idleListenerRef.current);
+      }
+      markerMap.current.clear();
+      clusterMap.current.clear();
+    };
+  }, [map, units, createMarker, updateVisibleUnits, setLoading, setVisibleUnits, toggleSidebar]);
+
+  // 호버 효과 처리
+  useEffect(() => {
+    if (!hoverUnitId) return;
+
+    // 마커 호버 효과
+    const marker = markerMap.current.get(hoverUnitId);
+    if (marker && marker !== activeMarkerRef.current) {
+      marker.setIcon({
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          generateMarkerSVG(true)
+        )}`,
+        scaledSize: new google.maps.Size(40, 40),
       });
-  
-      const size = Math.min(80, 40 + markers.length * 0.5);
-  
-      if (containsHoveredUnit) {
-        clusterMarker.setIcon({
+    }
+
+    // 다른 마커들 리셋
+    markerMap.current.forEach((m, id) => {
+      if (id !== hoverUnitId && m !== activeMarkerRef.current) {
+        m.setIcon({
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-            generateClusterSVG(markers.length, size, true)
+            generateMarkerSVG(false)
           )}`,
-          scaledSize: new google.maps.Size(size, size),
-        });
-      } else {
-        clusterMarker.setIcon({
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-            generateClusterSVG(markers.length, size, false)
-          )}`,
-          scaledSize: new google.maps.Size(size, size), 
+          scaledSize: new google.maps.Size(40, 40),
         });
       }
     });
+
   }, [hoverUnitId]);
 
   return null;
-};
+});
+
+MarkerManager.displayName = "MarkerManager";

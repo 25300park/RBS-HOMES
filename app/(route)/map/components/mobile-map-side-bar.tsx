@@ -11,8 +11,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Map } from "lucide-react";
 import { useState } from "react";
 
-const TRANSITION_DURATION = 500;
-const SWIPE_COOLDOWN = 800;
+const TRANSITION_DURATION = 400;
+const SWIPE_COOLDOWN = 700;
 const SWIPE_THRESHOLD = 10;
 const PAGE_SIZE = 20;
 
@@ -227,7 +227,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
       sheetPosition === "full" && (
         <button
           onClick={() => snapToPosition("minimized")}
-          className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2"
+          className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
         >
           <Map size={20} />
           <span>View Map</span>
@@ -242,8 +242,12 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
         style={{
-          height: "95vh",
-          transform: "translateY(calc(100% - 60px))",
+          height: "calc(100vh - 64px)", 
+          transform: sheetPosition === "minimized"
+            ? "translateY(calc(100vh - 64px - 60px))"
+            : sheetPosition === "half"
+            ? "translateY(55%)"
+            : "translateY(-60px)", 
           touchAction: "pan-x pan-y",
           overscrollBehavior: "none",
           transition: `transform ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -256,6 +260,8 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
           style={{
             overscrollBehavior: "contain",
             touchAction: "pan-x pan-y",
+            paddingTop: sheetPosition === "full" ? "95px" : "0",
+            transition: `padding-top ${TRANSITION_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           }}
           onScroll={handleContentScroll}
         >

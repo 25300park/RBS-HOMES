@@ -140,7 +140,7 @@ const Header = ({}: HeaderProps): React.ReactNode => {
         } w-full md:mt-0`}
       >
         {(pathName === "/" || pathName.includes("map")) && (
-          <div className="flex w-full  md:flex-col  pt-4 px-20 3xl:px-12 xs:px-4 border-b md:pt-0 md:gap-4 ">
+          <div className="flex w-full  md:flex-col  pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4 ">
             <MainFilterGroup />
             <MainAmenityList />
           </div>

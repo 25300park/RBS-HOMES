@@ -28,7 +28,6 @@ const MainAmenityList = () => {
   const updateArrowsVisibility = () => {
     if (sliderRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      console.log(scrollLeft, scrollWidth, clientWidth);
       setShowLeftArrow(scrollLeft > 0);
       setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 1);
     }
@@ -73,7 +72,7 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className=" flex items-center px-10  md:px-4 md:pt-0 relative w-[84%] 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
+    <div className=" flex items-center px-10  md:px-4 md:pt-0 relative w-[84%] md:hidden 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
       {/* Left Arrow */}
       {showLeftArrow && (
         <button
@@ -120,8 +119,8 @@ const MainAmenityList = () => {
                 <span
                   className={`text-xs w-fit pb-3 text-center pt-2 border-b-2
                             transition-all duration-300 group-active:scale-90 
-                            group-hover:border-gray-200
-                            ${isSelected ? "border-black" : "border-transparent"}`}
+                            
+                            ${isSelected ? "border-black" : "border-transparent group-hover:border-gray-200"}`}
                 >
                   {amenity.label}
                 </span>

@@ -25,7 +25,6 @@ const MainList: React.FC<MainListProps> = ({
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
 
   const currentPage = parseInt(currentSearchParams.get("page") || "1");
- console.log(units)
   // 초기 로드
   useEffect(() => {
     if (isFirstLoad) {

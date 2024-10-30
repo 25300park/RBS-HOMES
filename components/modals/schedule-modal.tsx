@@ -56,7 +56,6 @@ export default function ScheduleModal({ modalProps,onClose }: ScheduleModalProps
     e.preventDefault();
 
     const unitId = eventType === "unit" && selectedUnit ? selectedUnit.id : -1;
-    console.log(selectedDate)
     try {
       const response = await addSchedule(title, selectedDate!, unitId);
       toast({
