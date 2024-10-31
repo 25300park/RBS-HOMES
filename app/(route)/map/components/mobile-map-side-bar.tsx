@@ -62,9 +62,19 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
     () => loadedUnits.length < visibleUnits.length,
     [loadedUnits.length, visibleUnits.length]
   );
-
   useEffect(() => {
-    if (sheetRef.current) {
+    if (!sheetRef.current) return;
+
+    const positions = {
+      minimized: "calc(100% - 60px)",
+      half: "55%",
+      full: "0%",
+    };
+
+    sheetRef.current.style.transform = `translateY(${positions[sheetPosition]})`;
+  }, [sheetPosition]);
+  useEffect(() => {
+    if (sheetRef.current && type) {
       sheetRef.current.style.transform = "translateY(calc(100% - 60px))";
       setSheetPosition("minimized");
     }
@@ -261,7 +271,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
         style={{
-          height: "calc(100dvh - 70px)", 
+          height: "calc(100dvh - 70px)",
           transform: "translateY(calc(100% - 60px))",
           touchAction: "pan-x pan-y",
           overscrollBehavior: "none",
@@ -311,7 +321,6 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useObserver } from "@/hooks/use-observer";
 import ListCard from "@/components/ui/list-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface Unit {
   id: string;
@@ -28,7 +29,6 @@ interface FetchResponse {
   total: number;
 }
 
-const LIMIT = 12;
 
 const MainList: React.FC = () => {
   const router = useRouter();
@@ -42,7 +42,8 @@ const MainList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const initialLoadCompleted = useRef<boolean>(false);
-
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const LIMIT = isMobile? 4 :  12;
   // 데이터 fetch 함수
   const fetchData = async (pageNum: number, append: boolean = false) => {
     if (isFetching) return;

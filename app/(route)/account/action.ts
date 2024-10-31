@@ -11,11 +11,16 @@ const scheduleSchema = z.object({
     .string()
     .max(100, "Title must be 100 characters or fewer")
     .nonempty("Title is required"),
+  desc: z.string().optional(),
   date: z.date().refine((val) => val !== null, {
     message: "Date is required and cannot be null",
-  }), 
-  unitId: z.number().nullable(), 
+  }),
+  startedAt: z.date().optional(),
+  endedAt: z.date().optional(),
+  unitId: z.number().nullable().default(-1),
 });
+
+
 export const getUserSchedules = async () => {
   const session: any = await getServerSession(authOptions as any);
   if (!session || !session.user?.id) {
@@ -38,6 +43,10 @@ export const getUserSchedules = async () => {
         unitId: true, // 유닛 아이디
         date: true, // 미팅 날짜
         message: true, // 메시지
+        title: true,
+        desc: true,
+        startedAt: true,
+        endedAt: true,
       },
       orderBy: {
         date: "desc", // 필요한 정렬 조건
@@ -118,22 +127,19 @@ export const getUnitSceduleList = async () => {
   }
 };
 
-export const addSchedule = async (
-  title: string,
-  date: Date,
-  unitId: number
-) => {
+export const addSchedule = async (scheduleData: any) => {
   try {
     const session: any = await getServerSession(authOptions as any);
 
     if (!session || !session.user?.id) {
       throw new Error("User not authenticated");
     }
+    
     const user = session.user;
     const userId = session.user.id;
 
-    // Title validation using zod
-    const validationResult = scheduleSchema.safeParse({ title, date, unitId });
+    // 데이터 유효성 검사
+    const validationResult = scheduleSchema.safeParse(scheduleData);
 
     if (!validationResult.success) {
       return {
@@ -144,22 +150,30 @@ export const addSchedule = async (
       };
     }
 
+    // startedAt과 endedAt이 없는 경우 해당 날짜의 시작과 끝으로 설정
+    const date = validationResult.data.date;
+    const startedAt = validationResult.data.startedAt || new Date(date.setHours(0, 0, 0, 0));
+    const endedAt = validationResult.data.endedAt || new Date(date.setHours(23, 59, 59, 999));
+
     // Prisma DB에 새로운 스케줄 추가
     await prisma.schedule.create({
       data: {
-        userId: userId,
+        userId,
         email: user.email,
         username: user.username,
         mobile: user.mobile,
-        message: validationResult.data.title,
-        date: validationResult.data.date,
-        unitId: validationResult.data.unitId
-          ? validationResult.data.unitId
-          : -1,
-        status: 2, 
+        title: validationResult.data.title,
+        desc: validationResult.data.desc,
+        date,
+        startedAt,
+        endedAt,
+        unitId: validationResult.data.unitId ?? -1,
+        status: 2,
       },
     });
+
     revalidatePath('/account');
+
     return {
       status: 200,
       message: "Schedule successfully added",
@@ -168,7 +182,7 @@ export const addSchedule = async (
     console.error("Error adding schedule:", error);
     return {
       status: 400,
-      message: "Failed to add schedule",
+      message: error instanceof Error ? error.message : "Failed to add schedule",
     };
   }
 };

@@ -66,7 +66,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
         </div>
       </section>
 
-      <section className="flex h-full justify-between gap-10 px-4">
+      <section className="flex h-full justify-between gap-10 md:px-4">
         <div className="flex flex-col max-w-[65%] md:w-full md:max-w-full">
           <div className="flex items-center py-8 border-y">
             <Avatar className="w-12 h-12 rounded-full mr-3">
@@ -220,7 +220,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
         </div>
 
         {/* sticky */}
-        <div className="w-[500px] border sticky h-[200px] top-20 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between md:hidden">
+        <div className="w-[500px] border sticky h-[200px] top-24 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between md:hidden">
           <p className="text-2xl font-semibold text-gray-900 mt-2">
             ₱
             {Number(property.price)?.toLocaleString("en-US", {

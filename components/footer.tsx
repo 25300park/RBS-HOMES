@@ -5,8 +5,6 @@ import Link from "next/link";
 
 const Footer = () => {
   const pathName = usePathname();
-
-  // 특정 경로일 때 푸터 렌더링을 막음
   const hiddenPaths = ["/map", "/account/unit/my-list"];
   const shouldRenderFooter = !hiddenPaths.some(path => pathName.startsWith(path));
 

@@ -83,14 +83,14 @@ model Notice {
 model Schedule {
   id          Int       @id @default(autoincrement()) // 고유 아이디
   unitId      Int // 유닛 ID
-  userId      Int?
+  userId      Int? //직접 스케줄 추가시 유저아이디
   username    String?   @db.VarChar(50) //유저 ID
   email       String?   @db.VarChar(300) // 이메일
   mobile      String?   @db.VarChar(50) // 연락처
   requestDate DateTime? //신청 희망일
   date        DateTime? //미팅날짜
-  startedAt   DateTime?
-  endedAt     DateTime?
+  startedAt   DateTime? //시작시간 
+  endedAt     DateTime? //종료시간 없을시 allDay
   title       String?   @db.VarChar(100)
   message     String?   @db.VarChar(255) // 제목
   desc        String?   @db.VarChar(255) //내용 

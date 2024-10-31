@@ -1,26 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useModalStore } from "@/store/use-modal-store";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addDays,
-  isSameMonth,
-  isSameDay,
-  addMonths,
-  subMonths,
-  addWeeks,
-} from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, 
+  isSameMonth, isSameDay, addMonths, subMonths, addWeeks } from "date-fns";
+import { ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
 
 interface Schedule {
   id: number;
   date: Date;
   message: string;
   unitId: number;
+  desc: string;
+  title: string;
+  startedAt?: Date;
+  endedAt?: Date;
 }
 
 interface UnitDetail {
@@ -31,8 +26,124 @@ interface UnitDetail {
 interface DateCalendarProps {
   markedDates: any;
   schedules: any;
-  fetchUnitDetails: (unitId: number) => Promise<any>; // unit 데이터 호출 함수
+  fetchUnitDetails: (unitId: number) => Promise<any>;
 }
+
+const formatPrice = (price: number | string) => {
+  return `₱ ${Number(price).toLocaleString('en-US', { 
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  })}`;
+};
+
+const ScheduleCard = ({ schedule, unitDetail }: { schedule: Schedule, unitDetail?: UnitDetail }) => {
+  const router = useRouter();
+  const startTime = schedule.startedAt ? format(new Date(schedule.startedAt), "HH:mm") : null;
+  const endTime = schedule.endedAt ? format(new Date(schedule.endedAt), "HH:mm") : null;
+  const isAllDay = !startTime || !endTime;
+
+  const handleUnitClick = (e: React.MouseEvent, unitId: number) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
+    const url = `/unit/detail/${unitId}`;
+    if (window.innerWidth > 768) {
+      window.open(url, '_blank');
+    } else {
+      router.push(url);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border overflow-hidden bg-white shadow-sm">
+      <div className="p-3 bg-gradient-to-r from-orange-50 to-orange-100">
+        <div className="flex items-center justify-between mb-2">
+          {isAllDay ? (
+            <span className="text-xs px-2 py-0.5 bg-orange-200 text-orange-700 rounded-full">
+              All Day
+            </span>
+          ) : (
+            <span className="text-sm text-orange-700">
+              {startTime} - {endTime}
+            </span>
+          )}
+        </div>
+        <h4 className="font-medium text-gray-900">{schedule.title}</h4>
+        {schedule.desc && (
+          <p className="text-sm text-gray-600 mt-1">
+            {schedule.desc}
+          </p>
+        )}
+      </div>
+      
+      {unitDetail && (
+        <div 
+          className="p-3 border-t bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+          onClick={(e) => handleUnitClick(e, unitDetail.unitId)}
+        >
+          <div className="flex gap-3">
+            <img
+              src={JSON.parse(unitDetail.data.images)[0]}
+              alt="Unit"
+              className="w-20 h-20 object-cover rounded-md"
+            />
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-gray-900 truncate">
+                {unitDetail.data.title}
+              </h4>
+              <p className="text-sm text-gray-600 mt-1 truncate">
+                {unitDetail.data.fullAdress}
+              </p>
+              <p className="text-sm font-medium text-orange-600 mt-1">
+                {formatPrice(unitDetail.data.price)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ScheduleDisplay = ({ 
+  schedules, 
+  unitDetails,
+  title,
+  className = ""
+}: { 
+  schedules: Schedule[], 
+  unitDetails: UnitDetail[],
+  title: string,
+  className?: string
+}) => {
+  const sortedSchedules = [...schedules].sort((a, b) => {
+    const aTime = a.startedAt ? new Date(a.startedAt) : new Date(a.date);
+    const bTime = b.startedAt ? new Date(b.startedAt) : new Date(b.date);
+    
+    if (!a.startedAt && b.startedAt) return -1;
+    if (a.startedAt && !b.startedAt) return 1;
+    return aTime.getTime() - bTime.getTime();
+  });
+
+  return (
+    <div className={`bg-white rounded-lg shadow-sm p-4 ${className}`}>
+      <h3 className="text-lg font-semibold border-b pb-2">
+        {title}
+      </h3>
+      <div className="mt-4 space-y-4">
+        {sortedSchedules.length > 0 ? (
+          sortedSchedules.map((schedule) => (
+            <ScheduleCard
+              key={schedule.id}
+              schedule={schedule}
+              unitDetail={unitDetails.find(unit => unit.unitId === schedule.unitId)}
+            />
+          ))
+        ) : (
+          <p className="text-gray-500">No schedules available.</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const DateCalendar: React.FC<DateCalendarProps> = ({
   markedDates,
@@ -40,30 +151,27 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
   fetchUnitDetails,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 선택된 날짜
-  const [selectedSchedules, setSelectedSchedules] = useState<Schedule[]>([]); // 선택된 날짜의 스케줄
-  const [unitDetails, setUnitDetails] = useState<UnitDetail[]>([]); // 여러 unit 데이터를 관리할 배열
-  const [upcomingSchedules, setUpcomingSchedules] = useState<Schedule[]>([]); // 앞으로 일주일 동안의 스케줄
-  const [upcomingUnitDetails, setUpcomingUnitDetails] = useState<UnitDetail[]>([]); // 앞으로 일주일 동안의 유닛 상세 정보
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedSchedules, setSelectedSchedules] = useState<Schedule[]>([]);
+  const [unitDetails, setUnitDetails] = useState<UnitDetail[]>([]);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<Schedule[]>([]);
+  const [upcomingUnitDetails, setUpcomingUnitDetails] = useState<UnitDetail[]>([]);
   const { openModal } = useModalStore();
 
   useEffect(() => {
-    // 첫 렌더링 시 오늘 날짜의 스케줄을 설정
     const today = new Date();
     onDateClick(today, schedules.filter((schedule: any) =>
       isSameDay(new Date(schedule.date), today)
     ));
 
-    // 앞으로 일주일 동안의 스케줄을 설정
     const nextWeek = addWeeks(today, 1);
     const upcoming = schedules.filter(
       (schedule: Schedule) =>
-        schedule.date >= today && schedule.date <= nextWeek
+        new Date(schedule.date) >= today && new Date(schedule.date) <= nextWeek
     );
 
     setUpcomingSchedules(upcoming);
 
-    // unitId가 -1이 아닌 스케줄들에 대해 unit 데이터를 가져오는 프로미스 배열 생성
     const unitPromises = upcoming
       .filter((schedule: any) => schedule.unitId !== -1)
       .map((schedule: any) =>
@@ -74,168 +182,24 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
       );
 
     Promise.all(unitPromises)
-      .then((fetchedUnits) => {
-        setUpcomingUnitDetails(fetchedUnits);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch unit details for upcoming schedules:", error);
-      });
-  }, [schedules]);
-
-  const nextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
-  };
-
-  const prevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
-  };
-
-  const renderHeader = () => {
-    return (
-      <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={prevMonth}
-          className="p-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-        >
-          Prev
-        </button>
-        <div className="text-xl font-semibold">
-          {format(currentMonth, "MMMM yyyy")}
-        </div>
-        <button
-          onClick={nextMonth}
-          className="p-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-        >
-          Next
-        </button>
-      </div>
-    );
-  };
-
-  const renderDays = () => {
-    const days = [];
-    const dateFormat = "eeee";
-    const startDate = startOfWeek(currentMonth);
-
-    for (let i = 0; i < 7; i++) {
-      days.push(
-        <div className="flex-1 text-center font-medium text-gray-700" key={i}>
-          {format(addDays(startDate, i), dateFormat)}
-        </div>
-      );
-    }
-
-    return <div className="flex">{days}</div>;
-  };
-
-  const renderCells = () => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart);
-    const endDate = endOfWeek(monthEnd);
-
-    const rows = [];
-    let days = [];
-    let day = startDate;
-    let formattedDate = "";
-
-    while (day <= endDate) {
-      for (let i = 0; i < 7; i++) {
-        formattedDate = format(day, "d");
-        const cloneDay = day;
-
-        // 날짜가 markedDates에 포함되어 있으면 true
-        const isMarked = markedDates.some((markedDate: any) =>
-          isSameDay(new Date(markedDate), cloneDay)
-        );
-
-        // 해당 날짜의 스케줄 필터링
-        const daySchedules = schedules.filter((schedule: any) =>
-          isSameDay(new Date(schedule.date), cloneDay)
-        );
-
-        const isToday = isSameDay(day, new Date());
-        const isSelected = isSameDay(day, selectedDate || new Date());
-
-        days.push(
-          <div
-            className={`relative flex-1 h-28 border rounded-lg cursor-pointer transition-all duration-150 ease-in-out ${
-              !isSameMonth(day, monthStart)
-                ? "border-gray-100"
-                : isSelected
-                ? "border-orange-400"
-                : isMarked
-                ? "hover:border-gray-800"
-                : "bg-white text-gray-800 hover:border-gray-800"
-            }`}
-            key={day.toString()}
-            onClick={() => onDateClick(cloneDay, daySchedules)}
-          >
-            <span className="text-center font-bold p-2">{formattedDate}</span>
-
-            {/* 오늘 날짜에 "Today" 표시 */}
-            {isToday && (
-              <div className="absolute top-1 right-1 text-xs text-orange-500 px-3 py-1">
-                Today
-              </div>
-            )}
-
-            {/* 스케줄이 있는 날짜의 스타일 개선 */}
-            {daySchedules.length > 0 && (
-              <div className="mt-1">
-                {daySchedules
-                  .slice(0, 2)
-                  .map((schedule: any, index: number) => (
-                    <div
-                      key={index}
-                      className="text-xs bg-orange-100 p-1 mt-1 truncate border-l-2 border-orange-600"
-                      style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {schedule.message}
-                    </div>
-                  ))}
-                {daySchedules.length > 2 && (
-                  <div className="text-xs mt-1 text-center text-gray-500">
-                    +{daySchedules.length - 2} more
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-        day = addDays(day, 1);
-      }
-      rows.push(
-        <div className="flex justify-between" key={day.toString()}>
-          {days}
-        </div>
-      );
-      days = [];
-    }
-
-    return <div className="mt-4">{rows}</div>;
-  };
+      .then(setUpcomingUnitDetails)
+      .catch((error) => console.error("Failed to fetch upcoming unit details:", error));
+  }, [schedules, fetchUnitDetails]);
 
   const onDateClick = async (day: Date, daySchedules: Schedule[]) => {
     setSelectedDate(day);
     setSelectedSchedules(daySchedules);
 
-    // unitId가 -1이 아닌 스케줄들에 대해 unit 데이터를 가져오는 프로미스 배열 생성
     const unitPromises = daySchedules
-      .filter((schedule) => schedule.unitId !== -1)
-      .map((schedule) =>
-        fetchUnitDetails(schedule.unitId).then((data) => ({
+      .filter(schedule => schedule.unitId !== -1)
+      .map(schedule =>
+        fetchUnitDetails(schedule.unitId).then(data => ({
           unitId: schedule.unitId,
           data,
         }))
       );
 
     try {
-      // 모든 unit 데이터를 가져와 상태에 저장
       const fetchedUnits = await Promise.all(unitPromises);
       setUnitDetails(fetchedUnits);
     } catch (error) {
@@ -243,102 +207,151 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
     }
   };
 
-  return (
-    <div className="w-full mx-auto p-4">
-      {renderHeader()}
-      {renderDays()}
-      {renderCells()}
-      {/* 선택된 날짜의 스케줄 및 유닛 상세 정보 표시 */}
-      <div className="mt-6">
-        <div
-          onClick={() => openModal("schedule")}
-          className="fixed bottom-10 right-10 rounded-full bg-orange-200 text-orange-800 flex items-center justify-center shadow-lg font-bold text-xl cursor-pointer"
-        >
-          스케줄 추가
+  const CalendarGrid = () => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart);
+    const endDate = endOfWeek(monthEnd);
+
+    const weeks = [];
+    let days = [];
+    let day = startDate;
+
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const dayNamesRow = (
+      <div className="grid grid-cols-7 mb-1 border-b">
+        {dayNames.map((name) => (
+          <div key={name} className="p-2 text-sm font-medium text-gray-400 text-center md:text-xs">
+            {name}
+          </div>
+        ))}
+      </div>
+    );
+
+    while (day <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        const cloneDay = day;
+        const daySchedules = schedules.filter((schedule: any) =>
+          isSameDay(new Date(schedule.date), cloneDay)
+        );
+        const isToday = isSameDay(day, new Date());
+        const isSelected = selectedDate && isSameDay(day, selectedDate);
+        const isCurrentMonth = isSameMonth(day, monthStart);
+
+        days.push(
+          <div
+            key={day.toString()}
+            onClick={() => onDateClick(cloneDay, daySchedules)}
+            className={`
+              min-h-[100px] md:min-h-[80px] p-2 border-r border-b relative
+              transition-all duration-200 cursor-pointer
+              ${!isCurrentMonth ? 'bg-gray-50' : 'bg-white hover:bg-orange-50'}
+              ${isSelected ? 'ring-2 ring-orange-400 z-10' : ''}
+              ${isToday ? 'bg-orange-50' : ''}
+              last:border-r-0
+            `}
+          >
+            <div className="flex justify-between items-start">
+              <span className={`
+                inline-flex w-6 h-6 items-center justify-center rounded-full
+                text-sm md:text-xs
+                ${isToday ? 'bg-orange-500 text-white' : isCurrentMonth ? 'text-gray-700' : 'text-gray-400'}
+              `}>
+                {format(day, "d")}
+              </span>
+              {daySchedules.length > 0 && (
+                <span className="text-xs bg-orange-100 text-orange-800 px-1.5 rounded-full">
+                  {daySchedules.length}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-1 space-y-1">
+              {daySchedules.slice(0, 2).map((schedule: Schedule, index: number) => (
+                <div
+                  key={index}
+                  className="text-xs md:text-[10px] px-1.5 py-0.5 rounded
+                    bg-orange-100 text-orange-800 truncate border-l-2 border-orange-400"
+                >
+                  {schedule.title}
+                </div>
+              ))}
+              {daySchedules.length > 2 && (
+                <div className="text-xs md:text-[10px] text-gray-500 pl-1">
+                  +{daySchedules.length - 2}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        day = addDays(day, 1);
+      }
+      weeks.push(
+        <div key={day.toString()} className="grid grid-cols-7">
+          {days}
         </div>
-        {/* <ScheduleModal units={[]} date={selectedDate} /> */}
-        <h3 className="text-lg font-semibold">
-          {selectedDate
-            ? `Selected Date: ${format(selectedDate, "PPP")}`
-            : "No date selected"}
-        </h3>
-        {selectedSchedules.length > 0 ? (
-          <ul className="mt-4 space-y-2">
-            {selectedSchedules.map((schedule) => {
-              const unitDetail = unitDetails.find(
-                (unit) => unit.unitId === schedule.unitId
-              );
-              return (
-                <li key={schedule.id} className="">
-                  <p className=" text-orange-800">{schedule.message}</p>
-                  <p className="text-sm text-gray-600">
-                    {format(new Date(schedule.date), "PPP, p")}
-                  </p>
-                  {/* 유닛 디테일이 존재할 경우 표시 */}
-                  {unitDetail && (
-                    <div className="mt-2 p-2 bg-blue-100 border border-blue-200 rounded-lg">
-                      <img
-                        src={JSON.parse(unitDetail.data.images)[0]}
-                        alt="unit image"
-                        className="w-20 h-20 object-cover"
-                      />
-                      <p className=" text-blue-700">{unitDetail.data.title}</p>
-                      <p className=" text-blue-700">
-                        {unitDetail.data.fullAdress}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Price: {unitDetail.data.price}
-                      </p>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="text-gray-600 mt-4">No schedules for this date.</p>
-        )}
+      );
+      days = [];
+    }
+
+    return (
+      <div className="bg-white rounded-lg shadow-sm border">
+        {dayNamesRow}
+        {weeks}
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full flex space-y-0 gap-6 md:space-y-6 md:block">
+      {/* Calendar Side */}
+      <div className="flex-1 md:w-full">
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between px-4 mb-6">
+          <button
+            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {format(currentMonth, "MMMM yyyy")}
+          </h2>
+          <button
+            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Calendar Grid */}
+        <CalendarGrid />
+
+        {/* Add Schedule Button */}
+        <button
+          onClick={() => openModal("schedule")}
+          className="fixed bottom-20 right-4 w-12 h-12 md:bottom-24 md:right-6
+            flex items-center justify-center rounded-full bg-orange-500 
+            text-white shadow-lg hover:bg-orange-600 transition-colors"
+        >
+          <CalendarPlus className="w-6 h-6" />
+        </button>
       </div>
 
-      {/* 앞으로 일주일 동안의 스케줄 목록 */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold">Upcoming Schedules (Next 7 Days)</h3>
-        {upcomingSchedules.length > 0 ? (
-          <ul className="mt-4 space-y-2">
-            {upcomingSchedules.map((schedule) => {
-              const unitDetail = upcomingUnitDetails.find(
-                (unit) => unit.unitId === schedule.unitId
-              );
-              return (
-                <li key={schedule.id} className="">
-                  <p className=" text-orange-800">{schedule.message}</p>
-                  <p className="text-sm text-gray-600">
-                    {format(new Date(schedule.date), "PPP, p")}
-                  </p>
-                  {/* 유닛 디테일이 존재할 경우 표시 */}
-                  {unitDetail && (
-                    <div className="mt-2 p-2 bg-blue-100 border border-blue-200 rounded-lg">
-                      <img
-                        src={JSON.parse(unitDetail.data.images)[0]}
-                        alt="unit image"
-                        className="w-20 h-20 object-cover"
-                      />
-                      <p className=" text-blue-700">{unitDetail.data.title}</p>
-                      <p className=" text-blue-700">
-                        {unitDetail.data.fullAdress}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Price: {unitDetail.data.price}
-                      </p>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="text-gray-600 mt-4">No upcoming schedules.</p>
-        )}
+      {/* Schedules Side */}
+      <div className="w-80 space-y-6 md:w-full">
+        <ScheduleDisplay
+          schedules={selectedSchedules}
+          unitDetails={unitDetails}
+          title={selectedDate ? format(selectedDate, "PPP") : "Select a date"}
+        />
+        <ScheduleDisplay
+          schedules={upcomingSchedules}
+          unitDetails={upcomingUnitDetails}
+          title="Upcoming (Next 7 Days)"
+        />
       </div>
     </div>
   );
