@@ -100,10 +100,10 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const containerStyle = React.useMemo(() => {
-    const baseStyle = "relative transition-all duration-500 ease-in-out w-full";
+    const baseStyle = "relative transition-all duration-500 ease-in-out w-full md:h-[100dvh] h-full";
 
     if (!isMobile) {
-      return `${baseStyle} h-full ${
+      return `${baseStyle} h-full md:h-[100dvh] ${
         isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
       }`;
     }
@@ -202,7 +202,7 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
       <SearchInput autocompleteRef={autocompleteRef} />
       <div
         ref={mapRef}
-        className="absolute w-full h-full"
+       className="absolute w-full h-[100dvh]"
         style={{ outline: "none" }}
         tabIndex={-1}
       />

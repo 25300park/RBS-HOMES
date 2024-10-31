@@ -18,9 +18,15 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { useToast } from "@/hooks/use-toast";
 
-export function ShareBtn({ darkmode = false }: { darkmode?: boolean }) {
-  const isMobile = useMediaQuery("(max-width: 640px)"); // sm 사이즈 이하인 경우 모바일
+export function ShareBtn({
+  darkmode = false,
+  rounded = false,
+}: {
+  darkmode?: boolean;
+  rounded?: boolean;
+}) {
   const { toast } = useToast();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const currentUrl =
     typeof window !== "undefined"
       ? window.location.href
@@ -53,6 +59,16 @@ export function ShareBtn({ darkmode = false }: { darkmode?: boolean }) {
       })
       .catch(console.error);
   };
+
+  if (rounded)
+    return (
+      <button
+        onClick={handleMobileShare}
+        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
+      >
+        <IoShareSocialOutline size={16} />
+      </button>
+    );
 
   return (
     <div>

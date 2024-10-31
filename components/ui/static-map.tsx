@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface StaticMapProps {
   latitude: number;
@@ -10,12 +11,13 @@ interface StaticMapProps {
 
 const StaticMap: React.FC<StaticMapProps> = ({ latitude, longitude }) => {
   const [mapUrl, setMapUrl] = useState<string>("");
-  
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   useEffect(() => {
     const mapOptions = {
       center: `${latitude},${longitude}`,
       zoom: 14,
-      size: "1200x300",
+      size: isMobile ? "800x400" : "1200x300", // 모바일에서는 더 큰 비율로
       scale: 2,
       format: "png",
       language: "en",
@@ -40,12 +42,14 @@ const StaticMap: React.FC<StaticMapProps> = ({ latitude, longitude }) => {
 
     const finalUrl = `https://maps.googleapis.com/maps/api/staticmap?${params.toString()}`;
     setMapUrl(finalUrl);
-  }, [latitude, longitude]);
+  }, [latitude, longitude, isMobile]);
 
   return (
-    <div className="py-12 space-y-6 border-t">
+    <div className="py-12 space-y-6 border-t md:py-6 md:mx-6">
       <h3 className="text-xl font-medium text-gray-800">Location</h3>
-      <div className="relative w-full aspect-[4/1]  overflow-hidden shadow-lg">
+      <div className={`relative w-full overflow-hidden shadow-lg ${
+        isMobile ? 'aspect-[2/1]' : 'aspect-[4/1]'
+      }`}>
         {mapUrl && (
           <img
             src={mapUrl}

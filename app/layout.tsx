@@ -33,7 +33,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className} md:h-[100dvh]`}>
         <AuthProvider session={session}>
           <ModalProvider />
           {children}

@@ -109,9 +109,9 @@ const NearbyPlaces: React.FC<NearbyPlacesProps> = ({ latitude, longitude }) => {
   };
 
   return (
-    <div className="py-6 space-y-4">
+    <div className="py-6 space-y-4 md:px-6">
       <h3 className="text-xl font-medium text-gray-800">Nearby Places</h3>
-      <div className="grid grid-cols-2 gap-x-12">
+      <div className="grid grid-cols-2 gap-x-12 md:grid-cols-1">
         {/* 카테고리별로 최대 3개의 장소만 표시 */}
         {Object.keys(places).map((category) => {
           const filteredPlaces = places[category]?.slice(0, 3); // 각 카테고리에서 최대 3개의 항목만 표시
@@ -119,7 +119,7 @@ const NearbyPlaces: React.FC<NearbyPlacesProps> = ({ latitude, longitude }) => {
           if (!filteredPlaces || filteredPlaces.length === 0) return null;
 
           return (
-            <div key={category} className="my-3 border-b">
+            <div key={category} className="my-3 border-b md:pb-3">
               <h4 className="text-lg  mb-3 flex items-center">
                 {categoryIcons[category]}
                 <span className="ml-2">{categoryLabels[category]}</span>

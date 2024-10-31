@@ -241,8 +241,12 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
     () =>
       sheetPosition === "full" && (
         <button
-          onClick={() => snapToPosition("minimized")}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            snapToPosition("minimized");
+          }}
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50 pointer-events-auto"
         >
           <Map size={20} />
           <span>View Map</span>
@@ -250,7 +254,6 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
       ),
     [sheetPosition, snapToPosition]
   );
-
   return (
     <div className="md:block hidden fixed inset-0 pointer-events-none overscroll-contain">
       {ViewMapButton}
@@ -258,7 +261,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
         style={{
-          height: "calc(100vh - 64px)",
+          height: "calc(100dvh - 70px)", 
           transform: "translateY(calc(100% - 60px))",
           touchAction: "pan-x pan-y",
           overscrollBehavior: "none",
