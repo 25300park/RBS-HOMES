@@ -24,7 +24,6 @@ const generateSearchKey = (params: MapHomeProps["searchParams"]) => {
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   const newSearchParams = await searchParams;
   const searchKey = generateSearchKey(newSearchParams);
-  console.log("rerererere");
   // 데이터 가져오기
   const { units, error } = await getUnitList(newSearchParams).catch(
     (error) => ({
@@ -45,9 +44,7 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
           <div className="w-full h-full">
             <MapComponent
               key={`map-${searchKey}`}
-              units={await getUnitList(newSearchParams).then(
-                (res) => res.units
-              )}
+              units={units}
               searchKey={searchKey}
             />
           </div>

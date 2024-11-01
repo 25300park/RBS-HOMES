@@ -1,4 +1,11 @@
+'use server'
+
 import prisma from "@/lib/prisma";
+import { reservationSchema } from "@/types/schema";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // DTO 함수 정의
 const unitWithAdminDTO = (unit: any) => ({
@@ -125,13 +132,119 @@ export async function getUnitsWithAdmin(
 }
 
 export const getUnitDetail = async (unitId: number) => {
-  const unitDetail = await prisma.unit.findUnique({
-    where: {
-      id: unitId,
-    },
-    include: {
-      admin: true,
-    },
-  });
-  return { unitDetail };
-};
+  try {
+    // 세션 확인
+    const session: any = await getServerSession(authOptions as any);
+ 
+    // 유닛 정보 조회
+    const unitDetail = await prisma.unit.findUnique({
+      where: {
+        id: unitId,
+      },
+      include: {
+        admin: true,
+      },
+    });
+ 
+    // 유닛이 없을 경우
+    if (!unitDetail) {
+      return {
+        error: "Unit not found",
+        status: 404,
+      };
+    }
+ 
+    // 로그인된 경우 즐겨찾기 상태 확인
+    let isFavorited = false;
+    
+    if (session?.user?.id) {
+      const favorite = await prisma.favorite.findFirst({
+        where: {
+          unitId,
+          userId: parseInt(session.user.id),
+        },
+      });
+      isFavorited = !!favorite;
+    }
+ 
+    // 데이터 정제
+    const transformedUnitDetail = {
+      ...unitDetail,
+      price: unitDetail.price?.toNumber() ?? null,
+      outstandingPayment: unitDetail.outstandingPayment?.toNumber() ?? null,
+      // images: unitDetail.images ? JSON.parse(unitDetail.images) : [],
+      isFavorited,
+    };
+ 
+    return { 
+      unitDetail: transformedUnitDetail,
+      status: 200,
+    };
+ 
+  } catch (error) {
+    console.error("Error fetching unit detail:", error);
+    return {
+      error: "Failed to fetch unit details",
+      status: 500,
+    };
+  }
+ };
+ 
+interface ScheduleRequest {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  date?: Date;
+  needsDiscussion: boolean;
+  unitId: number;
+  userId?: number;
+}
+
+export async function requestSchedule(formData: ScheduleRequest) {
+  try {
+    const validatedData = reservationSchema.parse(formData);
+    
+    const scheduleData = {
+      unitId: validatedData.unitId,
+      userId: validatedData.userId,
+      username: validatedData.name,
+      email: validatedData.email,
+      mobile: validatedData.phone,
+      requestDate: validatedData.needsDiscussion
+        ? undefined
+        : validatedData.date,
+      message: validatedData.message,
+      status: 0,
+    };
+
+    await prisma.schedule.create({
+      data: scheduleData,
+    });
+
+    revalidatePath("/account/unit/my-list");
+    
+    return { success: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorMessages = error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message
+      }));
+      
+      return { 
+        success: false, 
+        error: "Validation failed", 
+        validationErrors: errorMessages 
+      };
+    }
+
+    // Prisma 또는 다른 에러
+    console.error("Schedule creation error:", error);
+    return { 
+      success: false, 
+      error: "Failed to create schedule",
+      details: error instanceof Error ? error.message : "Unknown error"
+    };
+  }
+}

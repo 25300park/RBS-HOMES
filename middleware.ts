@@ -5,28 +5,33 @@ import type { JWT } from "next-auth/jwt";
 
 // 권한이 필요한 경로만 포함
 const RESTRICTED_PATHS = [
-  '/account/unit/registration',
-  '/account/unit/my-list',
+  "/account/unit/registration",
+  "/account/unit/my-list",
 ];
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request }) as JWT | null;
-
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
   // 현재 요청 경로가 제한된 경로인지 확인
-  const isRestrictedPath = RESTRICTED_PATHS.some(path => 
+  const isRestrictedPath = RESTRICTED_PATHS.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
 
   if (isRestrictedPath) {
     if (!token) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+      return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
     if (token.level === 1 || !token.phone) {
-      const redirectUrl = new URL('/account/management', request.url);
-      redirectUrl.searchParams.set('tabs', 'EditInformation');
-      redirectUrl.searchParams.set('message', 'Please complete your profile first');
-      
+      const redirectUrl = new URL("/account/management", request.url);
+      redirectUrl.searchParams.set("tabs", "EditInformation");
+      redirectUrl.searchParams.set(
+        "message",
+        "Please complete your profile first"
+      );
+
       return NextResponse.redirect(redirectUrl);
     }
   }
@@ -35,7 +40,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/account/unit/:path*',
-  ]
+  matcher: ["/account/unit/:path*"],
 };

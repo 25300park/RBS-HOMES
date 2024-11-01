@@ -8,6 +8,7 @@ import ImageGallery from "@/components/ui/image-gallery";
 import { IoMdShare } from "react-icons/io";
 import FavoriteButton from "@/components/favorite-button";
 import GalleryConverter from "./gallery-converter";
+import { ShareBtn } from "@/components/ui/share-btn";
 
 interface DetailWrapProps {
   property: any;
@@ -24,10 +25,10 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           </h2>
           <div className="flex gap-4 text-sm items-center">
             <div>
-              <p className="underline">Share</p>
+              <ShareBtn withDetail/>
             </div>
             <div>
-              <p className="underline">Save</p>
+              <FavoriteButton unitId={property.id} initialIsFavorited={property.isFavorited} withDetail/>
             </div>
           </div>
         </div>

@@ -13,9 +13,11 @@ import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
 import { getRelativeTime } from "@/lib/utils";
 import { amenitiesData } from "@/lib/config/amenities"; // 어메니티 데이터 임포트
+import StickyBox from "./sticky-box";
 
 interface PropertyInfoProps {
   property: {
+    id: number;
     title: string;
     area: number;
     bed: number;
@@ -220,21 +222,8 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
         </div>
 
         {/* sticky */}
-        <div className="w-[500px] border sticky h-[200px] top-24 self-start p-4 shadow-lg rounded-lg flex flex-col justify-between md:hidden">
-          <p className="text-2xl font-semibold text-gray-900 mt-2">
-            ₱
-            {Number(property.price)?.toLocaleString("en-US", {
-              minimumFractionDigits: 0,
-            })}
-            <span className="ml-2 font-light text-lg">
-              for {property.sellType}
-            </span>
-          </p>
-          스케줄 관련 체크
-          <button className="w-full bg-orange-400 text-white py-3 rounded-lg hover:bg-orange-500">
-            Reserve
-          </button>
-        </div>
+
+        <StickyBox price={property.price} sellType={property.sellType} unitId={property.id}/>
       </section>
     </div>
   );

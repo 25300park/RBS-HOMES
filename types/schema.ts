@@ -72,3 +72,33 @@ export const stepTwoSchema = z.object({
   petPolicy: z.string().min(1, "Pet policy is required"),
   // amenity: z.array(z.string()).min(1, "At least one amenity must be selected"),
 });
+
+export const reservationSchema = z.object({
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters"),
+  email: z.string()
+    .email("Please enter a valid email"),
+  phone: z.string()
+    .min(5, "Phone number must be at least 5 digits")
+    .max(15, "Phone number cannot exceed 15 digits")
+    .regex(/^[0-9+\-\s()]*$/, "Invalid phone number format"),
+  message: z.string()
+    .min(3, "Message must be at least 3 characters")
+    .max(500, "Message cannot exceed 500 characters"),
+  date: z.union([
+    z.date(),
+    z.literal(undefined)
+  ]),
+  needsDiscussion: z.boolean().default(false),
+  unitId: z.number(), 
+  userId: z.number().optional()
+}).refine(
+  data => data.needsDiscussion || data.date !== undefined,
+  {
+    message: "Please either select a date or mark as 'Needs Discussion'",
+    path: ["date"]
+  }
+);
+
+export type ReservationFormData = z.infer<typeof reservationSchema>;

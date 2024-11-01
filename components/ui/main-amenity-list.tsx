@@ -36,9 +36,9 @@ const MainAmenityList = () => {
   // 스크롤이벤추가
   useEffect(() => {
     const slider = sliderRef.current;
-    
+
     updateArrowsVisibility();
-    
+
     const handleResize = () => updateArrowsVisibility();
     window.addEventListener("resize", handleResize);
     slider?.addEventListener("scroll", updateArrowsVisibility);
@@ -52,11 +52,13 @@ const MainAmenityList = () => {
   // 어메니티 선택
   const handleAmenityClick = (amenity: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    
+
     let newSelectedAmenities = [...selectedAmenities];
-    
+
     if (selectedAmenities.includes(amenity)) {
-      newSelectedAmenities = newSelectedAmenities.filter(item => item !== amenity);
+      newSelectedAmenities = newSelectedAmenities.filter(
+        (item) => item !== amenity
+      );
     } else {
       newSelectedAmenities.push(amenity);
     }
@@ -88,12 +90,16 @@ const MainAmenityList = () => {
       <div className="relative w-full flex items-center">
         {/* Gradient Overlays */}
         {showLeftArrow && (
-          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-16 
-                        bg-gradient-to-r from-white to-transparent pointer-events-none" />
+          <div
+            className="absolute left-0 top-0 bottom-0 w-32 md:w-16 
+                        bg-gradient-to-r from-white to-transparent pointer-events-none"
+          />
         )}
         {showRightArrow && (
-          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-16 
-                        bg-gradient-to-l from-white to-transparent pointer-events-none" />
+          <div
+            className="absolute right-0 top-0 bottom-0 w-32 md:w-16 
+                        bg-gradient-to-l from-white to-transparent pointer-events-none"
+          />
         )}
 
         {/* Amenities List */}
@@ -104,23 +110,29 @@ const MainAmenityList = () => {
         >
           {amenitiesData.map((amenity, index) => {
             const isSelected = selectedAmenities.includes(amenity.label);
-            
+
             return (
               <div
                 key={index}
                 className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] 
-                          h-full cursor-pointer group transition-all duration-200`}
+                          h-full cursor-pointer group `}
                 onClick={() => handleAmenityClick(amenity.label)}
               >
-                <span className="text-gray-600 text-2xl group-active:text-[22px] 
-                              transition-all duration-200">
+                <span
+                  className="text-gray-600 text-2xl transition-transform transform-gpu
+          group-hover:scale-105 group-active:scale-90
+                             duration-300 "
+                >
                   {<amenity.icon />}
                 </span>
                 <span
                   className={`text-xs w-fit pb-3 text-center pt-2 border-b-2
-                            transition-all duration-300 group-active:scale-90 
                             
-                            ${isSelected ? "border-black" : "border-transparent group-hover:border-gray-200"}`}
+                            ${
+                              isSelected
+                                ? "border-black"
+                                : "border-transparent group-hover:border-gray-200"
+                            }`}
                 >
                   {amenity.label}
                 </span>

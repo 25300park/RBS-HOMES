@@ -98,7 +98,7 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
             </div>
           </div>
           <div className="border w-8 h-8 flex items-center justify-center shadow-sm rounded-sm">
-            <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} />
+            {/* <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} /> */}
           </div>
         </div>
       </div>

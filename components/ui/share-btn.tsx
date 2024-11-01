@@ -21,9 +21,11 @@ import { useToast } from "@/hooks/use-toast";
 export function ShareBtn({
   darkmode = false,
   rounded = false,
+  withDetail = false,
 }: {
   darkmode?: boolean;
   rounded?: boolean;
+  withDetail?: boolean;
 }) {
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -55,11 +57,34 @@ export function ShareBtn({
     navigator.clipboard
       .writeText(currentUrl)
       .then(() => {
-        toast({ variant: "default", title: "Link copied to clipboard " });
+        toast({ variant: "default", title: "Link copied to clipboard" });
       })
       .catch(console.error);
   };
 
+  // withDetail이 true인 경우 새로운 UI로 리턴
+  if (withDetail) {
+    return (
+      <div className="flex items-center gap-1 p-1 transition-transform transform-gpu
+          hover:scale-110 active:scale-90 md:hover:scale-100 md:active:scale-100">
+        <button
+          onClick={isMobile ? handleMobileShare : handleCopyLink}
+          className={`
+          ${darkmode ? "text-white" : "text-black"}`}
+        >
+          <IoShareSocialOutline className="text-lg" />
+        </button>
+        <span
+          className="underline cursor-pointer"
+          onClick={isMobile ? handleMobileShare : handleCopyLink}
+        >
+          Share
+        </span>
+      </div>
+    );
+  }
+
+  // 기존 UI 그대로 유지
   if (rounded)
     return (
       <button

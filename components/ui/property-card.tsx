@@ -113,7 +113,7 @@ const PropertyCard = ({
           </div>
 
           {/* Favorite Button */}
-          <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} />
+          {/* <FavoriteButton isFavorite={isFavorite} onToggle={toggleFavorite} /> */}
         </div>
       </div>
     </div>

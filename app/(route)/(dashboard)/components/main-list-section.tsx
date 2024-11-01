@@ -7,6 +7,7 @@ import ListCard from "@/components/ui/list-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import useHandleUnitClick from "@/hooks/use-handle-unit-click";
+import { BsDatabaseX } from "react-icons/bs";
 
 interface Unit {
   id: number;
@@ -44,7 +45,7 @@ const MainList: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const initialLoadCompleted = useRef<boolean>(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const handleUnitClick= useHandleUnitClick()
+  const handleUnitClick = useHandleUnitClick();
   const LIMIT = isMobile ? 4 : 12;
   // 데이터 fetch 함수
   const fetchData = async (pageNum: number, append: boolean = false) => {
@@ -190,12 +191,9 @@ const MainList: React.FC = () => {
       )}
 
       {units.length === 0 && !isFetching && !error && (
-        <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
-          <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <Skeleton key={index} />
-            ))}
-          </div>
+        <div className="min-h-screen flex flex-col items-center pt-20">
+          <BsDatabaseX className="w-24 h-24 text-gray-400 mb-4" />
+          <p className="text-xl text-gray-500">No units found</p>
         </div>
       )}
     </div>
