@@ -164,12 +164,12 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
       </p>
 
       {/* 모달 닫기 버튼 */}
-      <Button
+      {/* <Button
         onClick={onClose}
         className="mt-6 w-full bg-gray-100 hover:bg-gray-200"
       >
         Close
-      </Button>
+      </Button> */}
     </>
   );
 };

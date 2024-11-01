@@ -143,7 +143,7 @@ const MobileImageGallery = ({
       {/* 첫 번째 드로어 - 그리드 뷰 */}
       <Drawer open={isFirstDrawerOpen} onOpenChange={setIsFirstDrawerOpen}>
         <DrawerContent className="h-[100dvh] rounded-none">
-          <div className="fixed top-5 w-full flex justify-between items-center px-6 bg-white border-b pb-4 z-20">
+          <div className="fixed top-4 w-full flex justify-between items-center px-6 bg-white border-b pb-4 z-20">
             <DrawerClose className="hover:bg-gray-100 rounded-full p-2">
               <IoIosArrowBack size={24} className="text-gray-700" />
             </DrawerClose>

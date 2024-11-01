@@ -4,28 +4,22 @@ import { useModalStore } from "@/store/use-modal-store";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
-
 import AuthModal from "@/components/modals/auth-modal";
 import FilterModal from "@/components/modals/filter-modal";
 import PreviewModal from "@/components/modals/preview-modal";
 import ScheduleModal from "@/components/modals/schedule-modal";
-// import ConfirmModal from "@/components/modals/ConfirmModal";
-// import AlertModal from "@/components/modals/AlertModal";
+import { useState, useEffect } from "react";
 
 export const ModalProvider = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [drawerHeight, setDrawerHeight] = useState("85vh");
 
   if (!isOpen) return null;
+
   let content;
   switch (modalType) {
     case "login":
@@ -44,7 +38,8 @@ export const ModalProvider = () => {
     default:
       return null;
   }
-  if (isDesktop) {
+
+  if (isDesktop || modalType === "login" || modalType === "signup") {
     return (
       <Dialog open={isOpen} onOpenChange={closeModal}>
         <DialogTitle></DialogTitle>
@@ -52,13 +47,12 @@ export const ModalProvider = () => {
       </Dialog>
     );
   }
+
   return (
     <Drawer open={isOpen} onOpenChange={closeModal}>
       <DrawerContent
-        className="
-        h-[85vh] 
-        overscroll-contain
-      "
+        className="overscroll-contain scrollbar-none"
+        style={{ height: drawerHeight }}
       >
         {content}
       </DrawerContent>

@@ -1,14 +1,13 @@
-// @/actions/auth.ts
 "use server";
 
-// 공통 액션들
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
 import { SignupFormSchema, FormState, LoginFormSchema } from "@/types/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
-//로그인 회원가입 관련
+
 export async function signup(
   state: FormState,
   formData: FormData
@@ -100,36 +99,34 @@ export async function login(
 
 //유닛 관련
 
-
 // 유닛 관련 타입 정의
-type SortOption = 'latest' | 'oldest' | 'priceAsc' | 'priceDesc';
+type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 
 // 필터 헬퍼 함수들
 const getSearchFilter = (search?: string) => {
   if (!search) return [];
-  return [
-    { title: { contains: search } },
-    { address3: { contains: search } }
-  ];
+  return [{ title: { contains: search } }, { address3: { contains: search } }];
 };
 
 const getPriceFilter = (priceMin?: number, priceMax?: number) => {
   if (!priceMin && !priceMax) return [];
-  return [{
-    price: {
-      gte: priceMin || undefined,
-      lte: priceMax || undefined,
-    }
-  }];
+  return [
+    {
+      price: {
+        gte: priceMin || undefined,
+        lte: priceMax || undefined,
+      },
+    },
+  ];
 };
 
 const getAmenityFilter = (amenities: string[]) => {
   if (!amenities.length) return undefined;
 
   return {
-    AND: amenities.map(amenity => ({
-      amenity: { contains: amenity }
-    }))
+    AND: amenities.map((amenity) => ({
+      amenity: { contains: amenity },
+    })),
   };
 };
 
@@ -145,21 +142,26 @@ export const getUnitList = async (
   try {
     // Parse filter values
     const type = searchParams.type !== "none" ? searchParams.type : undefined;
-    const sellType = searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+    const sellType =
+      searchParams.sellType !== "none" ? searchParams.sellType : undefined;
     const bed = parseNumericValue(searchParams.bed);
     const bath = parseNumericValue(searchParams.bath);
     const parking = parseNumericValue(searchParams.parking);
-    const city = searchParams.city !== "All Cities" ? searchParams.city : undefined;
+    const city =
+      searchParams.city !== "All Cities" ? searchParams.city : undefined;
     const priceMin = parseNumericValue(searchParams.priceMin);
     const priceMax = parseNumericValue(searchParams.priceMax);
     const areaMin = parseNumericValue(searchParams.areaMin);
     const areaMax = parseNumericValue(searchParams.areaMax);
-    const furniture = searchParams.furniture !== "none" ? searchParams.furniture : undefined;
+    const furniture =
+      searchParams.furniture !== "none" ? searchParams.furniture : undefined;
     const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
     const search = searchParams.search || undefined;
-    const amenities = searchParams.amenities ? 
-      decodeURIComponent(searchParams.amenities).split(",").map(a => a.trim()) : 
-      [];
+    const amenities = searchParams.amenities
+      ? decodeURIComponent(searchParams.amenities)
+          .split(",")
+          .map((a) => a.trim())
+      : [];
 
     // Get filters
     const priceFilter = getPriceFilter(priceMin, priceMax);
@@ -178,38 +180,35 @@ export const getUnitList = async (
         bath: bath ? { gte: bath } : undefined,
         parking: parking ? { gte: parking } : undefined,
         address2: city ? { equals: city } : undefined,
-        area: (areaMin || areaMax) ? {
-          gte: areaMin || undefined,
-          lte: areaMax || undefined
-        } : undefined,
+        area:
+          areaMin || areaMax
+            ? {
+                gte: areaMin || undefined,
+                lte: areaMax || undefined,
+              }
+            : undefined,
         furniture: furniture ? { equals: furniture } : undefined,
         petPolicy: pet ? { equals: pet } : undefined,
         ...(filters.length > 0 && { OR: filters }),
         ...amenityFilter, // Add amenity filter
       },
       include: {
-        admin: true
+        admin: true,
       },
       orderBy: {
-        lastUpdate: 'desc' // 기본값으로 최신순 정렬
-      }
+        lastUpdate: "desc", // 기본값으로 최신순 정렬
+      },
     });
 
     // Transform the data
-    const units = data.map(unit => ({
+    const units = data.map((unit) => ({
       ...unit,
-      outstandingPayment: unit.outstandingPayment 
-        ? parseFloat(unit.outstandingPayment.toString()) 
+      outstandingPayment: unit.outstandingPayment
+        ? parseFloat(unit.outstandingPayment.toString())
         : null,
-      price: unit.price 
-        ? parseFloat(unit.price.toString()) 
-        : null,
-      amenity: unit.amenity 
-        ? JSON.parse(unit.amenity as string) 
-        : [],
-      images: unit.images 
-        ? JSON.parse(unit.images as string) 
-        : [],
+      price: unit.price ? parseFloat(unit.price.toString()) : null,
+      amenity: unit.amenity ? JSON.parse(unit.amenity as string) : [],
+      images: unit.images ? JSON.parse(unit.images as string) : [],
     }));
 
     return { units };
@@ -218,8 +217,6 @@ export const getUnitList = async (
     throw error;
   }
 };
-
-
 
 export const getUnitCount = async (
   searchParams: Record<string, string>,
@@ -370,4 +367,51 @@ export const getUnitCountOwner = async (
   });
 
   return count;
+};
+
+export const ToggleFavoriteUnit = async (unitId: number) => {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+    const userId = session.user.id as number;
+    if (!userId || userId === undefined || typeof userId !== "number") {
+      return { status: 400, message: "Invalid user" };
+    }
+
+    if (!unitId || unitId === undefined || typeof unitId !== "number") {
+      return { status: 400, message: "Invalid unit ID" };
+    }
+
+    // 즐겨찾기 존재 여부 확인
+    const existingFavorite = await prisma.favorite.findUnique({
+      where: {
+        userId_unitId: {
+          userId,
+          unitId,
+        },
+      },
+    });
+
+    // 존재하면 삭제, 존재하지 않으면 생성
+    if (existingFavorite) {
+      await prisma.favorite.delete({
+        where: {
+          id: existingFavorite.id,
+        },
+      });
+      revalidatePath("/account/unit/favorites");
+      return { status: 200, data: { action: "removed" } };
+    } else {
+      const newFavorite = await prisma.favorite.create({
+        data: {
+          userId,
+          unitId,
+        },
+      });
+      revalidatePath("/account/unit/favorites");
+      return { status: 200, data: { action: "added", id: newFavorite.id } };
+    }
+  } catch (error) {
+    console.error("Error Toggling Favorites:", error);
+    throw error;
+  }
 };

@@ -6,9 +6,10 @@ import { useObserver } from "@/hooks/use-observer";
 import ListCard from "@/components/ui/list-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import useHandleUnitClick from "@/hooks/use-handle-unit-click";
 
 interface Unit {
-  id: string;
+  id: number;
   title: string;
   price: number;
   address3: string;
@@ -22,13 +23,13 @@ interface Unit {
   bed: number;
   bath: number;
   fullAdress: string;
+  isFavorited: boolean;
 }
 
 interface FetchResponse {
   units: Unit[];
   total: number;
 }
-
 
 const MainList: React.FC = () => {
   const router = useRouter();
@@ -43,7 +44,8 @@ const MainList: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const initialLoadCompleted = useRef<boolean>(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const LIMIT = isMobile? 4 :  12;
+  const handleUnitClick= useHandleUnitClick()
+  const LIMIT = isMobile ? 4 : 12;
   // 데이터 fetch 함수
   const fetchData = async (pageNum: number, append: boolean = false) => {
     if (isFetching) return;
@@ -135,13 +137,6 @@ const MainList: React.FC = () => {
 
   const { lastElementRef } = useObserver(loadMoreUnits, hasMore, isFetching);
 
-  const handleUnitClick = useCallback(
-    (unitId: string) => {
-      router.push(`/unit/detail/${unitId}`);
-    },
-    [router]
-  );
-
   if (isInitialLoading) {
     return (
       <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
@@ -165,6 +160,7 @@ const MainList: React.FC = () => {
       <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
         {units.map((unit, index) => (
           <ListCard
+            unitId={unit.id}
             ref={index === units.length - 1 ? lastElementRef : null}
             key={unit.id}
             title={unit.title}
@@ -177,6 +173,7 @@ const MainList: React.FC = () => {
             bath={unit.bath}
             sellType={unit.sellType}
             isUrgent={unit.isUrgent}
+            isFavorited={unit.isFavorited}
             onClick={() => handleUnitClick(unit.id)}
           />
         ))}

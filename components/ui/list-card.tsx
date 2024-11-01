@@ -3,22 +3,25 @@ import Image from "next/image";
 import FavoriteButton from "../favorite-button";
 
 interface ListCardProps {
+  unitId: number;
   title: string;
   price: number;
   area: number;
   location: string;
-  imageUrl: string;
+  imageUrl: any;
   postedDate: string;
   isUrgent?: boolean;
   sellType: string;
   bed: number;
   bath: number;
+  isFavorited: boolean;
   onClick?: (event: React.MouseEvent) => void;
 }
 
 const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
   (
     {
+      unitId,
       title,
       price,
       area,
@@ -28,13 +31,10 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
       bed = 1,
       bath = 1,
       onClick,
+      isFavorited = false,
     },
     ref
   ) => {
-    const [isFavorite, setIsFavorite] = useState(false);
-    const toggleFavorite = () => {
-      setIsFavorite(!isFavorite);
-    };
 
     return (
       <div
@@ -54,13 +54,13 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
           <img
             src={imageUrl}
             alt={title}
-            className="absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+            className="absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 "
           />
-          {/* <FavoriteButton
-            isFavorite={isFavorite}
-            onToggle={toggleFavorite}
+          <FavoriteButton
+            initialIsFavorited={isFavorited}
+            unitId={unitId}
             className="absolute top-2 right-2 z-20"
-          /> */}
+          />
         </div>
 
         {/* Content */}

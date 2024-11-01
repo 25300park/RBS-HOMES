@@ -1,11 +1,12 @@
-
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
-type SortOption = 'latest' | 'oldest' | 'priceAsc' | 'priceDesc';
+type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 
 interface FilterParams {
   type?: string;
@@ -30,7 +31,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "5");
-    
+    const session: any = await getServerSession(authOptions as any);
+    const userId = session?.user?.id;
+
     const filters: FilterParams = {
       type: searchParams.get("type") || "none",
       sellType: searchParams.get("sellType") || "none",
@@ -49,7 +52,13 @@ export async function GET(req: Request) {
       sort: searchParams.get("sort") || "latest",
     };
 
-    const { units, total } = await getFilteredUnits(page, limit, filters);
+    const { units, total } = await getFilteredUnits(
+      page,
+      limit,
+      filters,
+      userId
+    );
+
     return NextResponse.json({ units, total });
   } catch (error) {
     console.error("API Error:", error);
@@ -66,42 +75,41 @@ const getAmenityFilter = (amenities: string[]) => {
   return {
     AND: [
       { amenity: { not: null } },
-      { amenity: { not: '[]' } },
-      ...amenities.map(amenity => ({
-        amenity: { contains: amenity }
-      }))
-    ]
+      { amenity: { not: "[]" } },
+      ...amenities.map((amenity) => ({
+        amenity: { contains: amenity },
+      })),
+    ],
   };
 };
 
 const getSearchFilter = (search?: string) => {
   if (!search) return undefined;
-  
+
   return {
-    OR: [
-      { title: { contains: search } },
-      { address3: { contains: search } },
-    ]
+    OR: [{ title: { contains: search } }, { address3: { contains: search } }],
   };
 };
 
 const getPriceFilter = (priceMin?: number, priceMax?: number) => {
   if (!priceMin && !priceMax) return undefined;
-  
+
   return {
     price: {
       gte: priceMin || undefined,
       lte: priceMax || undefined,
-    }
+    },
   };
 };
 
-const getSortOption = (sort: SortOption): Prisma.UnitOrderByWithRelationInput => {
+const getSortOption = (
+  sort: SortOption
+): Prisma.UnitOrderByWithRelationInput => {
   const sortOptions: Record<SortOption, Prisma.UnitOrderByWithRelationInput> = {
-    latest: { lastUpdate: Prisma.SortOrder.desc },  // 최신순
-    oldest: { lastUpdate: Prisma.SortOrder.asc },   // 오래된순
+    latest: { lastUpdate: Prisma.SortOrder.desc },
+    oldest: { lastUpdate: Prisma.SortOrder.asc },
     priceAsc: { price: Prisma.SortOrder.asc },
-    priceDesc: { price: Prisma.SortOrder.desc }
+    priceDesc: { price: Prisma.SortOrder.desc },
   };
 
   return sortOptions[sort] || sortOptions.latest;
@@ -113,11 +121,11 @@ const parseNumericValue = (value: string | undefined): number | undefined => {
   return isNaN(parsed) ? undefined : parsed;
 };
 
-
 async function getFilteredUnits(
   page: number,
   limit: number,
-  params: FilterParams
+  params: FilterParams,
+  userId?: number
 ) {
   // Parse filter values
   const type = params.type !== "none" ? params.type : undefined;
@@ -132,10 +140,12 @@ async function getFilteredUnits(
   const areaMax = parseNumericValue(params.areaMax);
   const furniture = params.furniture !== "none" ? params.furniture : undefined;
   const pet = params.pet !== "none" ? params.pet : undefined;
-  const amenities = params.amenities ? 
-    decodeURIComponent(params.amenities).split(",").map(a => a.trim()) : 
-    [];
-  const sort = (params.sort as SortOption) || 'latest';
+  const amenities = params.amenities
+    ? decodeURIComponent(params.amenities)
+        .split(",")
+        .map((a) => a.trim())
+    : [];
+  const sort = (params.sort as SortOption) || "latest";
 
   // Build filter conditions
   const filterConditions = {
@@ -145,10 +155,13 @@ async function getFilteredUnits(
     bath: bath ? { gte: bath } : undefined,
     parking: parking ? { gte: parking } : undefined,
     address2: city ? { equals: city } : undefined,
-    area: (areaMin || areaMax) ? {
-      gte: areaMin || undefined,
-      lte: areaMax || undefined
-    } : undefined,
+    area:
+      areaMin || areaMax
+        ? {
+            gte: areaMin || undefined,
+            lte: areaMax || undefined,
+          }
+        : undefined,
     furniture: furniture ? { equals: furniture } : undefined,
     petPolicy: pet ? { equals: pet } : undefined,
     ...getAmenityFilter(amenities),
@@ -172,15 +185,34 @@ async function getFilteredUnits(
     }),
   ]);
 
-  // Transform decimal values
-  const transformedUnits = units.map(unit => ({
+  let favorites: { unitId: number }[] = [];
+  if (userId) {
+    favorites = await prisma.favorite.findMany({
+      where: {
+        userId,
+        unitId: {
+          in: units.map((unit) => unit.id),
+        },
+      },
+      select: {
+        unitId: true,
+      },
+    });
+  }
+
+  // 각 unit에 즐겨찾기 여부 추가
+  const transformedUnits = units.map((unit) => ({
     ...unit,
     price: unit.price?.toNumber(),
     outstandingPayment: unit.outstandingPayment?.toNumber(),
+    isFavorited: userId
+      ? favorites.some((favorite) => favorite.unitId === unit.id)
+      : false,
   }));
 
-  return { 
-    units: transformedUnits, 
-    total: totalUnits 
+  return {
+    units: transformedUnits,
+    total: totalUnits,
+    // favorites: favorites.map((favorite) => favorite.unitId),
   };
 }

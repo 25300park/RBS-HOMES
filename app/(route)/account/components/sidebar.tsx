@@ -53,7 +53,7 @@ export default function Sidebar({}: SidebarProps) {
   };
 
   return (
-    <div className="h-full flex flex-col border-r min-h-[calc(100dvh-80px)]">
+    <div className="h-full flex flex-col border-r min-h-[calc(100dvh-80px)] md:hidden">
       {/* Header */}
       {/* <div className="flex justify-between items-center p-6 border-b">
         <h2 className="text-xl font-medium">Profile</h2>

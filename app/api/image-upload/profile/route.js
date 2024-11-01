@@ -19,7 +19,7 @@ export async function POST(req) {
       return NextResponse.json(
         { error: "User is not authenticated" },
         { status: 401 }
-      );
+      );  
     }
 
     const userId = session.user.id; // 세션에서 유저 ID 가져오기

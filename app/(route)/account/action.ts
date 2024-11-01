@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import z from "zod";
-import { revalidatePath } from "next/cache"; 
+import { revalidatePath } from "next/cache";
 // 스케줄 추가를 위한 Zod 스키마
 const scheduleSchema = z.object({
   title: z
@@ -19,7 +19,6 @@ const scheduleSchema = z.object({
   endedAt: z.date().optional(),
   unitId: z.number().nullable().default(-1),
 });
-
 
 export const getUserSchedules = async () => {
   const session: any = await getServerSession(authOptions as any);
@@ -67,17 +66,17 @@ export const getUnitDetails = async (unitId: number) => {
         id: unitId,
       },
       select: {
-        id: true, 
-        title: true, 
-        type: true, 
-        sellType: true, 
-        fullAdress: true, 
-        ownerName: true, 
-        ownerMobile: true, 
-        ownerEmail: true, 
-        images: true, 
-        price: true, 
-        status: true, 
+        id: true,
+        title: true,
+        type: true,
+        sellType: true,
+        fullAdress: true,
+        ownerName: true,
+        ownerMobile: true,
+        ownerEmail: true,
+        images: true,
+        price: true,
+        status: true,
       },
     });
 
@@ -112,7 +111,7 @@ export const getUnitSceduleList = async () => {
         title: true,
         fullAdress: true,
         price: true,
-        images: true, 
+        images: true,
       },
     });
     const data = units.map((unit: any) => ({
@@ -134,7 +133,7 @@ export const addSchedule = async (scheduleData: any) => {
     if (!session || !session.user?.id) {
       throw new Error("User not authenticated");
     }
-    
+
     const user = session.user;
     const userId = session.user.id;
 
@@ -152,8 +151,10 @@ export const addSchedule = async (scheduleData: any) => {
 
     // startedAt과 endedAt이 없는 경우 해당 날짜의 시작과 끝으로 설정
     const date = validationResult.data.date;
-    const startedAt = validationResult.data.startedAt || new Date(date.setHours(0, 0, 0, 0));
-    const endedAt = validationResult.data.endedAt || new Date(date.setHours(23, 59, 59, 999));
+    const startedAt =
+      validationResult.data.startedAt || new Date(date.setHours(0, 0, 0, 0));
+    const endedAt =
+      validationResult.data.endedAt || new Date(date.setHours(23, 59, 59, 999));
 
     // Prisma DB에 새로운 스케줄 추가
     await prisma.schedule.create({
@@ -172,7 +173,7 @@ export const addSchedule = async (scheduleData: any) => {
       },
     });
 
-    revalidatePath('/account');
+    revalidatePath("/account");
 
     return {
       status: 200,
@@ -182,7 +183,56 @@ export const addSchedule = async (scheduleData: any) => {
     console.error("Error adding schedule:", error);
     return {
       status: 400,
-      message: error instanceof Error ? error.message : "Failed to add schedule",
+      message:
+        error instanceof Error ? error.message : "Failed to add schedule",
     };
+  }
+};
+
+export const getFavoriteList = async () => {
+  const session: any = await getServerSession(authOptions as any);
+  if (!session || !session.user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  const userId = session.user.id;
+
+  try {
+    // 한 번의 쿼리로 모든 정보를 가져오기
+    const units = await prisma.unit.findMany({
+      where: {
+        favorites: {
+          some: {
+            userId
+          }
+        }
+      },
+      include: {
+        favorites: {
+          where: {
+            userId
+          }
+        }
+      }
+    });
+
+    const data = units.map((unit: any) => ({
+      ...unit,
+      price: unit.price
+        ? parseFloat(unit.price.toString())
+        : null,
+      outstandingPayment: unit.outstandingPayment
+        ? parseFloat(unit.outstandingPayment.toString())
+        : null,
+      images: unit.images ? JSON.parse(unit.images) : [],
+      isFavorited: true, // 이미 즐겨찾기된 유닛들만 가져왔으므로 true
+      favorites: undefined // favorites 필드 제거
+    }));
+
+    revalidatePath('/account/unit/favorites');
+    return { data };
+  } catch (error) {
+    console.error("Error fetching favorite list:", error);
+    throw new Error("Error fetching favorite list");
   }
 };
