@@ -3,8 +3,8 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import EditInformationForm from "../components/edit-information-form";
-import RegisterBrokerForm from "../components/register-broker-form";
+import EditInformationForm from "../../components/edit-information-form";
+import RegisterBrokerForm from "../../components/register-broker-form";
 import { LodaingUi } from "@/components/ui/loading-ui";
 import { useToast } from "@/hooks/use-toast";
 

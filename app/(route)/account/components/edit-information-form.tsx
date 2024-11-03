@@ -5,7 +5,7 @@ import UserProfileAvatar from "../components/user-profile-upload";
 import { Input } from "@/components/ui/input";
 import SelectionBox from "@/components/ui/select-box";
 import { UserLevelOptions } from "@/lib/config/account-options";
-import { editUserProfile } from "../management/action";
+import { editUserProfile } from "../(auth)/management/action";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 

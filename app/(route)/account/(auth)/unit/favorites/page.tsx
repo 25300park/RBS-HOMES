@@ -1,5 +1,5 @@
-import { getFavoriteList } from "../../action";
-import FavoriteList from "../../components/favorite-list";
+import { getFavoriteList } from "../../../action";
+import FavoriteList from "../../../components/favorite-list";
 
 export interface FavoriteListHomeProps {}
 

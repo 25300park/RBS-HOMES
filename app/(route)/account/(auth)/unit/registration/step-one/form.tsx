@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { stepOneSchema } from "@/types/schema";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import AddressSearch from "../../../components/address-search";
+import AddressSearch from "../../../../components/address-search";
 import { cities, sellTypeOption, typeOption } from "@/lib/config/unit-options";
 import Spinner from "@/components/ui/spinner";
 import { SubmitButton } from "@/components/ui/submit-btn";

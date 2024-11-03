@@ -1,4 +1,4 @@
-import StepNavigation from "../../components/step-navigation";
+import StepNavigation from "../../../components/step-navigation";
 
 export default async function layout({
   children,
