@@ -69,7 +69,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
 
   if (!shouldRenderFooter) return null; 
 
-  if (!isMobile) return null;
+  // if (!isMobile) return null;
 
   const isMapPage = pathname === "/map";
   const shouldHideFooter = isMapPage && sheetPosition !== "full";
@@ -84,7 +84,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
 
   return (
     <nav
-      className={`w-full h-16 fixed bottom-0 z-50 bg-white border-t transition-transform duration-300 ${
+      className={`w-full h-16 fixed bottom-0 z-50 bg-white border-t transition-transform duration-300 hidden md:block ${
         shouldHideFooter ? "translate-y-full" : "translate-y-0"
       }`}
     >

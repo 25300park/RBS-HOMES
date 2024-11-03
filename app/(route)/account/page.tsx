@@ -4,7 +4,7 @@ interface AccountHomeProps {}
 
 const AccountHome = async ({}: AccountHomeProps) => {
   return (
-    <div className="p-6 ">
+    <div className="p-6 md:p-0 ">
       <AccountMenuList />
     </div>
   );

@@ -200,3 +200,9 @@
 .hide-scroll::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
+
+@media (max-width: 768px) {
+  a[href^="mailto:"] {
+    display: none !important;
+  }
+}

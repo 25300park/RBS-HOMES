@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const Footer = () => {
   const pathName = usePathname();
-  const hiddenPaths = ["/map", "/account/unit/my-list"];
+  const hiddenPaths = ["/map", "/account/unit/my-list", "/account"];
   const shouldRenderFooter = !hiddenPaths.some(path => pathName.startsWith(path));
 
   if (!shouldRenderFooter) return null; 

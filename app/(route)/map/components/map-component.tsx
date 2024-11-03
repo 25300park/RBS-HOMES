@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { FaSearch } from "react-icons/fa";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useDebouncedCallback } from "use-debounce";
+import DotLoader from "@/components/ui/dot-loader";
 import { MobileMarkerManager } from "./mobile-marker-manager";
 
 interface MapProps {
@@ -46,15 +47,6 @@ const MAP_STYLE = [
   },
 ];
 
-const LoadingIndicator = React.memo(({ isLoading }: { isLoading: boolean }) =>
-  isLoading ? (
-    <div className="absolute left-1/2 transform -translate-x-1/2 top-20 md:top-28 z-50 transition-all duration-500 ease-in-out">
-      <div className="bg-white p-4 shadow-2xl rounded-full">
-        <div className="dot-loader" />
-      </div>
-    </div>
-  ) : null
-);
 
 const SearchInput = React.memo(
   ({
@@ -198,7 +190,7 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
 
   return (
     <div className={containerStyle}>
-      <LoadingIndicator isLoading={isLoading} />
+      <DotLoader isLoading={isLoading} />
       <SearchInput autocompleteRef={autocompleteRef} />
       <div
         ref={mapRef}
@@ -227,5 +219,4 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
 });
 
 MapComponent.displayName = "MapComponent";
-LoadingIndicator.displayName = "LoadingIndicator";
 SearchInput.displayName = "SearchInput";
