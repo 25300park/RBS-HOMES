@@ -24,7 +24,7 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full">
       <section>{children}</section>
     </div>
   );

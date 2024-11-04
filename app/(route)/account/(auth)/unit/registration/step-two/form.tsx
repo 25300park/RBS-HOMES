@@ -102,101 +102,100 @@ export default function StepTwoForm() {
 
   return (
     <div
-      className={`p-6 bg-white  ${
+      className={`p-6 md:p-4 bg-white md:shadow-none md:border-none ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >
-      {/* {errors.length > 0 && (
-        <div className="text-red-500 mb-4">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )} */}
-
       {isLoading ? (
         <div className="flex justify-center w-full items-center h-[500px]">
           <Spinner />
         </div>
       ) : (
-        <section>
-          <div className="grid grid-cols-2 gap-4">
-            {/* 침실 수 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Bedrooms
-              </label>
-              <SelectionBox
-                options={bedOption}
-                selectedValue={formData.bed}
-                onSelect={(value) => handleChange("bed", value)}
-                className="w-full"
-                boxClassName="h-12 w-12"
-                textClassName="text-xs"
-              />
+        <section className="space-y-6 md:space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-6 md:gap-4">
+            {/* Bed, Bath, Parking Section */}
+            <div className="col-span-2 md:col-span-1 grid grid-cols-3 md:grid-cols-1 gap-4">
+              {/* 침실 수 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Bedrooms
+                </label>
+                <SelectionBox
+                  options={bedOption}
+                  selectedValue={formData.bed}
+                  onSelect={(value) => handleChange("bed", value)}
+                  className="w-full space-x-2"
+                  boxClassName="h-12 w-12 md:h-10 md:w-10"
+                  textClassName="text-xs"
+                />
+              </div>
+
+              {/* 욕실 수 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Bathrooms
+                </label>
+                <SelectionBox
+                  options={bathOption}
+                  selectedValue={formData.bath}
+                  onSelect={(value) => handleChange("bath", value)}
+                  className="w-full space-x-2"
+                  boxClassName="h-12 w-12 md:h-10 md:w-10"
+                  textClassName="text-xs"
+                />
+              </div>
+
+              {/* 주차 공간 수 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Parking Spaces
+                </label>
+                <SelectionBox
+                  options={parkingOption}
+                  selectedValue={formData.parking}
+                  onSelect={(value) => handleChange("parking", value)}
+                  className="w-full space-x-2"
+                  boxClassName="h-12 w-12 md:h-10 md:w-10"
+                  textClassName="text-xs"
+                />
+              </div>
             </div>
 
-            {/* 욕실 수 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Bathrooms
-              </label>
-              <SelectionBox
-                options={bathOption}
-                selectedValue={formData.bath}
-                onSelect={(value) => handleChange("bath", value)}
-                className="w-full"
-                boxClassName="h-12 w-12"
-                textClassName="text-xs"
-              />
+            {/* Furniture & Pet Policy Section */}
+            <div className="col-span-2 md:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-4">
+              {/* 가구 상태 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Furniture Status
+                </label>
+                <SelectionBox
+                  options={furnitureOptions.slice(1).reverse()}
+                  selectedValue={formData.furniture}
+                  onSelect={(value) => handleChange("furniture", value)}
+                  className="w-full md:space-x-2"
+                  boxClassName="h-12 md:h-10 w-full"
+                  textClassName="text-xs"
+                />
+              </div>
+
+              {/* 애완동물 정책 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Pet Policy
+                </label>
+                <SelectionBox
+                  options={petPolicyOption.slice(1).reverse()}
+                  selectedValue={formData.petPolicy}
+                  onSelect={(value) => handleChange("petPolicy", value)}
+                  className="w-full md:space-x-2"
+                  boxClassName="h-12 md:h-10 w-full"
+                  textClassName="text-xs"
+                />
+              </div>
             </div>
 
-            {/* 주차 공간 수 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Parking Spaces
-              </label>
-              <SelectionBox
-                options={parkingOption}
-                selectedValue={formData.parking}
-                onSelect={(value) => handleChange("parking", value)}
-                className="w-full"
-                boxClassName="h-12 w-12"
-                textClassName="text-xs"
-              />
-            </div>
-            <div />
-            {/* 내부 인테리어 상태 */}
-
-            {/* 가구 상태 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Furniture Status
-              </label>
-              <SelectionBox
-                options={furnitureOptions.slice(1).reverse()}
-                selectedValue={formData.furniture}
-                onSelect={(value) => handleChange("furniture", value)}
-                className="w-full"
-                boxClassName="h-12 w-40"
-                textClassName="text-xs"
-              />
-            </div>
-            {/* 애완동물 정책 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Pet Policy
-              </label>
-              <SelectionBox
-                options={petPolicyOption.slice(1).reverse()}
-                selectedValue={formData.petPolicy}
-                onSelect={(value) => handleChange("petPolicy", value)}
-                className="w-full"
-                boxClassName="h-12 w-40"
-                textClassName="text-xs"
-              />
-            </div>
-            <div className="col-span-2">
+            {/* Interior Condition */}
+            <div className="col-span-1 md:col-span-1">
               <label className="block text-xs font-medium text-zinc-500 mb-1">
                 Interior Condition
               </label>
@@ -204,75 +203,79 @@ export default function StepTwoForm() {
                 options={interioredOption}
                 selectedValue={formData.interiored}
                 onSelect={(value) => handleChange("interiored", value)}
-                className="w-full"
+                className="w-full md:space-x-2"
                 textClassName="text-xs"
-                boxClassName="h-12 w-40"
-              />
-            </div>
-            {/* 편의시설 (어매니티) */}
-
-            {/* 면적 (평방미터) */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Area (m²)
-              </label>
-              <Input
-                type="number"
-                name="area"
-                value={formData.area}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Area (m²)"
-                className="w-full border border-gray-300 rounded-md"
-              />
-            </div>
-            {/* 층수 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Floor
-              </label>
-              <Input
-                type="text"
-                name="floor"
-                value={formData.floor}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="floor of building"
-                className="w-full border border-gray-300 rounded-md"
+                boxClassName="h-12 md:h-10 w-full"
               />
             </div>
 
-            {/* 완공 연도 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Year of Completion
-              </label>
-              <Input
-                type="text"
-                name="yearCompletion"
-                value={formData.yearCompletion}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Year of Completion"
-                className="w-full border border-gray-300 rounded-md"
-                min="1900"
-                max={new Date().getFullYear()}
-              />
+            {/* Basic Info Section */}
+            <div className="col-span-2 md:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-4">
+              {/* 면적 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Area (m²)
+                </label>
+                <Input
+                  type="number"
+                  name="area"
+                  value={formData.area}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                  placeholder="Area (m²)"
+                  className="w-full border border-gray-300 rounded-md"
+                />
+              </div>
+
+              {/* 층수 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Floor
+                </label>
+                <Input
+                  type="text"
+                  name="floor"
+                  value={formData.floor}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                  placeholder="Floor of building"
+                  className="w-full border border-gray-300 rounded-md"
+                />
+              </div>
+
+              {/* 완공 연도 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Year of Completion
+                </label>
+                <Input
+                  type="text"
+                  name="yearCompletion"
+                  value={formData.yearCompletion}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                  placeholder="Year of Completion"
+                  className="w-full border border-gray-300 rounded-md"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                />
+              </div>
+
+              {/* 커미션 */}
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Commission
+                </label>
+                <Input
+                  type="text"
+                  name="outstandingPayment"
+                  value={formData.outstandingPayment}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                  placeholder="Commission"
+                  className="w-full border border-gray-300 rounded-md text-right"
+                />
+              </div>
             </div>
 
-            {/* 커미션 */}
-            <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1">
-                Commission
-              </label>
-              <Input
-                type="text"
-                name="outstandingPayment"
-                value={formData.outstandingPayment}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Commission"
-                className="w-full border border-gray-300 rounded-md text-right"
-              />
-            </div>
-
-            <div className="col-span-2">
+            {/* Amenities */}
+            <div className="col-span-2 md:col-span-1">
               <TagInput
                 label="Amenities List"
                 value={formData.amenity}
@@ -283,7 +286,7 @@ export default function StepTwoForm() {
             </div>
           </div>
 
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end pt-4">
             <SubmitButton
               isSubmitting={isSubmitting}
               onClick={handleNext}

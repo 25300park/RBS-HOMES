@@ -33,9 +33,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           </div>
         </div>
         <div className="w-full ">
-          {/* <ThumbSlider imageUrls={JSON.parse(property.images)} />  */}
-          {/* <ImageGallery images={JSON.parse(property.images)} /> */}
-          <GalleryConverter images={JSON.parse(property.images)} />
+          <GalleryConverter images={JSON.parse(property.images)} isFavorited={property.isFavorited} unitId={property.id} />
         </div>
         <PropertyInfo property={property} /> {/* 유닛의 상세 정보 */}
         <StaticMap

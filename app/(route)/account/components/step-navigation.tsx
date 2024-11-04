@@ -25,81 +25,89 @@ export default function StepNavigation() {
     }, []);
     setCompletedSteps(completed);
 
-    const currentPath = stepRoute.findIndex((route) =>
-      pathname.includes(route)
-    );
+    const currentPath = stepRoute.findIndex((route) => pathname.includes(route));
     if (currentPath !== -1) {
       setCurrentStep(currentPath);
     }
   }, [pathname]);
 
   const handleStepClick = (stepIndex: number) => {
-    // 현재 스텝보다 큰 스텝을 클릭했을 경우
     if (stepIndex > currentStep && !completedSteps.includes(stepIndex - 1)) {
-      // 이전 스텝이 완료되지 않았을 경우
       toast({
         variant: "destructive",
         title: "Incomplete Step",
         description: "You need to complete the previous step first.",
       });
     } else {
-      // 올바른 조건일 경우 경로 변경
       const newRoute = `/account/unit/registration/${stepRoute[stepIndex]}`;
       router.push(newRoute);
     }
   };
 
   return (
-    <div className="flex  justify-center py-10">
-      {steps.map((step, index) => (
-        <div key={index} className="flex items-center">
-          <div
-            onClick={() => handleStepClick(index)}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <button
-              className={`relative h-10 w-10 rounded-md font-medium text-md flex items-center justify-center
-            ${
-              completedSteps.includes(index)
-                ? "bg-orange-400 text-white shadow-md shadow-orange-200"
-                : "bg-gray-200 text-gray-600"
-            }
-          `}
-            >
-              {completedSteps.includes(index) ? (
-                <div>
-                  <FaCheck />
+    <div className="flex flex-col">
+      {/* Mobile Current Step Label */}
+      <div className="hidden md:block bg-white border-b text-center py-2 px-4 text-sm font-medium text-orange-500">
+        {steps[currentStep]}
+      </div>
+
+      {/* Steps Navigation */}
+      <div className="flex justify-center py-10 md:py-6">
+        <div className="flex items-center max-w-3xl w-full px-6 md:px-4">
+          {steps.map((step, index) => (
+            <div key={index} className="flex items-center flex-1">
+              <div
+                onClick={() => handleStepClick(index)}
+                className="flex items-center gap-2 cursor-pointer group"
+              >
+                <button
+                  className={`relative h-10 w-10 md:h-8 md:w-8 rounded-full font-medium text-base md:text-sm 
+                    flex items-center justify-center transition-colors
+                    ${
+                      completedSteps.includes(index)
+                        ? "bg-orange-400 text-white shadow-md shadow-orange-200"
+                        : "bg-zinc-100 text-zinc-600"
+                    }
+                    ${index === currentStep ? "ring-2 ring-orange-300" : ""}
+                  `}
+                >
+                  {completedSteps.includes(index) ? (
+                    <div>
+                      <FaCheck className="md:text-xs" />
+                    </div>
+                  ) : (
+                    index + 1
+                  )}
+                </button>
+                <div
+                  className={`
+                    md:hidden
+                    group-hover:text-orange-500 transition-colors
+                    ${
+                      index === currentStep
+                        ? "text-orange-500 font-medium"
+                        : "text-gray-500"
+                    }`}
+                >
+                  {step}
                 </div>
-              ) : (
-                index + 1
+              </div>
+              {index < steps.length - 1 && (
+                <div className="flex-1 mx-2">
+                  <div
+                    className={`h-[2px] w-full transition-colors
+                      ${
+                        completedSteps.includes(index)
+                          ? "bg-orange-500"
+                          : "bg-gray-300"
+                      }`}
+                  />
+                </div>
               )}
-              {/* {completedSteps.includes(index) && (
-              <FaCheckCircle className="absolute -top-2 -right-2 text-green-500" />
-            )} */}
-            </button>
-            <div
-              className={`
-                hover:text-orange-500
-                ${
-                  index === currentStep
-                    ? "text-orange-500" // 완료된 스텝의 라인은 주황색
-                    : "text-gray-300" // 나머지 스텝은 회색 라인
-                }`}
-            >
-              {step}
             </div>
-          </div>
-          {index < steps.length - 1 && (
-            <div
-              className={`w-10 h-[2px] mx-2 ${
-                completedSteps.includes(index)
-                  ? "bg-orange-500" // 완료된 스텝의 라인은 주황색
-                  : "bg-gray-300" // 나머지 스텝은 회색 라인
-              }`}
-            />
-          )}
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }

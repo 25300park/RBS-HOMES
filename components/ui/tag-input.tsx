@@ -24,7 +24,7 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
         <label className="block text-sm font-medium text-zinc-500 mb-1">
           Select Amenities
         </label>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-2 md:grid-cols-2">
           {amenitiesData.map((amenity, index) => (
             <Button
             variant={"ghost"}

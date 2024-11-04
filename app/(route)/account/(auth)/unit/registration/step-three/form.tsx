@@ -208,35 +208,40 @@ export default function StepThreeForm() {
 
   return (
     <div
-      className={`p-6 bg-white ${
+      className={`p-6 md:p-4 bg-white md:border-none md:shadow-none ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >
       {isLoading ? (
-        <div className="flex justify-center items-center h-[500px]">
+        <div className="flex justify-center items-center h-[500px] md:h-[300px]">
           <Spinner />
         </div>
       ) : (
         <>
-          <section className="flex gap-4 h-[500px]">
+          <section className="flex md:flex-col gap-4 h-[500px] md:h-auto">
+            {/* 드래그 앤 드롭 영역 */}
             <div
               {...getRootProps()}
-              className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center w-full items-center justify-center h-full flex flex-col gap-3 cursor-pointer"
+              className="border-dashed border-2 border-gray-300 rounded-md p-6 md:p-4 
+                text-center w-full items-center justify-center h-full md:h-[180px] 
+                flex flex-col gap-3 cursor-pointer"
             >
-              <MdCloudUpload className="text-6xl text-orange-300" />
+              <MdCloudUpload className="text-6xl md:text-4xl text-orange-300" />
               <input {...getInputProps()} />
-              <p className="text-2xl">Drag and Drop images here</p>
+              <p className="text-2xl md:text-lg">Browse or take a photo</p>
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                className="p-6 bg-orange-400 hover:bg-orange-500"
+                className="p-6 md:p-4 bg-orange-400 hover:bg-orange-500"
               >
-                Browse Images
+                Select Images
               </Button>
             </div>
 
+            {/* 이미지 리스트 영역 */}
             {formData.images.length > 0 && (
               <div className="w-full use-scroll pb-2">
-                <div className="overflow-y-scroll h-full scrollbar-thumb-gray-400 scrollbar-track-gray-100 pr-4 use-scroll p-4 rounded-md">
+                <div className="overflow-y-scroll h-full md:h-[320px] scrollbar-thumb-gray-400 
+                  scrollbar-track-gray-100 pr-4 md:pr-2 use-scroll show-scrollbar p-4 md:p-2 rounded-md">
                   <ul>
                     {formData.images.map((image, index) => (
                       <li
@@ -247,11 +252,11 @@ export default function StepThreeForm() {
                             : ""
                         }`}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center flex-1 min-w-0">
                           <img
                             src={image.url ? image.url : image.preview}
                             alt="preview"
-                            className="w-16 h-16 object-cover rounded-md mr-4 cursor-pointer"
+                            className="w-16 h-16 md:w-14 md:h-14 object-cover rounded-md mr-4 cursor-pointer"
                             onClick={() =>
                               openModal(
                                 "preview",
@@ -260,8 +265,8 @@ export default function StepThreeForm() {
                             }
                           />
 
-                          <div className="flex flex-col">
-                            <span className="text-sm text-zinc-500">
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <span className="text-sm md:text-xs text-zinc-500 truncate">
                               {image.name}
                             </span>
                             <span className="text-gray-500 text-xs">
@@ -270,26 +275,27 @@ export default function StepThreeForm() {
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2 ml-2">
                           {index === 0 ? (
-                            <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-semibold">
+                            <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
                               Main
                             </span>
                           ) : (
-                            <span
-                              className=" hover:underline px-2 py-1 rounded text-xs cursor-pointer"
+                            <Button
+                              variant="ghost"
+                              className="text-xs p-1 md:p-0 hover:bg-orange-50"
                               onClick={() => handleSetMainImage(index)}
                             >
-                              Set as Main
-                            </span>
+                              Set Main
+                            </Button>
                           )}
 
                           <Button
                             variant="ghost"
-                            className="text-orange-500 hover:text-orange-500"
+                            className="text-orange-500 hover:text-orange-500 p-1"
                             onClick={() => handleRemoveImage(index)}
                           >
-                            <FaTrash />
+                            <FaTrash className="md:text-sm" />
                           </Button>
                         </div>
 
@@ -309,6 +315,7 @@ export default function StepThreeForm() {
             )}
           </section>
 
+          {/* Notes Section */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-medium text-zinc-500">
               Notes
@@ -316,19 +323,18 @@ export default function StepThreeForm() {
             <Textarea
               name="note"
               value={formData.note}
-              onChange={(e) =>
-                setFormData({ ...formData, note: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, note: e.target.value })}
               placeholder="Additional notes or information"
-              className="mb-2 p-2 border w-full h-36"
+              className="mb-2 p-2 border w-full h-36 md:h-24"
             />
           </div>
 
-          <div className="w-full flex justify-end">
+          {/* Submit Button */}
+          <div className="w-full flex justify-end md:mt-4">
             <SubmitButton
               isSubmitting={isSubmitting}
               onClick={handleNext}
-              label="Next Step"
+              label="Save & Continue"
             />
           </div>
         </>

@@ -7,17 +7,18 @@ import { useSwipeable } from "react-swipeable";
 import { ShareBtn } from "./share-btn";
 import { Heart, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FavoriteButton from "../favorite-button";
 
 interface MobileImageGalleryProps {
   images: string[];
-  onToggleFavorite?: () => void;
-  isFavorited?: boolean;
+  isFavorited: boolean;
+  unitId: number;
 }
 
 const MobileImageGallery = ({
   images,
-  onToggleFavorite,
   isFavorited = false,
+  unitId,
 }: MobileImageGalleryProps) => {
   const [isFirstDrawerOpen, setIsFirstDrawerOpen] = useState(false);
   const [isSecondDrawerOpen, setIsSecondDrawerOpen] = useState(false);
@@ -96,17 +97,7 @@ const MobileImageGallery = ({
         </div>
         <div className="absolute top-4 right-4 z-20 flex gap-2 items-center">
           <ShareBtn rounded />
-          <button
-            onClick={onToggleFavorite}
-            className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
-          >
-            <Heart
-              size={16}
-              className={
-                isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"
-              }
-            />
-          </button>
+          <FavoriteButton rounded initialIsFavorited={isFavorited} unitId={unitId}/>
         </div>
 
         {/* 이미지 캐러셀 */}

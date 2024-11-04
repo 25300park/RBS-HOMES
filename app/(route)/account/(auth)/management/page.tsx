@@ -53,7 +53,6 @@ export default function AccountManagement() {
 
   return (
     <div className="container mx-auto max-w-[800px] bg-white shadow-md rounded my-4 p-6">
-      <h1 className="text-2xl font-semibold mb-4">Account Management</h1>
       <div className="flex space-x-8 flex-col">
         {renderTabContent()}
       </div>

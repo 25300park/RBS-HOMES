@@ -113,7 +113,7 @@ export default function AccountMenuList({}: AccountMenuListProps) {
       ?.children || [];
 
   return (
-    <div className="h-full flex flex-col max-w-[1920px] mx-auto relative">
+    <div className="h-full flex flex-col max-w-[1128px] mx-auto relative">
       {isLoading && (
         <div className="relative w-screen h-screen bg-white z-50">
           <DotLoader isLoading={isLoading} />
@@ -148,7 +148,7 @@ export default function AccountMenuList({}: AccountMenuListProps) {
         {renderSection("Unit Management", unitItems)}
       </div>
 
-      <div className="p-6 w-full justify-center flex mt-12">
+      <div className=" w-full justify-center flex mt-2">
         <LogoutButton />
       </div>
     </div>

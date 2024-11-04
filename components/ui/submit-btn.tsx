@@ -16,7 +16,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
 }) => {
   return (
     <button
-      className={`bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 text-base rounded-md mt-6 w-46 md:w-auto flex items-center justify-center ${
+      className={`bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 text-base rounded-md mt-6 w-46  flex items-center justify-center md:w-full ${
         isSubmitting || disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
       onClick={onClick}

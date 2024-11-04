@@ -4,13 +4,16 @@ import { useCallback, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useModalStore } from "@/store/use-modal-store";
 import { ToggleFavoriteUnit } from "@/lib/action";
+import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface FavoriteButtonProps {
   initialIsFavorited: boolean;
   unitId: number;
   className?: string;
   withDetail?: boolean | null;
+  rounded?: boolean | null;
 }
 
 const FavoriteButton = ({
@@ -18,11 +21,13 @@ const FavoriteButton = ({
   unitId,
   className,
   withDetail = false,
+  rounded = false,
 }: FavoriteButtonProps) => {
   const { data: session } = useSession();
   const { openModal } = useModalStore();
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsFavorited(initialIsFavorited);
@@ -33,23 +38,55 @@ const FavoriteButton = ({
       event.stopPropagation();
       if (!session) return openModal("login");
 
+      // Toggle and update UI state immediately
       setIsFavorited((prev) => !prev);
       setIsLoading(true);
 
       try {
         const response = await ToggleFavoriteUnit(unitId);
         if (response.status !== 200) {
-          setIsFavorited((prev) => !prev);
+          setIsFavorited((prev) => !prev); // Revert the state if request fails
+        } else {
+          // Show toast based on the toggled state
+          toast({
+            variant: "default",
+            title: isFavorited
+              ? "Removed from Favorites"
+              : "Added to Favorites",
+            description: `This unit has been ${
+              isFavorited ? "removed from" : "added to"
+            } your favorites.`,
+          });
         }
       } catch (error) {
         console.error("Error toggling favorite:", error);
-        setIsFavorited((prev) => !prev);
+        toast({
+          variant: "destructive",
+          title: "Error toggling favorite",
+          description: `${error}`,
+        });
+        setIsFavorited((prev) => !prev); // Revert the state in case of error
       } finally {
         setIsLoading(false);
       }
     },
-    [unitId, openModal, session]
+    [unitId, openModal, session, isFavorited, toast]
   );
+  if (rounded)
+    return (
+      <button
+        onClick={handleToggleFavorite}
+        disabled={isLoading}
+        className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
+      >
+        <Heart
+          size={16}
+          className={
+            isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"
+          }
+        />
+      </button>
+    );
 
   return (
     <button

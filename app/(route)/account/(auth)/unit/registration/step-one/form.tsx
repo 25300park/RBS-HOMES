@@ -24,13 +24,12 @@ export default function StepOneForm() {
     unitType: "condo",
     ownerEmail: "",
     ownerMobile: "",
-    addressSelf: "", // 유저가 입력한 추가 주소 정보
+    addressSelf: "",
   });
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
-  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 로딩 상태
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // 로컬 스토리지 데이터 불러오기
     const savedData = loadFromLocalStorage("step1");
     if (savedData) {
       setFormData((prev) => ({
@@ -38,7 +37,7 @@ export default function StepOneForm() {
         ...savedData,
       }));
     }
-    setIsLoading(false); // 데이터 로딩 완료 후 UI 업데이트
+    setIsLoading(false);
   }, []);
 
   const handleChange = (name: string, value: string) => {
@@ -60,7 +59,6 @@ export default function StepOneForm() {
     });
 
     if (!result.success) {
-      // setErrors(result.error.issues.map((issue) => issue.message));
       toast({
         title: "Incomplete Step",
         description: (
@@ -75,10 +73,9 @@ export default function StepOneForm() {
         ),
       });
     } else {
-      setIsSubmitting(true); // 제출 중 상태로 변경
+      setIsSubmitting(true);
       saveToLocalStorage("step1", formData);
 
-      // 1초 지연 후에 다음 페이지로 이동 (모의 로딩 시간)
       setTimeout(() => {
         router.push("/account/unit/registration/step-two");
       }, 1000);
@@ -87,45 +84,84 @@ export default function StepOneForm() {
 
   return (
     <div
-      className={`p-6 bg-white  ${
+      className={`p-6 md:p-4 bg-white ${
         isLoading ? "border-none shadow-none" : "border"
-      } rounded-lg shadow-md max-w-[1140px] mx-auto`}
+      } rounded-lg shadow-md max-w-[1140px] mx-auto md:shadow-none md:border-none`}
     >
-      {/* {errors.length > 0 && (
-        <div className="text-red-500 mb-4">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )} */}
-
-      {/* 로딩 상태일 때 */}
       {isLoading ? (
-        <div className="flex justify-center w-full  items-center h-[500px]">
+        <div className="flex justify-center w-full items-center h-[500px]">
           <Spinner />
         </div>
       ) : (
         <div>
-          {/* Address Search */}
-          <div className="md:col-span-2">
-            <section className="grid grid-cols-2 md:grid-cols-2 gap-6 gap-y-4">
-              {/* Title */}
-              <div className="col-span-2">
+          <section className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
+            {/* Title */}
+            <div className="col-span-2">
+              <label className="block text-xs mb-1 font-medium text-zinc-500">
+                Title (required)
+              </label>
+              <Input
+                type="text"
+                name="title"
+                value={formData.title || ""}
+                onChange={(e) => handleChange(e.target.name, e.target.value)}
+                placeholder="Enter a title for the unit"
+                className="w-full border border-gray-300 rounded-md"
+              />
+            </div>
+
+            {/* Owner's Name */}
+            <div className="md:hidden block">
+              <label className="block text-xs mb-1 font-medium text-zinc-500">
+                Owner Name
+              </label>
+              <Input
+                type="text"
+                name="ownerName"
+                value={formData.ownerName || ""}
+                onChange={(e) => handleChange(e.target.name, e.target.value)}
+                placeholder="Enter owner's name"
+                className="w-full border border-gray-300 rounded-md"
+              />
+            </div>
+
+            {/* Price and Sell Type Container */}
+            <div className="flex gap-4 w-full md:flex-col md:gap-0 md:col-span-2">
+              {/* Price */}
+              <div className="w-full">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Title (required)
+                  Price (required)
                 </label>
                 <Input
                   type="text"
-                  name="title"
-                  value={formData.title || ""}
+                  name="price"
+                  value={formData.price || ""}
                   onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Enter a title for the unit"
-                  className="w-full border border-gray-300 rounded-md"
+                  placeholder="Enter price"
+                  className="w-full border border-gray-300 rounded-md text-right"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                 />
               </div>
+              {/* Sell Type */}
+              <div className="md:mt-4">
+                <label className="block text-xs mb-1 font-medium text-zinc-500">
+                  Sell Type
+                </label>
+                <SelectionBox
+                  options={sellTypeOption.slice(1)}
+                  selectedValue={formData.saleType}
+                  onSelect={(value) => handleChange("saleType", value)}
+                  className="w-full space-x-0 flex gap-2"
+                  boxClassName="h-11 md:text-sm md:w-full"
+                />
+              </div>
+            </div>
 
-              {/* Owner's Name */}
-              <div className="">
+            {/* Owner Contact and Property Type Container */}
+            <div className="flex col-span-2 gap-6 md:flex-col">
+              {/* Owner Contact Information */}
+              <div className="md:col-span-2 hidden md:block">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
                   Owner Name
                 </label>
@@ -138,99 +174,66 @@ export default function StepOneForm() {
                   className="w-full border border-gray-300 rounded-md"
                 />
               </div>
-
-              <div className="flex gap-4 w-full">
-                {/* Price */}
-                <div className="w-full">
+              <div className="w-full space-y-4">
+                <div>
                   <label className="block text-xs mb-1 font-medium text-zinc-500">
-                    Price (required)
+                    Owner Contact No.
                   </label>
                   <Input
                     type="text"
-                    name="price"
-                    value={formData.price || ""}
+                    name="ownerMobile"
+                    value={formData.ownerMobile || ""}
                     onChange={(e) =>
                       handleChange(e.target.name, e.target.value)
                     }
-                    placeholder="Enter price"
-                    className="w-full border border-gray-300 rounded-md text-right"
+                    placeholder="Enter owner's contact number"
+                    className="w-full border border-gray-300 rounded-md"
                     inputMode="numeric"
                     pattern="[0-9]*"
                   />
                 </div>
-                {/* Sell Type */}
-                <div className="">
+                <div>
                   <label className="block text-xs mb-1 font-medium text-zinc-500">
-                    Sell Type
+                    Owner E-mail
                   </label>
-                  <SelectionBox
-                    options={sellTypeOption.slice(1)} // 아이콘이 없는 옵션을 전달
-                    selectedValue={formData.saleType}
-                    onSelect={(value) => handleChange("saleType", value)} // 통합된 핸들러 사용
-                    className="w-full space-x-0 flex gap-2"
-                    boxClassName="h-11"
+                  <Input
+                    type="text"
+                    name="ownerEmail"
+                    value={formData.ownerEmail || ""}
+                    onChange={(e) =>
+                      handleChange(e.target.name, e.target.value)
+                    }
+                    placeholder="Enter owner's e-mail"
+                    className="w-full border border-gray-300 rounded-md"
                   />
                 </div>
               </div>
-              <div className="flex col-span-2 gap-6">
-                <div className="w-full">
-                  <div className="w-full mb-4">
-                    <label className="block text-xs mb-1 font-medium text-zinc-500">
-                      Owner Contact No.
-                    </label>
-                    <Input
-                      type="text"
-                      name="ownerMobile"
-                      value={formData.ownerMobile || ""}
-                      onChange={(e) =>
-                        handleChange(e.target.name, e.target.value)
-                      }
-                      placeholder="Enter owner's contact number"
-                      className="w-full border border-gray-300 rounded-md"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                    />
-                  </div>
-                  <div className="w-full">
-                    <label className="block text-xs mb-1 font-medium text-zinc-500">
-                      Owner E-mail
-                    </label>
-                    <Input
-                      type="text"
-                      name="ownerEmail"
-                      value={formData.ownerEmail || ""}
-                      onChange={(e) =>
-                        handleChange(e.target.name, e.target.value)
-                      }
-                      placeholder="Enter owner's e-mail"
-                      className="w-full border border-gray-300 rounded-md"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                    />
-                  </div>
-                </div>
-                {/* Property Type */}
-                <div className="w-full h-full flex flex-col justify-end">
-                  <label className="block text-xs font-medium text-gray-500 mb-1">
-                    Property Type
-                  </label>
-                  <SelectionBox
-                    options={typeOption.slice(1)} // 아이콘이 있는 옵션을 전달
-                    selectedValue={formData.unitType}
-                    onSelect={(value) => handleChange("unitType", value)} // 통합된 핸들러 사용
-                    className="space-x-0 flex justify-between"
-                    boxClassName=""
-                  />
-                </div>
+              {/* Property Type */}
+              <div className="w-full h-full flex flex-col justify-end md:h-auto">
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  Property Type
+                </label>
+                <SelectionBox
+                  options={typeOption.slice(1)}
+                  selectedValue={formData.unitType}
+                  onSelect={(value) => handleChange("unitType", value)}
+                  className="space-x-0 flex justify-between md:grid md:grid-cols-3 md:gap-4"
+                  boxClassName="md:text-sm  md:h-fit md:py-2 md:px-0"
+                />
               </div>
-            </section>
-            <label className="block text-xs mb-1 font-medium text-zinc-500 mt-12">
+            </div>
+          </section>
+
+          {/* Location */}
+          <div className="mt-12 md:mt-8">
+            <label className="block text-xs mb-1 font-medium text-zinc-500">
               Location
             </label>
             <AddressSearch formData={formData} setFormData={setFormData} />
           </div>
 
-          <div className="w-full flex justify-end">
+          {/* Submit Button */}
+          <div className="w-full flex justify-end mt-4">
             <SubmitButton
               isSubmitting={isSubmitting}
               onClick={handleNext}

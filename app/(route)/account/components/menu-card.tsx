@@ -9,7 +9,7 @@ function MenuCard({ icon: Icon, name, description, onClick }: MenuCardProps) {
   return (
     <div
       onClick={onClick}
-      className="p-6 rounded-2xl border hover:shadow-lg transition-all cursor-pointer space-y-4 bg-white"
+      className="p-6 rounded-2xl border shadow-lg transition-all cursor-pointer space-y-4 bg-white"
     >
       <div className="w-12 h-12 ounded-2xl flex items-center justify-center">
         <Icon className="w-6 h-6 text-gray-600" />

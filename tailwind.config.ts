@@ -21,7 +21,6 @@ const config: Config = {
 
       '2lg': {'max': '1128px'},
 
-      
       'lg': {'max': '1023px'},
 			'tlg': {'max': '950px'},
       // => @media (max-width: 1023px) { ... }
@@ -34,6 +33,7 @@ const config: Config = {
       'xs': {'max': '550px'},
       'ssm': {'max': '300px'},
       // => @media (max-width: 639px) { ... }
+
     },
   	extend: {
   		backgroundImage: {

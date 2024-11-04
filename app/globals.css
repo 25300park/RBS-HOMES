@@ -92,6 +92,41 @@
   --app-height: 100%;
 }
 
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 스크롤바를 표시하고 싶은 특정 클래스 */
+  .show-scrollbar {
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .show-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    width: 6px;  /* 스크롤바 너비 */
+  }
+
+  .show-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
 @supports (-webkit-touch-callout: none) {
   body {
     height: 100dvh;

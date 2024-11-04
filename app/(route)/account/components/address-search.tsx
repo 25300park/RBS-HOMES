@@ -126,7 +126,7 @@ export default function AddressSearch({ formData, setFormData }: any) {
         <FaMapMarkerAlt className="text-orange-500 mr-2" />
         Address Search
       </h2>
-      <div className="flex gap-6">
+      <div className="flex gap-6 md:flex-col">
         <section className="flex-1">
           <div className="relative mb-2">
             <label className="block text-xs font-medium text-zinc-500 mb-1">
