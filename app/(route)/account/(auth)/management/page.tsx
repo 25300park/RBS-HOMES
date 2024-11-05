@@ -52,8 +52,8 @@ export default function AccountManagement() {
   };
 
   return (
-    <div className="container mx-auto max-w-[800px] bg-white shadow-md rounded my-4 p-6">
-      <div className="flex space-x-8 flex-col">
+    <div className=" max-w-[800px] bg-white shadow-md rounded my-4 p-6 md:shadow-none">
+      <div className="flex flex-col">
         {renderTabContent()}
       </div>
     </div>

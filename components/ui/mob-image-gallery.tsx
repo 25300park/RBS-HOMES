@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Drawer, DrawerClose, DrawerContent, DrawerHeader } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+} from "@/components/ui/drawer";
 import { IoIosArrowBack, IoIosArrowForward, IoMdClose } from "react-icons/io";
 import { useSwipeable } from "react-swipeable";
 import { ShareBtn } from "./share-btn";
@@ -13,12 +18,14 @@ interface MobileImageGalleryProps {
   images: string[];
   isFavorited: boolean;
   unitId: number;
+  isPreview?: boolean;
 }
 
 const MobileImageGallery = ({
   images,
   isFavorited = false,
   unitId,
+  isPreview,
 }: MobileImageGalleryProps) => {
   const [isFirstDrawerOpen, setIsFirstDrawerOpen] = useState(false);
   const [isSecondDrawerOpen, setIsSecondDrawerOpen] = useState(false);
@@ -59,7 +66,7 @@ const MobileImageGallery = ({
       router.push("/?sellType=rent");
     }
   };
-  
+
   // 스와이프 핸들러
   const carouselHandlers = useSwipeable({
     onSwipedLeft: goToNext,
@@ -87,18 +94,26 @@ const MobileImageGallery = ({
         {...carouselHandlers}
       >
         {/* 상단 버튼들 */}
-        <div className="absolute top-4 left-4 z-20 flex gap-2 items-center">
-          <button
-            onClick={handleBack}
-            className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
-          >
-            <ArrowLeft size={16} />
-          </button>
-        </div>
-        <div className="absolute top-4 right-4 z-20 flex gap-2 items-center">
-          <ShareBtn rounded />
-          <FavoriteButton rounded initialIsFavorited={isFavorited} unitId={unitId}/>
-        </div>
+        {!isPreview && (
+          <>
+            <div className="absolute top-4 left-4 z-20 flex gap-2 items-center">
+              <button
+                onClick={handleBack}
+                className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
+              >
+                <ArrowLeft size={16} />
+              </button>
+            </div>
+            <div className="absolute top-4 right-4 z-20 flex gap-2 items-center">
+              <ShareBtn rounded />
+              <FavoriteButton
+                rounded
+                initialIsFavorited={isFavorited}
+                unitId={unitId}
+              />
+            </div>
+          </>
+        )}
 
         {/* 이미지 캐러셀 */}
         <div

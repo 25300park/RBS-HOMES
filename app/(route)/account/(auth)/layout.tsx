@@ -24,7 +24,7 @@ export default async function RootLayout({
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full md:pb-32">
       <section>{children}</section>
     </div>
   );

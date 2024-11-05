@@ -3,17 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { loadFromLocalStorage, clearRegistrationSteps } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import ThumbSlider from "@/components/ui/thumb-slider";
-import Spinner from "@/components/ui/spinner"; // 로딩 스피너 추가
+import Spinner from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { SubmitButton } from "@/components/ui/submit-btn";
 import { registerUnit } from "./action";
 import { useToast } from "@/hooks/use-toast";
+import GalleryConverter from "@/app/(route)/unit/components/gallery-converter";
 
 const ReviewForm = () => {
   const router = useRouter();
   const { toast } = useToast();
-  // State to hold data from local storage
   const [stepOneData, setStepOneData] = useState<any>(null);
   const [stepTwoData, setStepTwoData] = useState<any>(null);
   const [stepThreeData, setStepThreeData] = useState<any>(null);
@@ -22,12 +21,10 @@ const ReviewForm = () => {
   const [formData, setFormData] = useState<any>();
 
   useEffect(() => {
-    // 로컬 스토리지에서 데이터 불러오기
     const step1 = loadFromLocalStorage("step1");
     const step2 = loadFromLocalStorage("step2");
     const step3 = loadFromLocalStorage("step3");
 
-    // 데이터가 있으면 상태 업데이트
     if (step1) setStepOneData(step1);
     if (step2) setStepTwoData(step2);
     if (step3) setStepThreeData(step3);
@@ -50,32 +47,22 @@ const ReviewForm = () => {
     router.push(`/account/unit/registration/step-${step}`);
   };
 
-  // 제출 핸들러
   const handleFinalizeSubmission = async () => {
     setIsSubmitting(true);
 
     try {
-      // 500ms의 딜레이를 추가
       await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 서버에 폼 데이터 제출
       const result = await registerUnit(formData);
 
-      // 제출이 성공적으로 완료되었을 경우
       if (result && result.message) {
-        // Toast로 결과 메시지 표시
         toast({
           title: "Registration Complete",
           description: result.message,
         });
 
-        // 로컬 스토리지에서 step1, step2, step3 삭제
         clearRegistrationSteps();
-
-        // 페이지 리다이렉트
         router.push("/account/unit/my-list");
       } else {
-        // 오류가 있을 경우 에러 토스트 표시
         toast({
           title: "Error",
           description: "Something went wrong. Please try again.",
@@ -83,7 +70,6 @@ const ReviewForm = () => {
         });
       }
     } catch (error) {
-      // 에러 핸들링 및 토스트 메시지 출력
       toast({
         title: "Submission Failed",
         description: "An error occurred while submitting the form.",
@@ -94,118 +80,130 @@ const ReviewForm = () => {
     }
   };
 
+  const PropertyInfo = ({ label, value }: { label: string; value: string | number }) => (
+    <div>
+      <span className="text-sm text-gray-600">{label}:</span>{" "}
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+
   return (
     <div
-      className={`p-6 bg-white  ${
+      className={`p-4 md:border-none md:shadow-none bg-white mb-20 md:mb-0 ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >
-      {/* 로딩 상태일 때 스피너 표시 */}
       {isLoading ? (
         <div className="flex justify-center items-center h-[300px]">
           <Spinner />
         </div>
       ) : (
-        <div>
-          {/* Step Three Review */}
+        <div className="space-y-2 md:space-y-2">
+          {/* Images Preview */}
           {stepThreeData && (
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-1">Step 3: Images</h3>
-              <ThumbSlider
-                imageUrls={stepThreeData.images.map((image: any) => image.url)}
-              />
+            <div className="bg-white ">
+              <div className="p-6 md:p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Property Images</h3>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleEditStep("three")}
+                    className="text-sm"
+                  >
+                    Edit Images
+                  </Button>
+                </div>
+                <GalleryConverter
+                  images={stepThreeData.images.map((image: any) => image.url)}
+                  isFavorited={false}
+                  unitId={0}
+                  isPreview
+                />
+              </div>
             </div>
           )}
-          <div className="flex">
-            {/* Step One Review */}
-            {stepOneData && (
-              <section className="">
-                <div className="flex">
-                  <h3 className="text-xl font-semibold ">Step 1: Unit Info</h3>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleEditStep("one")}
-                  >
-                    Edit Step 1
-                  </Button>
-                </div>
 
-                <p>
-                  <strong>Title:</strong> {stepOneData.title}
-                </p>
-                <p>
-                  <strong>Owner Name:</strong> {stepOneData.ownerName}
-                </p>
-                <p>
-                  <strong>Price:</strong> ₱{stepOneData.price}
-                </p>
-                <p>
-                  <strong>Property Type:</strong> {stepOneData.unitType}
-                </p>
-                <p>
-                  <strong>Sell Type:</strong> {stepOneData.saleType}
-                </p>
-                <p>
-                  <strong>Full Address:</strong> {stepOneData.fullAddress}
-                </p>
-                {stepOneData.addressSelf && (
-                  <p>
-                    <strong>Additional Address Info:</strong>{" "}
-                    {stepOneData.addressSelf}
-                  </p>
-                )}
-              </section>
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
+            {/* Basic Information */}
+            {stepOneData && (
+              <div className="bg-white ">
+                <div className="p-6 md:p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Basic Information</h3>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleEditStep("one")}
+                      className="text-sm"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="text-xl font-bold text-gray-900">
+                      {stepOneData.title}
+                    </div>
+                    <div className="space-y-2">
+                      <PropertyInfo label="Owner" value={stepOneData.ownerName} />
+                      <PropertyInfo label="Price" value={`₱${stepOneData.price}`} />
+                      <PropertyInfo label="Property Type" value={stepOneData.unitType} />
+                      <PropertyInfo label="Sale Type" value={stepOneData.saleType} />
+                      <PropertyInfo label="Address" value={stepOneData.fullAddress} />
+                      {stepOneData.addressSelf && (
+                        <div className="text-sm text-gray-500 mt-1">
+                          Additional Info: {stepOneData.addressSelf}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* Step Two Review */}
+            {/* Property Details */}
             {stepTwoData && (
-              <section className="">
-                <div className="flex items-center">
-                  <h3 className="text-xl font-semibold ">
-                    Step 2: Unit Details
-                  </h3>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleEditStep("two")}
-                  >
-                    Edit Step 2
-                  </Button>
+              <div className="bg-white ">
+                <div className="p-6 md:p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Property Details</h3>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleEditStep("two")}
+                      className="text-sm"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <PropertyInfo label="Area" value={`${stepTwoData.area} m²`} />
+                    <PropertyInfo label="Bedrooms" value={stepTwoData.bed} />
+                    <PropertyInfo label="Bathrooms" value={stepTwoData.bath} />
+                    <PropertyInfo label="Parking Spaces" value={stepTwoData.parking} />
+                    <PropertyInfo label="Floor" value={stepTwoData.floor} />
+                    <PropertyInfo label="Furniture Status" value={stepTwoData.furniture} />
+                    <PropertyInfo label="Pet Policy" value={stepTwoData.petPolicy} />
+                    {stepTwoData.amenity && stepTwoData.amenity.length > 0 && (
+                      <div className="mt-4">
+                        <div className="text-sm text-gray-600 mb-2">Amenities</div>
+                        <div className="flex flex-wrap gap-2">
+                          {stepTwoData.amenity.map((amenity: string, index: number) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-sm"
+                            >
+                              {amenity}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p>
-                  <strong>Area:</strong> {stepTwoData.area} m²
-                </p>
-                <p>
-                  <strong>Bedrooms:</strong> {stepTwoData.bed}
-                </p>
-                <p>
-                  <strong>Bathrooms:</strong> {stepTwoData.bath}
-                </p>
-                <p>
-                  <strong>Parking Spaces:</strong> {stepTwoData.parking}
-                </p>
-                <p>
-                  <strong>Floor:</strong> {stepTwoData.floor}
-                </p>
-                <p>
-                  <strong>Furniture Status:</strong> {stepTwoData.furniture}
-                </p>
-                <p>
-                  <strong>Pet Policy:</strong> {stepTwoData.petPolicy}
-                </p>
-                <p>
-                  <strong>Outstanding Payment:</strong> ₱
-                  {stepTwoData.outstandingPayment}
-                </p>
-                {stepTwoData.amenity && stepTwoData.amenity.length > 0 && (
-                  <p>
-                    <strong>Amenities:</strong> {stepTwoData.amenity.join(", ")}
-                  </p>
-                )}
-              </section>
+              </div>
             )}
           </div>
-          {/* 최종 제출 버튼 */}
-          <div className="w-full flex justify-end">
+
+          {/* Submit Button */}
+          <div className="w-full flex justify-end pt-2">
             <SubmitButton
               isSubmitting={isSubmitting}
               onClick={handleFinalizeSubmission}

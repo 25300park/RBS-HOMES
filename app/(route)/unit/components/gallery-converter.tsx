@@ -9,12 +9,14 @@ export interface GalleryConverterProps {
   images: any;
   isFavorited: boolean;
   unitId: number;
+  isPreview?: boolean;
 }
 
 const GalleryConverter = ({
   images,
   isFavorited,
   unitId,
+  isPreview,
 }: GalleryConverterProps): React.ReactNode => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isLoading, setIsLoading] = useState(true);
@@ -44,9 +46,9 @@ const GalleryConverter = ({
   return (
     <div>
       {isMobile ? (
-        <MobileImageGallery images={images} isFavorited={isFavorited} unitId={unitId}/>
+        <MobileImageGallery images={images} isFavorited={isFavorited} unitId={unitId} isPreview={isPreview}/>
       ) : (
-        <ImageGallery images={images} />
+        <ImageGallery images={images} isPreview={isPreview} />
       )}
     </div>
   );

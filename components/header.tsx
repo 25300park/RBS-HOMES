@@ -8,126 +8,13 @@ import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
 import { IoMapOutline, IoListOutline } from "react-icons/io5";
-import GoogleSearchBar from "./ui/google-search-bar";
+import GoogleSearchBar from "./ui/search-bar-t";
 import MainAmenityList from "./ui/main-amenity-list";
 import MainFilterGroup from "./ui/main-filter-group";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-export interface HeaderProps {}
-
-const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
-  <>
-    <div className="w-full fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-md">
-      <div className="flex justify-between items-center h-20 px-12">
-        {/* 로고 자리 */}
-        <div className="flex items-center">
-          <Link href={"/"}>
-            <img
-              src="/assets/images/RBS_logo.png"
-              alt="logo"
-              className="w-24 h-auto"
-            />
-          </Link>
-        </div>
-        {/* 오른쪽 로그인/회원가입 자리 (로딩 중 빈 공간 유지) */}
-        <div className="flex items-center space-x-4 w-[250px] justify-end">
-          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse"></div>
-          <span className="text-[#717171] mx-2">|</span>
-          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse"></div>
-        </div>
-      </div>
-
-
-    </div>
-    <div
-      className={`${pathname === "/" ? "mt-44 md:mt-32" : "mt-20 md:mt-32"}`}
-    />
-  </>
-);
-
-const DesktopHeader = ({
-  navbarScrolled,
-  session,
-  pathName,
-  openModal,
-}: any) => (
-  <nav
-    className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-gray-200 md:hidden h-20 ${
-      navbarScrolled ? "h-20 bg-white" : "h-44 bg-white"
-    } w-full flex flex-col items-center`}
-  >
-    <div className="flex w-full items-center justify-between h-20 px-12">
-      <div className="flex items-center">
-        <Link className="mr-16" href={"/"}>
-          <img src="/assets/images/RBS_logo.png" alt="logo" />
-        </Link>
-      </div>
-
-      {(pathName !== "/" || (pathName === "/" && !navbarScrolled)) && (
-        <div className="flex items-center gap-8">
-          <Link
-            href={"/"}
-            className={`hover:border-gray-200 border-b flex items-center gap-2 ${
-              pathName === "/"
-                ? "text-black border-gray-200"
-                : "text-gray-400 border-transparent"
-            }`}
-          >
-            <IoListOutline className="text-xl" />
-            <p>View as list</p>
-          </Link>
-          <Link
-            href={"/map"}
-            className={`flex items-center hover:border-gray-200 border-b gap-2 ${
-              pathName.startsWith("/map")
-                ? "text-black border-gray-200"
-                : "text-gray-400 border-transparent"
-            }`}
-          >
-            <IoMapOutline className="text-xl" />
-            <p>View on map</p>
-          </Link>
-        </div>
-      )}
-
-      <div className="flex items-center space-x-4 w-[250px] justify-end">
-        {session === null ? (
-          <>
-            <Button
-              variant={"ghost"}
-              size={"lg"}
-              className="text-md text-[#6f6f6f]"
-              onClick={() => openModal("login")}
-            >
-              LOGIN
-            </Button>
-            <span className="text-[#717171] mx-2">|</span>
-            <Button
-              variant={"ghost"}
-              size={"lg"}
-              className="text-md text-[#6f6f6f]"
-              onClick={() => openModal("signup")}
-            >
-              SIGN-UP
-            </Button>
-          </>
-        ) : (
-          <HeaderUserProfile session={session} />
-        )}
-      </div>
-    </div>
-
-    {pathName === "/" && <GoogleSearchBar navbarScrolled={navbarScrolled} />}
-  </nav>
-);
-
 const MobileHeader = ({ pathName }: { pathName: string }) => {
-  const shouldShowHeader =
-    pathName === "/" ||
-    pathName.includes("/map") 
-    // pathName.includes("/account");
-
-  if (!shouldShowHeader) {
+  if (!["/", "/map"].includes(pathName)) {
     return null;
   }
 
@@ -139,12 +26,122 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
           <MainFilterGroup />
         </div>
       </nav>
-      <div className="mt-32"></div>
+      <div className="mt-32" />
     </header>
   );
 };
 
-const Header = ({}: HeaderProps) => {
+const DesktopHeader = ({
+  navbarScrolled,
+  setNavbarScrolled,
+  session,
+  pathName,
+  openModal,
+}: any) => {
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+
+  const handleExpandChange = (expanded: boolean) => {
+    setIsSearchExpanded(expanded);
+    if (expanded) {
+      setNavbarScrolled(false);
+    } else {
+      // 검색창이 닫힐 때 현재 스크롤 위치에 따라 navbarScrolled 상태 결정
+      setNavbarScrolled(window.scrollY > 50);
+    }
+  };
+
+  const handleOverlayClick = () => {
+    setIsSearchExpanded(false);
+    // 오버레이 클릭 시 현재 스크롤 위치에 따라 navbarScrolled 상태 결정
+    setNavbarScrolled(window.scrollY > 50);
+  };
+
+  return (
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-gray-200 md:hidden ${
+          navbarScrolled ? "h-20 bg-white" : "h-44 bg-white"
+        } w-full flex flex-col items-center`}
+      >
+        <div className="flex w-full items-center justify-between h-20 px-12">
+          <div className="flex items-center">
+            <Link className="mr-16" href="/">
+              <img src="/assets/images/RBS_logo.png" alt="logo" />
+            </Link>
+          </div>
+
+          {(pathName !== "/" || (pathName === "/" && !navbarScrolled)) && (
+            <div className="flex items-center gap-8">
+              <Link
+                href="/"
+                className={`hover:border-gray-200 border-b flex items-center gap-2 ${
+                  pathName === "/" ? "text-black border-gray-200" : "text-gray-400 border-transparent"
+                }`}
+              >
+                <IoListOutline className="text-xl" />
+                <p>View as list</p>
+              </Link>
+              <Link
+                href="/map"
+                className={`flex items-center hover:border-gray-200 border-b gap-2 ${
+                  pathName.startsWith("/map") ? "text-black border-gray-200" : "text-gray-400 border-transparent"
+                }`}
+              >
+                <IoMapOutline className="text-xl" />
+                <p>View on map</p>
+              </Link>
+            </div>
+          )}
+
+          <div className="flex items-center space-x-4 w-[250px] justify-end">
+            {session === null ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="text-md text-[#6f6f6f]"
+                  onClick={() => openModal("login")}
+                >
+                  LOGIN
+                </Button>
+                <span className="text-[#717171] mx-2">|</span>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="text-md text-[#6f6f6f]"
+                  onClick={() => openModal("signup")}
+                >
+                  SIGN-UP
+                </Button>
+              </>
+            ) : (
+              <HeaderUserProfile session={session} />
+            )}
+          </div>
+        </div>
+        <div className="relative w-full flex justify-center">
+          {pathName === "/" && (
+            <GoogleSearchBar 
+              navbarScrolled={navbarScrolled} 
+              onExpandChange={handleExpandChange}
+            />
+          )}
+        </div>
+      </nav>
+
+      {/* 검색창 활성화 시 나타나는 오버레이 */}
+      {isSearchExpanded && (
+        <div 
+          onClick={handleOverlayClick}
+          className="fixed inset-0 bg-black/40 transition-opacity duration-300 z-40"
+        />
+      )}
+    </>
+  );
+};
+
+const Header = () => {
   const { data: session, status } = useSession();
   const { openModal } = useModalStore();
   const pathName = usePathname();
@@ -163,7 +160,7 @@ const Header = ({}: HeaderProps) => {
       };
 
       window.addEventListener("scroll", handleScroll);
-      setNavbarScrolled(false);
+      setNavbarScrolled(window.scrollY > 50);
 
       return () => {
         window.removeEventListener("scroll", handleScroll);
@@ -185,16 +182,12 @@ const Header = ({}: HeaderProps) => {
     <header className="w-full">
       <DesktopHeader
         navbarScrolled={navbarScrolled}
+        setNavbarScrolled={setNavbarScrolled}
         session={session}
         pathName={pathName}
         openModal={openModal}
       />
-      <nav className="hidden h-20 fixed top-0 w-full px-6 bg-white z-50 md:flex items-center">
-        {pathName === "/" && (
-          <GoogleSearchBar navbarScrolled={navbarScrolled} isMobile />
-        )}
-      </nav>
-      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"}`} />
+      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"} relative z-30`} />
       <div
         className={`${
           navbarScrolled
@@ -212,5 +205,25 @@ const Header = ({}: HeaderProps) => {
     </header>
   );
 };
+
+const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
+  <>
+    <div className="w-full fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-md">
+      <div className="flex justify-between items-center h-20 px-12">
+        <div className="flex items-center">
+          <Link href="/">
+            <img src="/assets/images/RBS_logo.png" alt="logo" className="w-24 h-auto" />
+          </Link>
+        </div>
+        <div className="flex items-center space-x-4 w-[250px] justify-end">
+          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse" />
+          <span className="text-[#717171] mx-2">|</span>
+          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+      </div>
+    </div>
+    <div className={pathname === "/" ? "mt-44 md:mt-32" : "mt-20 md:mt-32"} />
+  </>
+);
 
 export default Header;

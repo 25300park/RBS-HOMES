@@ -8,9 +8,10 @@ import { ShareBtn } from "./share-btn";
 
 interface ImageGalleryProps {
   images: string[]; // 이미지 URL 배열을 props로 받음
+  isPreview?: boolean;
 }
 
-const ImageGallery = ({ images }: ImageGalleryProps) => {
+const ImageGallery = ({ images, isPreview }: ImageGalleryProps) => {
   const [isFirstDrawerOpen, setIsFirstDrawerOpen] = useState(false); // 첫 번째 드로어 열림 상태
   const [isSecondDrawerOpen, setIsSecondDrawerOpen] = useState(false); // 두 번째 드로어 열림 상태
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
@@ -104,9 +105,11 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 {selectedImageIndex + 1} / {images.length}
               </div>
             )}
-            <div>
-              <ShareBtn />
-            </div>
+            {!isPreview && (
+              <div>
+                <ShareBtn />
+              </div>
+            )}
           </div>
           <div className="overflow-y-auto">
             <div className="grid grid-cols-3 gap-4 p-4  pt-16 max-w-[1120px] mx-auto">
@@ -143,9 +146,11 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 {selectedImageIndex + 1} / {images.length}
               </div>
             )}
-            <div>
-              <ShareBtn darkmode/>
-            </div>
+            {!isPreview && (
+              <div>
+                <ShareBtn darkmode />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-center w-full relative">
