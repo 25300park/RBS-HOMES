@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
 import { IoMapOutline, IoListOutline } from "react-icons/io5";
-import GoogleSearchBar from "./ui/search-bar-t";
+import MainSearchBar from "./ui/main-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
 import MainFilterGroup from "./ui/main-filter-group";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -21,7 +21,7 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
   return (
     <header>
       <nav className="h-32 hidden md:flex fixed top-0 bg-white p-4 w-full flex-col gap-2 z-50 border-b shadow-md">
-        <GoogleSearchBar isMobile />
+        <MainSearchBar isMobile />
         <div>
           <MainFilterGroup />
         </div>
@@ -122,7 +122,7 @@ const DesktopHeader = ({
         </div>
         <div className="relative w-full flex justify-center">
           {pathName === "/" && (
-            <GoogleSearchBar 
+            <MainSearchBar 
               navbarScrolled={navbarScrolled} 
               onExpandChange={handleExpandChange}
             />
@@ -134,7 +134,7 @@ const DesktopHeader = ({
       {isSearchExpanded && (
         <div 
           onClick={handleOverlayClick}
-          className="fixed inset-0 bg-black/40 transition-opacity duration-300 z-40"
+          className="fixed inset-0 bg-black/30 transition-opacity duration-300 z-40"
         />
       )}
     </>
@@ -178,32 +178,32 @@ const Header = () => {
     return <MobileHeader pathName={pathName} />;
   }
 
-  return (
-    <header className="w-full">
-      <DesktopHeader
-        navbarScrolled={navbarScrolled}
-        setNavbarScrolled={setNavbarScrolled}
-        session={session}
-        pathName={pathName}
-        openModal={openModal}
-      />
-      <div className={`${pathName === "/" ? "mt-44 md:mt-20" : "mt-20"} relative z-30`} />
-      <div
-        className={`${
-          navbarScrolled
-            ? "fixed bg-white top-20 z-30 transition-all duration-300"
-            : "mt-20 bg-white"
-        } w-full md:mt-0`}
-      >
-        {(pathName === "/" || pathName.includes("map")) && (
-          <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
-            <MainFilterGroup />
-            <MainAmenityList />
-          </div>
-        )}
-      </div>
-    </header>
-  );
+return (
+  <header className="w-full">
+    <DesktopHeader
+      navbarScrolled={navbarScrolled}
+      setNavbarScrolled={setNavbarScrolled}
+      session={session}
+      pathName={pathName}
+      openModal={openModal}
+    />
+    <div className={`${pathName === "/" ? "h-44" : "h-20"} relative z-30`} />
+    <div
+      className={`${
+        navbarScrolled
+          ? "fixed w-full bg-white top-20 z-30 transition-all duration-300"
+          : "w-full bg-white"
+      }`}
+    >
+      {(pathName === "/" || pathName.includes("map")) && (
+        <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
+          <MainFilterGroup />
+          <MainAmenityList />
+        </div>
+      )}
+    </div>
+  </header>
+);
 };
 
 const HeaderSkeleton = ({ pathname }: { pathname: string }) => (

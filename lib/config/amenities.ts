@@ -20,7 +20,7 @@ import { GiWindowBars } from "react-icons/gi";
 
 export interface Amenity {
   label: string;
-  icon: React.ElementType; // React 컴포넌트 타입으로 선언
+  icon: React.ElementType;
 }
 
 export const amenitiesData: Amenity[] = [

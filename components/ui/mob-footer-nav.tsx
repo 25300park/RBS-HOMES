@@ -84,7 +84,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
 
   return (
     <nav
-      className={`w-full h-16 fixed bottom-0 z-50 bg-white border-t transition-transform duration-300 hidden md:block ${
+      className={`w-full h-16 fixed bottom-0 z-40 bg-white border-t transition-transform duration-300 hidden md:block ${
         shouldHideFooter ? "translate-y-full" : "translate-y-0"
       }`}
     >

@@ -217,8 +217,8 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
             Property Type
           </label>
           <SelectionBox
-            className="justify-between space-x-0 flex"
-            boxClassName="w-[73px] text-xs h-[75px]"
+            className="justify-between space-x-0 flex md:grid md:grid-cols-3 md:gap-4"
+            boxClassName="w-[73px] text-xs h-[75px] md:w-full"
             options={typeOption.slice(0, 5)}
             selectedValue={filters.type}
             onSelect={(e) => updateFilter("type", e)}

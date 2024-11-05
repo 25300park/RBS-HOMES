@@ -86,8 +86,26 @@ const getAmenityFilter = (amenities: string[]) => {
 const getSearchFilter = (search?: string) => {
   if (!search) return undefined;
 
+  // 검색어 전처리
+  const searchTerms = search
+    .split(/[\s,]+/)  // 공백이나 쉼표로 분리
+    .filter(term => term.length > 0)
+    .map(term => term.trim());
+
+  if (searchTerms.length === 0) return undefined;
+
   return {
-    OR: [{ title: { contains: search } }, { address3: { contains: search } }],
+    OR: searchTerms.map(term => ({
+      OR: [
+        { title: { contains: term } },
+        { fullAdress: { contains: term } },
+        { address2: { contains: term } },
+        { address3: { contains: term } },
+        { address4: { contains: term } },
+        { note: { contains: term } },
+        { amenity: { contains: term } }
+      ]
+    }))
   };
 };
 
