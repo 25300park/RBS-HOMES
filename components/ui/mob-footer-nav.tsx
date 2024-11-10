@@ -71,7 +71,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
 
   // if (!isMobile) return null;
 
-  const isMapPage = pathname === "/map";
+  const isMapPage = pathname === "/map" || "/account/unit/my-list";
   const shouldHideFooter = isMapPage && sheetPosition !== "full";
 
   const handleNavClick = (item: typeof FooterNavList[0]) => (e: React.MouseEvent) => {

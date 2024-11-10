@@ -124,7 +124,7 @@ const ScheduleDisplay = ({
   });
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-4 ${className}`}>
+    <div className={`bg-white rounded-lg shadow-sm p-4 md:p-0 ${className}`}>
       <h3 className="text-lg font-semibold border-b pb-2">
         {title}
       </h3>

@@ -256,7 +256,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
             e.stopPropagation();
             snapToPosition("minimized");
           }}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50 pointer-events-auto"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-md px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50 pointer-events-auto"
         >
           <Map size={20} />
           <span>View Map</span>

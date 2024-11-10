@@ -81,3 +81,23 @@ export const generateMapKey = (searchParams: any) => {
     .join('&');
   return `map-${paramString || 'default'}`;
 };
+
+
+export const formatFileSize = (size: number): string => {
+  if (size < 1024) return size + " B";
+  if (size < 1024 * 1024) return (size / 1024).toFixed(2) + " KB";
+  return (size / (1024 * 1024)).toFixed(2) + " MB";
+};
+
+export const isValidImageType = (file: File): boolean => {
+  const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+  return validTypes.includes(file.type);
+};
+
+export const createImagePreview = (file: File): string => {
+  return URL.createObjectURL(file);
+};
+
+export const revokeImagePreview = (preview: string) => {
+  URL.revokeObjectURL(preview);
+};

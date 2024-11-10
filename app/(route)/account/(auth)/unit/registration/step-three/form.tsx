@@ -4,34 +4,45 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { FaTrash } from "react-icons/fa";
-import { SubmitButton } from "@/components/ui/submit-btn";
-import Spinner from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { MdCloudUpload } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 import { useModalStore } from "@/store/use-modal-store";
+import { useImageCompression } from "@/hooks/use-image-compression";
+import { formatFileSize, isValidImageType, createImagePreview } from "@/lib/utils";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
+import { SubmitButton } from "@/components/ui/submit-btn";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import Spinner from "@/components/ui/spinner";
+
+interface ImageData {
+  file: File;
+  preview: string;
+  name: string;
+  size: number;
+  url?: string;
+  progress?: number;
+  showProgress: boolean;
+}
+
+interface FormData {
+  images: ImageData[];
+  note: string;
+}
 
 export default function StepThreeForm() {
   const router = useRouter();
   const { openModal } = useModalStore();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [formData, setFormData] = useState({
-    images: [] as {
-      file: File;
-      preview: string;
-      name: string;
-      size: number;
-      url?: string;
-      progress?: number;
-      showProgress: boolean;
-    }[],
+  const { compressImages, isCompressing } = useImageCompression();
+
+  const [formData, setFormData] = useState<FormData>({
+    images: [],
     note: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const savedData = loadFromLocalStorage("step3");
@@ -40,18 +51,11 @@ export default function StepThreeForm() {
       setFormData((prev) => ({
         ...prev,
         note: note || "",
-        images:
-          images?.map((img: any) => ({ ...img, showProgress: false })) || [],
+        images: images?.map((img: any) => ({ ...img, showProgress: false })) || [],
       }));
     }
     setIsLoading(false);
   }, []);
-
-  const formatFileSize = (size: number) => {
-    if (size < 1024) return size + " B";
-    if (size < 1024 * 1024) return (size / 1024).toFixed(2) + " KB";
-    return (size / (1024 * 1024)).toFixed(2) + " MB";
-  };
 
   const uploadToS3 = async (files: File[], indices: number[]) => {
     const formData = new FormData();
@@ -78,7 +82,7 @@ export default function StepThreeForm() {
       xhr.onload = () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          resolve(response.uploadedUrls); // URL을 반환
+          resolve(response.uploadedUrls);
         } else {
           reject("Upload failed");
         }
@@ -90,64 +94,56 @@ export default function StepThreeForm() {
   };
 
   const onDrop = async (acceptedFiles: File[]) => {
-    const validFileTypes = ["image/png", "image/jpeg", "image/jpg"];
     const currentFileNames = formData.images.map((img) => img.name);
     const uniqueFiles = acceptedFiles.filter(
-      (file) =>
-        validFileTypes.includes(file.type) &&
-        file.size <= 2 * 1024 * 1024 &&
-        !currentFileNames.includes(file.name)
+      (file) => isValidImageType(file) && !currentFileNames.includes(file.name)
     );
-
+  
+    // 중복/잘못된 파일이 있는 경우에만 토스트 메시지 표시
     if (uniqueFiles.length < acceptedFiles.length) {
       toast({
-        title: "Duplicate or invalid files",
-        description:
-          "Some files were either duplicates or exceeded size/type limits.",
+        title: "Some files were not added",
+        description: "Duplicate or invalid files were excluded.",
       });
     }
-
-    const newImages = uniqueFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-      size: file.size,
-      progress: 0,
-      showProgress: true,
-    }));
-
-    const startIndex = formData.images.length;
-    const newImageIndices = Array.from(
-      { length: newImages.length },
-      (_, i) => startIndex + i
-    );
-
-    // 우선 이미지를 업데이트하여 미리보기를 표시
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...newImages],
-    }));
-
+  
+    if (uniqueFiles.length === 0) return;
+  
     try {
-      // 업로드를 진행하고 URL을 반환
-      const urls = await uploadToS3(uniqueFiles, newImageIndices);
-
-      // 업로드가 완료된 후에 이미지 업데이트
+      const compressedFiles = await compressImages(uniqueFiles);
+      
+      const newImages = compressedFiles.map((file) => ({
+        file,
+        preview: createImagePreview(file),
+        name: file.name,
+        size: file.size,
+        progress: 0,
+        showProgress: true,
+      }));
+  
+      const startIndex = formData.images.length;
+      const newImageIndices = Array.from(
+        { length: newImages.length },
+        (_, i) => startIndex + i
+      );
+  
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...newImages],
+      }));
+  
+      const urls = await uploadToS3(compressedFiles, newImageIndices);
+  
       setFormData((prev) => ({
         ...prev,
         images: prev.images.map((img, index) => {
           const urlIndex = newImageIndices.indexOf(index);
           return urlIndex !== -1
-            ? {
-                ...img,
-                url: urls[urlIndex], // 정확히 매칭되는 URL로 대체
-                progress: 100,
-              }
+            ? { ...img, url: urls[urlIndex], progress: 100 }
             : img;
         }),
       }));
-
-      // Progress 바 숨기기
+  
       setTimeout(() => {
         setFormData((prev) => ({
           ...prev,
@@ -158,10 +154,12 @@ export default function StepThreeForm() {
           ),
         }));
       }, 500);
+  
     } catch (error) {
+      // 실패했을 때만 토스트 메시지 표시
       toast({
-        title: "Error",
-        description: "Uploading files failed",
+        title: "Upload failed",
+        description: "Please try again.",
       });
     }
   };
@@ -183,7 +181,7 @@ export default function StepThreeForm() {
     setFormData((prev) => {
       const updatedImages = [...prev.images];
       const mainImage = updatedImages.splice(index, 1)[0];
-      updatedImages.unshift(mainImage); // 메인 이미지를 배열의 0번째로 이동
+      updatedImages.unshift(mainImage);
       return { ...prev, images: updatedImages };
     });
   };

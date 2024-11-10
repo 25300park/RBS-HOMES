@@ -46,7 +46,7 @@ const Title = ({}: TitleProps): React.ReactNode => {
   const Icon = currentItem.icon;
 
   return (
-    <div className="space-y-4 md:space-y-0 md:p-4 md:pb-8">
+    <div className="space-y-4 md:space-y-0 md:p-4 md:pb-8 px-6 py-4">
       <div className="md:hidden">
         <Breadcrumb />
       </div>
