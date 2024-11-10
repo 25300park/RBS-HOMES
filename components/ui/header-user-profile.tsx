@@ -9,6 +9,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 
 const MENU_LIST = [
+  { label: "Account Home", link: "/account" },
   { label: "Dashboard", link: "/account/dashboard" },
   { label: "Schedule", link: "/account/schedule" },
   { label: "Registration", link: "/account/unit/registration/step-one" },
@@ -54,7 +55,7 @@ export default function HeaderUserProfile({ session }: any) {
             <p className="font-semibold">{session.user.name}</p>
             <p className="text-sm text-gray-500">{session.user.email}</p>
             <Link href="/account/management?tabs=EditInformation" className="text-sm text-blue-600">
-              MY ACCOUNT
+              MY PROFILE
             </Link>
           </div>
         </div>

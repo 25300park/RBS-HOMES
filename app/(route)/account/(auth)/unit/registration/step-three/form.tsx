@@ -8,7 +8,11 @@ import { MdCloudUpload } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 import { useModalStore } from "@/store/use-modal-store";
 import { useImageCompression } from "@/hooks/use-image-compression";
-import { formatFileSize, isValidImageType, createImagePreview } from "@/lib/utils";
+import {
+  formatFileSize,
+  isValidImageType,
+  createImagePreview,
+} from "@/lib/utils";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
 import { SubmitButton } from "@/components/ui/submit-btn";
 import { Button } from "@/components/ui/button";
@@ -51,7 +55,8 @@ export default function StepThreeForm() {
       setFormData((prev) => ({
         ...prev,
         note: note || "",
-        images: images?.map((img: any) => ({ ...img, showProgress: false })) || [],
+        images:
+          images?.map((img: any) => ({ ...img, showProgress: false })) || [],
       }));
     }
     setIsLoading(false);
@@ -98,7 +103,7 @@ export default function StepThreeForm() {
     const uniqueFiles = acceptedFiles.filter(
       (file) => isValidImageType(file) && !currentFileNames.includes(file.name)
     );
-  
+
     // 중복/잘못된 파일이 있는 경우에만 토스트 메시지 표시
     if (uniqueFiles.length < acceptedFiles.length) {
       toast({
@@ -106,12 +111,12 @@ export default function StepThreeForm() {
         description: "Duplicate or invalid files were excluded.",
       });
     }
-  
+
     if (uniqueFiles.length === 0) return;
-  
+
     try {
       const compressedFiles = await compressImages(uniqueFiles);
-      
+
       const newImages = compressedFiles.map((file) => ({
         file,
         preview: createImagePreview(file),
@@ -120,20 +125,20 @@ export default function StepThreeForm() {
         progress: 0,
         showProgress: true,
       }));
-  
+
       const startIndex = formData.images.length;
       const newImageIndices = Array.from(
         { length: newImages.length },
         (_, i) => startIndex + i
       );
-  
+
       setFormData((prev) => ({
         ...prev,
         images: [...prev.images, ...newImages],
       }));
-  
+
       const urls = await uploadToS3(compressedFiles, newImageIndices);
-  
+
       setFormData((prev) => ({
         ...prev,
         images: prev.images.map((img, index) => {
@@ -143,7 +148,7 @@ export default function StepThreeForm() {
             : img;
         }),
       }));
-  
+
       setTimeout(() => {
         setFormData((prev) => ({
           ...prev,
@@ -154,7 +159,6 @@ export default function StepThreeForm() {
           ),
         }));
       }, 500);
-  
     } catch (error) {
       // 실패했을 때만 토스트 메시지 표시
       toast({
@@ -187,6 +191,15 @@ export default function StepThreeForm() {
   };
 
   const handleNext = () => {
+    if (formData.images.length < 1) {
+      toast({
+        title: "Image Required",
+        description: "Please upload at least one image",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const dataToSave = {
       note: formData.note,
       images: formData.images.map(({ name, size, preview, url }) => ({
@@ -238,8 +251,10 @@ export default function StepThreeForm() {
             {/* 이미지 리스트 영역 */}
             {formData.images.length > 0 && (
               <div className="w-full use-scroll pb-2">
-                <div className="overflow-y-scroll h-full md:h-[320px] scrollbar-thumb-gray-400 
-                  scrollbar-track-gray-100 pr-4 md:pr-2 use-scroll show-scrollbar p-4 md:p-2 rounded-md">
+                <div
+                  className="overflow-y-scroll h-full md:h-[320px] scrollbar-thumb-gray-400 
+                  scrollbar-track-gray-100 pr-4 md:pr-2 use-scroll show-scrollbar p-4 md:p-2 rounded-md"
+                >
                   <ul>
                     {formData.images.map((image, index) => (
                       <li
@@ -316,13 +331,15 @@ export default function StepThreeForm() {
           {/* Notes Section */}
           <div className="mt-4">
             <label className="mb-1 block text-sm font-medium text-zinc-500">
-              Notes
+            Description
             </label>
             <Textarea
               name="note"
               value={formData.note}
-              onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-              placeholder="Additional notes or information"
+              onChange={(e) =>
+                setFormData({ ...formData, note: e.target.value })
+              }
+              placeholder="Explain the advantages of a unit to the client"
               className="mb-2 p-2 border w-full h-36 md:h-24"
             />
           </div>

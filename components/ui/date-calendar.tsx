@@ -3,8 +3,19 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useModalStore } from "@/store/use-modal-store";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, 
-  isSameMonth, isSameDay, addMonths, subMonths, addWeeks } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  isSameMonth,
+  isSameDay,
+  addMonths,
+  subMonths,
+  addWeeks,
+} from "date-fns";
 import { ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
 
 interface Schedule {
@@ -30,23 +41,35 @@ interface DateCalendarProps {
 }
 
 const formatPrice = (price: number | string) => {
-  return `₱ ${Number(price).toLocaleString('en-US', { 
+  return `₱ ${Number(price).toLocaleString("en-US", {
     minimumFractionDigits: 3,
-    maximumFractionDigits: 3
+    maximumFractionDigits: 3,
   })}`;
 };
 
-const ScheduleCard = ({ schedule, unitDetail }: { schedule: Schedule, unitDetail?: UnitDetail }) => {
+const ScheduleCard = ({
+  schedule,
+  unitDetail,
+  showDate = false, // 날짜 표시 여부를 위한 prop 추가
+}: {
+  schedule: Schedule;
+  unitDetail?: UnitDetail;
+  showDate?: boolean;
+}) => {
   const router = useRouter();
-  const startTime = schedule.startedAt ? format(new Date(schedule.startedAt), "HH:mm") : null;
-  const endTime = schedule.endedAt ? format(new Date(schedule.endedAt), "HH:mm") : null;
+  const startTime = schedule.startedAt
+    ? format(new Date(schedule.startedAt), "HH:mm")
+    : null;
+  const endTime = schedule.endedAt
+    ? format(new Date(schedule.endedAt), "HH:mm")
+    : null;
   const isAllDay = !startTime || !endTime;
 
   const handleUnitClick = (e: React.MouseEvent, unitId: number) => {
-    e.stopPropagation(); // 이벤트 버블링 방지
+    e.stopPropagation();
     const url = `/unit/detail/${unitId}`;
     if (window.innerWidth > 768) {
-      window.open(url, '_blank');
+      window.open(url, "_blank");
     } else {
       router.push(url);
     }
@@ -56,26 +79,31 @@ const ScheduleCard = ({ schedule, unitDetail }: { schedule: Schedule, unitDetail
     <div className="rounded-lg border overflow-hidden bg-white shadow-sm">
       <div className="p-3 bg-gradient-to-r from-orange-50 to-orange-100">
         <div className="flex items-center justify-between mb-2">
-          {isAllDay ? (
-            <span className="text-xs px-2 py-0.5 bg-orange-200 text-orange-700 rounded-full">
-              All Day
-            </span>
-          ) : (
-            <span className="text-sm text-orange-700">
-              {startTime} - {endTime}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {showDate && ( // 날짜 표시 추가
+              <span className="text-xs px-2 py-0.5 bg-orange-300 text-orange-800 rounded-full">
+                {format(new Date(schedule.date), "MMM d")}
+              </span>
+            )}
+            {isAllDay ? (
+              <span className="text-xs px-2 py-0.5 bg-orange-200 text-orange-700 rounded-full">
+                All Day
+              </span>
+            ) : (
+              <span className="text-sm text-orange-700">
+                {startTime} - {endTime}
+              </span>
+            )}
+          </div>
         </div>
         <h4 className="font-medium text-gray-900">{schedule.title}</h4>
         {schedule.desc && (
-          <p className="text-sm text-gray-600 mt-1">
-            {schedule.desc}
-          </p>
+          <p className="text-sm text-gray-600 mt-1">{schedule.desc}</p>
         )}
       </div>
-      
+
       {unitDetail && (
-        <div 
+        <div
           className="p-3 border-t bg-white hover:bg-gray-50 cursor-pointer transition-colors"
           onClick={(e) => handleUnitClick(e, unitDetail.unitId)}
         >
@@ -103,21 +131,25 @@ const ScheduleCard = ({ schedule, unitDetail }: { schedule: Schedule, unitDetail
   );
 };
 
-const ScheduleDisplay = ({ 
-  schedules, 
+const ScheduleDisplay = ({
+  schedules,
   unitDetails,
   title,
-  className = ""
-}: { 
-  schedules: Schedule[], 
-  unitDetails: UnitDetail[],
-  title: string,
-  className?: string
+  className = "",
+  maxHeight = "",
+  showDate = false,
+}: {
+  schedules: Schedule[];
+  unitDetails: UnitDetail[];
+  title: string;
+  className?: string;
+  maxHeight?: string;
+  showDate?: boolean;
 }) => {
   const sortedSchedules = [...schedules].sort((a, b) => {
     const aTime = a.startedAt ? new Date(a.startedAt) : new Date(a.date);
     const bTime = b.startedAt ? new Date(b.startedAt) : new Date(b.date);
-    
+
     if (!a.startedAt && b.startedAt) return -1;
     if (a.startedAt && !b.startedAt) return 1;
     return aTime.getTime() - bTime.getTime();
@@ -125,16 +157,19 @@ const ScheduleDisplay = ({
 
   return (
     <div className={`bg-white rounded-lg shadow-sm p-4 md:p-0 ${className}`}>
-      <h3 className="text-lg font-semibold border-b pb-2">
+      <h3 className="text-lg font-semibold border-b pb-2 sticky top-0 bg-white">
         {title}
       </h3>
-      <div className="mt-4 space-y-4">
+      <div className={`mt-4 space-y-4 overflow-y-auto ${maxHeight}`}>
         {sortedSchedules.length > 0 ? (
           sortedSchedules.map((schedule) => (
             <ScheduleCard
               key={schedule.id}
               schedule={schedule}
-              unitDetail={unitDetails.find(unit => unit.unitId === schedule.unitId)}
+              unitDetail={unitDetails.find(
+                (unit) => unit.unitId === schedule.unitId
+              )}
+              showDate={showDate}
             />
           ))
         ) : (
@@ -155,14 +190,19 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
   const [selectedSchedules, setSelectedSchedules] = useState<Schedule[]>([]);
   const [unitDetails, setUnitDetails] = useState<UnitDetail[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<Schedule[]>([]);
-  const [upcomingUnitDetails, setUpcomingUnitDetails] = useState<UnitDetail[]>([]);
+  const [upcomingUnitDetails, setUpcomingUnitDetails] = useState<UnitDetail[]>(
+    []
+  );
   const { openModal } = useModalStore();
 
   useEffect(() => {
     const today = new Date();
-    onDateClick(today, schedules.filter((schedule: any) =>
-      isSameDay(new Date(schedule.date), today)
-    ));
+    onDateClick(
+      today,
+      schedules.filter((schedule: any) =>
+        isSameDay(new Date(schedule.date), today)
+      )
+    );
 
     const nextWeek = addWeeks(today, 1);
     const upcoming = schedules.filter(
@@ -183,7 +223,9 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
 
     Promise.all(unitPromises)
       .then(setUpcomingUnitDetails)
-      .catch((error) => console.error("Failed to fetch upcoming unit details:", error));
+      .catch((error) =>
+        console.error("Failed to fetch upcoming unit details:", error)
+      );
   }, [schedules, fetchUnitDetails]);
 
   const onDateClick = async (day: Date, daySchedules: Schedule[]) => {
@@ -191,9 +233,9 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
     setSelectedSchedules(daySchedules);
 
     const unitPromises = daySchedules
-      .filter(schedule => schedule.unitId !== -1)
-      .map(schedule =>
-        fetchUnitDetails(schedule.unitId).then(data => ({
+      .filter((schedule) => schedule.unitId !== -1)
+      .map((schedule) =>
+        fetchUnitDetails(schedule.unitId).then((data) => ({
           unitId: schedule.unitId,
           data,
         }))
@@ -222,7 +264,10 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
     const dayNamesRow = (
       <div className="grid grid-cols-7 mb-1 border-b">
         {dayNames.map((name) => (
-          <div key={name} className="p-2 text-sm font-medium text-gray-400 text-center md:text-xs">
+          <div
+            key={name}
+            className="p-2 text-sm font-medium text-gray-400 text-center md:text-xs"
+          >
             {name}
           </div>
         ))}
@@ -246,18 +291,26 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
             className={`
               min-h-[100px] md:min-h-[80px] p-2 border-r border-b relative
               transition-all duration-200 cursor-pointer
-              ${!isCurrentMonth ? 'bg-gray-50' : 'bg-white hover:bg-orange-50'}
-              ${isSelected ? 'ring-2 ring-orange-400 z-10' : ''}
-              ${isToday ? 'bg-orange-50' : ''}
+              ${!isCurrentMonth ? "bg-gray-50" : "bg-white hover:bg-orange-50"}
+              ${isSelected ? "ring-2 ring-orange-400 z-10" : ""}
+              ${isToday ? "bg-orange-50" : ""}
               last:border-r-0
             `}
           >
             <div className="flex justify-between items-start">
-              <span className={`
+              <span
+                className={`
                 inline-flex w-6 h-6 items-center justify-center rounded-full
                 text-sm md:text-xs
-                ${isToday ? 'bg-orange-500 text-white' : isCurrentMonth ? 'text-gray-700' : 'text-gray-400'}
-              `}>
+                ${
+                  isToday
+                    ? "bg-orange-500 text-white"
+                    : isCurrentMonth
+                    ? "text-gray-700"
+                    : "text-gray-400"
+                }
+              `}
+              >
                 {format(day, "d")}
               </span>
               {daySchedules.length > 0 && (
@@ -268,15 +321,17 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
             </div>
 
             <div className="mt-1 space-y-1">
-              {daySchedules.slice(0, 2).map((schedule: Schedule, index: number) => (
-                <div
-                  key={index}
-                  className="text-xs md:text-[10px] px-1.5 py-0.5 rounded
+              {daySchedules
+                .slice(0, 2)
+                .map((schedule: Schedule, index: number) => (
+                  <div
+                    key={index}
+                    className="text-xs md:text-[10px] px-1.5 py-0.5 rounded
                     bg-orange-100 text-orange-800 truncate border-l-2 border-orange-400"
-                >
-                  {schedule.title}
-                </div>
-              ))}
+                  >
+                    {schedule.title}
+                  </div>
+                ))}
               {daySchedules.length > 2 && (
                 <div className="text-xs md:text-[10px] text-gray-500 pl-1">
                   +{daySchedules.length - 2}
@@ -334,23 +389,25 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
           onClick={() => openModal("schedule")}
           className="fixed bottom-20 right-4 w-12 h-12 md:bottom-24 md:right-6
             flex items-center justify-center rounded-full bg-orange-500 
-            text-white shadow-lg hover:bg-orange-600 transition-colors"
+            text-white shadow-lg hover:bg-orange-600 transition-colors z-50"
         >
           <CalendarPlus className="w-6 h-6" />
         </button>
       </div>
 
-      {/* Schedules Side */}
       <div className="w-80 space-y-6 md:w-full">
         <ScheduleDisplay
           schedules={selectedSchedules}
           unitDetails={unitDetails}
           title={selectedDate ? format(selectedDate, "PPP") : "Select a date"}
+          maxHeight="max-h-[300px]"
         />
         <ScheduleDisplay
           schedules={upcomingSchedules}
           unitDetails={upcomingUnitDetails}
           title="Upcoming (Next 7 Days)"
+          maxHeight="max-h-[400px]"
+          showDate={true}
         />
       </div>
     </div>
