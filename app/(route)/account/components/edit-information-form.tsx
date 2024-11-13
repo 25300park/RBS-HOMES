@@ -9,6 +9,7 @@ import { editUserProfile } from "../(auth)/management/action";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/ui/submit-btn";
+import { useModalStore } from "@/store/use-modal-store";
 
 export interface EditInformationFormProps {
   session: any;
@@ -17,6 +18,7 @@ export interface EditInformationFormProps {
 const EditInformationForm = ({ session }: EditInformationFormProps) => {
   const { update } = useSession();
   const { toast } = useToast();
+  const { openModal } = useModalStore();
   const [name, setName] = useState(session?.user.name || "");
   const [level, setLevel] = useState(String(session?.user.level || 1));
   const [phone, setPhone] = useState(session?.user.phone || "");
@@ -102,7 +104,7 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
             onImageSelect={setSelectedImage}
           />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 md:gap-4">
           <div>
             <label className="block text-xs mb-1 font-medium text-zinc-500">
               Full Name
@@ -115,10 +117,24 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
               className="w-full"
             />
           </div>
+          <div>
+            {session?.user.level !== 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal("editPassword");
+                }}
+                className="py-2 px-4  rounded-md text-white bg-orange-400"
+              >
+                Change Password
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
-      {session?.user.level  === 0 ? (
+      {session?.user.level === 0 ? (
         "Admin User"
       ) : (
         <section className="py-8 md:py-6 border-t">

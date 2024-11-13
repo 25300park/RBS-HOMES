@@ -9,7 +9,7 @@ export const SignupFormSchema = z
     email: z.string().email({ message: "Please enter a valid email." }).trim(),
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters long." })
+      .min(6, { message: "Password must be at least 6 characters long." })
       .regex(/[a-zA-Z]/, {
         message: "Password must contain at least one letter.",
       })
@@ -27,8 +27,35 @@ export const SignupFormSchema = z
 
 export const LoginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(1, { message: "Password field must not be empty." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long." }),
 });
+
+export const EditPasswordSchema = z
+  .object({
+    prevPassword: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters long." })
+      .regex(/[a-zA-Z]/, {
+        message: "Password must contain at least one letter.",
+      })
+      .regex(/[0-9]/, { message: "Password must contain at least one number." })
+      .trim(),
+    newPassword: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters long." })
+      .regex(/[a-zA-Z]/, {
+        message: "Password must contain at least one letter.",
+      })
+      .regex(/[0-9]/, { message: "Password must contain at least one number." })
+      .trim(),
+    newPasswordCheck: z.string().trim(),
+  })
+  .refine((data) => data.newPassword === data.newPasswordCheck, {
+    path: ["newPasswordCheck"], // 오류가 발생할 필드를 지정
+    message: "Passwords do not match.",
+  });
 
 export type FormState =
   | {
@@ -73,32 +100,30 @@ export const stepTwoSchema = z.object({
   // amenity: z.array(z.string()).min(1, "At least one amenity must be selected"),
 });
 
-export const reservationSchema = z.object({
-  name: z.string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters"),
-  email: z.string()
-    .email("Please enter a valid email"),
-  phone: z.string()
-    .min(5, "Phone number must be at least 5 digits")
-    .max(15, "Phone number cannot exceed 15 digits")
-    .regex(/^[0-9+\-\s()]*$/, "Invalid phone number format"),
-  message: z.string()
-    .min(3, "Message must be at least 3 characters")
-    .max(500, "Message cannot exceed 500 characters"),
-  date: z.union([
-    z.date(),
-    z.literal(undefined)
-  ]),
-  needsDiscussion: z.boolean().default(false),
-  unitId: z.number(), 
-  userId: z.number().optional()
-}).refine(
-  data => data.needsDiscussion || data.date !== undefined,
-  {
+export const reservationSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(50, "Name cannot exceed 50 characters"),
+    email: z.string().email("Please enter a valid email"),
+    phone: z
+      .string()
+      .min(5, "Phone number must be at least 5 digits")
+      .max(15, "Phone number cannot exceed 15 digits")
+      .regex(/^[0-9+\-\s()]*$/, "Invalid phone number format"),
+    message: z
+      .string()
+      .min(3, "Message must be at least 3 characters")
+      .max(500, "Message cannot exceed 500 characters"),
+    date: z.union([z.date(), z.literal(undefined)]),
+    needsDiscussion: z.boolean().default(false),
+    unitId: z.number(),
+    userId: z.number().optional(),
+  })
+  .refine((data) => data.needsDiscussion || data.date !== undefined, {
     message: "Please either select a date or mark as 'Needs Discussion'",
-    path: ["date"]
-  }
-);
+    path: ["date"],
+  });
 
 export type ReservationFormData = z.infer<typeof reservationSchema>;

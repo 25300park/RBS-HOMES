@@ -101,3 +101,25 @@ export const createImagePreview = (file: File): string => {
 export const revokeImagePreview = (preview: string) => {
   URL.revokeObjectURL(preview);
 };
+
+
+export function generateTemporaryPassword(): string {
+  const length = 10;
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let password = '';
+  
+  // 최소 1개의 숫자 추가
+  password += '0123456789'[Math.floor(Math.random() * 10)];
+  
+  // 최소 1개의 영문자 추가
+  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
+  
+  // 나머지 8자리 랜덤 생성
+  for (let i = password.length; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+  
+  // 문자열을 섞어서 반환
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}

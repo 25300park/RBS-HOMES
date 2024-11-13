@@ -5,6 +5,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import z from "zod";
 import { revalidatePath } from "next/cache";
+import { FormState } from "@/types/schema";
+import { EditPasswordSchema } from "@/types/schema";
+import { hash } from "bcrypt";
+
 const profileSchema = z.object({
   name: z.string().min(1, "Full name is required").max(100),
   phone: z.string().nullable(),
@@ -36,7 +40,8 @@ export const editUserProfile = async ({
   if ((level === "2" || level === "4") && (!phone || phone.length < 10)) {
     return {
       status: 400,
-      message: "Agent and Owner must provide a valid phone number with at least 10 digits.",
+      message:
+        "Agent and Owner must provide a valid phone number with at least 10 digits.",
     };
   }
 
@@ -61,6 +66,66 @@ export const editUserProfile = async ({
     return {
       status: 500,
       message: "Failed to update profile",
+    };
+  }
+};
+
+export const editPassword = async (
+  formState: FormState,
+  formData: FormData
+) => {
+  const session: any = await getServerSession(authOptions as any);
+  if (!session || !session.user?.id) {
+    throw new Error("User not authenticated");
+  }
+  try {
+    const userId = session.user.id;
+    const validatedFields = EditPasswordSchema.safeParse({
+      prevPassword: formData.get("prevPassword"),
+      newPassword: formData.get("newPassword"),
+      newPasswordCheck: formData.get("newPasswordCheck"),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+      };
+    }
+    const { prevPassword, newPassword } = validatedFields.data;
+
+    const findUser = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    // 이전 비밀번호 체크
+    if (findUser?.passwordOrigin !== prevPassword) {
+      return { status: 400, message: "Your existing password does not match." };
+    }
+
+    // 새 비밀번호로 업데이트
+    const hashedPassword = await hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: {
+        id: findUser.id,
+      },
+      data: {
+        password: hashedPassword,
+        passwordOrigin: newPassword,
+      },
+    });
+
+    return {
+      status: 200,
+      message: "Password has been successfully updated",
+    };
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return {
+      status: 500,
+      message: "An error occurred while updating the password",
     };
   }
 };

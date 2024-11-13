@@ -6,7 +6,55 @@ import { SignupFormSchema, FormState, LoginFormSchema } from "@/types/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { generateTemporaryPassword } from "@/lib/utils";
+import { sendEmail, getPasswordResetEmailTemplate } from "@/lib/email";
 
+//비밀번호 찾기
+export async function resetPassword(state: FormState, formData: FormData) {
+  const email = formData.get("email") as string;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return {
+        status: 404,
+        message: "No account found with this email address.",
+      };
+    }
+
+    const tempPassword = generateTemporaryPassword();
+    const hashedPassword = await hash(tempPassword, 10);
+
+    await prisma.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        passwordOrigin: tempPassword,
+      },
+    });
+
+    await sendEmail({
+      to: email,
+      subject: "RBS HOME - Temporary Password Notice",
+      html: getPasswordResetEmailTemplate(tempPassword),
+    });
+
+    return {
+      status: 200,
+      message: "A temporary password has been sent to your email.",
+    };
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return {
+      status: 500,
+      message:
+        "An error occurred while resetting your password. Please try again.",
+    };
+  }
+}
 
 export async function signup(
   state: FormState,

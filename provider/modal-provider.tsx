@@ -11,6 +11,7 @@ import AuthModal from "@/components/modals/auth-modal";
 import FilterModal from "@/components/modals/filter-modal";
 import PreviewModal from "@/components/modals/preview-modal";
 import ScheduleModal from "@/components/modals/schedule-modal";
+import EditPasswordModal from "@/components/modals/edit-password-modal";
 import { useState, useEffect } from "react";
 
 export const ModalProvider = () => {
@@ -34,6 +35,9 @@ export const ModalProvider = () => {
       break;
     case "schedule":
       content = <ScheduleModal modalProps={modalProps} onClose={closeModal} />;
+      break;
+    case "editPassword":
+      content = <EditPasswordModal onClose={closeModal} />;
       break;
     default:
       return null;
