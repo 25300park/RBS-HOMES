@@ -63,7 +63,7 @@ const ScheduleCard = ({
   const endTime = schedule.endedAt
     ? format(new Date(schedule.endedAt), "HH:mm")
     : null;
-  const isAllDay = !startTime || !endTime;
+  const isAllDay = (!startTime || startTime == "00:00") && endTime == "23:59";
 
   const handleUnitClick = (e: React.MouseEvent, unitId: number) => {
     e.stopPropagation();

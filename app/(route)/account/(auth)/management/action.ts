@@ -48,6 +48,7 @@ export const editUserProfile = async ({
         phone: validationResult.data.phone,
         image: validationResult.data.profileImage ?? session.user.image, // 이미지 URL 저장
         level: Number(level),
+        lastUpdate: new Date(),
       },
     });
     revalidatePath("/account/management?tabs=EditInformation");

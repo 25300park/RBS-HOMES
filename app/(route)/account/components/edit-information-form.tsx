@@ -118,48 +118,54 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
         </div>
       </section>
 
-      <section className="py-8 md:py-6 border-t">
-        <h2 className="text-xl font-bold mb-4 md:mb-3">Contact Information</h2>
-        <div className="my-6 md:my-4">
-          <label className="block text-xs mb-1 font-medium text-zinc-500">
-            User Type
-          </label>
-          <SelectionBox
-            options={UserLevelOptions}
-            selectedValue={level}
-            onSelect={(value) => setLevel(value)}
-            className="w-full space-x-0 flex gap-2 md:gap-1"
-            boxClassName="h-11 w-32 md:h-10 md:text-sm"
-          />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
-          <div>
+      {session?.user.level  === 0 ? (
+        "Admin User"
+      ) : (
+        <section className="py-8 md:py-6 border-t">
+          <h2 className="text-xl font-bold mb-4 md:mb-3">
+            Contact Information
+          </h2>
+          <div className="my-6 md:my-4">
             <label className="block text-xs mb-1 font-medium text-zinc-500">
-              Primary Phone Number
+              User Type
             </label>
-            <Input
-              type="text"
-              placeholder="Enter your phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full"
+            <SelectionBox
+              options={UserLevelOptions}
+              selectedValue={level}
+              onSelect={(value) => setLevel(value)}
+              className="w-full space-x-0 flex gap-2 md:gap-1"
+              boxClassName="h-11 w-32 md:h-10 md:text-sm"
             />
           </div>
-          <div className="md:mt-2">
-            <label className="block text-xs mb-1 font-medium text-zinc-500">
-              Email
-            </label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled
-              placeholder={session?.user.email}
-              className="w-full bg-gray-50"
-            />
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
+            <div>
+              <label className="block text-xs mb-1 font-medium text-zinc-500">
+                Primary Phone Number
+              </label>
+              <Input
+                type="text"
+                placeholder="Enter your phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="md:mt-2">
+              <label className="block text-xs mb-1 font-medium text-zinc-500">
+                Email
+              </label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled
+                placeholder={session?.user.email}
+                className="w-full bg-gray-50"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className="flex justify-end pt-4">
         <SubmitButton

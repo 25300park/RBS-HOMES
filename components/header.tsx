@@ -67,7 +67,7 @@ const DesktopHeader = ({
         <div className="flex w-full items-center justify-between h-20 px-12">
           <div className="flex items-center">
             <Link className="mr-16" href="/">
-              <img src="/assets/images/RBS_logo.png" alt="logo" />
+              <img src="/assets/images/rbs-logo.png" alt="logo" />
             </Link>
           </div>
 
@@ -212,7 +212,7 @@ const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
       <div className="flex justify-between items-center h-20 px-12">
         <div className="flex items-center">
           <Link href="/">
-            <img src="/assets/images/RBS_logo.png" alt="logo" className="w-24 h-auto" />
+            <img src="/assets/images/rbs-logo.png" alt="logo" className="w-24 h-auto" />
           </Link>
         </div>
         <div className="flex items-center space-x-4 w-[250px] justify-end">
