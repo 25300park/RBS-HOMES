@@ -7,6 +7,7 @@ import { ToggleFavoriteUnit } from "@/lib/action";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface FavoriteButtonProps {
   initialIsFavorited: boolean;
@@ -26,8 +27,11 @@ const FavoriteButton = ({
   const { data: session } = useSession();
   const { openModal } = useModalStore();
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+
+  // useDebounce로 상태 변경 디바운스
+  const debouncedFavorited = useDebounce(isFavorited, 500);
 
   useEffect(() => {
     setIsFavorited(initialIsFavorited);
@@ -38,23 +42,31 @@ const FavoriteButton = ({
       event.stopPropagation();
       if (!session) return openModal("login");
 
-      // Toggle and update UI state immediately
-      setIsFavorited((prev) => !prev);
-      setIsLoading(true);
+      // 이미 처리 중이면 토스트 메시지 표시하고 리턴
+      if (isProcessing) {
+        toast({
+          variant: "destructive",
+          title: "Please wait",
+          description: "Your previous request is still processing. Please try again later.",
+        });
+        return;
+      }
+
+      setIsProcessing(true);
 
       try {
         const response = await ToggleFavoriteUnit(unitId);
         if (response.status !== 200) {
-          setIsFavorited((prev) => !prev); // Revert the state if request fails
+          setIsFavorited((prev) => !prev);
         } else {
-          // Show toast based on the toggled state
+          setIsFavorited(!debouncedFavorited);
           toast({
             variant: "default",
-            title: isFavorited
+            title: debouncedFavorited
               ? "Removed from Favorites"
               : "Added to Favorites",
             description: `This unit has been ${
-              isFavorited ? "removed from" : "added to"
+              debouncedFavorited ? "removed from" : "added to"
             } your favorites.`,
           });
         }
@@ -65,18 +77,21 @@ const FavoriteButton = ({
           title: "Error toggling favorite",
           description: `${error}`,
         });
-        setIsFavorited((prev) => !prev); // Revert the state in case of error
+        setIsFavorited((prev) => !prev);
       } finally {
-        setIsLoading(false);
+        // 약간의 지연 후 처리 상태 해제
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 500);
       }
     },
-    [unitId, openModal, session, isFavorited, toast]
+    [unitId, openModal, session, debouncedFavorited, toast, isProcessing]
   );
+
   if (rounded)
     return (
       <button
         onClick={handleToggleFavorite}
-        disabled={isLoading}
         className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md"
       >
         <Heart
@@ -97,7 +112,6 @@ const FavoriteButton = ({
         className
       )}
       onClick={handleToggleFavorite}
-      disabled={isLoading}
     >
       <span className="flex items-center gap-1">
         {isFavorited ? (

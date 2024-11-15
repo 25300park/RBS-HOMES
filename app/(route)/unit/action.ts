@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { cookies, headers } from 'next/headers';
 
 // DTO 함수 정의
 const unitWithAdminDTO = (unit: any) => ({
@@ -130,13 +131,12 @@ export async function getUnitsWithAdmin(
     total: totalUnits,
   };
 }
-
 export const getUnitDetail = async (unitId: number) => {
   try {
-    // 세션 확인
+    const headersList = headers();
     const session: any = await getServerSession(authOptions as any);
- 
-    // 유닛 정보 조회
+    const ip = headersList.get('x-forwarded-for') || 'unknown';
+
     const unitDetail = await prisma.unit.findUnique({
       where: {
         id: unitId,
@@ -146,7 +146,6 @@ export const getUnitDetail = async (unitId: number) => {
       },
     });
  
-    // 유닛이 없을 경우
     if (!unitDetail) {
       return {
         error: "Unit not found",
@@ -154,9 +153,7 @@ export const getUnitDetail = async (unitId: number) => {
       };
     }
  
-    // 로그인된 경우 즐겨찾기 상태 확인
     let isFavorited = false;
-    
     if (session?.user?.id) {
       const favorite = await prisma.favorite.findFirst({
         where: {
@@ -166,13 +163,24 @@ export const getUnitDetail = async (unitId: number) => {
       });
       isFavorited = !!favorite;
     }
+
+    // 조회 로그 기록
+    try {
+      await prisma.unitViewLog.create({
+        data: {
+          unitId,
+          userId: session?.user?.id ? parseInt(session.user.id) : null,
+          ip,
+        }
+      });
+    } catch (error) {
+      console.error("Error recording view:", error);
+    }
  
-    // 데이터 정제
     const transformedUnitDetail = {
       ...unitDetail,
       price: unitDetail.price?.toNumber() ?? null,
       outstandingPayment: unitDetail.outstandingPayment?.toNumber() ?? null,
-      // images: unitDetail.images ? JSON.parse(unitDetail.images) : [],
       isFavorited,
     };
  
@@ -188,7 +196,8 @@ export const getUnitDetail = async (unitId: number) => {
       status: 500,
     };
   }
- };
+};
+
  
 interface ScheduleRequest {
   name: string;
@@ -248,3 +257,91 @@ export async function requestSchedule(formData: ScheduleRequest) {
     };
   }
 }
+
+
+
+// 쿠키사용
+// export const getUnitDetail = async (unitId: number) => {
+//   try {
+//     const headersList = headers();
+//     const cookieStore = cookies();
+//     const session: any = await getServerSession(authOptions as any);
+//     const ip = headersList.get('x-forwarded-for') || 'unknown';
+//     // 유닛 정보 조회
+//     const unitDetail = await prisma.unit.findUnique({
+//       where: {
+//         id: unitId,
+//       },
+//       include: {
+//         admin: true,
+//       },
+//     });
+ 
+//     // 유닛이 없을 경우
+//     if (!unitDetail) {
+//       return {
+//         error: "Unit not found",
+//         status: 404,
+//       };
+//     }
+ 
+//     // 로그인된 경우 즐겨찾기 상태 확인
+//     let isFavorited = false;
+//     if (session?.user?.id) {
+//       const favorite = await prisma.favorite.findFirst({
+//         where: {
+//           unitId,
+//           userId: parseInt(session.user.id),
+//         },
+//       });
+//       isFavorited = !!favorite;
+//     }
+
+//     // 조회 로그 기록 (별도 처리)
+//     try {
+//       const viewKey = `unit_view_${unitId}`;
+//       const lastView = cookieStore.get(viewKey);
+
+//       // 마지막 조회로부터 30분이 지났거나, 조회 기록이 없는 경우에만 기록
+//       if (!lastView || Date.now() - new Date(lastView.value).getTime() > 30 * 60 * 1000) {
+//         // 조회 로그 생성
+//         await prisma.unitViewLog.create({
+//           data: {
+//             unitId,
+//             userId: session?.user?.id ? parseInt(session.user.id) : null,
+//             ip,
+//           }
+//         });
+
+//         // 쿠키 설정 (30분 유효)
+//         cookieStore.set(viewKey, new Date().toISOString(), {
+//           expires: new Date(Date.now() + 30 * 60 * 1000),
+//           httpOnly: true
+//         });
+//       }
+//     } catch (error) {
+//       console.error("Error recording view:", error);
+//       // 조회 로그 기록 실패해도 계속 진행
+//     }
+ 
+//     // 데이터 정제
+//     const transformedUnitDetail = {
+//       ...unitDetail,
+//       price: unitDetail.price?.toNumber() ?? null,
+//       outstandingPayment: unitDetail.outstandingPayment?.toNumber() ?? null,
+//       isFavorited,
+//     };
+ 
+//     return { 
+//       unitDetail: transformedUnitDetail,
+//       status: 200,
+//     };
+ 
+//   } catch (error) {
+//     console.error("Error fetching unit detail:", error);
+//     return {
+//       error: "Failed to fetch unit details",
+//       status: 500,
+//     };
+//   }
+// };

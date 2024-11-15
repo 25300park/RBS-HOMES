@@ -14,38 +14,55 @@ export async function resetPassword(state: FormState, formData: FormData) {
   const email = formData.get("email") as string;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { email },
+      });
 
-    if (!user) {
+      if (!user) {
+        return {
+          status: 404,
+          message: "No account found with this email address.",
+        };
+      }
+
+      const tempPassword = generateTemporaryPassword();
+      const hashedPassword = await hash(tempPassword, 10);
+
+      // 비밀번호 업데이트
+      await tx.user.update({
+        where: { email },
+        data: {
+          password: hashedPassword,
+          passwordOrigin: tempPassword,
+        },
+      });
+
+      // 비밀번호 재설정 로그 생성
+      await tx.passwordResetLog.create({
+        data: {
+          email,
+          prevPassword: user.passwordOrigin || '', // 이전 비밀번호
+          newPassword: tempPassword,               // 새로운 임시 비밀번호
+          ip: formData.get("ip") as string || "unknown", 
+        },
+      });
+
+      // 이메일 발송
+      await sendEmail({
+        to: email,
+        subject: "RBS HOME - Temporary Password Notice",
+        html: getPasswordResetEmailTemplate(tempPassword),
+      });
+
       return {
-        status: 404,
-        message: "No account found with this email address.",
+        status: 200,
+        message: "A temporary password has been sent to your email.",
       };
-    }
-
-    const tempPassword = generateTemporaryPassword();
-    const hashedPassword = await hash(tempPassword, 10);
-
-    await prisma.user.update({
-      where: { email },
-      data: {
-        password: hashedPassword,
-        passwordOrigin: tempPassword,
-      },
     });
 
-    await sendEmail({
-      to: email,
-      subject: "RBS HOME - Temporary Password Notice",
-      html: getPasswordResetEmailTemplate(tempPassword),
-    });
+    return result;
 
-    return {
-      status: 200,
-      message: "A temporary password has been sent to your email.",
-    };
   } catch (error) {
     console.error("Reset password error:", error);
     return {
@@ -55,7 +72,6 @@ export async function resetPassword(state: FormState, formData: FormData) {
     };
   }
 }
-
 export async function signup(
   state: FormState,
   formData: FormData

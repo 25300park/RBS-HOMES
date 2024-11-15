@@ -6,7 +6,6 @@ export interface UnitDetailProps {
 }
 
 const UnitDetail = async ({ params }: UnitDetailProps) => {
-  await sleep(200)
   const unitId = parseInt(params?.id);
 
   if (!unitId || isNaN(unitId)) {
