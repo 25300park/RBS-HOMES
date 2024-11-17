@@ -82,6 +82,14 @@ export const typeOption: typeOptionType[] = [
   { label: "etc.,", value: "etc", icon: AiFillMessage  },
 ];
 
+export const unitStatusOptions = [
+  { label: "Ongoing", value: "0" },
+  { label: "Completed", value: "1" },
+  { label: "Contracted", value: "2" },
+  { label: "Under Negotiation", value: "3" },
+];
+
+
 export const citiesWithRange = {
   manila: {
     name: "Manila",

@@ -16,7 +16,16 @@ import {
   subMonths,
   addWeeks,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, CalendarPlus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarPlus,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { deleteSchedule, updateSchedule } from "@/app/(route)/account/action";
+import { ConfirmDialog } from "./confirm-dialog";
 
 interface Schedule {
   id: number;
@@ -27,6 +36,7 @@ interface Schedule {
   title: string;
   startedAt?: Date;
   endedAt?: Date;
+  regId: number | null;
 }
 
 interface UnitDetail {
@@ -50,13 +60,15 @@ const formatPrice = (price: number | string) => {
 const ScheduleCard = ({
   schedule,
   unitDetail,
-  showDate = false, // 날짜 표시 여부를 위한 prop 추가
+  showDate = false,
 }: {
   schedule: Schedule;
   unitDetail?: UnitDetail;
   showDate?: boolean;
 }) => {
   const router = useRouter();
+  const { toast } = useToast();
+  const { openModal } = useModalStore();
   const startTime = schedule.startedAt
     ? format(new Date(schedule.startedAt), "HH:mm")
     : null;
@@ -64,6 +76,29 @@ const ScheduleCard = ({
     ? format(new Date(schedule.endedAt), "HH:mm")
     : null;
   const isAllDay = (!startTime || startTime == "00:00") && endTime == "23:59";
+
+  const canModify = !schedule.regId;
+
+  const handleEdit = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!canModify) return;
+
+    // 수정모드로 ScheduleModal 열기
+    openModal("schedule", {
+      mode: "edit",
+      scheduleData: {
+        id: schedule.id,
+        title: schedule.title,
+        desc: schedule.desc,
+        date: new Date(schedule.date),
+        startedAt: schedule.startedAt
+          ? new Date(schedule.startedAt)
+          : undefined,
+        endedAt: schedule.endedAt ? new Date(schedule.endedAt) : undefined,
+        unitId: schedule.unitId,
+      },
+    });
+  };
 
   const handleUnitClick = (e: React.MouseEvent, unitId: number) => {
     e.stopPropagation();
@@ -95,6 +130,50 @@ const ScheduleCard = ({
               </span>
             )}
           </div>
+
+          {canModify && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleEdit}
+                className="p-1.5 hover:bg-orange-200 rounded-full transition-colors"
+              >
+                <PencilIcon className="w-4 h-4 text-orange-600" />
+              </button>
+
+              <ConfirmDialog
+                title="Delete Schedule"
+                description="Are you sure you want to delete this schedule?"
+                confirmText="Delete"
+                onConfirm={async () => {
+                  try {
+                    const result = await deleteSchedule(schedule.id);
+
+                    toast({
+                      title: result.status === 200 ? "Success" : "Error",
+                      description: result.message,
+                      variant:
+                        result.status === 200 ? "default" : "destructive",
+                    });
+
+                    if (result.status === 200) {
+                      router.refresh();
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to delete schedule",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                triggerVariant="ghost"
+              >
+                <div className="p-1.5 hover:bg-orange-200 rounded-full transition-colors cursor-pointer">
+                  <TrashIcon className="w-4 h-4 text-orange-600" />
+                </div>
+              </ConfirmDialog>
+            </div>
+          )}
         </div>
         <h4 className="font-medium text-gray-900">{schedule.title}</h4>
         {schedule.desc && (

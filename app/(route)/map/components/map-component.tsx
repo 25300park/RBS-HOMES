@@ -194,7 +194,7 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
       <SearchInput autocompleteRef={autocompleteRef} />
       <div
         ref={mapRef}
-       className="absolute w-full h-[100dvh]"
+       className="absolute w-full h-full"
         style={{ outline: "none" }}
         tabIndex={-1}
       />

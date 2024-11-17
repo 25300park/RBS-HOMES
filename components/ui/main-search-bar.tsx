@@ -17,14 +17,14 @@ interface PopularCity {
 }
 
 const POPULAR_CITIES: PopularCity[] = [
-  { name: "Manila", image: "/assets/images/cites/manila.png" },
-  { name: "Cebu", image: "/assets/images/cites/Cebu.png" },
-  { name: "Davao", image: "/assets/images/cites/Davao.png" },
-  { name: "Boracay", image: "/assets/images/cites/Boracay.png" },
-  { name: "Palawan", image: "/assets/images/cites/Palawan.png" },
-  { name: "Bohol", image: "/assets/images/cites/Bohol.png" },
-  { name: "Siargao", image: "/assets/images/cites/Siargao.png" },
-  { name: "Tagaytay", image: "/assets/images/cites/Tagaytay.png" },
+  { name: "BGC", image: "/assets/images/cities/BGC.png" },
+  { name: "Makati", image: "/assets/images/cities/Makati.png" },
+  { name: "Mandaluyong", image: "/assets/images/cities/Mandaluyong.png" },
+  { name: "Manila", image: "/assets/images/cities/manila.jpg" },
+  { name: "Muntinlupa", image: "/assets/images/cities/Muntinlupa.png" },
+  { name: "Pasay", image: "/assets/images/cities/Pasay.png" },
+  { name: "Pasig", image: "/assets/images/cities/Pasig.png" },
+  { name: "Quezon", image: "/assets/images/cities/Quezon.png" },
 ];
 
 const MobileSearchBar = ({

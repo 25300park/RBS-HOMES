@@ -167,6 +167,9 @@ async function getFilteredUnits(
 
   // Build filter conditions
   const filterConditions = {
+    status: {
+      in: [0, 3] 
+    },
     type: type ? { equals: type } : undefined,
     sellType: sellType ? { equals: sellType } : undefined,
     bed: bed ? { gte: bed } : undefined,

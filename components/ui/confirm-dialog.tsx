@@ -36,7 +36,7 @@ export function ConfirmDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={triggerVariant}>{children}</Button>
+        <div >{children}</div>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

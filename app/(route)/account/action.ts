@@ -5,7 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import z from "zod";
 import { revalidatePath } from "next/cache";
-// 스케줄 추가를 위한 Zod 스키마
+
+
 const scheduleSchema = z.object({
   title: z
     .string()
@@ -19,6 +20,17 @@ const scheduleSchema = z.object({
   endedAt: z.date().optional(),
   unitId: z.number().nullable().default(-1),
 });
+
+const updateScheduleSchema = z.object({
+  id: z.number(),
+  title: z.string().max(100).nonempty(),
+  desc: z.string().optional(),
+  date: z.date(),
+  startedAt: z.date().optional(),
+  endedAt: z.date().optional(),
+  unitId: z.number().nullable().default(-1),
+});
+
 
 export const getUserSchedules = async () => {
   const session: any = await getServerSession(authOptions as any);
@@ -46,6 +58,7 @@ export const getUserSchedules = async () => {
         desc: true,
         startedAt: true,
         endedAt: true,
+        regId: true,
       },
       orderBy: {
         date: "desc", // 필요한 정렬 조건
@@ -234,5 +247,116 @@ export const getFavoriteList = async () => {
   } catch (error) {
     console.error("Error fetching favorite list:", error);
     throw new Error("Error fetching favorite list");
+  }
+};
+
+export const updateSchedule = async (scheduleId: number, scheduleData: any) => {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session || !session.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = session.user.id;
+
+    // 기존 스케줄 확인
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: { id: scheduleId }
+    });
+
+    if (!existingSchedule) {
+      return { status: 404, message: "Schedule not found" };
+    }
+
+    // regId가 있는 경우 수정 불가
+    if (existingSchedule.regId) {
+      return { status: 403, message: "Cannot modify registered schedule" };
+    }
+
+    // 본인의 스케줄인지 확인
+    if (existingSchedule.userId !== userId) {
+      return { status: 403, message: "Not authorized to update this schedule" };
+    }
+
+    const validationResult = updateScheduleSchema.safeParse({
+      ...scheduleData,
+      id: scheduleId
+    });
+
+    if (!validationResult.success) {
+      return {
+        status: 400,
+        message: validationResult.error.errors.map(error => error.message).join(", ")
+      };
+    }
+
+    const date = validationResult.data.date;
+    const startedAt = validationResult.data.startedAt || new Date(date.setHours(0, 0, 0, 0));
+    const endedAt = validationResult.data.endedAt || new Date(date.setHours(23, 59, 59, 999));
+
+    await prisma.schedule.update({
+      where: { id: scheduleId },
+      data: {
+        title: validationResult.data.title,
+        desc: validationResult.data.desc,
+        date,
+        startedAt,
+        endedAt,
+        unitId: validationResult.data.unitId || -1
+      }
+    });
+
+    revalidatePath("/account");
+    return { status: 200, message: "Schedule updated successfully" };
+  } catch (error) {
+    console.error("Error updating schedule:", error);
+    return {
+      status: 500,
+      message: error instanceof Error ? error.message : "Failed to update schedule"
+    };
+  }
+};
+
+// 스케줄 삭제 함수
+export const deleteSchedule = async (scheduleId: number) => {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session || !session.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = session.user.id;
+
+    // 기존 스케줄 확인
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: { id: scheduleId }
+    });
+
+    if (!existingSchedule) {
+      return { status: 404, message: "Schedule not found" };
+    }
+
+    // regId가 있는 경우 삭제 불가
+    if (existingSchedule.regId) {
+      return { status: 403, message: "Cannot delete registered schedule" };
+    }
+
+    // 본인의 스케줄인지 확인
+    if (existingSchedule.userId !== userId) {
+      return { status: 403, message: "Not authorized to delete this schedule" };
+    }
+
+    await prisma.schedule.delete({
+      where: { id: scheduleId }
+    });
+
+    revalidatePath("/account");
+    return { status: 200, message: "Schedule deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting schedule:", error);
+    return {
+      status: 500,
+      message: error instanceof Error ? error.message : "Failed to delete schedule"
+    };
   }
 };

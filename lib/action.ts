@@ -238,6 +238,9 @@ export const getUnitList = async (
     // Get units with filters
     const data = await prisma.unit.findMany({
       where: {
+        status: {
+          in: [0, 3] 
+        },
         sellType: sellType ? { equals: sellType } : undefined,
         type: type ? { equals: type } : undefined,
         bed: bed ? { gte: bed } : undefined,
@@ -330,6 +333,9 @@ export const getUnitCount = async (
   // 유닛의 개수를 카운트하는 함수
   const count = await prisma.unit.count({
     where: {
+      status: {
+        in: [0, 3] 
+      },
       sellType: sellType ? { equals: sellType } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,

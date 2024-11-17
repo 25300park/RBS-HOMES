@@ -31,7 +31,6 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
       error: error,
     })
   );
-
   if (error) {
     console.error("Error fetching units:", error);
     //에러처리

@@ -7,8 +7,13 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getUnitSceduleList, addSchedule } from "@/app/(route)/account/action";
-import { Textarea } from "../ui/textarea";
+import {
+  getUnitSceduleList,
+  addSchedule,
+  updateSchedule,
+  getUnitDetails,
+} from "@/app/(route)/account/action";
+import { Textarea } from "@/components/ui/textarea";
 import { enUS } from "date-fns/locale";
 import {
   format,
@@ -19,115 +24,185 @@ import {
   addHours,
 } from "date-fns";
 import { IoClose } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import Spinner from "../ui/spinner";
 
 interface Unit {
   id: number;
   title: string;
   price: number;
   fullAddress: string[];
-  images: string;
+  images: string[];
 }
 
 interface ScheduleModalProps {
   onClose: () => void;
-  modalProps?: string;
+  modalProps?: {
+    mode?: "create" | "edit";
+    scheduleData?: {
+      id: number;
+      title: string;
+      desc?: string;
+      date: Date;
+      startedAt?: Date;
+      endedAt?: Date;
+      unitId?: number;
+    };
+  };
 }
 
 export default function ScheduleModal({
   modalProps,
   onClose,
 }: ScheduleModalProps) {
-  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [desc, setDesc] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [eventType, setEventType] = useState<"task" | "unit">("task");
+  const router = useRouter();
+  const isEditMode = modalProps?.mode === "edit";
+  const existingData = modalProps?.scheduleData;
+
+  const [selectedUnit, setSelectedUnit] = useState<any>(null);
+  const [title, setTitle] = useState<string>(existingData?.title || "");
+  const [desc, setDesc] = useState<string>(existingData?.desc || "");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    existingData?.date ? new Date(existingData.date) : null
+  );
+  const [eventType, setEventType] = useState<"task" | "unit">(
+    existingData?.unitId && existingData.unitId !== -1 ? "unit" : "task"
+  );
   const [units, setUnits] = useState<any>([]);
   const [isAllDay, setIsAllDay] = useState(true);
   const [isUnitSelectOpen, setIsUnitSelectOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 시간 상태를 Date 객체로 관리
   const [startTime, setStartTime] = useState<Date>(() => {
+    if (existingData?.startedAt) {
+      return new Date(existingData.startedAt);
+    }
     const date = new Date();
     return setMinutes(setHours(date, 9), 0);
   });
 
   const [endTime, setEndTime] = useState<Date>(() => {
+    if (existingData?.endedAt) {
+      return new Date(existingData.endedAt);
+    }
     const date = new Date();
     return setMinutes(setHours(date, 10), 0);
   });
 
+  // 초기 데이터 로드
   useEffect(() => {
-    const fetchUnitScheduleList = async () => {
+    const loadInitialData = async () => {
       try {
-        const data = await getUnitSceduleList();
-        setUnits(data);
+        // 유닛 목록 로드
+        const unitsData = await getUnitSceduleList();
+        setUnits(unitsData);
+
+        // 수정 모드에서 유닛 데이터 로드
+        if (isEditMode && existingData?.unitId && existingData.unitId !== -1) {
+          const unitData = await getUnitDetails(existingData.unitId);
+          setSelectedUnit(unitData);
+
+          // 시간 설정
+          if (existingData.startedAt && existingData.endedAt) {
+            setIsAllDay(false);
+            const start = new Date(existingData.startedAt);
+            const end = new Date(existingData.endedAt);
+            setStartTime(start);
+            setEndTime(end);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching unit schedules:", error);
+        console.error("Error loading initial data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load data",
+          variant: "destructive",
+        });
       }
     };
 
-    fetchUnitScheduleList();
-  }, []);
+    loadInitialData();
+  }, [isEditMode, existingData]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!selectedDate) {
-      toast({
-        title: "Error",
-        description: "Please select a date",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // 날짜와 시간 결합
-    const startDateTime = new Date(selectedDate);
-    const endDateTime = new Date(selectedDate);
-
-    if (!isAllDay) {
-      startDateTime.setHours(startTime.getHours(), startTime.getMinutes(), 0);
-      endDateTime.setHours(endTime.getHours(), endTime.getMinutes(), 0);
-    } else {
-      // 종일 일정의 경우 시작은 0시 0분, 종료는 23시 59분으로 설정
-      const start = startOfDay(startDateTime);
-      const end = endOfDay(endDateTime);
-      startDateTime.setHours(
-        start.getHours(),
-        start.getMinutes(),
-        start.getSeconds()
-      );
-      endDateTime.setHours(end.getHours(), end.getMinutes(), end.getSeconds());
-    }
-
-    const scheduleData = {
-      unitId: eventType === "unit" && selectedUnit ? selectedUnit.id : -1,
-      title,
-      desc: desc,
-      date: selectedDate,
-      startedAt: startDateTime,
-      endedAt: endDateTime,
-      status: 0,
-    };
+    setIsLoading(true);
 
     try {
-      const response = await addSchedule(scheduleData);
-      if (response.status === 200) {
-        onClose();
+      if (!selectedDate) {
+        toast({
+          title: "Error",
+          description: "Please select a date",
+          variant: "destructive",
+        });
+        return;
       }
-      toast({
-        title: response.status === 200 ? "Success" : "Failed",
-        description: response.message,
-        variant: response.status === 200 ? "default" : "destructive",
-      });
+
+      // 날짜와 시간 결합
+      const startDateTime = new Date(selectedDate);
+      const endDateTime = new Date(selectedDate);
+
+      if (!isAllDay) {
+        startDateTime.setHours(startTime.getHours(), startTime.getMinutes(), 0);
+        endDateTime.setHours(endTime.getHours(), endTime.getMinutes(), 0);
+      } else {
+        // 종일 일정의 경우 시작은 0시 0분, 종료는 23시 59분으로 설정
+        const start = startOfDay(startDateTime);
+        const end = endOfDay(endDateTime);
+        startDateTime.setHours(
+          start.getHours(),
+          start.getMinutes(),
+          start.getSeconds()
+        );
+        endDateTime.setHours(
+          end.getHours(),
+          end.getMinutes(),
+          end.getSeconds()
+        );
+      }
+
+      const scheduleData = {
+        id: existingData?.id,
+        unitId: eventType === "unit" && selectedUnit ? selectedUnit.id : -1,
+        title,
+        desc,
+        date: selectedDate,
+        startedAt: startDateTime,
+        endedAt: endDateTime,
+        status: 0,
+      };
+
+      let response;
+      if (isEditMode) {
+        response = await updateSchedule(existingData!.id, scheduleData);
+      } else {
+        response = await addSchedule(scheduleData);
+      }
+
+      if (response.status === 200) {
+        toast({
+          title: "Success",
+          description: response.message,
+        });
+        router.refresh();
+        onClose();
+      } else {
+        toast({
+          title: "Failed",
+          description: response.message,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error saving schedule:", error);
       toast({
         title: "Error",
-        description: "Failed to add schedule",
+        description: "Failed to save schedule",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -169,6 +244,7 @@ export default function ScheduleModal({
           placeholder="Enter schedule title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
       </div>
 
@@ -191,6 +267,7 @@ export default function ScheduleModal({
             placeholderText="Select a date"
             locale={enUS}
             dateFormat="MMMM d, yyyy"
+            required
           />
         </div>
 
@@ -217,7 +294,6 @@ export default function ScheduleModal({
                 onChange={(date: Date | null) => {
                   if (date) {
                     setStartTime(date);
-                    // 종료 시간이 시작 시간보다 이르면 종료 시간을 시작 시간 + 1시간으로 설정
                     if (endTime < date) {
                       setEndTime(addHours(date, 1));
                     }
@@ -229,8 +305,8 @@ export default function ScheduleModal({
                 timeCaption="Time"
                 dateFormat="h:mm aa"
                 locale={enUS}
-                minTime={setHours(setMinutes(new Date(), 0), 0)} // 00:00
-                maxTime={setHours(setMinutes(new Date(), 45), 23)} // 23:45
+                minTime={setHours(setMinutes(new Date(), 0), 0)}
+                maxTime={setHours(setMinutes(new Date(), 45), 23)}
                 className="w-32 p-2 border rounded focus:ring-2 focus:ring-orange-400 focus:outline-none"
               />
             </div>
@@ -249,8 +325,8 @@ export default function ScheduleModal({
                 timeCaption="Time"
                 dateFormat="h:mm aa"
                 locale={enUS}
-                minTime={startTime} // 시작 시간 이후
-                maxTime={setHours(setMinutes(new Date(), 45), 23)} // 23:45
+                minTime={startTime}
+                maxTime={setHours(setMinutes(new Date(), 45), 23)}
                 className="w-32 p-2 border rounded focus:ring-2 focus:ring-orange-400 focus:outline-none"
               />
             </div>
@@ -263,7 +339,6 @@ export default function ScheduleModal({
         <div>
           {units?.data?.length > 0 ? (
             <div className="relative">
-              {/* 유닛 선택 트리거 버튼 */}
               <button
                 type="button"
                 onClick={() => setIsUnitSelectOpen(true)}
@@ -298,8 +373,7 @@ export default function ScheduleModal({
               {/* 유닛 선택 모달 */}
               {isUnitSelectOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
-                  <div className="bg-white w-full md:h-[85vh] h-[600px] md:w-full max-w-[500px] md:mt-auto md:mb-auto md:rounded-lg overflow-hidden  duration-300">
-                    {/* 모달 헤더 */}
+                  <div className="bg-white w-full md:h-[85vh] h-[600px] md:w-full max-w-[500px] md:mt-auto md:mb-auto md:rounded-lg overflow-hidden duration-300">
                     <div className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10">
                       <h3 className="text-lg font-medium">Select Unit</h3>
                       <button
@@ -311,7 +385,6 @@ export default function ScheduleModal({
                       </button>
                     </div>
 
-                    {/* 유닛 리스트 */}
                     <div
                       className="overflow-y-auto"
                       style={{
@@ -355,19 +428,64 @@ export default function ScheduleModal({
               )}
             </div>
           ) : (
-            <p>No units available</p>
+            <p className="text-gray-500 p-4">No units available</p>
           )}
         </div>
       )}
 
-      <div className="w-full flex justify-end">
+      {/* Submit Buttons */}
+      <div className="w-full flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="w-32 md:w-full"
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           className="bg-orange-300 text-white hover:bg-orange-400 w-32 md:w-full"
+          disabled={isLoading}
         >
-          Save
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Spinner className="h-4 w-4" />
+              <span>{isEditMode ? "Updating..." : "Saving..."}</span>
+            </div>
+          ) : (
+            <span>{isEditMode ? "Update" : "Save"}</span>
+          )}
         </Button>
       </div>
+
+      {/* Unit Selection Required Warning */}
+      {eventType === "unit" && !selectedUnit && (
+        <p className="text-sm text-orange-600 mt-2">
+          Please select a unit for unit-related events
+        </p>
+      )}
     </form>
   );
+}
+
+interface CreateScheduleData {
+  title: string;
+  desc?: string;
+  date: Date;
+  startedAt?: Date;
+  endedAt?: Date;
+  unitId: number;
+  status: number;
+}
+
+interface UpdateScheduleData extends CreateScheduleData {
+  id: number;
+}
+
+interface ScheduleResponse {
+  status: number;
+  message: string;
+  data?: any;
 }
