@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { VisitorTracker } from "@/components/visitor-tracker";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://rbs-homes.com'),
   title: {
     default: "Philippines Real Estate | RBS Homes",
     template: "%s | RBS Homes"
