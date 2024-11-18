@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ModalProvider } from "@/provider/modal-provider";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,8 +6,6 @@ import AuthProvider from "@/provider/auth-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { VisitorTracker } from "@/components/visitor-tracker";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -36,7 +33,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body className={`${inter.className} md:h-[100dvh]`}>
+      <body className={` md:h-[100dvh]`}>
         <AuthProvider session={session}>
           <ModalProvider />
           <VisitorTracker />
