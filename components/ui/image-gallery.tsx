@@ -132,7 +132,6 @@ const ImageGallery = ({ images, isPreview }: ImageGalleryProps) => {
         <DrawerContent
           {...handlers}
           className="h-screen flex items-center justify-center bg-black rounded-none border-none"
-          hiddenBar
         >
           <div className="fixed top-10 text-white w-full flex justify-between items-center px-20">
             <DrawerClose className="flex items-center text-sm gap-2 hover:bg-[#4a4a4a] p-2 px-3 rounded-lg ">

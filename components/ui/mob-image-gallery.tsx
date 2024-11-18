@@ -181,7 +181,6 @@ const MobileImageGallery = ({
         <DrawerContent
           {...fullscreenHandlers}
           className="h-[100dvh] flex items-center justify-center bg-black rounded-none border-black"
-          hiddenBar
         >
           <div className="fixed top-6 text-white w-full flex justify-between items-center px-6">
             <DrawerClose className="flex items-center text-sm gap-2 hover:bg-white/20 p-2 rounded-lg">
