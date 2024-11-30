@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { amenitiesData, Amenity } from "@/lib/config/amenities";
 
@@ -27,16 +28,23 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
         <div className="grid grid-cols-5 gap-2 md:grid-cols-2">
           {amenitiesData.map((amenity, index) => (
             <Button
-            variant={"ghost"}
+              variant="ghost"
               key={index}
               className={`flex items-center justify-between p-2 border rounded-md ${
                 value.includes(amenity.label)
-                  ? " border-orange-300 bg-orange-50"
+                  ? "border-orange-300 bg-orange-50"
                   : "white border-gray-300"
               } hover:bg-orange-100 hover:border-orange-400`}
               onClick={() => handleToggleTag(amenity)}
             >
-              <span className="mr-2 text-orange-500">{<amenity.icon />}</span>
+              <div className="relative w-5 h-5 mr-2">
+                <Image
+                  src={amenity.imagePath}
+                  alt={amenity.label}
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <span>{amenity.label}</span>
             </Button>
           ))}
@@ -52,22 +60,30 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
               (amenity) => amenity.label === tag
             );
             return (
-              <div
-                key={index}
-                className="flex items-center rounded-sm border justify-between relative px-4 py-2"
-              >
-                <div className="text-sm text-gray-400 flex items-center gap-3">
-                  <span className="text-orange-500">{amenity && <amenity.icon />}</span>
-                  <p className="text-[10px]">{tag}</p>
-                </div>
-
-                <button
-                  onClick={() => handleToggleTag(amenity!)}
-                  className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
+              amenity && (
+                <div
+                  key={index}
+                  className="flex items-center rounded-sm border justify-between relative px-4 py-2"
                 >
-                  X
-                </button>
-              </div>
+                  <div className="text-sm text-gray-400 flex items-center gap-3">
+                    <div className="relative w-4 h-4">
+                      <Image
+                        src={amenity.imagePath}
+                        alt={amenity.label}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="text-[10px]">{tag}</p>
+                  </div>
+                  <button
+                    onClick={() => handleToggleTag(amenity)}
+                    className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
+                  >
+                    X
+                  </button>
+                </div>
+              )
             );
           })}
         </div>

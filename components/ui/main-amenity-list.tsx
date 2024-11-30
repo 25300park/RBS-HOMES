@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
 import { MdOutlineArrowBack, MdOutlineArrowForward } from "react-icons/md";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -13,7 +14,6 @@ const MainAmenityList = () => {
 
   const selectedAmenities = searchParams.get("amenities")?.split(",") || [];
 
-  // 스크롤 핸들
   const handleScroll = (direction: "left" | "right") => {
     if (sliderRef.current) {
       const scrollAmount = direction === "left" ? -500 : 500;
@@ -24,7 +24,6 @@ const MainAmenityList = () => {
     }
   };
 
-  // Update arrow visibility based on scroll position
   const updateArrowsVisibility = () => {
     if (sliderRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
@@ -33,10 +32,8 @@ const MainAmenityList = () => {
     }
   };
 
-  // 스크롤이벤추가
   useEffect(() => {
     const slider = sliderRef.current;
-
     updateArrowsVisibility();
 
     const handleResize = () => updateArrowsVisibility();
@@ -49,10 +46,8 @@ const MainAmenityList = () => {
     };
   }, []);
 
-  // 어메니티 선택
   const handleAmenityClick = (amenity: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
-
     let newSelectedAmenities = [...selectedAmenities];
 
     if (selectedAmenities.includes(amenity)) {
@@ -63,7 +58,6 @@ const MainAmenityList = () => {
       newSelectedAmenities.push(amenity);
     }
 
-    // Update URL params
     if (newSelectedAmenities.length === 0) {
       newParams.delete("amenities");
     } else {
@@ -74,8 +68,7 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className=" flex items-center px-10  md:px-4 md:pt-0 relative w-[84%] md:hidden 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
-      {/* Left Arrow */}
+    <div className="flex items-center px-10 md:px-4 md:pt-0 relative w-[84%] md:hidden 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
       {showLeftArrow && (
         <button
           onClick={() => handleScroll("left")}
@@ -86,9 +79,7 @@ const MainAmenityList = () => {
         </button>
       )}
 
-      {/* Slider Container */}
       <div className="relative w-full flex items-center">
-        {/* Gradient Overlays */}
         {showLeftArrow && (
           <div
             className="absolute left-0 top-0 bottom-0 w-32 md:w-16 
@@ -102,7 +93,6 @@ const MainAmenityList = () => {
           />
         )}
 
-        {/* Amenities List */}
         <div
           ref={sliderRef}
           className="flex gap-5 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar md:gap-2"
@@ -115,19 +105,22 @@ const MainAmenityList = () => {
               <div
                 key={index}
                 className={`flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] 
-                          h-full cursor-pointer group `}
+                          h-full cursor-pointer group`}
                 onClick={() => handleAmenityClick(amenity.label)}
               >
-                <span
-                  className="text-gray-600 text-2xl transition-transform transform-gpu
-          group-hover:scale-105 group-active:scale-90
-                             duration-300 "
+                <div
+                  className="relative w-6 h-6 transition-transform transform-gpu
+                               group-hover:scale-105 group-active:scale-90 duration-300"
                 >
-                  {<amenity.icon />}
-                </span>
+                  <Image
+                    src={amenity.imagePath}
+                    alt={amenity.label}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <span
                   className={`text-xs w-fit pb-3 text-center pt-2 border-b-2
-                            
                             ${
                               isSelected
                                 ? "border-black"
@@ -142,7 +135,6 @@ const MainAmenityList = () => {
         </div>
       </div>
 
-      {/* Right Arrow */}
       {showRightArrow && (
         <button
           onClick={() => handleScroll("right")}

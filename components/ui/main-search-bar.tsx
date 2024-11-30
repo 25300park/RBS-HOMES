@@ -88,7 +88,7 @@ const MobileSearchBar = ({
   return (
     <div className="relative w-full">
       <div
-        className="flex items-center justify-between bg-white rounded-full shadow-md border p-1 h-[54px] w-full active:scale-[0.99] transition-transform"
+        className="flex items-center justify-between bg-white rounded-full shadow-md border p-1 h-[46px] w-full mb-1 active:scale-[0.99] transition-transform"
         onClick={() => {
           setIsExpanded(true);
           setActiveTab("recent");
