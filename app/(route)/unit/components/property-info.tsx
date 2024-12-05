@@ -14,6 +14,7 @@ import { FaRegUser } from "react-icons/fa";
 import { getRelativeTime } from "@/lib/utils";
 import { amenitiesData } from "@/lib/config/amenities"; // 어메니티 데이터 임포트
 import StickyBox from "./sticky-box";
+import Image from "next/image";
 
 interface PropertyInfoProps {
   property: {
@@ -211,7 +212,14 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
                 return (
                   amenityData && (
                     <div key={amenity} className="flex  items-center gap-4">
-                      <amenityData.icon className="text-2xl text-gray-600" />
+                      <div className="relative w-5 h-5 mr-2">
+                        <Image
+                          src={amenity.imagePath}
+                          alt={amenity.label}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
                       <p>{amenityData.label}</p>
                     </div>
                   )
@@ -223,7 +231,11 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
 
         {/* sticky */}
 
-        <StickyBox price={property.price} sellType={property.sellType} unitId={property.id}/>
+        <StickyBox
+          price={property.price}
+          sellType={property.sellType}
+          unitId={property.id}
+        />
       </section>
     </div>
   );

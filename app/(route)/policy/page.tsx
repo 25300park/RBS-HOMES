@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 "use client";
 
 const PrivacyPolicy = () => {
@@ -10,7 +12,7 @@ const PrivacyPolicy = () => {
         </p>
 
         {/* Introduction */}
-        <div className="bg-gray-50 p-6 rounded-lg mb-8">
+        <div className="bg-gray-50 p-6 rounded-lg mb-8">ㅇ
           <p className="text-gray-700 mb-4">
             This Privacy Policy explains how we collect, use, disclose and
             retain personal information through your use of www.RBS-HOMES.com
