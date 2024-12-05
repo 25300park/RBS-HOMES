@@ -40,7 +40,7 @@ export default function StepThreeForm() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { compressImages, isCompressing } = useImageCompression();
-
+const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormData>({
     images: [],
     note: "",
@@ -103,20 +103,16 @@ export default function StepThreeForm() {
     const uniqueFiles = acceptedFiles.filter(
       (file) => isValidImageType(file) && !currentFileNames.includes(file.name)
     );
-
-    // 중복/잘못된 파일이 있는 경우에만 토스트 메시지 표시
-    if (uniqueFiles.length < acceptedFiles.length) {
-      toast({
-        title: "Some files were not added",
-        description: "Duplicate or invalid files were excluded.",
-      });
-    }
-
+  
     if (uniqueFiles.length === 0) return;
-
+  
     try {
+      setUploadingFiles(true);
       const compressedFiles = await compressImages(uniqueFiles);
-
+  
+      // 임시 상태 저장
+      const prevFormData = { ...formData };
+      
       const newImages = compressedFiles.map((file) => ({
         file,
         preview: createImagePreview(file),
@@ -125,49 +121,67 @@ export default function StepThreeForm() {
         progress: 0,
         showProgress: true,
       }));
-
+  
       const startIndex = formData.images.length;
       const newImageIndices = Array.from(
         { length: newImages.length },
         (_, i) => startIndex + i
       );
-
+  
       setFormData((prev) => ({
         ...prev,
         images: [...prev.images, ...newImages],
       }));
-
-      const urls = await uploadToS3(compressedFiles, newImageIndices);
-
-      setFormData((prev) => ({
-        ...prev,
-        images: prev.images.map((img, index) => {
-          const urlIndex = newImageIndices.indexOf(index);
-          return urlIndex !== -1
-            ? { ...img, url: urls[urlIndex], progress: 100 }
-            : img;
-        }),
-      }));
-
-      setTimeout(() => {
+  
+      try {
+        const urls = await uploadToS3(compressedFiles, newImageIndices);
+        
         setFormData((prev) => ({
           ...prev,
-          images: prev.images.map((img, index) =>
-            newImageIndices.includes(index)
-              ? { ...img, showProgress: false }
-              : img
-          ),
+          images: prev.images.map((img, index) => {
+            const urlIndex = newImageIndices.indexOf(index);
+            return urlIndex !== -1
+              ? { ...img, url: urls[urlIndex], progress: 100 }
+              : img;
+          }),
         }));
-      }, 500);
+  
+        // 프로그레스바 숨기기 전 지연
+        setTimeout(() => {
+          setFormData((prev) => ({
+            ...prev,
+            images: prev.images.map((img, index) =>
+              newImageIndices.includes(index)
+                ? { ...img, showProgress: false }
+                : img
+            ),
+          }));
+        }, 500);
+  
+      } catch (error) {
+        // 업로드 실패 시 이전 상태로 롤백
+        setFormData(prevFormData);
+        toast({
+          title: "Upload failed",
+          description: "Files could not be uploaded. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+  
     } catch (error) {
-      // 실패했을 때만 토스트 메시지 표시
       toast({
-        title: "Upload failed",
-        description: "Please try again.",
+        title: "Image processing failed",
+        description: "Please try again with different images.",
+        variant: "destructive"
       });
+    } finally {
+      // 프로그레스바가 사라진 후에 uploadingFiles 상태 변경
+      setTimeout(() => {
+        setUploadingFiles(false);
+      }, 600);  // 프로그레스바 애니메이션(500ms)보다 살짝 더 긴 시간
     }
   };
-
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { "image/*": [] },
@@ -348,6 +362,7 @@ export default function StepThreeForm() {
           <div className="w-full flex justify-end md:mt-4">
             <SubmitButton
               isSubmitting={isSubmitting}
+              disabled={uploadingFiles || formData.images.length === 0}
               onClick={handleNext}
               label="Save & Continue"
             />

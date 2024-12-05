@@ -315,7 +315,7 @@ const MyListMobSideBar = React.memo(({ type }: MyListMobSideBarProps) => {
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
         style={{
-          height: "calc(100dvh - 70px)",
+          height: "calc(100dvh - 60px)",
           transform: "translateY(calc(100% - 60px))",
           touchAction: "pan-x pan-y",
           overscrollBehavior: "none",

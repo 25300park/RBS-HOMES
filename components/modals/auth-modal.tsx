@@ -56,7 +56,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
           signIn("credentials", {
             email: state.email,
             password: state.password,
-            redirect: true,
+            redirect: false,
           })
             .then((result) => {
               if (!result?.error) {
@@ -147,7 +147,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
         </div>
       )}
 
-      <div className="text-center mb-6">
+      <div className="text-center mb-6 md:mb-2">
         <h2 className="text-3xl font-bold text-gray-900">
           {authMode === "login"
             ? "Sign In"
@@ -165,10 +165,10 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       {authMode !== "reset" && (
-        <div className="mb-6">
+        <div className="mb-6 md:mb-2">
           <Button
             onClick={() => signIn("google", { redirect: true })}
-            className="flex items-center justify-center w-full py-2 mb-4 bg-white border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-50"
+            className="flex items-center justify-center w-full py-2 mb-4 md:mb-2 bg-white border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-50"
           >
             <FcGoogle className="w-6 h-6 mr-2" />
             Continue with Google
@@ -185,7 +185,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
           name="email"
           type="email"
           placeholder="Email"
-          className="mb-4 w-full"
+          className="mb-4 md:mb-2 w-full"
         />
 
         {authMode !== "reset" && (
@@ -193,7 +193,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
             name="password"
             type="password"
             placeholder="Password"
-            className="mb-4 w-full"
+            className="mb-4 md:mb-2 w-full"
           />
         )}
 
@@ -202,7 +202,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
             name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
-            className="mb-4 w-full"
+            className="mb-4 md:mb-2 w-full"
           />
         )}
 
@@ -233,7 +233,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
         </Button>
       </form>
 
-      <div className="text-sm mt-6 text-center text-gray-600 space-y-2">
+      <div className="text-sm mt-6 md:mt-0 text-center text-gray-600 space-y-2">
         {authMode === "login" && (
           <>
             <p>

@@ -86,21 +86,20 @@ const MobileSearchBar = ({
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-fit">
       <div
-        className="flex items-center justify-between bg-white rounded-full shadow-md border p-1 h-[46px] w-full mb-1 active:scale-[0.99] transition-transform"
+        className="flex items-center justify-between bg-orange-400 rounded-full shadow-md  p-1  w-full mb-1 active:scale-[0.99] transition-transform"
         onClick={() => {
           setIsExpanded(true);
           setActiveTab("recent");
           onExpandChange?.(true);
         }}
       >
-        <div className="flex items-center w-full pl-6">
-          <IoSearch className="text-gray-400 mr-2" />
+        <div className="flex items-center w-full p-2">
+          <IoSearch className=" text-xl text-white" />
           <span
             className={`${searchValue ? "text-gray-700" : "text-gray-400"}`}
           >
-            {searchValue || "Search area in the Philippines"}
           </span>
         </div>
       </div>

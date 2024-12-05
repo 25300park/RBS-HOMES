@@ -85,6 +85,7 @@ export const stepOneSchema = z.object({
   price: z.number().min(1, "Price must be specified"),
   // location: z.string().min(1, "Locaiton must be specified"),
   saleType: z.string().min(1, "Sale type must be specified"),
+  latitude: z.number().min(1, "address must be specified"),
   unitType: z.string().min(1, "Unit type must be specified"),
 });
 

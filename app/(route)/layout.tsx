@@ -13,8 +13,7 @@ export default async function RootLayout({
   const headersList = headers();
   const userAgent = headersList.get("user-agent") || "";
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  console.log(isMobile)
-  // 홈페이지('/')에서만 리다이렉트 처리
+
   const pathname = headersList.get("x-invoke-path") || "";
   if (isMobile && pathname === "/") {
     redirect("/map?sellType=rent");

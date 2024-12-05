@@ -37,7 +37,7 @@ export const useMapStore = create<MapState>((set) => ({
   popup: null,
   isLoading: false,
   hoverUnitId: null,
-  sheetPosition: 'minimized', // 추가된 상태
+  sheetPosition: 'half', // 추가된 상태
 
   //  액션
   setSheetPosition: (position) => set({ sheetPosition: position }),

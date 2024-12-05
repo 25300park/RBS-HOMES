@@ -20,6 +20,8 @@ export default function StepOneForm() {
     ownerName: "",
     location: "",
     price: "",
+    latitude: 0,
+    longitude: 0,
     saleType: "rent",
     unitType: "condo",
     ownerEmail: "",
@@ -64,7 +66,7 @@ export default function StepOneForm() {
         description: (
           <div>
             {result.error.issues.map((issue, index) => (
-              <p key={index} className="text-lg text-red-500 font-semibold">
+              <p key={index} className="text-md text-red-500 font-semibold">
                 - {issue.message}
                 <br />
               </p>
@@ -126,7 +128,7 @@ export default function StepOneForm() {
             </div>
 
             {/* Price and Sell Type Container */}
-            <div className="flex gap-4 w-full md:flex-col md:gap-0 md:col-span-2">
+            <div className="flex gap-4 w-full md:flex-col md:gap-0 md:col-span-2 relative">
               {/* Price */}
               <div className="w-full">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
@@ -144,7 +146,7 @@ export default function StepOneForm() {
                 />
               </div>
               {/* Sell Type */}
-              <div className="md:mt-4">
+              <div className="md:mt-4 ">
                 <label className="block text-xs mb-1 font-medium text-zinc-500">
                   Sell Type
                 </label>
@@ -155,6 +157,10 @@ export default function StepOneForm() {
                   className="w-full space-x-0 flex gap-2"
                   boxClassName="h-11 md:text-sm md:w-full"
                 />
+                <p className="text-xs text-right absolute right-0 w-full mt-1 text-zinc-500">
+                  Your information will be entered on the [
+                  {formData.saleType === "rent" ? "RENT" : "BUY"}] page.
+                </p>
               </div>
             </div>
 

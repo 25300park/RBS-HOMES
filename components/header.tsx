@@ -20,13 +20,14 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
 
   return (
     <header>
-      <nav className="h-32 hidden md:flex fixed top-0 bg-white p-4 w-full flex-col gap-2 z-50 border-b shadow-md">
-        <MainSearchBar isMobile />
+      <nav className="h-20 hidden md:flex fixed top-0 bg-white p-4 w-full gap-2 z-50 border-b shadow-md items-center justify-between">
         <div>
           <MainFilterGroup />
         </div>
+        <MainSearchBar isMobile />
+
       </nav>
-      <div className="mt-32" />
+      <div className="mt-20" />
     </header>
   );
 };

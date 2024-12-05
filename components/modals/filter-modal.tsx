@@ -184,9 +184,9 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   }, [debouncedFilters]);
 
   return (
-    <div className="px-2 md:p-6 md:pb-10 md:h-[85vh] md:overflow-y-auto md:w-fit md:mx-auto">
+    <div className="px-2 md:h-[85vh] md:overflow-y-auto md:w-fit md:mx-auto">
       {/* 헤더 섹션 */}
-      <div className="text-left mb-6 md:sticky md:-top-3 md:bg-white md:z-10 md:pb-4 md:shadow-sm">
+      <div className="text-left mb-6 md:sticky md:top-0 md:bg-white md:z-10 md:pb-4 md:shadow-sm">
         <h2 className="text-2xl font-bold text-gray-900">Filter</h2>
         <p className="text-gray-400 text-xs">
           Narrow down the search results by selecting filters.
@@ -261,7 +261,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         </div>
   
         {/* Price Range Slider */}
-        <div className="my-6">
+        <div className="my-6 md:my-2">
           <label className="block text-sm font-medium text-zinc-500 mb-1">
             Price Range
           </label>
@@ -349,7 +349,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         </div>
   
         {/* Action Buttons */}
-        <div className="flex flex-row-reverse justify-between mt-8 md:sticky md:bottom-0 md:bg-white md:py-4 md:-mx-6 md:px-6">
+        <div className="flex flex-row-reverse justify-between mt-8 md:sticky md:bottom-0 md:bg-white md:py-4 md:-mx-6 md:px-6 border-t">
           <Button
             type="button"
             className="py-6 bg-orange-400 hover:bg-orange-500"

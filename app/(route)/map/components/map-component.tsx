@@ -47,7 +47,6 @@ const MAP_STYLE = [
   },
 ];
 
-
 const SearchInput = React.memo(
   ({
     autocompleteRef,
@@ -92,7 +91,8 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const containerStyle = React.useMemo(() => {
-    const baseStyle = "relative transition-all duration-500 ease-in-out w-full md:h-[100dvh] h-full";
+    const baseStyle =
+      "relative transition-all duration-500 ease-in-out w-full md:h-[100dvh] h-full";
 
     if (!isMobile) {
       return `${baseStyle} h-full md:h-[100dvh] ${
@@ -188,13 +188,49 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
     handleUnitsUpdate(units);
   }, [units, handleUnitsUpdate]);
 
+  useEffect(() => {
+    const initializeAutocomplete = async () => {
+      await loadGoogleMapsAPI(); 
+  
+      if (!autocompleteRef.current || !map) return;
+  
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        autocompleteRef.current,
+        {
+          componentRestrictions: { country: "PH" },
+          language: "en",
+        }
+      );
+  
+      // place_changed 이벤트 리스너 추가
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+  
+        if (!place.geometry || !place.geometry.location) {
+          console.log("Returned place contains no geometry");
+          return;
+        }
+  
+        // 장소의 viewport가 있다면 그것을 사용하고, 없다면 위치를 중심으로 줌
+        if (place.geometry.viewport) {
+          map.fitBounds(place.geometry.viewport);
+        } else {
+          map.setCenter(place.geometry.location);
+          map.setZoom(17);
+        }
+      });
+    };
+  
+    initializeAutocomplete();
+  }, [map]); // map을 의존성 배열에 추가
+
   return (
     <div className={containerStyle}>
       <DotLoader isLoading={isLoading} />
       <SearchInput autocompleteRef={autocompleteRef} />
       <div
         ref={mapRef}
-       className="absolute w-full h-full"
+        className="absolute w-full h-full"
         style={{ outline: "none" }}
         tabIndex={-1}
       />
