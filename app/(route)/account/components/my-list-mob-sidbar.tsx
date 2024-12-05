@@ -8,9 +8,12 @@ import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
 import { LodaingUi } from "@/components/ui/loading-ui";
 import { IoIosArrowDown } from "react-icons/io";
-import { Map, Pencil } from "lucide-react";
+import { Map, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { deleteUnit } from "../(auth)/unit/my-list/action";
+import { useToast } from "@/hooks/use-toast";
 
 const TRANSITION_DURATION = 400;
 const SWIPE_COOLDOWN = 700;
@@ -29,7 +32,7 @@ interface Unit {
   images: string[];
   bed: number;
   bath: number;
-  fullAdress:string;
+  fullAdress: string;
 }
 
 interface MyListMobSideBarProps {
@@ -59,6 +62,7 @@ const MyListMobSideBar = React.memo(({ type }: MyListMobSideBarProps) => {
   const [loadedUnits, setLoadedUnits] = useState<Unit[]>([]);
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"low" | "high">("low");
+  const { toast } = useToast();
 
   const hasMore = useMemo(
     () => loadedUnits.length < visibleUnits.length,
@@ -294,15 +298,53 @@ const MyListMobSideBar = React.memo(({ type }: MyListMobSideBarProps) => {
           bed={unit.bed}
           bath={unit.bath}
         />
-        <Button
-          variant="outline"
-          size="sm"
-          className="absolute top-2 right-2 flex items-center gap-1 z-10 bg-white"
-          onClick={(e) => handleEdit(unit.id, e)}
-        >
-          <Pencil className="h-3 w-3" />
-          Edit
-        </Button>
+        <div            className="absolute top-2 right-2 flex items-center gap-1 z-10 bg-white flex-col">
+          <ConfirmDialog
+            title="Delete Unit"
+            description="Are you sure you want to delete this unit?"
+            confirmText="Delete"
+            onConfirm={async () => {
+              try {
+                const result = await deleteUnit(unit.id);
+
+                toast({
+                  title: result.status === 200 ? "Success" : "Error",
+                  description: result.message,
+                  variant: result.status === 200 ? "default" : "destructive",
+                });
+
+                if (result.status === 200) {
+                  router.refresh();
+                }
+              } catch (error) {
+                toast({
+                  title: "Error",
+                  description: "Failed to delete unit",
+                  variant: "destructive",
+                });
+              }
+            }}
+            triggerVariant="ghost"
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center gap-1"
+            >
+              <Trash className="h-3 w-3" />
+              Delete
+            </Button>
+          </ConfirmDialog>
+          <Button
+            variant="outline"
+            size="sm"
+
+            onClick={(e) => handleEdit(unit.id, e)}
+          >
+            <Pencil className="h-3 w-3" />
+            Edit
+          </Button>
+        </div>
       </div>
     ),
     [firstCardRef, setHoverUnitId, handleUnitClick, handleEdit]

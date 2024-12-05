@@ -17,7 +17,6 @@ export async function initIndexedDB() {
 export default function IdbProvider() {
   useEffect(() => {
     initIndexedDB()
-      .then(() => console.log("IndexedDB initialized"))
       .catch((error) => console.error("IndexedDB initialization failed", error));
   }, []);
 

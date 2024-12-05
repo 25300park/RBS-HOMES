@@ -71,7 +71,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
   // if (!isMobile) return null;
 
   const isMapPage = pathname === "/map" || pathname === "/account/unit/my-list";
-  const shouldHideFooter = isMapPage && sheetPosition !== "full";
+  // const shouldHideFooter = isMapPage && sheetPosition !== "full";
 
   const handleNavClick = (item: typeof FooterNavList[0]) => (e: React.MouseEvent) => {
     if (item.requiresAuth && !session) {
@@ -80,12 +80,12 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
       return;
     }
   };
-
+  // ${
+  //   shouldHideFooter ? "translate-y-full" : "translate-y-0"
+  // }
   return (
     <nav
-      className={`w-full h-16 fixed bottom-0 z-40 bg-white border-t transition-transform duration-300 hidden md:block ${
-        shouldHideFooter ? "translate-y-full" : "translate-y-0"
-      }`}
+      className={`w-full h-16 fixed bottom-0 z-40 bg-white border-t transition-transform duration-300 hidden md:block `}
     >
       <ul className="flex justify-around items-center h-full">
         {FooterNavList.map((item) => (

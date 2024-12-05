@@ -20,7 +20,6 @@ export default function SimpleTextEditor() {
     if (editorRef.current) {
       setText(editorRef.current.innerHTML);
     }
-    console.log(text)
   };
 
   return (

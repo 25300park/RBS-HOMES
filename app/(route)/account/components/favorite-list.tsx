@@ -10,7 +10,6 @@ export interface FavoriteListProps {
 
 const FavoriteList = ({ data }: FavoriteListProps): React.ReactNode => {
   const handleUnitClick = useHandleUnitClick();
-  console.log(data)
   return (
     <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10 p-12 md:p-4">
       {data.map((unit: any, index: number) => (

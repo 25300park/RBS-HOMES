@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const getUnitListByOwner = async (
   searchParams: Record<string, string>
@@ -15,7 +16,8 @@ export const getUnitListByOwner = async (
   }
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
-  const sellType = searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+  const sellType =
+    searchParams.sellType !== "none" ? searchParams.sellType : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
     ? parseInt(searchParams.parking)
@@ -60,7 +62,8 @@ export const getUnitListByOwner = async (
   const filters = [...priceFilter, ...searchFilter];
   const data = await prisma.unit.findMany({
     where: {
-      adminId : adminId,
+      status: { not: 5 }, 
+      adminId: adminId,
       type: type ? { equals: type } : undefined,
       sellType: sellType ? sellType : undefined,
       bed: bed ? { gte: bed } : undefined,
@@ -90,4 +93,30 @@ export const getUnitListByOwner = async (
     images: unit.images ? JSON.parse(unit.images) : [],
   }));
   return units;
+};
+
+export const deleteUnit = async (unitId: any) => {
+  try {
+    await prisma.unit.update({
+      where: {
+        id: parseInt(unitId),
+      },
+      data: {
+        status: 5,
+      },
+    });
+
+    revalidatePath("/account/unit/my-list");
+
+    return {
+      status: 200,
+      message: "delete successful",
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      status: 400,
+      message: "delete failed",
+    };
+  }
 };

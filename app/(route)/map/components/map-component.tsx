@@ -10,6 +10,8 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { useDebouncedCallback } from "use-debounce";
 import DotLoader from "@/components/ui/dot-loader";
 import { MobileMarkerManager } from "./mobile-marker-manager";
+import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface MapProps {
   units: any[];
@@ -69,7 +71,44 @@ const SearchInput = React.memo(
   )
 );
 
-export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
+const SellTypeToggle = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentType = searchParams.get('sellType') || 'rent';
+
+  const handleTypeChange = (type: string) => {
+    router.push(`?sellType=${type}`);
+  };
+
+  return (
+    <div className="absolute top-8 right-6 z-10 p-2 bg-white shadow-md border rounded-lg flex gap-2">
+      <button
+        onClick={() => handleTypeChange('rent')}
+        className={cn(
+          'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          currentType === 'rent'
+            ? 'bg-orange-400 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        )}
+      >
+        rent
+      </button>
+      <button
+        onClick={() => handleTypeChange('sale')}
+        className={cn(
+          'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          currentType === 'sale'
+            ? 'bg-orange-400 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        )}
+      >
+        buy
+      </button>
+    </div>
+  );
+};
+
+export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const autocompleteRef = useRef<HTMLInputElement>(null);
   const markerManagerRef = useRef<string>(`marker-manager-${searchKey}`);
@@ -228,6 +267,7 @@ export const MapComponent = React.memo(({ units, searchKey }: MapProps) => {
     <div className={containerStyle}>
       <DotLoader isLoading={isLoading} />
       <SearchInput autocompleteRef={autocompleteRef} />
+      {owner && <SellTypeToggle />}
       <div
         ref={mapRef}
         className="absolute w-full h-full"

@@ -12,7 +12,6 @@ async function cleanupAmenities() {
       }
     });
 
-    console.log(`Found ${units.length} units to cleanup`);
 
     for (const unit of units) {
       if (unit.amenity) {
@@ -23,8 +22,6 @@ async function cleanupAmenities() {
             .replace(/^"/, '')     // 시작 따옴표 제거
             .replace(/"$/, '');    // 끝 따옴표 제거
 
-          console.log(`Unit ${unit.id} Before:`, unit.amenity);
-          console.log(`Unit ${unit.id} After:`, cleanValue);
 
           await prisma.unit.update({
             where: { id: unit.id },
@@ -32,7 +29,6 @@ async function cleanupAmenities() {
               amenity: cleanValue
             }
           });
-          console.log(`Successfully cleaned up unit ${unit.id}`);
         } catch (error) {
           console.error(`Failed to cleanup unit ${unit.id}:`, error);
         }
@@ -47,7 +43,6 @@ async function cleanupAmenities() {
 
 cleanupAmenities()
   .then(() => {
-    console.log('Cleanup completed');
     process.exit(0);
   })
   .catch((error) => {

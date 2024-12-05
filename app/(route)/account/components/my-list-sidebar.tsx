@@ -8,14 +8,17 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { LodaingUi } from "@/components/ui/loading-ui";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Delete, Pencil, Trash } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { deleteUnit } from "../(auth)/unit/my-list/action";
+import { useToast } from "@/hooks/use-toast";
 
 // 유닛 상태 enum 정의
 enum UnitStatus {
   Ongoing = 1,
   Completed = 2,
   Contracted = 3,
-  UnderNegotiation = 4
+  UnderNegotiation = 4,
 }
 
 interface Unit {
@@ -31,7 +34,7 @@ interface Unit {
   bed: number;
   bath: number;
   status: UnitStatus;
-  fullAdress:string;
+  fullAdress: string;
 }
 
 export interface MyListSideProps {
@@ -47,7 +50,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
     setHoverUnitId,
     isLoading: mapLoading,
   } = useMapStore();
-  
+
   const isMobile = useMediaQuery("(max-width: 640px)");
   const [isLoading, setIsLoading] = useState(false);
   const [loadedUnits, setLoadedUnits] = useState<Unit[]>([]);
@@ -56,7 +59,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
   const hasMore = loadedUnits.length < visibleUnits.length;
   const observer = useRef<IntersectionObserver | null>(null);
   const lastUnitElementRef = useRef<HTMLDivElement | null>(null);
-
+  const { toast } = useToast();
   // Intersection Observer 설정
   useEffect(() => {
     if (isLoading) return;
@@ -65,7 +68,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
       observer.current.disconnect();
     }
 
-    observer.current = new IntersectionObserver(entries => {
+    observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore) {
         loadMoreUnits();
       }
@@ -90,8 +93,8 @@ const MyListSide = ({ type }: MyListSideProps) => {
       page * pageSize
     );
     setTimeout(() => {
-      setLoadedUnits(prev => [...prev, ...nextPageUnits]);
-      setPage(prev => prev + 1);
+      setLoadedUnits((prev) => [...prev, ...nextPageUnits]);
+      setPage((prev) => prev + 1);
       setIsLoading(false);
     }, 1000);
   };
@@ -112,8 +115,8 @@ const MyListSide = ({ type }: MyListSideProps) => {
 
   // 유닛 상태 변경 함수
   const handleStatusChange = (unitId: number, newStatus: UnitStatus) => {
-    setLoadedUnits(prevUnits =>
-      prevUnits.map(unit =>
+    setLoadedUnits((prevUnits) =>
+      prevUnits.map((unit) =>
         unit.id === unitId ? { ...unit, status: newStatus } : unit
       )
     );
@@ -122,6 +125,8 @@ const MyListSide = ({ type }: MyListSideProps) => {
   const handleEdit = (unitId: number) => {
     router.push(`/account/unit/edit/${unitId}`);
   };
+
+  const handleDelete = (unitId: number) => {};
 
   const getStatusLabel = (status: UnitStatus): string => {
     switch (status) {
@@ -150,18 +155,23 @@ const MyListSide = ({ type }: MyListSideProps) => {
         }`}
       >
         {mapLoading ? (
-          <div className="p-4"><LodaingUi /></div>
+          <div className="p-4">
+            <LodaingUi />
+          </div>
         ) : (
           <>
             <div className="p-4 w-full text-center text-sm border-b sticky top-0 bg-white z-20">
-              All Search Results <span className="font-bold">{visibleUnits.length}</span> units
+              All Search Results{" "}
+              <span className="font-bold">{visibleUnits.length}</span> units
             </div>
             <div className="grid grid-cols-1">
               {loadedUnits.map((unit: Unit, index: number) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="relative"
-                  ref={index === loadedUnits.length - 1 ? lastUnitElementRef : null}
+                  ref={
+                    index === loadedUnits.length - 1 ? lastUnitElementRef : null
+                  }
                 >
                   <SideUnitCard
                     onMouseEnter={() => setHoverUnitId(unit.id)}
@@ -178,7 +188,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
                     bed={unit.bed}
                     bath={unit.bath}
                   />
-                  <div className="absolute top-2 right-2 flex flex-col gap-2 z-10">
+                  <div className="absolute top-2 right-2 flex  gap-2 z-10 ">
                     {/* <select
                       value={unit.status}
                       onChange={(e) => handleStatusChange(unit.id, Number(e.target.value) as UnitStatus)}
@@ -192,8 +202,46 @@ const MyListSide = ({ type }: MyListSideProps) => {
                           </option>
                         ))}
                     </select> */}
-                    <Button 
-                      variant="outline" 
+                    <ConfirmDialog
+                      title="Delete Unit"
+                      description="Are you sure you want to delete this unit?"
+                      confirmText="Delete"
+                      onConfirm={async () => {
+                        try {
+                          const result = await deleteUnit(unit.id);
+
+                          toast({
+                            title: result.status === 200 ? "Success" : "Error",
+                            description: result.message,
+                            variant:
+                              result.status === 200 ? "default" : "destructive",
+                          });
+
+                          if (result.status === 200) {
+                            router.refresh();
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to delete unit",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      triggerVariant="ghost"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full flex items-center gap-1"
+                      >
+                        <Trash className="h-3 w-3" />
+                        Delete
+                      </Button>
+                    </ConfirmDialog>
+
+                    <Button
+                      variant="outline"
                       size="sm"
                       className="w-full flex items-center gap-1"
                       onClick={() => handleEdit(unit.id)}
