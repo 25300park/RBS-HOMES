@@ -95,7 +95,7 @@ const MobileSearchBar = ({
           onExpandChange?.(true);
         }}
       >
-        <div className="flex items-center w-full p-2">
+        <div className="flex items-center w-full p-1">
           <IoSearch className=" text-xl text-white" />
           <span
             className={`${searchValue ? "text-gray-700" : "text-gray-400"}`}

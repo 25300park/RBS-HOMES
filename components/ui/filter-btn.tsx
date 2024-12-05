@@ -99,7 +99,7 @@ const FilterButton = ({
           onClick={openModalHandler}
           className={`${
             activeFilterCount > 0 ? "border-orange-400 " : "border"
-          } py-5 space-x-3 relative`}
+          } py-5 space-x-2 relative px-2`}
           variant={"outline"}
         >
           <FaSliders
@@ -107,7 +107,7 @@ const FilterButton = ({
               activeFilterCount > 0 ? "text-orange-400 " : "text-[#A9A9A9]"
             }  `}
           />
-          <p>Filters</p>
+          <p className="text-xs">Filters</p>
           {activeFilterCount > 0 && (
             <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
               {activeFilterCount}

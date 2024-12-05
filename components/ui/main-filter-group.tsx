@@ -14,7 +14,7 @@ const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
         <img
           src="/assets/images/RBS_symbol_60x60.png"
           alt="logo"
-          className="w-10 mr-4"
+          className="w-10 mr-2"
         />
       </Link>
 
@@ -44,7 +44,7 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" }) => {
 
   return (
     <Button
-      className={`py-5 space-x-2 relative w-[100px] ${
+      className={`py-5 space-x-1 relative w-[80px] text-xs ${
         isSelected ? "border-orange-400" : ""
       }`}
       variant={"outline"}
