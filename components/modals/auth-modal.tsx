@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { useCooldown } from "@/hooks/use-cooldown";
+import Link from "next/link";
 
 type AuthModeType = "login" | "signup" | "reset";
 
@@ -102,7 +103,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
     <>
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+          <div className="bg-white px-2 py-6 rounded-lg max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">
               Verify Your Email Address
             </h3>
@@ -121,8 +122,9 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
                 proceeding.
               </p>
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-2">
               <Button
+                className=""
                 variant="outline"
                 onClick={() => {
                   setShowConfirm(false);
@@ -140,7 +142,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
                   }
                 }}
               >
-                Confirm & Create Account
+                Create Account
               </Button>
             </div>
           </div>
@@ -277,6 +279,35 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
             >
               Back to login
             </span>
+          </p>
+        )}
+        {authMode === "signup" && (
+          <p className="mt-4 text-sm text-gray-500 text-center">
+            By clicking the &quot;Sign up&quot; button, you are creating a{" "}
+            <span className="font-medium text-gray-700">RentBuySale</span>{" "}
+            account and therefore you agree to{" "}
+            <span className="font-medium text-gray-700">RentBuySale</span>{" "}
+            Company&apos;s{" "}
+            <span
+              onClick={() => {
+                router.push("/terms");
+                onClose();
+              }}
+              className="text-orange-500 hover:text-orange-600 underline cursor-pointer"
+            >
+              Terms of Use
+            </span>{" "}
+            and{" "}
+            <span
+              onClick={() => {
+                router.push("/policy");
+                onClose();
+              }}
+              className="text-orange-500 hover:text-orange-600 underline cursor-pointer"
+            >
+              Privacy Policy
+            </span>
+            .
           </p>
         )}
       </div>
