@@ -51,10 +51,7 @@ interface DateCalendarProps {
 }
 
 const formatPrice = (price: number | string) => {
-  return `₱ ${Number(price).toLocaleString("en-US", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3,
-  })}`;
+  return `₱ ${Number(price).toLocaleString("en-US")}`;
 };
 
 const ScheduleCard = ({

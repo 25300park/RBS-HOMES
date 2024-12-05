@@ -235,7 +235,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
         </Button>
       </form>
 
-      <div className="text-sm mt-6 md:mt-0 text-center text-gray-600 space-y-2">
+      <div className="text-sm mt-0 md:mt-0 text-center text-gray-600 space-y-2">
         {authMode === "login" && (
           <>
             <p>
@@ -258,18 +258,6 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
           </>
         )}
 
-        {authMode === "signup" && (
-          <p>
-            Already have an account?{" "}
-            <span
-              onClick={() => setAuthMode("login")}
-              className="text-blue-500 cursor-pointer"
-            >
-              Log in
-            </span>
-          </p>
-        )}
-
         {authMode === "reset" && (
           <p>
             Remember your password?{" "}
@@ -283,9 +271,10 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
         )}
         {authMode === "signup" && (
           <p className="mt-4 text-sm text-gray-500 text-center">
-            By clicking the &quot;Sign up&quot; button, you are creating a{" "}
+            By clicking the &quot;Sign up&quot; button, you are creating a<br />
             <span className="font-medium text-gray-700">RentBuySale</span>{" "}
-            account and therefore you agree to{" "}
+            account and therefore you agree to
+            <br />
             <span className="font-medium text-gray-700">RentBuySale</span>{" "}
             Company&apos;s{" "}
             <span
@@ -308,6 +297,18 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
               Privacy Policy
             </span>
             .
+          </p>
+        )}
+
+        {authMode === "signup" && (
+          <p>
+            Already have an account?{" "}
+            <span
+              onClick={() => setAuthMode("login")}
+              className="text-blue-500 cursor-pointer"
+            >
+              Log in
+            </span>
           </p>
         )}
       </div>
