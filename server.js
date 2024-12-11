@@ -11,6 +11,16 @@ const handle = app.getRequestHandler()
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
+      // 프로덕션 환경에서 호스트 헤더 설정
+      if (!dev) {
+        // x-forwarded-host 헤더를 실제 도메인으로 설정
+        req.headers['x-forwarded-host'] = 'rbs-homes.com';
+        
+        // 추가적인 프록시 헤더 설정
+        req.headers['x-forwarded-proto'] = 'https';
+        req.headers['x-real-ip'] = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      }
+
       // 요청 정보 로깅
       console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
       console.log('Headers:', req.headers);
