@@ -95,7 +95,7 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
   };
 
   return (
-    <form className="">
+    <form className="md:px-4">
       <section className="my-8 md:my-6">
         <h2 className="text-xl font-bold mb-4 md:mb-3">Personal Information</h2>
         <div className="flex justify-center my-8 md:my-6">

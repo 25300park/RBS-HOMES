@@ -89,7 +89,8 @@ const DesktopHeader = ({
                   pathName.startsWith("/map") ? "text-black border-gray-200" : "text-gray-400 border-transparent"
                 }`}
               >
-                <IoMapOutline className="text-xl" />
+                {/* <IoMapOutline className="text-xl" /> */}
+                <img src="/assets/icons/map.gif" alt="map" className="w-9"/>
                 <p>View on map</p>
               </Link>
             </div>
