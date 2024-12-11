@@ -5,36 +5,38 @@ const next = require('next')
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = 'localhost'
 const port = 3000
-// when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()
  
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
-      // Be sure to pass `true` as the second argument to `url.parse`.
-      // This tells it to parse the query portion of the URL.
+      // 요청 정보 로깅
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+      console.log('Headers:', req.headers);
+
       const parsedUrl = parse(req.url, true)
-      const { pathname, query } = parsedUrl
- 
-      if (pathname === '/a') {
-        await app.render(req, res, '/a', query)
-      } else if (pathname === '/b') {
-        await app.render(req, res, '/b', query)
-      } else {
-        await handle(req, res, parsedUrl)
+      
+      // auth 관련 요청 로깅
+      if (parsedUrl.pathname?.includes('/api/auth')) {
+        console.log('Auth request:', {
+          pathname: parsedUrl.pathname,
+          query: parsedUrl.query,
+          headers: req.headers
+        });
       }
+
+      await handle(req, res, parsedUrl)
     } catch (err) {
-      console.error('Error occurred handling', req.url, err)
+      console.error('Detailed error:', err);
+      console.error('Stack trace:', err.stack);
       res.statusCode = 500
       res.end('internal server error')
     }
   })
-    .once('error', (err) => {
-      console.error(err)
-      process.exit(1)
-    })
     .listen(port, () => {
       console.log(`> Ready on http://${hostname}:${port}`)
+      console.log('Environment:', process.env.NODE_ENV)
+      console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
     })
 })
