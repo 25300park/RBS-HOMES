@@ -35,7 +35,7 @@ export const amenitiesData: Amenity[] = [
   { label: "Ocean View", imagePath: "/assets/icons/amenities/WaterView.png" },
   { label: "Mountain View", imagePath: "/assets/icons/amenities/MountainView.png" },
   { label: "Large Windows", imagePath: "/assets/icons/amenities/LargeWindows.png" },
-  { label: "Soundproof", imagePath: "/assets/icons/amenities/soundproof.png" },
+  { label: "Soundproof", imagePath: "/assets/icons/amenities/Soundproof.png" },
   { label: "Sauna", imagePath: "/assets/icons/amenities/Sauna.png" },
   { label: "Concierge", imagePath: "/assets/icons/amenities/Concierge.png" },
   { label: "Library", imagePath: "/assets/icons/amenities/Library.png" },
