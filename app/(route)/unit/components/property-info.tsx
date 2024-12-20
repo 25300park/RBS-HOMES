@@ -41,6 +41,7 @@ interface PropertyInfoProps {
 }
 
 const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
+  console.log(property.amenity)
   return (
     <div className="my-6 space-y-8 xl:px-2 md:space-y-0">
       {/* 상단 헤더 정보 */}
@@ -214,8 +215,8 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
                     <div key={amenity} className="flex  items-center gap-4">
                       <div className="relative w-5 h-5 mr-2">
                         <Image
-                          src={amenity.imagePath}
-                          alt={amenity.label}
+                          src={amenityData.imagePath}
+                          alt={amenityData.label}
                           fill
                           className="object-contain"
                         />
