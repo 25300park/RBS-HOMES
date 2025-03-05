@@ -54,7 +54,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) /// 사용자와의 관계
 
   @@unique([provider, providerAccountId]) /// provider와 providerAccountId의 고유성 보장
-  @@index([userId], map: "Account_userId_fkey")
+  
 }
 
 model Session {
@@ -64,7 +64,6 @@ model Session {
   expires      DateTime /// 세션 만료 시간
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) /// 사용자와의 관계
-   @@index([userId], map: "Session_userId_fkey")
 }
 
 model VerificationToken {
@@ -179,7 +178,6 @@ model Favorite {
   unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade) /// 유닛과의 관계
 
   @@unique([userId, unitId]) /// 한 유저가 같은 유닛을 중복으로 즐겨찾기할 수 없도록 고유성 보장
-  @@index([unitId], map: "Favorite_unitId_fkey")
 }
 
 model LoginLog {
@@ -190,7 +188,6 @@ model LoginLog {
   createdAt     DateTime @default(now()) /// 데이터 생성 시간
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull) /// 유저와의 관계
-  @@index([userId], map: "LoginLog_userId_fkey")
 }
 
 model PasswordResetLog {
@@ -237,5 +234,4 @@ model SiteVisitorLog {
   @@index([sessionId])
   @@index([visitStart])
   @@index([ip])
-  @@index([userId], map: "SiteVisitorLog_userId_fkey")
 }
