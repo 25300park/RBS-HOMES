@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { amenitiesData, Amenity } from "@/lib/config/amenities";
+import { useEffect } from "react";
 
 interface TagInputProps {
   label: string;
@@ -11,7 +12,27 @@ interface TagInputProps {
 }
 
 export function TagInput({ label, value, onChange }: TagInputProps) {
+  // Pre-selected amenities
+  const preSelectedAmenities = ["Gym", "Pool", "24/7 Security", "Garden"];
+
+  // Override the initial value with pre-selected amenities if not already set
+  useEffect(() => {
+    const currentValues = new Set(value);
+    const missingPreSelected = preSelectedAmenities.filter(
+      amenity => !currentValues.has(amenity)
+    );
+
+    if (missingPreSelected.length > 0) {
+      onChange([...value, ...missingPreSelected]);
+    }
+  }, []);
+
   const handleToggleTag = (amenity: Amenity) => {
+    // Prevent removing pre-selected amenities
+    if (preSelectedAmenities.includes(amenity.label)) {
+      return;
+    }
+
     if (value.includes(amenity.label)) {
       onChange(value.filter((t) => t !== amenity.label));
     } else {
@@ -63,7 +84,11 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
               amenity && (
                 <div
                   key={index}
-                  className="flex items-center rounded-sm border justify-between relative px-4 py-2"
+                  className={`flex items-center rounded-sm border justify-between relative px-4 py-2 ${
+                    preSelectedAmenities.includes(tag)
+                      ? "bg-orange-50 border-orange-300"
+                      : ""
+                  }`}
                 >
                   <div className="text-sm text-gray-400 flex items-center gap-3">
                     <div className="relative w-4 h-4">
@@ -76,12 +101,14 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
                     </div>
                     <p className="text-[10px]">{tag}</p>
                   </div>
-                  <button
-                    onClick={() => handleToggleTag(amenity)}
-                    className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
-                  >
-                    X
-                  </button>
+                  {!preSelectedAmenities.includes(tag) && (
+                    <button
+                      onClick={() => handleToggleTag(amenity)}
+                      className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
+                    >
+                      X
+                    </button>
+                  )}
                 </div>
               )
             );

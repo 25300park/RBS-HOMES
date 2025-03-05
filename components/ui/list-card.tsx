@@ -15,6 +15,10 @@ interface ListCardProps {
   bed: number;
   bath: number;
   isFavorited: boolean;
+  featured?: {
+    label: string;
+    description: string | null;
+  };
   onClick?: (event: React.MouseEvent) => void;
 }
 
@@ -31,11 +35,11 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
       bed = 1,
       bath = 1,
       onClick,
+      featured,
       isFavorited = false,
     },
     ref
   ) => {
-
     return (
       <div
         ref={ref}
@@ -48,6 +52,15 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
             Urgent Sale
           </span>
         )}
+
+        <div >
+          {featured && (
+            <div className="bg-orange-400 text-white px-2 py-1 text-sm absolute top-2 left-2 z-10">
+              {featured.label || "Featured"}
+            </div>
+          )}
+          {/* 기존 ListCard 내용 */}
+        </div>
 
         {/* Image */}
         <div className="relative w-full pt-[97%] rounded-md overflow-hidden">

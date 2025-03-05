@@ -19,6 +19,7 @@ export interface SideUnitCardProps {
   bed: number;
   bath: number;
   style?: React.CSSProperties;
+  featured?: any;
 }
 
 const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
@@ -34,6 +35,7 @@ const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
       bed = 1,
       bath = 1,
       sellType,
+      featured,
       onClick,
       onMouseEnter,
       onMouseLeave,
@@ -50,6 +52,11 @@ const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
         className="w-full bg-white overflow-hidden relative cursor-pointer group transition-all duration-300 flex gap-2 p-4 border-b hover:bg-zinc-100"
         style={style}
       >
+        {featured && (
+          <div className="bg-orange-400 text-white px-2 py-1 text-sm absolute top-2 left-2 z-10">
+            {featured.label || "Featured"}
+          </div>
+        )}
         <div className="relative h-[112px] w-[144px]">
           <Image
             src={imageUrl}

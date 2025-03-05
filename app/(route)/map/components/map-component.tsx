@@ -187,32 +187,34 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
   const handleUnitsUpdate = useCallback(
     (newUnits: any[]) => {
       if (!map || !mapInitializedRef.current) return;
-
+  
       if (unitsUpdateTimeoutRef.current) {
         clearTimeout(unitsUpdateTimeoutRef.current);
       }
-
+  
       setLoading(true);
       setShouldRenderMarkers(false);
-
+  
       unitsUpdateTimeoutRef.current = setTimeout(() => {
-        markerManagerRef.current = `marker-manager-${searchKey}-${Date.now()}`;
+        // 마커 매니저만 새로 생성
+        markerManagerRef.current = `marker-manager-${Date.now()}`;
         setShouldRenderMarkers(true);
         setVisibleUnitCount(newUnits.length);
         setLoading(false);
       }, 100);
     },
-    [map, searchKey, setLoading, setVisibleUnitCount]
+    [map, setLoading, setVisibleUnitCount]
   );
-
   useEffect(() => {
-    initializeMap();
-
+    if (!mapInitializedRef.current) {
+      initializeMap();
+    }
+  
     return () => {
       if (unitsUpdateTimeoutRef.current) {
         clearTimeout(unitsUpdateTimeoutRef.current);
       }
-      mapInitializedRef.current = false;
+      // 맵 인스턴스는 제거하지 않고 유지
       setVisibleUnits([]);
       setVisibleUnitCount(0);
     };
@@ -274,22 +276,22 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         style={{ outline: "none" }}
         tabIndex={-1}
       />
-      {map &&
-        shouldRenderMarkers &&
-        units.length > 0 &&
-        (isMobile ? (
-          <MobileMarkerManager
-            key={markerManagerRef.current}
-            map={map}
-            units={units}
-          />
-        ) : (
-          <MarkerManager
-            key={markerManagerRef.current}
-            map={map}
-            units={units}
-          />
-        ))}
+{map &&
+  shouldRenderMarkers &&
+  units.length > 0 &&
+  (isMobile ? (
+    <MobileMarkerManager
+      key={markerManagerRef.current}
+      map={map}
+      units={units}
+    />
+  ) : (
+    <MarkerManager
+      key={markerManagerRef.current}
+      map={map}
+      units={units}
+    />
+  ))}
     </div>
   );
 });

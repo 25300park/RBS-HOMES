@@ -8,29 +8,29 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement()) // 고유 아이디
-  username       String?   @unique @db.VarChar(50) // 사용자 ID
-  email          String?   @unique @db.VarChar(300) // 이메일
-  emailVerified  DateTime? // 이메일 인증 여부
-  image          String?   @db.VarChar(500) // 사용자 프로필 이미지 URL 또는 경로
-  password       String?   @db.VarChar(255) // 비밀번호 해시 (선택적)
-  passwordOrigin String?   @db.VarChar(255) // 비밀번호 원본 (선택적)
-  level          Int       @default(1) // 사용자 0: 관리자 레벨 1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너
-  name           String?   @db.VarChar(50) // 이름
-  phone          String?   @db.VarChar(50) // 연락처
-  facebook       String?   @db.VarChar(500) // 페이스북 정보
-  status         Int       @default(-1) // -1: 정상 0: 정지 1: 탈퇴
+  id             Int              @id @default(autoincrement()) /// 고유 아이디
+  username       String?          @unique @db.VarChar(50) /// 사용자 ID
+  email          String?          @unique @db.VarChar(300) /// 이메일
+  emailVerified  DateTime? /// 이메일 인증 여부
+  image          String?          @db.VarChar(500) /// 사용자 프로필 이미지 URL 또는 경로
+  password       String?          @db.VarChar(255) /// 비밀번호 해시 (선택적)
+  passwordOrigin String?          @db.VarChar(255) /// 비밀번호 원본 (선택적)
+  level          Int              @default(1) /// 사용자 0: 관리자 레벨 1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너
+  name           String?          @db.VarChar(50) /// 이름
+  phone          String?          @db.VarChar(50) /// 연락처
+  facebook       String?          @db.VarChar(500) /// 페이스북 정보
+  status         Int              @default(-1) /// -1: 정상 0: 정지 1: 탈퇴
   // verifyStatus   Int?        @default(-1) // 0:신청 1: 승인 (휴대폰 인증)
-  company        String?   @db.VarChar(50) // 회사
-  license        String?   @db.VarChar(50) // 면허
-  regdate        DateTime  @default(now()) // 등록일
-  lastUpdate     DateTime? // 마지막 업데이트일
-
-  unit           Unit[] // 유닛과의 관계
-  account        Account[] // OAuth 계정과의 관계 (계정 정보를 User에 연결)
-  session        Session[] // 세션과의 관계
-  favorites      Favorite[] // 즐겨찾기
-  loginLog       LoginLog[] // 로그인 기록
+  company        String?          @db.VarChar(50) /// 회사
+  license        String?          @db.VarChar(50) /// 면허
+  regdate        DateTime         @default(now()) /// 등록일
+  lastUpdate     DateTime? /// 마지막 업데이트일
+  memo           String?          @db.Text ///메모
+  unit           Unit[] /// 유닛과의 관계
+  account        Account[] /// OAuth 계정과의 관계 (계정 정보를 User에 연결)
+  session        Session[] /// 세션과의 관계
+  favorites      Favorite[] /// 즐겨찾기
+  loginLog       LoginLog[] /// 로그인 기록
   unitViews      UnitViewLog[]
   SiteVisitorLog SiteVisitorLog[]
 
@@ -38,145 +38,164 @@ model User {
 }
 
 model Account {
-  id                Int     @id @default(autoincrement()) // 고유 아이디
-  userId            Int // 사용자 ID
-  type              String // OAuth 제공자 타입 (예: 구글, 페이스북)
-  provider          String // OAuth 제공자 (예: 구글)
-  providerAccountId String // OAuth 제공자 계정 ID
-  refreshToken      String? @db.Text // OAuth 리프레시 토큰
-  access_token      String? @db.Text // OAuth 액세스 토큰
-  expires_at        Int? // OAuth 액세스 토큰 만료 시간
-  token_type        String? // 토큰 타입 (예: Bearer)
-  scope             String? // 토큰 권한 범위
-  id_token          String? @db.Text // ID 토큰
-  sessionState      String? // 세션 상태
+  id                Int     @id @default(autoincrement()) /// 고유 아이디
+  userId            Int /// 사용자 ID
+  type              String /// OAuth 제공자 타입 (예: 구글, 페이스북)
+  provider          String /// OAuth 제공자 (예: 구글)
+  providerAccountId String /// OAuth 제공자 계정 ID
+  refreshToken      String? @db.Text /// OAuth 리프레시 토큰
+  access_token      String? @db.Text /// OAuth 액세스 토큰
+  expires_at        Int? /// OAuth 액세스 토큰 만료 시간
+  token_type        String? /// 토큰 타입 (예: Bearer)
+  scope             String? /// 토큰 권한 범위
+  id_token          String? @db.Text /// ID 토큰
+  sessionState      String? /// 세션 상태
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // 사용자와의 관계
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) /// 사용자와의 관계
 
-  @@unique([provider, providerAccountId]) // provider와 providerAccountId의 고유성 보장
+  @@unique([provider, providerAccountId]) /// provider와 providerAccountId의 고유성 보장
 }
 
 model Session {
-  id           Int      @id @default(autoincrement()) // 고유 아이디
-  sessionToken String   @unique // 세션 토큰
-  userId       Int // 사용자 ID
-  expires      DateTime // 세션 만료 시간
+  id           Int      @id @default(autoincrement()) /// 고유 아이디
+  sessionToken String   @unique /// 세션 토큰
+  userId       Int /// 사용자 ID
+  expires      DateTime /// 세션 만료 시간
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // 사용자와의 관계
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) /// 사용자와의 관계
 }
 
 model VerificationToken {
-  identifier String // 이메일 또는 전화번호
-  token      String   @unique // 토큰
-  expires    DateTime // 만료 시간
+  identifier String /// 이메일 또는 전화번호
+  token      String   @unique /// 토큰
+  expires    DateTime /// 만료 시간
 
-  @@unique([identifier, token]) // identifier와 token의 고유성 보장
+  @@unique([identifier, token]) /// identifier와 token의 고유성 보장
 }
 
 model Notice {
-  id       Int      @id @default(autoincrement()) // 고유 아이디
-  title    String   @db.VarChar(255) // 제목
-  contents String?  @db.Text // 내용
-  state    Int      @default(0) // 상태
-  regdate  DateTime @default(now()) // 등록일
+  id       Int      @id @default(autoincrement()) /// 고유 아이디
+  title    String   @db.VarChar(255) /// 제목
+  contents String?  @db.Text /// 내용
+  state    Int      @default(0) /// 상태
+  regdate  DateTime @default(now()) /// 등록일
 
   @@index([state], map: "ix_notice_state")
 }
 
 model Schedule {
-  id          Int       @id @default(autoincrement()) // 고유 아이디
-  unitId      Int // 유닛 ID
-  userId      Int? //직접 스케줄 추가시 유저아이디
-  username    String?   @db.VarChar(50) //유저 ID
-  email       String?   @db.VarChar(300) // 이메일
-  mobile      String?   @db.VarChar(50) // 연락처
-  requestDate DateTime? //신청 희망일
-  date        DateTime? //미팅날짜
-  startedAt   DateTime? //시작시간 
-  endedAt     DateTime? //종료시간 없을시 allDay
+  id          Int       @id @default(autoincrement()) /// 고유 아이디
+  unitId      Int /// 유닛 ID
+  userId      Int? ///직접 스케줄 추가시 유저아이디
+  username    String?   @db.VarChar(50) ///유저 ID
+  email       String?   @db.VarChar(300) /// 이메일
+  mobile      String?   @db.VarChar(50) /// 연락처
+  requestDate DateTime? ///신청 희망일
+  date        DateTime? ///미팅날짜
+  startedAt   DateTime? ///시작시간 
+  endedAt     DateTime? ///종료시간 없을시 allDay
   title       String?   @db.VarChar(100)
-  message     String?   @db.VarChar(255) // 제목
-  desc        String?   @db.VarChar(255) //내용 
-  location    String?   @db.VarChar(255) //위치
-  regdate     DateTime  @default(now()) // 등록일
-  status      Int       @default(0) // 0: 신청 1:대기 2:확정 3:취소
-  lastUpdate  DateTime  @default(now()) // 마지막 업데이트 시간
+  message     String?   @db.VarChar(255) /// 제목
+  desc        String?   @db.VarChar(255) ///내용 
+  location    String?   @db.VarChar(255) ///위치
+  regdate     DateTime  @default(now()) /// 등록일
+  status      Int       @default(0) /// 0: 신청 1:대기 2:확정 3:취소
+  lastUpdate  DateTime  @default(now()) /// 마지막 업데이트 시간
   regId       Int?
 }
 
 model Unit {
-  id                 Int      @id @default(autoincrement()) // 고유 아이디
-  adminId            Int // 관리자의 고유 아이디 (User 모델의 참조)
-  title              String   @db.VarChar(500) // 유닛의 제목
-  type               String // 유닛의 타입 (예: 아파트, 빌라 등)
-  sellType           String // 판매 유형 (예: 매매, 임대 등)
-  fullAdress         String?  @db.VarChar(250) // 풀주소
-  address1           Int? // 우편번호
-  address2           String?  @db.VarChar(200) // 도시
-  address3           String?  @db.VarChar(200) // 상세주소 (예: 도로명, 건물명 등)
-  address4           String?  @db.VarChar(200) // 추가 주소 정보 (예: 아파트 동, 호수 등)
-  addressSelf        String?  @db.VarChar(200) // 브로커 입력
-  ownerName          String   @db.VarChar(50) // 소유주 이름
-  ownerMobile        String?  @db.VarChar(50) // 소유주 연락처
-  ownerEmail         String?  @db.VarChar(50) // 소유주 이메일
-  area               Int // 유닛의 면적 (평방미터)
-  floor              Int? // 층수
-  bed                Int? // 침실 수
-  bath               Int? // 욕실 수
-  parking            Int? // 주차 공간 수
-  furniture          String?  @db.VarChar(50) // 가구 정보
-  interiored         String?  @db.VarChar(50) // 내부 인테리어 상태
-  petPolicy          String?  @db.VarChar(50) // 애완동물 정책
-  amenity            String? //편의시설정보 
-  yearCompletion     String?  @db.Char(10) // 완공 연도
-  outstandingPayment Decimal? @db.Decimal(18, 2) // 커미션
-  price              Decimal? @db.Decimal(18, 2) // 가격
-  note               String?  @db.Text // 추가 메모
-  requested          String?  @db.Text // 요청 사항
-  images             Json? // 이미지 정보
-  mapinfo            String?  @db.VarChar(500) // 지도 정보 (위치 관련 정보)
-  status             Int      @default(0) //   Ongoing = 0,  Completed = 1,  Contracted = 2,  UnderNegotiation = 3
-  lastUpdate DateTime      @default(now()) // 마지막 업데이트 시간
-  regdate    DateTime      @default(now()) // 등록 시간
-  latitude   Float? // 위도
-  longitude  Float? // 경도
-  viewCount  Int           @default(0) // 전체 조회수
-  admin      User          @relation(fields: [adminId], references: [id], onDelete: Cascade) // User 모델과의 관계
-  favorites  Favorite[] // 즐겨찾기
-  viewLogs   UnitViewLog[]
+  id                 Int           @id @default(autoincrement()) /// 고유 아이디
+  adminId            Int /// 관리자의 고유 아이디 (User 모델의 참조)
+  title              String        @db.VarChar(500) /// 유닛의 제목
+  type               String /// 유닛의 타입 (예: 아파트, 빌라 등)
+  sellType           String /// 판매 유형 (예: 매매, 임대 등)
+  fullAdress         String?       @db.VarChar(250) /// 풀주소
+  address1           Int? /// 우편번호
+  address2           String?       @db.VarChar(200) /// 도시
+  address3           String?       @db.VarChar(200) /// 상세주소 (예: 도로명, 건물명 등)
+  address4           String?       @db.VarChar(200) /// 추가 주소 정보 (예: 아파트 동, 호수 등)
+  addressSelf        String?       @db.VarChar(200) /// 브로커 입력
+  ownerName          String        @db.VarChar(50) /// 소유주 이름
+  ownerMobile        String?       @db.VarChar(50) /// 소유주 연락처
+  ownerEmail         String?       @db.VarChar(50) /// 소유주 이메일
+  area               Int /// 유닛의 면적 (평방미터)
+  floor              Int? /// 층수
+  bed                Int? /// 침실 수
+  bath               Int? /// 욕실 수
+  parking            Int? /// 주차 공간 수
+  furniture          String?       @db.VarChar(50) /// 가구 정보
+  interiored         String?       @db.VarChar(50) /// 내부 인테리어 상태
+  petPolicy          String?       @db.VarChar(50) /// 애완동물 정책
+  amenity            String? ///편의시설정보 
+  yearCompletion     String?       @db.Char(10) /// 완공 연도
+  outstandingPayment Decimal?      @db.Decimal(18, 2) /// 커미션
+  price              Decimal?      @db.Decimal(18, 2) /// 가격
+  note               String?       @db.Text /// 추가 메모
+  requested          String?       @db.Text /// 요청 사항
+  images             Json? /// 이미지 정보
+  mapinfo            String?       @db.VarChar(500) /// 지도 정보 (위치 관련 정보)
+  status             Int           @default(0) ///   Ongoing = 0,  Completed = 1,  Contracted = 2,  UnderNegotiation = 3
+  lastUpdate         DateTime      @default(now()) /// 마지막 업데이트 시간
+  regdate            DateTime      @default(now()) /// 등록 시간
+  latitude           Float? /// 위도
+  longitude          Float? /// 경도
+  viewCount          Int           @default(0) /// 전체 조회수
+  admin              User          @relation(fields: [adminId], references: [id], onDelete: Cascade) /// User 모델과의 관계
+  favorites          Favorite[] /// 즐겨찾기
+  viewLogs           UnitViewLog[]
+  // featured           FeaturedUnit?
 
   @@index([adminId], map: "ix_unit_admin_id")
 }
 
+model FeaturedUnit {
+  id              Int       @id @default(autoincrement()) /// 고유 아이디
+  unitId          Int /// 유닛 ID
+  order           Int /// 순서 (낮은 숫자가 먼저 표시)
+  label           String    @db.VarChar(50) /// VIP 표시 텍스트 (예: "VIP", "PREMIUM" 등)
+  description     String?   @db.Text /// VIP 상태 설명
+  backgroundColor String?
+  textColor       String?
+  startDate       DateTime  @default(now()) /// 시작 날짜
+  endDate         DateTime? /// 종료 날짜 (null이면 무기한)
+  createdAt       DateTime  @default(now()) /// 등록일
+  updatedAt       DateTime  @updatedAt /// 마지막 수정일
+  // unit        Unit      @relation(fields: [unitId], references: [id], onDelete: Cascade) /// 유닛과의 관계
+
+  @@unique([unitId])
+  @@index([order])
+}
+
 model Favorite {
-  id        Int      @id @default(autoincrement()) // 고유 아이디
-  userId    Int // 유저 ID
-  unitId    Int // 유닛 ID
-  createdAt DateTime @default(now()) // 즐겨찾기한 시간
+  id        Int      @id @default(autoincrement()) /// 고유 아이디
+  userId    Int /// 유저 ID
+  unitId    Int /// 유닛 ID
+  createdAt DateTime @default(now()) /// 즐겨찾기한 시간
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // 유저와의 관계
-  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade) // 유닛과의 관계
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) /// 유저와의 관계
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade) /// 유닛과의 관계
 
-  @@unique([userId, unitId]) // 한 유저가 같은 유닛을 중복으로 즐겨찾기할 수 없도록 고유성 보장
+  @@unique([userId, unitId]) /// 한 유저가 같은 유닛을 중복으로 즐겨찾기할 수 없도록 고유성 보장
 }
 
 model LoginLog {
-  id            Int      @id @default(autoincrement()) // 고유 아이디
-  ip            String?  @db.VarChar(100) // 접속한 IP 주소
-  userId        Int? // 접속 아이디 (User ID 참조)
-  attemptStatus String   @db.VarChar(50) // 접속 시도 상태 (예: fail or success)
-  createdAt     DateTime @default(now()) // 데이터 생성 시간
+  id            Int      @id @default(autoincrement()) /// 고유 아이디
+  ip            String?  @db.VarChar(100) /// 접속한 IP 주소
+  userId        Int? /// 접속 아이디 (User ID 참조)
+  attemptStatus String   @db.VarChar(50) /// 접속 시도 상태 (예: fail or success)
+  createdAt     DateTime @default(now()) /// 데이터 생성 시간
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull) // 유저와의 관계
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull) /// 유저와의 관계
 }
 
 model PasswordResetLog {
   id           Int      @id @default(autoincrement())
-  email        String   @db.VarChar(300) // 비밀번호를 찾은 사용자의 이메일
-  prevPassword String?  @db.VarChar(255) // 변경 전 비밀번호
-  newPassword  String?  @db.VarChar(255) // 변경된 비밀번호
-  createdAt    DateTime @default(now()) // 생성일
-  ip           String?  @db.VarChar(100) // IP 주소 
+  email        String   @db.VarChar(300) /// 비밀번호를 찾은 사용자의 이메일
+  prevPassword String?  @db.VarChar(255) /// 변경 전 비밀번호
+  newPassword  String?  @db.VarChar(255) /// 변경된 비밀번호
+  createdAt    DateTime @default(now()) /// 생성일
+  ip           String?  @db.VarChar(100) /// IP 주소 
 
   @@index([email])
   @@index([createdAt])
@@ -184,10 +203,10 @@ model PasswordResetLog {
 
 model UnitViewLog {
   id        Int      @id @default(autoincrement())
-  unitId    Int // 조회한 유닛 ID
-  userId    Int? // 로그인한 경우 유저 ID
-  ip        String   @db.VarChar(100) // IP 주소
-  createdAt DateTime @default(now()) // 조회 시간
+  unitId    Int /// 조회한 유닛 ID
+  userId    Int? /// 로그인한 경우 유저 ID
+  ip        String   @db.VarChar(100) /// IP 주소
+  createdAt DateTime @default(now()) /// 조회 시간
 
   unit Unit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -199,15 +218,15 @@ model UnitViewLog {
 
 model SiteVisitorLog {
   id         Int       @id @default(autoincrement())
-  sessionId  String    @db.VarChar(100) // 브라우저 세션 구분용
-  userId     Int? // 로그인한 경우 유저 ID (optional)
-  ip         String    @db.VarChar(100) // 방문자 IP
-  userAgent  String?   @db.Text // 브라우저/디바이스 정보
-  visitStart DateTime  @default(now()) // 방문 시작 시간
-  visitEnd   DateTime? // 방문 종료 시간
-  lastActive DateTime  @default(now()) // 마지막 활동 시간
-  isLoggedIn Boolean   @default(false) // 로그인 여부
-  path       String?   @db.VarChar(255) // 현재 페이지 경로
+  sessionId  String    @db.VarChar(100) /// 브라우저 세션 구분용
+  userId     Int? /// 로그인한 경우 유저 ID (optional)
+  ip         String    @db.VarChar(100) /// 방문자 IP
+  userAgent  String?   @db.Text /// 브라우저/디바이스 정보
+  visitStart DateTime  @default(now()) /// 방문 시작 시간
+  visitEnd   DateTime? /// 방문 종료 시간
+  lastActive DateTime  @default(now()) /// 마지막 활동 시간
+  isLoggedIn Boolean   @default(false) /// 로그인 여부
+  path       String?   @db.VarChar(255) /// 현재 페이지 경로
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 

@@ -10,17 +10,36 @@ import { VisitorTracker } from "@/components/visitor-tracker";
 export const metadata: Metadata = {
   metadataBase: new URL('https://rbs-homes.com'),
   title: {
-    default: "Philippines Real Estate | RBS Homes",
+    default: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
     template: "%s | RBS Homes"
   },
-  description: "Find your perfect property in the Philippines. Browse houses, condos, and apartments for sale or rent across the Philippines.",
+  description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
   keywords: [
-    "Philippines real estate",
-    "Philippine property",
-    "houses for sale Philippines",
-    "condos Philippines",
-    "Manila real estate",
-    "Philippines property investment"
+    "apartment for rent",
+    "condo near me",
+    "condo for rent",
+    "studio for rent",
+    "room for rent near me",
+    "apartment near me",
+    "real estate philippine",
+    "BGC condo for sale",
+    "condo for sale",
+    "house for rent near me",
+    "house and lot",
+    "bgc condo",
+    "condo for rent bgc",
+    "bgc condo for rent",
+    "apartment for rent bgc",
+    "makati condo",
+    "apartment for rent in makati",
+    "for rent makati",
+    "condo for rent in manila",
+    "mckinley hill village",
+    "salcedo village",
+    "multinational village",
+    "필리핀 부동산",
+    "마닐라 부동산",
+    "BGC부동산"
   ],
   authors: [{ name: "RBS Homes" }],
   creator: "RBS Homes",
@@ -34,10 +53,10 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://rbs-homes.com",
     siteName: "RBS Homes Philippines",
-    title: "Philippines Real Estate | RBS Homes",
-    description: "Find your perfect property in the Philippines. Browse houses, condos, and apartments.",
+    title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
+    description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
     images: [{
-      url: "/assets/images/cities/BGC.png", // OG 이미지 경로
+      url: "/assets/images/cities/BGC.png",
       width: 1200,
       height: 630,
       alt: "RBS Homes Philippines"
@@ -45,8 +64,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Philippines Real Estate | RBS Homes",
-    description: "Find your perfect property in the Philippines",
+    title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
+    description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
     images: ["/og-image.jpg"],
   },
   robots: {

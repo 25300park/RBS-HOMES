@@ -7,7 +7,6 @@ export interface UnitDetailProps {
   params: { id: string };
 }
 
-// 메타데이터 동적 생성
 export async function generateMetadata({ params }: UnitDetailProps): Promise<Metadata> {
   const unitId = parseInt(params?.id);
   
@@ -21,7 +20,6 @@ export async function generateMetadata({ params }: UnitDetailProps): Promise<Met
   try {
     const { unitDetail } = await getUnitDetail(unitId);
 
-    // 가격 포맷팅
     const formattedPrice = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'PHP',
@@ -35,7 +33,6 @@ export async function generateMetadata({ params }: UnitDetailProps): Promise<Met
       unitDetail?.address2
     ].filter(Boolean).join(', ');
 
-    // 상세 설명 생성
     const description = `${unitDetail?.bed || 0} bed, ${unitDetail?.bath || 0} bath ${unitDetail?.type} ${unitDetail?.sellType} in ${fullAddress}. ${formattedPrice}. Area: ${unitDetail?.area}sqm`;
 
     return {
@@ -73,7 +70,6 @@ export async function generateMetadata({ params }: UnitDetailProps): Promise<Met
         'max-image-preview': 'large',
         'max-snippet': -1,
       },
-      // Schema.org 구조화된 데이터
       other: {
         'og:price:amount': unitDetail?.price?.toString() as string,
         'og:price:currency': 'PHP',
@@ -96,7 +92,7 @@ export async function generateMetadata({ params }: UnitDetailProps): Promise<Met
           floorSize: {
             '@type': 'QuantitativeValue',
             value: unitDetail?.area,
-            unitCode: 'MTK', // Square meters
+            unitCode: 'MTK', 
           },
           datePosted: unitDetail?.regdate,
           dateModified: unitDetail?.lastUpdate,

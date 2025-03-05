@@ -42,7 +42,7 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
         <Suspense fallback={<Loading />}>
           <div className="w-full h-full">
             <MapComponent
-              key={`map-${searchKey}`}
+              // key={`map-${searchKey}`}
               units={units}
               searchKey={searchKey}
             />

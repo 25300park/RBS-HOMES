@@ -99,3 +99,52 @@
 //     total: totalUnits,
 //   };
 // }
+
+
+// app/actions/getFeaturedUnits.ts
+"use server"
+
+import prisma from "@/lib/prisma";
+
+export async function getFeaturedUnits() {
+  try {
+    const featuredData = await prisma.featuredUnit.findMany({
+      where: {
+        OR: [
+          { endDate: null },
+          { endDate: { gt: new Date() } }
+        ]
+      },
+      orderBy: {
+        order: 'asc'
+      },
+      select: {
+        unitId: true,
+        label: true,
+        description: true
+      }
+    });
+
+    const featuredUnits = featuredData.length > 0 ? await prisma.unit.findMany({
+      where: {
+        id: {
+          in: featuredData.map(f => f.unitId)
+        }
+      },
+      include: {
+        admin: true
+      }
+    }) : [];
+
+    return featuredUnits.map(unit => ({
+      ...unit,
+      price: unit.price?.toNumber(),
+      outstandingPayment: unit.outstandingPayment?.toNumber(),
+      featured: featuredData.find(f => f.unitId === unit.id)
+    }));
+
+  } catch (error) {
+    console.error('Failed to fetch featured units:', error);
+    return [];
+  }
+}

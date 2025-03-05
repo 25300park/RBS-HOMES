@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "5");
     const session: any = await getServerSession(authOptions as any);
-    const userId = session?.user?.id;
+    const userId = Number(session?.user?.id);
 
     const filters: FilterParams = {
       type: searchParams.get("type") || "none",
