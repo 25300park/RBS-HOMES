@@ -62,14 +62,14 @@ const MainList: React.FC = () => {
   const ads = [
     { 
       id: 'ad1', 
-      desktopImageUrl: '/assets/images/ad_desk.jpg', 
-      mobileImageUrl: '/assets/images/ad_mob.jpg', 
+      desktopImageUrl: '/assets/images/ad_desk0.png', 
+      mobileImageUrl: '/assets/images/ad_mob0.png', 
       link: 'https://example.com/ad1' 
     },
     { 
       id: 'ad2', 
-      desktopImageUrl: '/assets/images/ad_desk.jpg', 
-      mobileImageUrl: '/assets/images/ad_mob.jpg', 
+      desktopImageUrl: '/assets/images/ad_desk1.png', 
+      mobileImageUrl: '/assets/images/ad_mob1.png', 
       link: 'https://example.com/ad2' 
     }
   ];
