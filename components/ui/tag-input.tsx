@@ -28,11 +28,6 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
   }, []);
 
   const handleToggleTag = (amenity: Amenity) => {
-    // Prevent removing pre-selected amenities
-    if (preSelectedAmenities.includes(amenity.label)) {
-      return;
-    }
-
     if (value.includes(amenity.label)) {
       onChange(value.filter((t) => t !== amenity.label));
     } else {
@@ -101,14 +96,14 @@ export function TagInput({ label, value, onChange }: TagInputProps) {
                     </div>
                     <p className="text-[10px]">{tag}</p>
                   </div>
-                  {!preSelectedAmenities.includes(tag) && (
+                  {
                     <button
                       onClick={() => handleToggleTag(amenity)}
                       className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center"
                     >
                       X
                     </button>
-                  )}
+                  }
                 </div>
               )
             );
