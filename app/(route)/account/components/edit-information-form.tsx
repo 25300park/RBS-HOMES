@@ -23,6 +23,7 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
   const [level, setLevel] = useState(String(session?.user.level || 1));
   const [phone, setPhone] = useState(session?.user.phone || "");
   const [email, setEmail] = useState(session?.user.email || "");
+  const [license, setLicense] = useState(session?.user.license || "");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState(session?.user.image || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,10 +69,17 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
         phone,
         profileImage: uploadedImageUrl,
         level,
+        license: level === "3" ? license : null,
       });
 
       if (response.status === 200) {
-        await update({ name, phone, level, image: uploadedImageUrl });
+        await update({
+          name,
+          phone,
+          level,
+          image: uploadedImageUrl,
+          license: level === "3" ? license : null,
+        });
         toast({
           title: response.message,
         });
@@ -179,6 +187,20 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
                 className="w-full bg-gray-50"
               />
             </div>
+            {level === "3" && (
+              <div className="mb-6 md:mb-4">
+                <label className="block text-xs mb-1 font-medium text-zinc-500">
+                  Broker License Number
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter your broker license number"
+                  value={license}
+                  onChange={(e) => setLicense(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
         </section>
       )}

@@ -20,6 +20,7 @@ export const editUserProfile = async ({
   phone,
   profileImage,
   level,
+  license
 }: any) => {
   const session: any = await getServerSession(authOptions as any);
   if (!session || !session.user?.id) {
@@ -45,6 +46,14 @@ export const editUserProfile = async ({
     };
   }
 
+
+  if (level === "3" && (!license || license.trim() === "")) {
+    return {
+      status: 400,
+      message: "Broker must provide a valid license number.",
+    };
+  }
+
   try {
     await prisma.user.update({
       where: { id: session.user.id },
@@ -52,6 +61,7 @@ export const editUserProfile = async ({
         name: validationResult.data.name,
         phone: validationResult.data.phone,
         image: validationResult.data.profileImage ?? session.user.image, // 이미지 URL 저장
+        license: level === "3" ? license : null,
         level: Number(level),
         lastUpdate: new Date(),
       },
