@@ -228,3 +228,29 @@ model SiteVisitorLog {
   @@index([visitStart])
   @@index([ip])
 }
+
+model AreaBanner {
+  id               Int       @id @default(autoincrement())
+  // 위치 매칭 필드
+  matchType        String    // "city", "district", "exact_address" 중 하나
+  matchValue       String    // 매칭할 값 (예: "Manila", "Taguig", "Legaspi Street" 등)
+  priority         Int       @default(10) // 우선순위 (낮은 값이 더 높은 우선순위)
+  title            String?   @db.VarChar(200)
+  description      String?   @db.Text
+  
+  // 스와이퍼용 이미지
+  images           Json      // 이미지 배열
+  
+  // 위치 정보 (추가)
+  latitude         Float?    // 위도
+  longitude        Float?    // 경도
+  fullAddress      String?   @db.VarChar(500) // 전체 주소
+  
+  // 메타 정보
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now())
+  createdBy        Int?
+
+  @@index([matchType, matchValue])
+}

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 
 export function ContactButtons() {
-  const officeNumber = "02 8511 5715";
-  const mobileNumber = "0955 689 7394";
+  const officeNumber = "02 8421 4458";
+  const mobileNumber = "0954 349 8042";
 
   return (
     <div className="flex gap-2 ">

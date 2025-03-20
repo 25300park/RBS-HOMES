@@ -28,6 +28,7 @@ import {
   unitStatusOptions,
 } from "@/lib/config/unit-options";
 import { useModalStore } from "@/store/use-modal-store";
+import { Textarea } from "@/components/ui/textarea";
 
 interface EditFormProps {
   unitId: string;
@@ -261,7 +262,18 @@ const EditForm = ({ unitId }: EditFormProps) => {
               className="w-full"
             />
           </div>
-
+          {/* Description (Note) Section */}
+          <div className="col-span-2">
+            <label className="block text-xs mb-1 font-medium text-zinc-500">
+              Description
+            </label>
+            <Textarea
+              value={unitData.note || ""}
+              onChange={(e) => handleChange("note", e.target.value)}
+              placeholder="Explain the advantages of a unit to the client"
+              className="mb-2 p-2 border w-full h-36 md:h-24"
+            />
+          </div>
           {/* Price and Sale Type */}
           <div className="flex gap-4 w-full md:flex-col col-span-1">
             <div className="w-full">
@@ -481,7 +493,7 @@ const EditForm = ({ unitId }: EditFormProps) => {
       text-center w-full items-center justify-center h-[200px] md:h-[180px] 
       flex flex-col gap-3 cursor-pointer"
           >
-        <input {...getInputProps()} ref={fileInputRef} />
+            <input {...getInputProps()} ref={fileInputRef} />
             <MdCloudUpload className="text-6xl md:text-4xl text-orange-300" />
             <p className="text-2xl md:text-lg">Browse or take a photo</p>
             <Button
@@ -551,7 +563,6 @@ const EditForm = ({ unitId }: EditFormProps) => {
                       </div>
 
                       {/* Upload Progress Bar */}
-       
                     </li>
                   ))}
                 </ul>

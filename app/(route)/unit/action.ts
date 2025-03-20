@@ -258,7 +258,59 @@ export async function requestSchedule(formData: ScheduleRequest) {
   }
 }
 
-
+export const getAreaBanners = async (city?: string, address?: string) => {
+  try {
+    const whereConditions = [];
+    
+    // 정확한 주소 매칭 (우선순위 높음)
+    if (address) {
+      whereConditions.push({
+        matchType: 'exact_address',
+        matchValue: {
+          contains: address
+        }
+      });
+    }
+    
+    // 도시 매칭 (우선순위 낮음)
+    if (city) {
+      whereConditions.push({
+        matchType: 'city',
+        matchValue: {
+          contains: city
+        }
+      });
+    }
+    
+    // 배너가 없으면 빈 배열 반환
+    if (whereConditions.length === 0) {
+      return { banners: [], status: 200 };
+    }
+    
+    // 데이터베이스 쿼리
+    const banners = await prisma.areaBanner.findMany({
+      where: {
+        isActive: true,
+        OR: whereConditions
+      },
+      orderBy: {
+        priority: 'asc' // 우선순위 높은 순 (값이 낮을수록 높은 우선순위)
+      }
+    });
+    
+    return { 
+      banners,
+      status: 200 
+    };
+  } catch (error) {
+    console.error("Error fetching area banners:", error);
+    return {
+      error: "Failed to fetch area banners",
+      status: 500,
+      banners: []
+    };
+  }
+};
 
 // 쿠키사용
 // export const getUnitDetail = async (unitId: number) => {
