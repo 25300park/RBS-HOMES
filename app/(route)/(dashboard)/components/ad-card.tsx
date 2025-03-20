@@ -51,7 +51,7 @@ const AdCard: React.FC<AdCardProps> = ({
           {/* 2번 버튼 */}
           <div className="absolute bottom-[25%] right-[5%] w-[48%] max-w-[400px] cursor-pointer hover:opacity-80">
             <Link
-              href="https://example.com/product1"
+              href="pf.kakao.com/_xewwjG"
               target="_blank"
               rel="noopener noreferrer"
               className="block"
