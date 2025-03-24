@@ -90,7 +90,7 @@ export const formatFileSize = (size: number): string => {
 };
 
 export const isValidImageType = (file: File): boolean => {
-  const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
   return validTypes.includes(file.type);
 };
 
