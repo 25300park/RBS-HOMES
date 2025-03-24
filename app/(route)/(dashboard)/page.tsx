@@ -14,12 +14,7 @@ export default async function DashBoard({
 
   // 모바일에서 접근시 map 페이지로 리다이렉트
   if (isMobile && !searchParams.sellType) {
-    redirect("/map?sellType=rent");
-  }
-
-  // 데스크톱에서 sellType 없을 때 리다이렉트
-  if (!isMobile && !searchParams.sellType) {
-    redirect("/?sellType=rent");
+    redirect("/map");
   }
 
   return (

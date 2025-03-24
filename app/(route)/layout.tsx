@@ -16,7 +16,7 @@ export default async function RootLayout({
 
   const pathname = headersList.get("x-invoke-path") || "";
   if (isMobile && pathname === "/") {
-    redirect("/map?sellType=rent");
+    redirect("/map");
   }
 
   return (
