@@ -11,6 +11,7 @@ type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 interface FilterParams {
   type?: string;
   sellType?: string;
+  activeTypes?: string; // 새로 추가된 필드
   bed?: string;
   bath?: string;
   parking?: string;
@@ -37,6 +38,7 @@ export async function GET(req: Request) {
     const filters: FilterParams = {
       type: searchParams.get("type") || "none",
       sellType: searchParams.get("sellType") || "none",
+      activeTypes: searchParams.get("activeTypes") || "rent,sale,preSale", // 기본값 모두 활성화
       bed: searchParams.get("bed") || "",
       bath: searchParams.get("bath") || "",
       parking: searchParams.get("parking") || "",
@@ -147,7 +149,12 @@ async function getFilteredUnits(
 ) {
   // Parse filter values
   const type = params.type !== "none" ? params.type : undefined;
-  const sellType = params.sellType !== "none" ? params.sellType : undefined;
+  
+  // activeTypes 파라미터 처리
+  const activeTypesArray = params.activeTypes 
+    ? params.activeTypes.split(',') 
+    : ["rent", "sale", "preSale"];
+  
   const bed = parseNumericValue(params.bed);
   const bath = parseNumericValue(params.bath);
   const parking = parseNumericValue(params.parking);
@@ -171,7 +178,10 @@ async function getFilteredUnits(
       in: [0, 3] 
     },
     type: type ? { equals: type } : undefined,
-    sellType: sellType ? { equals: sellType } : undefined,
+    
+    // sellType 필터를 activeTypes 배열을 사용하도록 변경
+    sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
+    
     bed: bed ? { gte: bed } : undefined,
     bath: bath ? { gte: bath } : undefined,
     parking: parking ? { gte: parking } : undefined,

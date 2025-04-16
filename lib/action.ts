@@ -163,7 +163,6 @@ export async function login(
 
 //유닛 관련
 
-// 유닛 관련 타입 정의
 type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 
 // 필터 헬퍼 함수들
@@ -206,8 +205,12 @@ export const getUnitList = async (
   try {
     // Parse filter values
     const type = searchParams.type !== "none" ? searchParams.type : undefined;
-    const sellType =
-      searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+    
+    // activeTypes 파라미터 처리
+    const activeTypesArray = searchParams.activeTypes 
+      ? searchParams.activeTypes.split(',') 
+      : ["rent", "sale", "preSale"];
+    
     const bed = parseNumericValue(searchParams.bed);
     const bath = parseNumericValue(searchParams.bath);
     const parking = parseNumericValue(searchParams.parking);
@@ -241,7 +244,8 @@ export const getUnitList = async (
         status: {
           in: [0, 3] 
         },
-        sellType: sellType ? { equals: sellType } : undefined,
+        // sellType 대신 activeTypes 사용
+        sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
         type: type ? { equals: type } : undefined,
         bed: bed ? { gte: bed } : undefined,
         bath: bath ? { gte: bath } : undefined,
@@ -286,10 +290,15 @@ export const getUnitList = async (
 };
 
 export const getUnitCount = async (
-  searchParams: Record<string, string>,
-  sellType?: string
+  searchParams: Record<string, string>
 ): Promise<number> => {
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
+  
+  // activeTypes 파라미터 처리
+  const activeTypesArray = searchParams.activeTypes 
+    ? searchParams.activeTypes.split(',') 
+    : ["rent", "sale", "preSale"];
+  
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
@@ -336,7 +345,8 @@ export const getUnitCount = async (
       status: {
         in: [0, 3] 
       },
-      sellType: sellType ? { equals: sellType } : undefined,
+      // sellType 대신 activeTypes 사용
+      sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
@@ -368,8 +378,12 @@ export const getUnitCountOwner = async (
   const adminId = session.user.id;
 
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
-  const sellType =
-    searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+  
+  // activeTypes 파라미터 처리
+  const activeTypesArray = searchParams.activeTypes 
+    ? searchParams.activeTypes.split(',') 
+    : ["rent", "sale", "preSale"];
+  
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
@@ -414,7 +428,8 @@ export const getUnitCountOwner = async (
   const count = await prisma.unit.count({
     where: {
       adminId: adminId,
-      sellType: sellType ? { equals: sellType } : undefined,
+      // sellType 대신 activeTypes 사용
+      sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,

@@ -16,8 +16,12 @@ export const getUnitListByOwner = async (
   }
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
-  const sellType =
-    searchParams.sellType !== "none" ? searchParams.sellType : undefined;
+  
+  // activeTypes 파라미터만 처리
+  const activeTypesArray = searchParams.activeTypes 
+    ? searchParams.activeTypes.split(',') 
+    : ["rent", "sale", "preSale"]; // 기본적으로 모든 유형 포함
+  
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
     ? parseInt(searchParams.parking)
@@ -40,6 +44,7 @@ export const getUnitListByOwner = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
+  
   // 가격과 가격 임대 필터 처리
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined
@@ -60,12 +65,14 @@ export const getUnitListByOwner = async (
 
   // 유닛 검색
   const filters = [...priceFilter, ...searchFilter];
+  
   const data = await prisma.unit.findMany({
     where: {
       status: { not: 5 }, 
       adminId: adminId,
       type: type ? { equals: type } : undefined,
-      sellType: sellType ? sellType : undefined,
+      // 오직 activeTypes로만 필터링
+      sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
       parking: parking ? { gte: parking } : undefined,

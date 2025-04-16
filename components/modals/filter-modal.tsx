@@ -24,7 +24,7 @@ import {
 
 interface Filters {
   type: string;
-  sellType: string;
+  activeTypes: string; // Changed from sellType to activeTypes
   bed: string;
   bath: string;
   parking: string;
@@ -42,14 +42,14 @@ interface FilterModalProps {
   modalProps?: {
     withSellType: boolean;
     withType: boolean;
-    sellType?: string;
+    activeTypes?: string; // Changed from sellType to activeTypes
   };
 }
 
 // 초기 필터 상태
 const initialFilters: Filters = {
   type: "none",
-  sellType: "none",
+  activeTypes: "rent,sale,preSale", // Changed default value
   bed: "0",
   bath: "0",
   parking: "0",
@@ -72,7 +72,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   // 필터 상태 초기화 - URL 파라미터 존재하면 사용
   const [filters, setFilters] = useState<Filters>(() => ({
     type: searchParams.get("type") || initialFilters.type,
-    sellType: searchParams.get("sellType") || initialFilters.sellType,
+    activeTypes: searchParams.get("activeTypes") || initialFilters.activeTypes,
     bed: searchParams.get("bed") || initialFilters.bed,
     bath: searchParams.get("bath") || initialFilters.bath,
     parking: searchParams.get("parking") || initialFilters.parking,
@@ -120,16 +120,19 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
     router.push(`${pathname}?${currentParams.toString()}`);
     onClose();
   };
+  
   const clearFilters = () => {
     const newFilters = { ...initialFilters };
     
-    const currentSellType = searchParams.get("sellType");
-    if (currentSellType) {
-      newFilters.sellType = currentSellType;
+    // 현재 activeTypes 값 유지 (기존에는 sellType)
+    const currentActiveTypes = searchParams.get("activeTypes");
+    if (currentActiveTypes) {
+      newFilters.activeTypes = currentActiveTypes;
     }
     
     setFilters(newFilters);
   };
+  
   // 유닛 카운트 조회
   const fetchUnitCount = async () => {
     try {
@@ -143,7 +146,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
 
           // none 값은 제외
           if (
-            ["type", "sellType", "furniture", "pet"].includes(key) &&
+            ["type", "furniture", "pet"].includes(key) &&
             value === "none"
           ) {
             return acc;
@@ -165,11 +168,15 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
         },
         {} as Record<string, string>
       );
-      const sellType = modalProps?.sellType || filters.sellType;
-      const count = await getUnitCount(
-        filterRecord,
-        sellType !== "none" ? sellType : undefined
-      );
+      
+      // activeTypes 파라미터 사용 (기존에는 sellType)
+      const activeTypes = modalProps?.activeTypes || filters.activeTypes;
+      if (activeTypes && activeTypes !== "rent,sale,preSale") {
+        filterRecord.activeTypes = activeTypes;
+      }
+      
+      // getUnitCount 함수 호출 (이제 sellType 인자를 전달하지 않음)
+      const count = await getUnitCount(filterRecord);
       setUnitCount(count);
     } catch (error) {
       console.error("Error fetching unit count:", error);
@@ -195,8 +202,9 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   
       {/* 폼 섹션 */}
       <form className="grid gap-4 pt-4 md:pt-0" onSubmit={(e) => e.preventDefault()}>
-        {/* Sell Type Selection */}
-        {modalProps?.withSellType && (
+        {/* Sell Type Selection - 더 이상 사용되지 않음 (SellTypeButton 컴포넌트로 대체됨) */}
+        {/* 이 부분은 필요가 없어졌지만, 호환성을 위해 주석으로 남겨둡니다 */}
+        {/* {modalProps?.withSellType && (
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
               Sell Type
@@ -205,11 +213,11 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
               className="justify-between space-x-0 flex gap-2"
               boxClassName="w-full h-12"
               options={sellTypeOption}
-              selectedValue={filters.sellType}
-              onSelect={(e) => updateFilter("sellType", e)}
+              selectedValue={filters.activeTypes}
+              onSelect={(e) => updateFilter("activeTypes", e)}
             />
           </div>
-        )}
+        )} */}
   
         {/* Property Type Selection */}
         <div>
