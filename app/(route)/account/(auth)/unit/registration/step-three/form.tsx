@@ -233,7 +233,7 @@ const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
 
   return (
     <div
-      className={`p-6 md:p-4 bg-white md:border-none md:shadow-none ${
+      className={`p-6 mb-10 md:mb-0 md:p-4 bg-white md:border-none md:shadow-none ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >

@@ -86,7 +86,7 @@ export default function StepOneForm() {
 
   return (
     <div
-      className={`p-6 md:p-4 bg-white ${
+      className={`p-6 md:p-4 mb-10 md:mb-0 bg-white ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto md:shadow-none md:border-none`}
     >
@@ -159,7 +159,12 @@ export default function StepOneForm() {
                 />
                 <p className="text-xs text-right absolute right-0 w-full mt-1 text-zinc-500">
                   Your information will be entered on the [
-                  {formData.saleType === "rent" ? "RENT" : "BUY"}] page.
+                  {formData.saleType === "rent"
+                    ? "RENT"
+                    : formData.saleType === "sale"
+                    ? "BUY"
+                    : "PRE SALE"}
+                  ] page.
                 </p>
               </div>
             </div>

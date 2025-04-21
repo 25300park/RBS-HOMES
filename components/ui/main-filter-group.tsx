@@ -10,7 +10,7 @@ export interface MainFilterGroupProps {}
 
 const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 justify-around w-full">
       <Link href={"/"} className="hidden md:block">
         <img
           src="/assets/images/RBS_symbol_60x60.png"
@@ -18,8 +18,9 @@ const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
           className="w-10 mr-2"
         />
       </Link>
-
-      <FilterButton />
+      <span className="md:hidden">
+        <FilterButton />
+      </span>
       <SellTypeButton type="rent" />
       <SellTypeButton type="sale" />
       <SellTypeButton type="preSale" />
@@ -33,14 +34,14 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   let typeString;
   if (type === "rent") typeString = "rent";
   else if (type === "sale") typeString = "buy";
   else typeString = "preSale";
 
   const [activeTypes, setActiveTypes] = useState<string[]>([]);
-  
+
   useEffect(() => {
     const activeParam = searchParams.get("activeTypes");
     if (activeParam) {
@@ -54,13 +55,13 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
 
   const handleClick = () => {
     let newActiveTypes: string[];
-    
+
     if (isActive) {
-      newActiveTypes = activeTypes.filter(t => t !== type);
+      newActiveTypes = activeTypes.filter((t) => t !== type);
     } else {
       newActiveTypes = [...activeTypes, type];
     }
-    
+
     // Update URL
     const newParams = new URLSearchParams(searchParams.toString());
     if (newActiveTypes.length === 0) {
@@ -74,17 +75,17 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
   let activeStyle = "";
   if (isActive) {
     if (type === "rent") {
-      activeStyle = "bg-orange-400 text-white border-orange-400";
+      activeStyle = "bg-[#F18D3E] text-white border-[#F18D3E]";
     } else if (type === "sale") {
-      activeStyle = "bg-indigo-800 text-white border-indigo-800";
+      activeStyle = "bg-[#3751A2] text-white border-[#3751A2]";
     } else if (type === "preSale") {
-      activeStyle = "bg-gray-500 text-white border-gray-500";
+      activeStyle = "bg-[#585859] text-white border-[#585859]";
     }
   }
 
   return (
     <Button
-      className={`py-5 space-x-1 relative w-[90px] text-xs bg-indigo ${activeStyle}`}
+      className={`py-5 space-x-1 relative w-[90px] text-xs ${activeStyle}`}
       variant={"outline"}
       onClick={handleClick}
     >

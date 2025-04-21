@@ -102,7 +102,7 @@ export default function StepTwoForm() {
 
   return (
     <div
-      className={`p-6 md:p-4 bg-white md:shadow-none md:border-none ${
+      className={`p-6 md:p-4 mb-10 md:mb-0 bg-white md:shadow-none md:border-none ${
         isLoading ? "border-none shadow-none" : "border"
       } rounded-lg shadow-md max-w-[1140px] mx-auto`}
     >

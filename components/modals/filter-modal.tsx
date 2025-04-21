@@ -202,8 +202,6 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   
       {/* 폼 섹션 */}
       <form className="grid gap-4 pt-4 md:pt-0" onSubmit={(e) => e.preventDefault()}>
-        {/* Sell Type Selection - 더 이상 사용되지 않음 (SellTypeButton 컴포넌트로 대체됨) */}
-        {/* 이 부분은 필요가 없어졌지만, 호환성을 위해 주석으로 남겨둡니다 */}
         {/* {modalProps?.withSellType && (
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
