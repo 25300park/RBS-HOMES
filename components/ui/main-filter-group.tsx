@@ -21,6 +21,9 @@ const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
       <span className="md:hidden">
         <FilterButton />
       </span>
+      <span className="hidden md:block fixed top-[90px] left-2">
+        <FilterButton />
+      </span>
       <SellTypeButton type="rent" />
       <SellTypeButton type="sale" />
       <SellTypeButton type="preSale" />

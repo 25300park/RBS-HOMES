@@ -191,7 +191,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
   }, [debouncedFilters]);
 
   return (
-    <div className="px-2 md:h-[85vh] md:overflow-y-auto md:w-fit md:mx-auto">
+    <div className="px-2 md:h-[85vh] md:overflow-y-auto md:mx-auto">
       {/* 헤더 섹션 */}
       <div className="text-left mb-6 md:sticky md:top-0 md:bg-white md:z-10 md:pb-4 md:shadow-sm">
         <h2 className="text-2xl font-bold text-gray-900">Filter</h2>

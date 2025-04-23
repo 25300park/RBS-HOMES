@@ -151,14 +151,24 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
 
   const initializeMap = useCallback(async () => {
     if (mapInitializedRef.current || !mapRef.current) return;
-
+  
     try {
       const google = await loadGoogleMapsAPI();
       const bounds = new google.maps.LatLngBounds(BOUNDS.south, BOUNDS.north);
-
+  
+      // 단순히 window 객체를 통해 기기 타입 확인 (클라이언트 사이드에서만 실행됨)
+      const isMobileDevice = typeof window !== 'undefined' && window.innerWidth <= 768;
+      
+      // 좌표 설정
+      const coordinates = isMobileDevice 
+        ? { lat: 14.5430, lng: 121.0536 } // 모바일용 BGC 좌표
+        : { lat: 14.5877, lng: 121.0563 }; // 데스크톱용 마닐라 좌표
+      
+      // console.log("Device detected:", isMobileDevice ? "Mobile" : "Desktop", "Using coordinates:", coordinates);
+  
       const initializedMap = new google.maps.Map(mapRef.current, {
-        center: { lat: 14.5877, lng: 121.0563 },
-        zoom: 13,
+        center: coordinates,
+        zoom: isMobileDevice ? 14 : 13,
         minZoom: 5,
         maxZoom: 20,
         disableDefaultUI: true,
@@ -170,7 +180,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
           strictBounds: true,
         },
       });
-
+  
       google.maps.event.addListenerOnce(initializedMap, "idle", () => {
         mapInitializedRef.current = true;
         setMap(initializedMap);

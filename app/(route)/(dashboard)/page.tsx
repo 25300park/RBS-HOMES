@@ -11,11 +11,16 @@ export default async function DashBoard({
   const headersList = headers();
   const userAgent = headersList.get("user-agent") || "";
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-
-  // 모바일에서 접근시 map 페이지로 리다이렉트
-  if (isMobile && !searchParams.sellType) {
-    redirect("/map");
-  }
+  
+  // 현재 경로 확인 (루트 경로인지 확인)
+  const referer = headersList.get("referer") || "";
+  const path = headersList.get("x-invoke-path") || "";
+  const isDirectAccess = path === "/" || path === "";
+  
+  // // 모바일에서 직접 도메인 접속시에만 /map으로 리다이렉트
+  // if (isMobile && isDirectAccess) {
+  //   redirect("/map");
+  // }
 
   return (
     <main>

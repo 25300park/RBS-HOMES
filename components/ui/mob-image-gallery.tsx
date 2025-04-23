@@ -63,7 +63,7 @@ const MobileImageGallery = ({
       router.back();
     } else {
       // 히스토리가 없으면 기본 경로로 이동
-      router.push("/?sellType=rent");
+      router.push("/");
     }
   };
 

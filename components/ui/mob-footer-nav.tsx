@@ -25,7 +25,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
   const FooterNavList = [
     {
       name: "explore",
-      href: "/?sellType=rent",
+      href: "/",
       isActive: pathname === "/" || pathname.startsWith("/?"),
       icon: (
         <span className="text-2xl">
@@ -35,7 +35,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
     },
     {
       name: "map",
-      href: "/map/?sellType=rent",
+      href: "/map",
       isActive: pathname.startsWith("/map"),
       icon: (
         <span className="text-2xl">
