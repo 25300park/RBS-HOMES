@@ -13,6 +13,9 @@ import PreviewModal from "@/components/modals/preview-modal";
 import ScheduleModal from "@/components/modals/schedule-modal";
 import EditPasswordModal from "@/components/modals/edit-password-modal";
 import { useState, useEffect } from "react";
+import ContactModal from "@/components/modals/contact-modal";
+import { cn } from "@/lib/utils"; // 클래스 병합 유틸리티 필요
+import ComplainModal from "@/components/modals/complain-modal";
 
 export const ModalProvider = () => {
   const { isOpen, modalType, modalProps, closeModal } = useModalStore();
@@ -39,15 +42,30 @@ export const ModalProvider = () => {
     case "editPassword":
       content = <EditPasswordModal onClose={closeModal} />;
       break;
+    case "contact":
+      content = <ContactModal onClose={closeModal} />;
+      break;
+    case "complain":
+      content = <ComplainModal onClose={closeModal} />;
+      break;
     default:
       return null;
   }
+
+  // 모달 타입에 따른 클래스 선택
+  const dialogContentClass = cn(
+    {
+      "max-w-[1000px]": modalType === "contact"
+    }
+  );
 
   if (isDesktop || modalType === "login" || modalType === "signup") {
     return (
       <Dialog open={isOpen} onOpenChange={closeModal}>
         <DialogTitle></DialogTitle>
-        <DialogContent className="sm:max-w-[500px]">{content}</DialogContent>
+        <DialogContent className={dialogContentClass}>
+          {content}
+        </DialogContent>
       </Dialog>
     );
   }

@@ -2,12 +2,13 @@
 
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
-import { SignupFormSchema, FormState, LoginFormSchema } from "@/types/schema";
+import { SignupFormSchema, FormState, LoginFormSchema, contactSchema } from "@/types/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { generateTemporaryPassword } from "@/lib/utils";
 import { sendEmail, getPasswordResetEmailTemplate } from "@/lib/email";
+import { headers } from "next/headers";
 
 //비밀번호 찾기
 export async function resetPassword(state: FormState, formData: FormData) {
@@ -500,3 +501,65 @@ export const ToggleFavoriteUnit = async (unitId: number) => {
     throw error;
   }
 };
+
+export async function sendContactForm(formData: FormData) {
+  try {
+    // 폼 유효성 검사
+    const validatedFields = contactSchema.safeParse({
+      name: formData.get("name"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      message: formData.get("message"),
+    });
+
+    if (!validatedFields.success) {
+      const fieldErrors = validatedFields.error.flatten().fieldErrors;
+      let errorMessage = "";
+      
+      for (const [field, errors] of Object.entries(fieldErrors)) {
+        if (errors && errors.length > 0) {
+          errorMessage += `${errors.join(', ')} `;
+        }
+      }
+      
+      return {
+        success: false,
+        message: errorMessage.trim(),
+        fieldErrors: fieldErrors, // 필드별 오류도 함께 전송
+      };
+    }
+
+    const { name, email, phone, message } = validatedFields.data;
+    
+    const headersList = headers();
+    const ip = 
+      headersList.get('x-forwarded-for')?.split(',')[0] || 
+      headersList.get('x-real-ip') || 
+      headersList.get('client-ip') ||
+      '127.0.0.1'; 
+    
+    // Save to database
+    const newContact = await prisma.contact.create({
+      data: {
+        name,
+        email,
+        phone,
+        message,
+        ip,
+        status: 0, // Unprocessed status
+      },
+    });
+    
+    // Success response
+    return {
+      success: true,
+      message: "Your inquiry has been successfully submitted."
+    };
+  } catch (error) {
+    console.error("Contact form submission error:", error);
+    return {
+      success: false,
+      message: "An error occurred while submitting your inquiry. Please try again."
+    };
+  }
+}

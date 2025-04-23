@@ -97,3 +97,4 @@ export default function HeaderUserProfile({ session }: any) {
     </HoverCard>
   );
 }
+

@@ -5,51 +5,58 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-// import { sendContactForm } from "@/app/actions/contact-actions"; 
+import { sendContactForm } from "@/lib/action";
 
 const ContactModal = ({ onClose }: { onClose: () => void }) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // High Street South Corporate Plaza Tower 2 coordinates
+  const latitude = 14.5508;
+  const longitude = 121.0505;
+  
+  // Static Google Map URL
+  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=16&size=600x600&maptype=roadmap&markers=color:red%7Clabel:A%7C${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_KEY || "YOUR_API_KEY"}`;
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      // const response = await sendContactForm(formData);
-      // if (response.success) {
-      //   toast({ description: "Message sent successfully!" });
-      //   onClose();
-      // } else {
-      //   toast({ description: response.message, variant: "destructive" });
-      // }
+      // Call server action function
+      const response = await sendContactForm(formData);
+      console.log(response)
+      if (response.success) {
+        toast({ description: response.message });
+        setTimeout(() => onClose(), 1000);
+      } else {
+        toast({ 
+          title: "Error", 
+          description: response.message, 
+          variant: "destructive" 
+        });
+      }
     } catch (error) {
-      toast({ description: "Failed to send message", variant: "destructive" });
+      toast({ 
+        title: "Error",
+        description: "An error occurred while submitting your inquiry. Please try again.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden max-w-4xl w-full mx-4 shadow-xl">
-      <div className="flex flex-col md:flex-row">
-        {/* 왼쪽 지도 섹션 */}
-        <div className="w-full md:w-1/2 relative h-64 md:h-auto">
-          <div className="absolute inset-0 z-10 bg-black bg-opacity-30 flex flex-col justify-center items-center text-white p-4">
-            <h2 className="text-2xl font-bold mb-2">구글맵</h2>
-            <h3 className="text-xl font-medium mb-4">회사 주소 위치표시</h3>
-          </div>
-          {/* 지도 임베드 또는 이미지 */}
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.802548850011!2d121.04932371483892!3d14.550636189833683!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c8efd99aad53%3A0xb64b39847a866fde!2sBGC%20Corporate%20Center!5e0!3m2!1sen!2sph!4v1650450051693!5m2!1sen!2sph"
-            className="w-full h-full absolute inset-0"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+    <div className="bg-white rounded-lg md:overflow-scroll w-full">
+      <div className="flex md:flex-col-reverse">
+        <div className="w-full relative md:h-auto">
+          <img 
+            src={staticMapUrl} 
+            alt="Office Location Map" 
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        {/* 오른쪽 폼 섹션 */}
-        <div className="w-full md:w-1/2 p-6">
+        <div className="w-full p-6">
           <h2 className="text-3xl font-bold text-gray-900 mb-3">WE'RE HERE TO HELP</h2>
           <p className="text-sm text-gray-700 mb-4">
             Unit 3306, High Street South Corporate Plaza Tower2,

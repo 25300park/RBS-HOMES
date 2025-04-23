@@ -10,6 +10,7 @@ import FavoriteButton from "@/components/favorite-button";
 import GalleryConverter from "./gallery-converter";
 import { ShareBtn } from "@/components/ui/share-btn";
 import AreaBannerSwiper from "./area-banner-swiper";
+import MoreBtn from "@/components/ui/more-btn";
 
 interface DetailWrapProps {
   property: any;
@@ -30,12 +31,16 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
             <div>
               <ShareBtn withDetail />
             </div>
+
             <div>
               <FavoriteButton
                 unitId={property.id}
                 initialIsFavorited={property.isFavorited}
                 withDetail
               />
+            </div>
+            <div>
+              <MoreBtn />
             </div>
           </div>
         </div>

@@ -46,13 +46,17 @@ model User {
   memo           String?   @db.Text
 
   // 관계 필드 추가
-  unit           Unit[]
-  account        Account[]
-  session        Session[]
-  favorites      Favorite[]
-  loginLog       LoginLog[]
-  unitViews      UnitViewLog[]
-  SiteVisitorLog SiteVisitorLog[]
+  unit              Unit[]
+  account           Account[]
+  session           Session[]
+  favorites         Favorite[]
+  loginLog          LoginLog[]
+  unitViews         UnitViewLog[]
+  SiteVisitorLog    SiteVisitorLog[]
+  processedContacts Contact[]        @relation("ProcessedContacts")
+  userContacts      Contact[]        @relation("UserContacts")
+  processedComplain ComplainUnit[]   @relation("ProcessedComplain")
+  userComplain      ComplainUnit[]   @relation("UserComplain")
 
   @@map("user")
 }
@@ -228,7 +232,7 @@ model Unit {
   /// 요청 사항
   requested          String?  @db.Text
   /// 이미지 정보
-  images             Json?  
+  images             Json?
   /// 지도 정보 (위치 관련 정보)
   mapinfo            String?  @db.VarChar(500)
   /// Ongoing = 0,  Completed = 1,  Contracted = 2,  UnderNegotiation = 3
@@ -409,4 +413,78 @@ model AreaBanner {
 
   @@index([matchType, matchValue], map: "AreaBanner_matchType_matchValue_idx")
   @@map("areabanner")
+}
+
+model Contact {
+  /// 고유 아이디
+  id           Int       @id @default(autoincrement())
+  /// 문의자 이름
+  name         String    @db.VarChar(100)
+  /// 문의자 이메일
+  email        String    @db.VarChar(300)
+  /// 문의자 전화번호
+  phone        String    @db.VarChar(50)
+  /// 문의 내용
+  message      String    @db.Text
+  /// 문의 상태 (0: 미처리, 1: 처리중, 2: 처리완료)
+  status       Int       @default(0)
+  /// 문의 등록일
+  createdAt    DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt    DateTime  @updatedAt
+  /// 처리자 아이디 (관리자)
+  adminId      Int?
+  /// 답변 내용
+  response     String?   @db.Text
+  /// 답변 방식 (0: 이메일, 1: 전화, 2: 문자, 3: 기타)
+  responseType Int?
+  /// 답변 일시
+  respondedAt  DateTime?
+  ///메모 
+  memo         String?
+  /// 문의자 IP 주소
+  ip           String?   @db.VarChar(100)
+  /// (선택) 문의자가 회원인 경우 회원 ID
+  userId       Int?
+
+  admin User? @relation(name: "ProcessedContacts", fields: [adminId], references: [id], onDelete: SetNull)
+  user  User? @relation(name: "UserContacts", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([adminId], map: "Contact_adminId_fkey")
+  @@index([userId], map: "Contact_userId_fkey")
+  @@index([status], map: "Contact_status_idx")
+  @@index([createdAt], map: "Contact_createdAt_idx")
+  @@map("contact")
+}
+
+model ComplainUnit {
+  /// 고유 아이디
+  id           Int       @id @default(autoincrement())
+  ///유닛아이디
+  unitId       Int
+  /// 작성자 아이디
+  writerId     Int
+  /// 신고자 아이디 
+  userId       Int
+  ///내용
+  message      String    @db.Text
+  ///상태 0:문의접수 1:처리중 2:처리완료
+  status       Int       @default(0)
+  /// 문의 등록일
+  createdAt    DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt    DateTime  @updatedAt
+  /// 처리자 아이디 (관리자)
+  adminId      Int?
+  /// 답변 내용
+  response     String?   @db.Text
+  /// 답변 방식 (0: 이메일, 1: 전화, 2: 문자, 3: 기타)
+  responseType Int?
+  /// 답변 일시
+  respondedAt  DateTime?
+
+  admin User? @relation(name: "ProcessedComplain", fields: [adminId], references: [id], onDelete: SetNull)
+  user  User @relation(name: "UserComplain", fields: [userId], references: [id])
+
+  @@map("complainunit")
 }

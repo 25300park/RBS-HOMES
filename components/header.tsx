@@ -12,6 +12,7 @@ import MainSearchBar from "./ui/main-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
 import MainFilterGroup from "./ui/main-filter-group";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import HeaderGuestProfile from "./ui/header-guest-profile";
 
 const MobileHeader = ({ pathName }: { pathName: string }) => {
   if (!["/", "/map"].includes(pathName)) {
@@ -25,7 +26,6 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
           <MainFilterGroup />
         </div>
         <MainSearchBar isMobile />
-
       </nav>
       <div className="mt-20" />
     </header>
@@ -40,7 +40,6 @@ const DesktopHeader = ({
   openModal,
 }: any) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-
 
   const handleExpandChange = (expanded: boolean) => {
     setIsSearchExpanded(expanded);
@@ -77,7 +76,9 @@ const DesktopHeader = ({
               <Link
                 href="/"
                 className={`hover:border-gray-200 border-b flex items-center gap-2 ${
-                  pathName === "/" ? "text-black border-gray-200" : "text-gray-400 border-transparent"
+                  pathName === "/"
+                    ? "text-black border-gray-200"
+                    : "text-gray-400 border-transparent"
                 }`}
               >
                 <IoListOutline className="text-xl" />
@@ -86,37 +87,26 @@ const DesktopHeader = ({
               <Link
                 href="/map"
                 className={`flex items-center hover:border-gray-200 border-b gap-2 ${
-                  pathName.startsWith("/map") ? "text-black border-gray-200" : "text-gray-400 border-transparent"
+                  pathName.startsWith("/map")
+                    ? "text-black border-gray-200"
+                    : "text-gray-400 border-transparent"
                 }`}
               >
                 {/* <IoMapOutline className="text-xl" /> */}
-                <img src="/assets/icons/map.gif" alt="map" className="w-9"/>
+                <img src="/assets/icons/map.gif" alt="map" className="w-9" />
                 <p>View on map</p>
               </Link>
             </div>
           )}
-
-          <div className="flex items-center space-x-4 w-[250px] justify-end">
+          <div className="flex items-center space-x-4 w-fit gap-2 justify-end">
+            <div
+              className="text-sm text-white bg-orange-400 py-2 px-4 rounded-xl hover:bg-orange-500 cursor-pointer"
+              onClick={() => openModal("contact")}
+            >
+              SELL / CONTACT US
+            </div>
             {session === null ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-md text-[#6f6f6f]"
-                  onClick={() => openModal("login")}
-                >
-                  LOGIN
-                </Button>
-                <span className="text-[#717171] mx-2">|</span>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-md text-[#6f6f6f]"
-                  onClick={() => openModal("signup")}
-                >
-                  SIGN-UP
-                </Button>
-              </>
+              <HeaderGuestProfile />
             ) : (
               <HeaderUserProfile session={session} />
             )}
@@ -124,8 +114,8 @@ const DesktopHeader = ({
         </div>
         <div className="relative w-full flex justify-center">
           {pathName === "/" && (
-            <MainSearchBar 
-              navbarScrolled={navbarScrolled} 
+            <MainSearchBar
+              navbarScrolled={navbarScrolled}
               onExpandChange={handleExpandChange}
             />
           )}
@@ -134,7 +124,7 @@ const DesktopHeader = ({
 
       {/* 검색창 활성화 시 나타나는 오버레이 */}
       {isSearchExpanded && (
-        <div 
+        <div
           onClick={handleOverlayClick}
           className="fixed inset-0 bg-black/30 transition-opacity duration-300 z-40"
         />
@@ -180,32 +170,32 @@ const Header = () => {
     return <MobileHeader pathName={pathName} />;
   }
 
-return (
-  <header className="w-full">
-    <DesktopHeader
-      navbarScrolled={navbarScrolled}
-      setNavbarScrolled={setNavbarScrolled}
-      session={session}
-      pathName={pathName}
-      openModal={openModal}
-    />
-    <div className={`${pathName === "/" ? "h-44" : "h-20"} relative z-30`} />
-    <div
-      className={`${
-        navbarScrolled
-          ? "fixed w-full bg-white top-20 z-30 transition-all duration-300"
-          : "w-full bg-white"
-      }`}
-    >
-      {(pathName === "/" || pathName.includes("map")) && (
-        <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
-          <MainFilterGroup />
-          <MainAmenityList />
-        </div>
-      )}
-    </div>
-  </header>
-);
+  return (
+    <header className="w-full">
+      <DesktopHeader
+        navbarScrolled={navbarScrolled}
+        setNavbarScrolled={setNavbarScrolled}
+        session={session}
+        pathName={pathName}
+        openModal={openModal}
+      />
+      <div className={`${pathName === "/" ? "h-44" : "h-20"} relative z-30`} />
+      <div
+        className={`${
+          navbarScrolled
+            ? "fixed w-full bg-white top-20 z-30 transition-all duration-300"
+            : "w-full bg-white"
+        }`}
+      >
+        {(pathName === "/" || pathName.includes("map")) && (
+          <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
+            <MainFilterGroup />
+            <MainAmenityList />
+          </div>
+        )}
+      </div>
+    </header>
+  );
 };
 
 const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
@@ -214,7 +204,11 @@ const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
       <div className="flex justify-between items-center h-20 px-12">
         <div className="flex items-center">
           <Link href="/">
-            <img src="/assets/images/rbs-logo.png" alt="logo" className="w-24 h-auto" />
+            <img
+              src="/assets/images/rbs-logo.png"
+              alt="logo"
+              className="w-24 h-auto"
+            />
           </Link>
         </div>
         <div className="flex items-center space-x-4 w-[250px] justify-end">
