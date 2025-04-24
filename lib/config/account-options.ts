@@ -61,3 +61,12 @@ export const UserLevelOptions = [
   { label: "Broker", value: "3" },
   { label: "Owner", value: "4" },
 ];
+export const UserLevelUIOptions = [
+  { label: "Tenant/Buyer", value: "1" },
+  { label: "Agent", value: "2" },
+  { label: "Broker", value: "3" },
+  { label: "Owner", value: "4" },
+  { label: "Agent", value: "20" },
+  { label: "Broker", value: "30" },
+  { label: "Owner", value: "40" },
+];

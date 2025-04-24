@@ -5,7 +5,7 @@ import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
 import { accountSideBarOption } from "@/lib/config/account-options";
 import { useRouter } from "next/navigation";
-import { UserLevelOptions } from "@/lib/config/account-options";
+import { UserLevelUIOptions } from "@/lib/config/account-options";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { LuLogOut } from "react-icons/lu";
 import MenuCard from "./menu-card";
@@ -133,7 +133,7 @@ export default function AccountMenuList({}: AccountMenuListProps) {
               {session?.user?.email || "Guest"}
             </h3>
             <p className="text-sm text-gray-500">
-              {UserLevelOptions.find(
+              {UserLevelUIOptions.find(
                 (e) => e.value == String(session?.user?.level)
               )?.label || "Guest"}
             </p>
