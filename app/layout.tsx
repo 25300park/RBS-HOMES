@@ -6,14 +6,16 @@ import AuthProvider from "@/provider/auth-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { VisitorTracker } from "@/components/visitor-tracker";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://rbs-homes.com'),
+  metadataBase: new URL("https://rbs-homes.com"),
   title: {
     default: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
-    template: "%s | RBS Homes"
+    template: "%s | RBS Homes",
   },
-  description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
+  description:
+    "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
   keywords: [
     "apartment for rent",
     "condo near me",
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
     "multinational village",
     "필리핀 부동산",
     "마닐라 부동산",
-    "BGC부동산"
+    "BGC부동산",
   ],
   authors: [{ name: "RBS Homes" }],
   creator: "RBS Homes",
@@ -55,17 +57,20 @@ export const metadata: Metadata = {
     siteName: "RBS Homes Philippines",
     title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
     description: "지도기반의 집찾기 플랫폼",
-    images: [{
-      url: "/assets/images/ogimg.jpg",
-      width: 1200,
-      height: 630,
-      alt: "RBS Homes Philippines"
-    }],
+    images: [
+      {
+        url: "/assets/images/ogimg.jpg",
+        width: 1200,
+        height: 630,
+        alt: "RBS Homes Philippines",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
-    description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
+    description:
+      "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
     images: ["/og-image.jpg"],
   },
   robots: {
@@ -74,9 +79,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   verification: {
@@ -106,6 +111,18 @@ export default async function RootLayout({
           <ModalProvider />
           <VisitorTracker />
           {children}
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=AW-16798772282"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-16798772282');
+          `}
+          </Script>
         </AuthProvider>
         <Toaster />
       </body>
