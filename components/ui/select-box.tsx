@@ -12,6 +12,7 @@ interface SelectionBoxProps {
   className?: string;
   boxClassName?: string;
   textClassName?: string;
+  permisson?: string;
 }
 
 const SelectionBox: React.FC<SelectionBoxProps> = ({

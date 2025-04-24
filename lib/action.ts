@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
-import { SignupFormSchema, FormState, LoginFormSchema, contactSchema } from "@/types/schema";
+import { SignupFormSchema, FormState, LoginFormSchema, contactSchema, complainSchema } from "@/types/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -560,6 +560,83 @@ export async function sendContactForm(formData: FormData) {
     return {
       success: false,
       message: "An error occurred while submitting your inquiry. Please try again."
+    };
+  }
+}
+
+export async function sendComplainForm(formData: FormData) {
+  try {
+    // Get user info from session
+    const session: any = await getServerSession(authOptions as any);
+    const userId = session?.user?.id;
+    
+    if (!userId) {
+      return {
+        success: false,
+        message: "Login required to submit a report."
+      };
+    }
+    
+    const unitId = parseInt(formData.get("unitId") as string);
+    const message = formData.get("message") as string;
+    
+    if (!unitId || !message) {
+      return {
+        success: false,
+        message: "Required information is missing."
+      };
+    }
+    
+    // Check if user already has a pending complaint for this unit
+    const existingComplaint = await prisma.complainUnit.findFirst({
+      where: {
+        unitId,
+        userId,
+        status: 0  // Status 0 means pending/processing
+      }
+    });
+    
+    if (existingComplaint) {
+      return {
+        success: false,
+        message: "Your previous report for this property is still being processed."
+      };
+    }
+    
+    // Get unit information to find the writerId (adminId)
+    const unit = await prisma.unit.findUnique({
+      where: { id: unitId },
+      select: { adminId: true }
+    });
+    
+    if (!unit) {
+      return {
+        success: false,
+        message: "Unit not found."
+      };
+    }
+    
+    // Save to database
+    const newComplain = await prisma.complainUnit.create({
+      data: {
+        unitId,
+        writerId: unit.adminId, // Use adminId from the unit
+        userId,
+        message,
+        status: 0, // Initial status
+      },
+    });
+    
+    // Success response
+    return {
+      success: true,
+      message: "Your report has been submitted successfully."
+    };
+  } catch (error) {
+    console.error("Complain submission error:", error);
+    return {
+      success: false,
+      message: "An error occurred while submitting your report. Please try again."
     };
   }
 }

@@ -1,9 +1,7 @@
-// app/sitemap.ts
 import { MetadataRoute } from 'next'
 import prisma from '@/lib/prisma'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 정적 URL
   const staticUrls = [
     {
       url: 'https://rbs-homes.com',
@@ -79,6 +77,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: unit.lastUpdate || new Date(),
   }))
   
-  // 모든 URL 병합
   return [...staticUrls, ...unitUrls]
 }

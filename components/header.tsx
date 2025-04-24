@@ -38,6 +38,7 @@ const DesktopHeader = ({
   session,
   pathName,
   openModal,
+  showMapButton,
 }: any) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
@@ -129,6 +130,16 @@ const DesktopHeader = ({
           className="fixed inset-0 bg-black/30 transition-opacity duration-300 z-40"
         />
       )}
+      
+      {/* Fixed Map Button - appears when scrolled and on home page */}
+      {navbarScrolled && pathName === "/" && (
+        <Link href="/map">
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-full shadow-lg py-3 px-4 flex items-center gap-2 border-4 hover:bg-orange-400 hover:text-white border-orange-500 hover:shadow-xl transition-all duration-300">
+            <img src="/assets/icons/map.gif" alt="map" className="w-6 h-6" />
+            <span className="font-medium">View on map</span>
+          </div>
+        </Link>
+      )}
     </>
   );
 };
@@ -148,7 +159,8 @@ const Header = () => {
   useEffect(() => {
     if (pathName === "/") {
       const handleScroll = () => {
-        setNavbarScrolled(window.scrollY > 50);
+        const scrolled = window.scrollY > 50;
+        setNavbarScrolled(scrolled);
       };
 
       window.addEventListener("scroll", handleScroll);
@@ -166,9 +178,6 @@ const Header = () => {
     return <HeaderSkeleton pathname={pathName} />;
   }
 
-  if (isMobile) {
-    return <MobileHeader pathName={pathName} />;
-  }
 
   return (
     <header className="w-full">

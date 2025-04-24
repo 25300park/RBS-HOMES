@@ -22,7 +22,7 @@ model User {
   password       String?   @db.VarChar(255)
   /// 비밀번호 원본 (선택적)
   passwordOrigin String?   @db.VarChar(255)
-  /// 사용자 0: 관리자 레벨 1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너
+  /// 0: 관리자  1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너  20: 프리세일 가능 에이전트 30: 프리세일가능 브로커 40: 프리세일 가능 오너
   level          Int       @default(1)
   /// 이름
   name           String?   @db.VarChar(50)
@@ -484,7 +484,7 @@ model ComplainUnit {
   respondedAt  DateTime?
 
   admin User? @relation(name: "ProcessedComplain", fields: [adminId], references: [id], onDelete: SetNull)
-  user  User @relation(name: "UserComplain", fields: [userId], references: [id])
+  user  User  @relation(name: "UserComplain", fields: [userId], references: [id])
 
   @@map("complainunit")
 }

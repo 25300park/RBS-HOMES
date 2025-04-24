@@ -61,7 +61,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
           })
             .then((result) => {
               if (!result?.error) {
-                router.push("/");
+                router.refresh()
               } else {
                 toast({
                   description: "Login failed. Please try again.",

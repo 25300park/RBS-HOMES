@@ -41,7 +41,6 @@ interface PropertyInfoProps {
 }
 
 const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
-  console.log(property.amenity)
   return (
     <div className="my-6 space-y-8 xl:px-2 md:space-y-0">
       {/* 상단 헤더 정보 */}

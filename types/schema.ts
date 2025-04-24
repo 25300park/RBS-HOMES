@@ -129,10 +129,30 @@ export const reservationSchema = z
 
 export type ReservationFormData = z.infer<typeof reservationSchema>;
 
-
 export const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters long."),
-  email: z.string().email("Please enter a valid email address."),
-  phone: z.string().min(8, "Please enter a valid phone number."),
-  message: z.string().min(10, "Message must be at least 10 characters long."),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters long.")
+    .max(20, "name cannot exceed 500 characters"),
+  email: z
+    .string()
+    .email("Please enter a valid email address.")
+    .max(20, "email cannot exceed 500 characters"),
+  phone: z
+    .string()
+    .min(8, "Please enter a valid phone number.")
+    .max(20, "phone number cannot exceed 20 characters"),
+  message: z
+    .string()
+    .min(10, "Message must be at least 10 characters long.")
+    .max(500, "Message cannot exceed 500 characters"),
+});
+
+export const complainSchema = z.object({
+  unitId: z.number().min(1, "Unit ID is required."),
+  userId: z.number().min(1, "User ID is required."),
+  message: z
+    .string()
+    .min(3, "Message must be at least 3 characters.")
+    .max(500, "Message cannot exceed 500 characters"),
 });

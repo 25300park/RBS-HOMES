@@ -66,7 +66,6 @@ const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
     files.forEach((file) => formData.append("files", file));
 
     return new Promise<string[]>((resolve, reject) => {
-      console.log(123123123123)
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/image-upload/unit");
 
