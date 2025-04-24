@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     url: "https://rbs-homes.com",
     siteName: "RBS Homes Philippines",
     title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
-    description: "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
+    description: "지도기반의 집찾기 플랫폼",
     images: [{
-      url: "/assets/images/cities/BGC.png",
+      url: "/assets/images/ogimg.jpg",
       width: 1200,
       height: 630,
       alt: "RBS Homes Philippines"
