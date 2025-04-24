@@ -11,9 +11,11 @@ import Spinner from "@/components/ui/spinner";
 import { SubmitButton } from "@/components/ui/submit-btn";
 import SelectionBox from "@/components/ui/select-box";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 export default function StepOneForm() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
@@ -52,6 +54,29 @@ export default function StepOneForm() {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  // 판매 유형 선택 처리 핸들러
+  const handleSellTypeSelect = (value: string) => {
+    // presale 선택 시 권한 체크
+    if (value === "presale") {
+      // 사용자 레벨 확인 (session에서 가져옴)
+      const userLevel = session?.user?.level as number;
+      const hasPreSalePermission = [0,20,30,40].includes(userLevel);
+      
+      if (!hasPreSalePermission) {
+        // 권한 없음 토스트 메시지 표시
+        toast({
+          title: "Permission Denied",
+          description: "You don't have permission to use Pre-sale feature. Please contact the administrator.",
+          variant: "destructive"
+        });
+        return; // 처리 중단
+      }
+    }
+    
+    // 권한 있거나 다른 옵션 선택 시 정상 처리
+    handleChange("saleType", value);
   };
 
   const handleNext = () => {
@@ -153,7 +178,7 @@ export default function StepOneForm() {
                 <SelectionBox
                   options={sellTypeOption.slice(1)}
                   selectedValue={formData.saleType}
-                  onSelect={(value) => handleChange("saleType", value)}
+                  onSelect={handleSellTypeSelect} // 수정된 핸들러 사용
                   className="w-full space-x-0 flex gap-2"
                   boxClassName="h-11 md:text-sm md:w-full"
                 />

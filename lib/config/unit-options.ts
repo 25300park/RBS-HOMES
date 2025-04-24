@@ -72,7 +72,7 @@ export const sellTypeOption = [
   { label: "Any", value: "none" },
   { label: "Rent", value: "rent" },
   { label: "Buy", value: "sale" },
-  { label: "Pre Sale", value: "presale" },
+  { label: "Pre Sale", value: "presale", permisson: false },
 ];
 export const typeOption: typeOptionType[] = [
   { label: "Any", value: "none", icon: BsBuildingsFill },

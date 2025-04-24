@@ -12,7 +12,7 @@ interface SelectionBoxProps {
   className?: string;
   boxClassName?: string;
   textClassName?: string;
-  permisson?: string;
+  permisson?: boolean;
 }
 
 const SelectionBox: React.FC<SelectionBoxProps> = ({
@@ -22,6 +22,7 @@ const SelectionBox: React.FC<SelectionBoxProps> = ({
   className = "",
   boxClassName = "",
   textClassName = "",
+  permisson= true,
 }) => {
   return (
     <div className={cn(`flex space-x-4`, className)}>

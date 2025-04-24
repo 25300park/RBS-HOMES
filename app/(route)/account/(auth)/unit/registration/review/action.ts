@@ -8,6 +8,28 @@ import { authOptions } from "@/lib/auth";
 export async function registerUnit(data: any) {
   try {
     const session: any = await getServerSession(authOptions as any);
+    
+    // 유저가 로그인되어 있지 않은 경우
+    if (!session || !session.user) {
+      return { 
+        success: false, 
+        message: "Authentication required. Please login to continue." 
+      };
+    }
+    
+    if (data.saleType === "presale") {
+      const userLevel = session.user.level as number;
+      const hasPreSalePermission = [0, 20, 30, 40].includes(userLevel);
+      
+      if (!hasPreSalePermission) {
+        return {
+          success: false,
+          message: "You don't have permission to register a pre-sale property. Please contact the administrator.",
+          permissionDenied: true
+        };
+      }
+    }
+    
     const transformedData = {
       adminId: session.user.id,
       title: data.title,
@@ -30,7 +52,7 @@ export async function registerUnit(data: any) {
       petPolicy: data.petPolicy,
       amenity: JSON.stringify(data.amenity),
       yearCompletion: data.yearCompletion,
-      outstandingPayment: parseFloat(data.outstandingPayment.replace(/,/g, "")), 
+      outstandingPayment: parseFloat(data.outstandingPayment?.replace(/,/g, "") || "0"), 
       price: parseFloat(data.price.replace(/,/g, "")), 
       note: data.note,
       images: JSON.stringify(data.images), 
@@ -39,15 +61,18 @@ export async function registerUnit(data: any) {
       longitude: data.longitude,
     };
 
-     await prisma.unit.create({
+    await prisma.unit.create({
       data: transformedData, 
     });
 
     revalidatePath("/account/unit/registration/review");
 
-    return { success: true, message: "uoload successful" };
+    return { success: true, message: "Property registration successful" };
   } catch (error) {
-    console.log(error);
-    return { success: false, message: "upload failed" };
+    console.error("Error registering unit:", error);
+    return { 
+      success: false, 
+      message: "Registration failed. Please try again or contact support." 
+    };
   }
 }
