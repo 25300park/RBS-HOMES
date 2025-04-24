@@ -15,7 +15,7 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
   const [otherText, setOtherText] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [unitId, setUnitId] = useState<number | null>(null);
-  
+
   const { data: session } = useSession();
   const pathname = usePathname();
 
@@ -34,7 +34,7 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
     "Incorrect information/photos",
     "Fraudulent listing or spam",
     "Discriminatory or offensive listing",
-    "Other"
+    "Other",
   ];
 
   const handleSubmit = async () => {
@@ -42,7 +42,7 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
       toast({
         title: "Login Required",
         description: "Please log in to submit a report.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -51,7 +51,7 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
       toast({
         title: "Error",
         description: "Unit information not found.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -60,18 +60,18 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
       toast({
         title: "Error",
         description: "Please select a reason for reporting.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     const reportValue = selectedReason === "Other" ? otherText : selectedReason;
-    
+
     if (selectedReason === "Other" && !otherText.trim()) {
       toast({
         title: "Error",
         description: "Please describe the issue.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -86,22 +86,23 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
 
       // Call server action
       const response = await sendComplainForm(formData);
-      
+
       if (response.success) {
         toast({ description: response.message });
         setTimeout(() => onClose(), 1000);
       } else {
-        toast({ 
-          title: "Error", 
-          description: response.message, 
-          variant: "destructive" 
+        toast({
+          title: "Error",
+          description: response.message,
+          variant: "destructive",
         });
       }
     } catch (error) {
-      toast({ 
+      toast({
         title: "Error",
-        description: "An error occurred while submitting your report. Please try again.", 
-        variant: "destructive" 
+        description:
+          "An error occurred while submitting your report. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -113,7 +114,7 @@ const ComplainModal = ({ onClose }: { onClose: () => void }) => {
       <h2 className="text-lg font-bold text-center">Report a Problem</h2>
 
       <div className="space-y-3">
-        <p className="text-sm font-medium">What's the issue?</p>
+        <p className="text-sm font-medium">What&apos;s the issue?</p>
         {options.map((option) => (
           <div
             key={option}

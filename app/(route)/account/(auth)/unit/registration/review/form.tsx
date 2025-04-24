@@ -243,7 +243,7 @@ const ReviewForm = () => {
           {stepOneData?.saleType === "presale" && !checkPreSalePermission() && (
             <div className="p-4 mt-4 bg-red-50 text-red-700 rounded-md">
               <p className="font-medium">Permission Alert:</p>
-              <p>You don't have permission to register a pre-sale property. The submission will be rejected.</p>
+              <p>You don&apos;t have permission to register a pre-sale property. The submission will be rejected.</p>
               <p className="mt-2">Please go back to Step 1 to change the sale type or contact the administrator for permission.</p>
             </div>
           )}
