@@ -7,7 +7,6 @@ import { useMapStore } from "@/store/use-map-store";
 import { Input } from "@/components/ui/input";
 import { FaSearch } from "react-icons/fa";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { useDebouncedCallback } from "use-debounce";
 import DotLoader from "@/components/ui/dot-loader";
 import { MobileMarkerManager } from "./mobile-marker-manager";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -76,8 +75,11 @@ const SellTypeToggle = () => {
   const searchParams = useSearchParams();
   const currentType = searchParams.get('sellType') || 'rent';
 
+  // 모든 URL 파라미터를 유지하면서 판매 유형만 변경
   const handleTypeChange = (type: string) => {
-    router.push(`?sellType=${type}`);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sellType', type);
+    router.push(`?${params.toString()}`);
   };
 
   return (
@@ -115,6 +117,8 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
   const previousUnitsRef = useRef<any[]>([]);
   const mapInitializedRef = useRef(false);
   const unitsUpdateTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Store에서 맵 위치 상태 가져오기
   const {
     setLoading,
     isSidebarOpen,
@@ -123,11 +127,31 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     setVisibleUnits,
     setVisibleUnitCount,
     isLoading,
+    mapCenter,   // 저장된 맵 중심점
+    mapZoom,     // 저장된 맵 줌 레벨
   } = useMapStore();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [shouldRenderMarkers, setShouldRenderMarkers] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // 맵 위치 저장 함수 - 언마운트 시에만 호출됨
+  const saveMapPosition = useCallback(() => {
+    if (!map) return;
+    
+    const center = map.getCenter();
+    const zoom = map.getZoom();
+    
+    if (center && zoom) {
+      // 여기서는 직접 로컬 스토리지에 저장 (무한 루프 방지)
+      const mapPosition = {
+        center: { lat: center.lat(), lng: center.lng() },
+        zoom: zoom
+      };
+      
+      localStorage.setItem('mapPosition', JSON.stringify(mapPosition));
+    }
+  }, [map]);
 
   const containerStyle = React.useMemo(() => {
     const baseStyle =
@@ -149,6 +173,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     // }
   }, [isMobile, isSidebarOpen, sheetPosition]);
 
+  // 맵 초기화 함수 수정 - 저장된 위치 사용
   const initializeMap = useCallback(async () => {
     if (mapInitializedRef.current || !mapRef.current) return;
   
@@ -159,16 +184,36 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       // 단순히 window 객체를 통해 기기 타입 확인 (클라이언트 사이드에서만 실행됨)
       const isMobileDevice = typeof window !== 'undefined' && window.innerWidth <= 768;
       
-      // 좌표 설정
-      const coordinates = isMobileDevice 
+      // 기본 좌표 설정
+      const defaultCoordinates = isMobileDevice 
         ? { lat: 14.5430, lng: 121.0536 } // 모바일용 BGC 좌표
         : { lat: 14.5877, lng: 121.0563 }; // 데스크톱용 마닐라 좌표
       
-      // console.log("Device detected:", isMobileDevice ? "Mobile" : "Desktop", "Using coordinates:", coordinates);
-  
+      // 저장된 위치 확인 - 로컬 스토리지에서 직접 읽기
+      let savedPosition = null;
+      try {
+        const savedPositionStr = localStorage.getItem('mapPosition');
+        if (savedPositionStr) {
+          savedPosition = JSON.parse(savedPositionStr);
+        }
+      } catch (e) {
+        console.error('Error reading saved map position:', e);
+      }
+      
+      // 저장된 위치 또는 기본 위치 사용
+      const centerPosition = savedPosition 
+        ? { lat: savedPosition.center.lat, lng: savedPosition.center.lng }
+        : (mapCenter 
+          ? { lat: mapCenter.lat, lng: mapCenter.lng } 
+          : defaultCoordinates);
+          
+      const zoomLevel = savedPosition 
+        ? savedPosition.zoom
+        : (mapZoom || (isMobileDevice ? 14 : 13));
+      
       const initializedMap = new google.maps.Map(mapRef.current, {
-        center: coordinates,
-        zoom: isMobileDevice ? 14 : 13,
+        center: centerPosition,
+        zoom: zoomLevel,
         minZoom: 5,
         maxZoom: 20,
         disableDefaultUI: true,
@@ -180,7 +225,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
           strictBounds: true,
         },
       });
-  
+      
       google.maps.event.addListenerOnce(initializedMap, "idle", () => {
         mapInitializedRef.current = true;
         setMap(initializedMap);
@@ -192,7 +237,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       console.error("Error initializing map:", error);
       setLoading(false);
     }
-  }, [setLoading, setMapInstance]);
+  }, [setLoading, setMapInstance, mapCenter, mapZoom]);
 
   const handleUnitsUpdate = useCallback(
     (newUnits: any[]) => {
@@ -215,6 +260,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     },
     [map, setLoading, setVisibleUnitCount]
   );
+  
   useEffect(() => {
     if (!mapInitializedRef.current) {
       initializeMap();
@@ -224,11 +270,17 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       if (unitsUpdateTimeoutRef.current) {
         clearTimeout(unitsUpdateTimeoutRef.current);
       }
+      
+      // 컴포넌트 언마운트 시에만 맵 위치 저장
+      if (map && mapInitializedRef.current) {
+        saveMapPosition();
+      }
+      
       // 맵 인스턴스는 제거하지 않고 유지
       setVisibleUnits([]);
       setVisibleUnitCount(0);
     };
-  }, [initializeMap, setVisibleUnits, setVisibleUnitCount]);
+  }, [initializeMap, setVisibleUnits, setVisibleUnitCount, map, saveMapPosition]);
 
   useEffect(() => {
     const hasUnitsChanged =
@@ -253,7 +305,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         }
       );
   
-      // place_changed 이벤트 리스너 추가
+      // place_changed 이벤트 리스너
       autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
   
@@ -273,7 +325,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     };
   
     initializeAutocomplete();
-  }, [map]); // map을 의존성 배열에 추가
+  }, [map]);
 
   return (
     <div className={containerStyle}>
@@ -286,22 +338,22 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         style={{ outline: "none" }}
         tabIndex={-1}
       />
-{map &&
-  shouldRenderMarkers &&
-  units.length > 0 &&
-  (isMobile ? (
-    <MobileMarkerManager
-      key={markerManagerRef.current}
-      map={map}
-      units={units}
-    />
-  ) : (
-    <MarkerManager
-      key={markerManagerRef.current}
-      map={map}
-      units={units}
-    />
-  ))}
+      {map &&
+        shouldRenderMarkers &&
+        units.length > 0 &&
+        (isMobile ? (
+          <MobileMarkerManager
+            key={markerManagerRef.current}
+            map={map}
+            units={units}
+          />
+        ) : (
+          <MarkerManager
+            key={markerManagerRef.current}
+            map={map}
+            units={units}
+          />
+        ))}
     </div>
   );
 });

@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import FavoriteButton from "@/components/favorite-button";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
+
+// 기본 이미지 경로 상수 정의
+const DEFAULT_IMAGE = "/assets/images/cities/BGC.png";
 
 export interface SideUnitCardProps {
   onClick?: (event: any) => void;
@@ -12,7 +15,7 @@ export interface SideUnitCardProps {
   price: number;
   area: number;
   location: string;
-  imageUrl: string;
+  imageUrl?: string; // imageUrl을 선택적으로 변경
   postedDate: string;
   isVip?: boolean;
   sellType: string;
@@ -43,6 +46,12 @@ const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
     },
     ref
   ) => {
+    // 이미지 오류 상태 관리
+    const [imgError, setImgError] = useState(false);
+    
+    // 이미지 URL 결정 - 없거나 오류 시 기본 이미지 사용
+    const finalImageUrl = imgError || !imageUrl ? DEFAULT_IMAGE : imageUrl;
+
     return (
       <article
         ref={ref}
@@ -59,24 +68,26 @@ const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
         )}
         <div className="relative h-[112px] w-[144px]">
           <Image
-            src={imageUrl}
-            alt={title}
+            src={finalImageUrl}
+            alt={title || "Property"}
             sizes="(max-width: 768px) 100vw"
             fill
             className="object-cover transition-all duration-300 rounded-md"
+            onError={() => setImgError(true)}
+            priority={false}
           />
         </div>
 
         <div className="w-1/2 h-full flex flex-col justify-between">
-          <h3 className="text-lg font-semibold truncate">{title}</h3>
+          <h3 className="text-lg font-semibold truncate">{title || "No Title"}</h3>
           <div className="text-gray-600 text-sm mb-2 ... truncate">
-            {location}
+            {location || "Location not available"}
           </div>
 
           <div className="flex items-center">
             <span className="text-lg mr-2">
               ₱{" "}
-              {price?.toLocaleString("en-US", {
+              {(price || 0).toLocaleString("en-US", {
                 currency: "USD",
               })}
             </span>
@@ -109,7 +120,7 @@ const SideUnitCard = forwardRef<HTMLElement, SideUnitCardProps>(
                   height={16}
                   alt="area"
                 />
-                <p>{area}m²</p>
+                <p>{area || 0}m²</p>
               </div>
             </div>
           </div>

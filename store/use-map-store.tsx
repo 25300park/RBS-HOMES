@@ -13,8 +13,13 @@ interface MapState {
   isLoading: boolean;
   hoverUnitId?: number | null;
   sheetPosition: SheetPosition;
+  
+  // 맵 위치 저장을 위한 새로운 상태 추가
+  mapCenter: { lat: number; lng: number } | null;
+  mapZoom: number | null;
+  
+  // 기존 액션
   setSheetPosition: (position: SheetPosition) => void;
-
   setVisibleUnitCount: (count: number) => void;
   setVisibleUnits: (units: any[]) => void;
   selectUnit: (unit: any) => void;
@@ -28,7 +33,7 @@ interface MapState {
   setHoverUnitId: (unitId: number | null) => void;
 }
 
-export const useMapStore = create<MapState>((set) => ({
+export const useMapStore = create<MapState>((set, get) => ({
   visibleUnits: [],
   visibleUnitCount: 0,
   selectedUnit: null,
@@ -37,9 +42,13 @@ export const useMapStore = create<MapState>((set) => ({
   popup: null,
   isLoading: false,
   hoverUnitId: null,
-  sheetPosition: 'half', // 추가된 상태
+  sheetPosition: 'half',
+  
+  // 맵 위치 저장을 위한 새로운 상태 초기값 추가
+  mapCenter: null,
+  mapZoom: null,
 
-  //  액션
+  // 액션
   setSheetPosition: (position) => set({ sheetPosition: position }),
   setVisibleUnits: (units) => {
     set({ visibleUnits: units });
@@ -49,13 +58,21 @@ export const useMapStore = create<MapState>((set) => ({
   toggleSidebar: (isOpen) => set({ isSidebarOpen: isOpen }),
   setMapInstance: (mapInstance) => set({ map: mapInstance }),
   clearSelectedUnit: () => set({ selectedUnit: null }),
+  
+  // setMapCenterAndZoom 함수 수정 - mapCenter와 mapZoom 업데이트 추가
   setMapCenterAndZoom: (coordinates, zoom) =>
     set((state) => {
       if (state.map) {
         state.map.easeTo({ center: coordinates, zoom });
+        // mapCenter와 mapZoom도 업데이트 (스토어에만 저장, 로컬 스토리지는 아님)
+        return {
+          mapCenter: { lng: coordinates[0], lat: coordinates[1] },
+          mapZoom: zoom
+        };
       }
       return state;
     }),
+    
   setHoverUnitId: (unitId) => set({ hoverUnitId: unitId }),
   showPopup: (unit) =>
     set((state) => {
@@ -70,8 +87,8 @@ export const useMapStore = create<MapState>((set) => ({
           .setHTML(
             `
           <div>
-            <img src="${unit.images[0]}" alt="${
-              unit.title
+            <img src="${unit.images && unit.images[0] ? unit.images[0] : '/images/placeholder.jpg'}" alt="${
+              unit.title || "Property"
             }" style="width: 100%; min-width: 400px; height: 150px; object-fit: cover;" />
             <div style="padding: 10px;">
               <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${
@@ -86,7 +103,7 @@ export const useMapStore = create<MapState>((set) => ({
               <div style="font-size: 14px; color: #666; margin-bottom: 5px;">${
                 unit.description ? unit.description : "no memo"
               }</div>
-              <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.price.toLocaleString()} $</div>
+              <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.price ? unit.price.toLocaleString() : "0"} $</div>
             </div>
           </div>
         `
