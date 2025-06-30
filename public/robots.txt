@@ -1,0 +1,10 @@
+User-agent: Googlebot
+Disallow: /adm/
+
+User-agent: Bingbot
+Disallow: /adm/
+
+User-agent: *
+Disallow: /
+
+Sitemap: https://rbs-homes.com/sitemap.xml
