@@ -25,7 +25,6 @@ const ContactModal = ({ onClose }: { onClose: () => void }) => {
     try {
       // Call server action function
       const response = await sendContactForm(formData);
-      console.log(response);
       if (response.success) {
         toast({ description: response.message });
         setTimeout(() => onClose(), 1000);

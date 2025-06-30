@@ -10,6 +10,11 @@ import { generateTemporaryPassword } from "@/lib/utils";
 import { sendEmail, getPasswordResetEmailTemplate } from "@/lib/email";
 import { headers } from "next/headers";
 
+// 기본값 상수 정의
+const DEFAULT_ACTIVE_TYPES = ["rent"];
+const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
+const DEFAULT_STATUS = [0, 1, 3]; // 기본적으로 진행 중(0)과 협상 중(3) 상태만 표시
+
 //비밀번호 찾기
 export async function resetPassword(state: FormState, formData: FormData) {
   const email = formData.get("email") as string;
@@ -210,7 +215,12 @@ export const getUnitList = async (
     // activeTypes 파라미터 처리
     const activeTypesArray = searchParams.activeTypes 
       ? searchParams.activeTypes.split(',') 
-      : ["rent", "sale", "preSale"];
+      : DEFAULT_ACTIVE_TYPES;
+    
+    // status 파라미터 처리 - 거래 완료된 매물 포함 여부
+    const statusArray = searchParams.status
+      ? searchParams.status.split(',').map(s => parseInt(s))
+      : DEFAULT_STATUS;
     
     const bed = parseNumericValue(searchParams.bed);
     const bath = parseNumericValue(searchParams.bath);
@@ -225,17 +235,19 @@ export const getUnitList = async (
       searchParams.furniture !== "none" ? searchParams.furniture : undefined;
     const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
     const search = searchParams.search || undefined;
-    const amenities = searchParams.amenities
-      ? decodeURIComponent(searchParams.amenities)
-          .split(",")
-          .map((a) => a.trim())
-      : [];
-
+    
+    // 어메니티 처리
+    const amenities = searchParams.amenities !== undefined
+      ? (searchParams.amenities.trim() === ""
+          ? [] // 빈 문자열이면 빈 배열 반환
+          : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
+      : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
+    
     // Get filters
     const priceFilter = getPriceFilter(priceMin, priceMax);
     const searchFilter = getSearchFilter(search);
     const amenityFilter = getAmenityFilter(amenities);
-
+    
     // Combine all filters
     const filters = [...priceFilter, ...searchFilter];
 
@@ -243,7 +255,7 @@ export const getUnitList = async (
     const data = await prisma.unit.findMany({
       where: {
         status: {
-          in: [0, 3] 
+          in: statusArray // 변경: 이제 status 파라미터를 사용
         },
         // sellType 대신 activeTypes 사용
         sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
@@ -298,7 +310,12 @@ export const getUnitCount = async (
   // activeTypes 파라미터 처리
   const activeTypesArray = searchParams.activeTypes 
     ? searchParams.activeTypes.split(',') 
-    : ["rent", "sale", "preSale"];
+    : DEFAULT_ACTIVE_TYPES;
+  
+  // status 파라미터 처리 - 거래 완료된 매물 포함 여부
+  const statusArray = searchParams.status
+    ? searchParams.status.split(',').map(s => parseInt(s))
+    : DEFAULT_STATUS;
   
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
@@ -323,6 +340,17 @@ export const getUnitCount = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
+  
+  // 어메니티 처리
+  const amenities = searchParams.amenities !== undefined
+    ? (searchParams.amenities.trim() === ""
+        ? [] // 빈 문자열이면 빈 배열 반환
+        : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
+    : []; // 파라미터가 없는 경우만 기본값 적용
+  
+  // 어메니티 필터
+  const amenityFilter = getAmenityFilter(amenities);
+  
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined
       ? [
@@ -344,7 +372,7 @@ export const getUnitCount = async (
   const count = await prisma.unit.count({
     where: {
       status: {
-        in: [0, 3] 
+        in: statusArray // 변경: 이제 status 파라미터를 사용
       },
       // sellType 대신 activeTypes 사용
       sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
@@ -366,6 +394,7 @@ export const getUnitCount = async (
         [...priceFilter, ...searchFilter].length > 0
           ? [...priceFilter, ...searchFilter]
           : undefined,
+      ...amenityFilter, // 어메니티 필터 추가
     },
   });
 
@@ -383,7 +412,12 @@ export const getUnitCountOwner = async (
   // activeTypes 파라미터 처리
   const activeTypesArray = searchParams.activeTypes 
     ? searchParams.activeTypes.split(',') 
-    : ["rent", "sale", "preSale"];
+    : DEFAULT_ACTIVE_TYPES;
+  
+  // status 파라미터 처리 - 거래 완료된 매물 포함 여부
+  const statusArray = searchParams.status
+    ? searchParams.status.split(',').map(s => parseInt(s))
+    : DEFAULT_STATUS;
   
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
@@ -408,6 +442,17 @@ export const getUnitCountOwner = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
+  
+  // 어메니티 처리
+  const amenities = searchParams.amenities !== undefined
+    ? (searchParams.amenities.trim() === ""
+        ? [] // 빈 문자열이면 빈 배열 반환
+        : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
+    : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
+  
+  // 어메니티 필터
+  const amenityFilter = getAmenityFilter(amenities);
+  
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined
       ? [
@@ -429,6 +474,9 @@ export const getUnitCountOwner = async (
   const count = await prisma.unit.count({
     where: {
       adminId: adminId,
+      status: {
+        in: statusArray // 변경: 이제 status 파라미터를 사용
+      },
       // sellType 대신 activeTypes 사용
       sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       type: type ? { equals: type } : undefined,
@@ -449,6 +497,7 @@ export const getUnitCountOwner = async (
         [...priceFilter, ...searchFilter].length > 0
           ? [...priceFilter, ...searchFilter]
           : undefined,
+      ...amenityFilter, // 어메니티 필터 추가  
     },
   });
 

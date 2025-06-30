@@ -65,7 +65,7 @@ const DesktopHeader = ({
         } w-full flex flex-col items-center`}
       >
         {/* 지도버튼 */}
-        {pathName === "/" && (
+        {pathName === "/list" && (
           <div
             className={`${
               navbarScrolled ? "fixed" : "hidden"
@@ -90,12 +90,12 @@ const DesktopHeader = ({
             </Link>
           </div>
 
-          {(pathName !== "/" || (pathName === "/" && !navbarScrolled)) && (
+          {(pathName !== "/" || (pathName === "/list" && !navbarScrolled)) && (
             <div className="flex items-center gap-8">
               <Link
-                href="/"
+                href="/list"
                 className={`hover:border-gray-200 border-b flex items-center gap-2 ${
-                  pathName === "/"
+                  pathName === "/list"
                     ? "text-black border-gray-200"
                     : "text-gray-400 border-transparent"
                 }`}
@@ -132,7 +132,7 @@ const DesktopHeader = ({
           </div>
         </div>
         <div className="relative w-full flex justify-center">
-          {pathName === "/" && (
+          {pathName === "/list" && (
             <MainSearchBar
               navbarScrolled={navbarScrolled}
               onExpandChange={handleExpandChange}
@@ -165,7 +165,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    if (pathName === "/") {
+    if (pathName === "/list") {
       const handleScroll = () => {
         setNavbarScrolled(window.scrollY > 50);
       };
@@ -198,7 +198,7 @@ const Header = () => {
         pathName={pathName}
         openModal={openModal}
       />
-      <div className={`${pathName === "/" ? "h-44" : "h-20"} relative z-30`} />
+      <div className={`${pathName === "/list" ? "h-44" : "h-20"} relative z-30`} />
       <div
         className={`${
           navbarScrolled
@@ -206,7 +206,7 @@ const Header = () => {
             : "w-full bg-white"
         }`}
       >
-        {(pathName === "/" || pathName.includes("map")) && (
+        {(pathName === "/list" || pathName.includes("map")) && (
           <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
             <MainFilterGroup />
             <MainAmenityList />
@@ -237,7 +237,7 @@ const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
         </div>
       </div>
     </div>
-    <div className={pathname === "/" ? "mt-44 md:mt-32" : "mt-20 md:mt-32"} />
+    <div className={pathname === "/list" ? "mt-44 md:mt-32" : "mt-20 md:mt-32"} />
   </>
 );
 

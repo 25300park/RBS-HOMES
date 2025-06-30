@@ -2,7 +2,6 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-
 const Footer = () => {
   const pathName = usePathname();
   const hiddenPaths = ["/map", "/account/unit/my-list", "/account"];
@@ -76,17 +75,27 @@ const Footer = () => {
 
       {/* Social Media Icons */}
       <div className="mt-16 flex justify-center space-x-14 text-zinc-500">
-        <Link href="#">
-          <img src="/assets/icons/footer/instagram.png" alt="insta" />
+        <Link href="#" className="hover:opacity-70 transition-opacity">
+          <img src="/assets/icons/footer/instagram.png" alt="Instagram" />
         </Link>
-        <Link href="#">
-          <img src="/assets/icons/footer/facebook.png" alt="face" />
+        <Link 
+          href="https://www.facebook.com/profile.php?id=61573655990869" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:opacity-70 transition-opacity"
+        >
+          <img src="/assets/icons/footer/facebook.png" alt="Facebook" />
         </Link>
-        <Link href="#">
-          <img src="/assets/icons/footer/youtube.png" alt="youtube" />
+        <Link 
+          href="https://www.youtube.com/@RBSHOMES" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:opacity-70 transition-opacity"
+        >
+          <img src="/assets/icons/footer/youtube.png" alt="YouTube" />
         </Link>
-        <Link href="#">
-          <img src="/assets/icons/footer/tiktok.png" alt="tiktok" />
+        <Link href="#" className="hover:opacity-70 transition-opacity">
+          <img src="/assets/icons/footer/tiktok.png" alt="TikTok" />
         </Link>
       </div>
 

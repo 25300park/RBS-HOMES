@@ -25,8 +25,8 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
   const FooterNavList = [
     {
       name: "explore",
-      href: "/",
-      isActive: pathname === "/" || pathname.startsWith("/?"),
+      href: "/list",
+      isActive: pathname === "/list" || pathname.startsWith("/?"),
       icon: (
         <span className="text-2xl">
           <IoListOutline />
