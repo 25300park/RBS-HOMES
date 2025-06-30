@@ -15,7 +15,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import HeaderGuestProfile from "./ui/header-guest-profile";
 
 const MobileHeader = ({ pathName }: { pathName: string }) => {
-  if (!["/", "/map"].includes(pathName)) {
+  if (!["/list", "/map"].includes(pathName)) {
     return null;
   }
 

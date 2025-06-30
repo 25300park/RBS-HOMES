@@ -27,9 +27,9 @@ export default async function DashBoard({
   const isDirectAccess = path === "/" || path === "";
 
   // // 모바일에서 직접 도메인 접속시에만 /map으로 리다이렉트
-  // if (isMobile && isDirectAccess) {
-  //   redirect("/map");
-  // }
+  if (isMobile && isDirectAccess) {
+    redirect("/map");
+  }
 
   return (
     <main>
