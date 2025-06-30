@@ -8,7 +8,7 @@ interface ListCardProps {
   price: number;
   area: number;
   location: string;
-  imageUrl: any;
+  imageUrl: string;
   postedDate: string;
   isUrgent?: boolean;
   sellType: string;
@@ -40,6 +40,9 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
     },
     ref
   ) => {
+    const fallbackImage = "/assets/images/cities/BGC.png";
+    const [imgSrc, setImgSrc] = useState(imageUrl || fallbackImage);
+
     return (
       <div
         ref={ref}
@@ -53,21 +56,23 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
           </span>
         )}
 
-        <div >
-          {featured && (
-            <div className="bg-orange-400 text-white px-2 py-1 text-sm absolute top-2 left-2 z-10">
-              {featured.label || "Featured"}
-            </div>
-          )}
-          {/* 기존 ListCard 내용 */}
-        </div>
+        {/* Featured Badge */}
+        {featured && (
+          <div className="bg-orange-400 text-white px-2 py-1 text-sm absolute top-2 left-2 z-10">
+            {featured.label || "Featured"}
+          </div>
+        )}
 
-        {/* Image */}
+        {/* Main Image */}
         <div className="relative w-full pt-[97%] rounded-md overflow-hidden">
-          <img
-            src={imageUrl}
+          <Image
+            src={imgSrc}
             alt={title}
-            className="absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 "
+            fill
+            className="object-cover transition-all duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
+            onError={() => setImgSrc(fallbackImage)}
           />
           <FavoriteButton
             initialIsFavorited={isFavorited}

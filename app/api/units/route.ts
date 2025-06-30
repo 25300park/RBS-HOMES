@@ -6,6 +6,11 @@ import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
+// 기본값 상수 정의
+const DEFAULT_ACTIVE_TYPES = ["rent"];
+const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
+const DEFAULT_STATUS = [0, 1, 3]; 
+
 type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 
 interface FilterParams {
@@ -25,6 +30,7 @@ interface FilterParams {
   search?: string;
   amenities?: string;
   sort?: string;
+  status?: string; // 추가된 status 필드
 }
 
 export async function GET(req: Request) {
@@ -38,7 +44,7 @@ export async function GET(req: Request) {
     const filters: FilterParams = {
       type: searchParams.get("type") || "none",
       sellType: searchParams.get("sellType") || "none",
-      activeTypes: searchParams.get("activeTypes") || "rent,sale,preSale", // 기본값 모두 활성화
+      activeTypes: searchParams.get("activeTypes") || DEFAULT_ACTIVE_TYPES.join(','),
       bed: searchParams.get("bed") || "",
       bath: searchParams.get("bath") || "",
       parking: searchParams.get("parking") || "",
@@ -52,6 +58,7 @@ export async function GET(req: Request) {
       search: searchParams.get("search") || "",
       amenities: searchParams.get("amenities") || "",
       sort: searchParams.get("sort") || "latest",
+      status: searchParams.get("status") || DEFAULT_STATUS.join(','), // 추가: status 필드
     };
 
     const { units, total } = await getFilteredUnits(
@@ -90,14 +97,14 @@ const getSearchFilter = (search?: string) => {
 
   // 검색어 전처리
   const searchTerms = search
-    .split(/[\s,]+/)  // 공백이나 쉼표로 분리
-    .filter(term => term.length > 0)
-    .map(term => term.trim());
+    .split(/[\s,]+/) // 공백이나 쉼표로 분리
+    .filter((term) => term.length > 0)
+    .map((term) => term.trim());
 
   if (searchTerms.length === 0) return undefined;
 
   return {
-    OR: searchTerms.map(term => ({
+    OR: searchTerms.map((term) => ({
       OR: [
         { title: { contains: term } },
         { fullAdress: { contains: term } },
@@ -105,9 +112,9 @@ const getSearchFilter = (search?: string) => {
         { address3: { contains: term } },
         { address4: { contains: term } },
         { note: { contains: term } },
-        { amenity: { contains: term } }
-      ]
-    }))
+        { amenity: { contains: term } },
+      ],
+    })),
   };
 };
 
@@ -149,12 +156,17 @@ async function getFilteredUnits(
 ) {
   // Parse filter values
   const type = params.type !== "none" ? params.type : undefined;
-  
+
   // activeTypes 파라미터 처리
-  const activeTypesArray = params.activeTypes 
-    ? params.activeTypes.split(',') 
-    : ["rent", "sale", "preSale"];
-  
+  const activeTypesArray = params.activeTypes
+    ? params.activeTypes.split(",")
+    : DEFAULT_ACTIVE_TYPES;
+
+  // status 파라미터 처리 - 거래 완료된 매물 포함 여부
+  const statusArray = params.status
+    ? params.status.split(',').map(s => parseInt(s))
+    : DEFAULT_STATUS;
+
   const bed = parseNumericValue(params.bed);
   const bath = parseNumericValue(params.bath);
   const parking = parseNumericValue(params.parking);
@@ -165,23 +177,28 @@ async function getFilteredUnits(
   const areaMax = parseNumericValue(params.areaMax);
   const furniture = params.furniture !== "none" ? params.furniture : undefined;
   const pet = params.pet !== "none" ? params.pet : undefined;
-  const amenities = params.amenities
-    ? decodeURIComponent(params.amenities)
-        .split(",")
-        .map((a) => a.trim())
-    : [];
+  
+  // 어메니티 처리
+  const amenities = params.amenities !== undefined
+    ? (params.amenities.trim() === ""
+        ? [] // 빈 문자열이면 빈 배열 반환
+        : decodeURIComponent(params.amenities).split(",").map((a) => a.trim()))
+    : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
+  
   const sort = (params.sort as SortOption) || "latest";
 
   // Build filter conditions
   const filterConditions = {
+    // 상태 필터 추가 - 이제 파라미터에서 가져온 상태 배열 사용
     status: {
-      in: [0, 3] 
+      in: statusArray,
     },
     type: type ? { equals: type } : undefined,
-    
+
     // sellType 필터를 activeTypes 배열을 사용하도록 변경
-    sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
-    
+    sellType:
+      activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
+
     bed: bed ? { gte: bed } : undefined,
     bath: bath ? { gte: bath } : undefined,
     parking: parking ? { gte: parking } : undefined,
@@ -207,7 +224,18 @@ async function getFilteredUnits(
       take: limit,
       where: filterConditions,
       include: {
-        admin: true,
+        admin: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            image: true,
+            level: true,
+            facebook: true,
+            status: true,
+            phone: true,
+          },
+        },
       },
       orderBy: getSortOption(sort),
     }),
@@ -244,6 +272,5 @@ async function getFilteredUnits(
   return {
     units: transformedUnits,
     total: totalUnits,
-    // favorites: favorites.map((favorite) => favorite.unitId),
   };
 }

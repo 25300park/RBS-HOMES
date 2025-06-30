@@ -38,7 +38,7 @@ export const getUserSchedules = async () => {
     throw new Error("User not authenticated");
   }
 
-  const userId = session.user.id;
+  const userId = Number(session.user.id)
 
   try {
     const schedules = await prisma.schedule.findMany({
@@ -208,7 +208,7 @@ export const getFavoriteList = async () => {
     throw new Error("User not authenticated");
   }
 
-  const userId = session.user.id;
+  const userId = Number(session.user.id);
 
   try {
     // 한 번의 쿼리로 모든 정보를 가져오기

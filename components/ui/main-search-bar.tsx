@@ -37,7 +37,7 @@ const MobileSearchBar = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<"location" | "recent">("recent");
+  const [activeTab, setActiveTab] = useState<"location" | "recent">("location");
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
   const [searchValue, setSearchValue] = useState<string>(() => {
     return searchParams.get("search") || "";
@@ -69,7 +69,7 @@ const MobileSearchBar = ({
     setSearchValue(searchTerm);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.set("search", searchTerm);
-    router.push(`/?${current.toString()}`);
+    router.push(`/list/?${current.toString()}`);
 
     if (searchTerm.trim()) {
       const newHistory = [
@@ -91,7 +91,6 @@ const MobileSearchBar = ({
         className="flex items-center justify-between bg-orange-400 rounded-full shadow-md  p-1  w-full mb-1 active:scale-[0.99] transition-transform"
         onClick={() => {
           setIsExpanded(true);
-          setActiveTab("recent");
           onExpandChange?.(true);
         }}
       >
@@ -269,7 +268,7 @@ const DesktopSearchBar = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"location" | "recent">("recent");
+  const [activeTab, setActiveTab] = useState<"location" | "recent">("location");
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
   const [searchValue, setSearchValue] = useState<string>(() => {
     return searchParams.get("search") || "";
@@ -317,7 +316,7 @@ const DesktopSearchBar = ({
     setSearchValue(searchTerm);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.set("search", searchTerm);
-    router.push(`/?${current.toString()}`);
+    router.push(`/list/?${current.toString()}`);
 
     if (searchTerm.trim()) {
       const newHistory = [
@@ -353,7 +352,6 @@ const DesktopSearchBar = ({
         } text-gray-700 placeholder-gray-400 focus:outline-none`}
         onFocus={() => {
           setIsExpanded(true);
-          setActiveTab("recent");
           onExpandChange?.(true);
         }}
         onKeyDown={(e) => {

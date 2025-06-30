@@ -209,12 +209,13 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
                 const amenityData = amenitiesData.find(
                   (item) => item.label === amenity
                 );
+                const imagePath = amenityData?.imagePath.replace(".png", "_on.png") as string;
                 return (
                   amenityData && (
                     <div key={amenity} className="flex  items-center gap-4">
-                      <div className="relative w-5 h-5 mr-2">
+                      <div className="relative w-12 h-12 mr-2">
                         <Image
-                          src={amenityData.imagePath}
+                          src={imagePath}
                           alt={amenityData.label}
                           fill
                           className="object-contain"

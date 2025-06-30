@@ -51,23 +51,105 @@ const MAP_STYLE = [
 const SearchInput = React.memo(
   ({
     autocompleteRef,
+    map,
   }: {
     autocompleteRef: React.RefObject<HTMLInputElement>;
-  }) => (
-    <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
-      <div className="flex items-center">
-        <Input
-          ref={autocompleteRef}
-          type="text"
-          placeholder="Search area in the Philippines"
-          className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
-        />
-        <button className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center">
-          <FaSearch className="text-white" />
-        </button>
+    map: google.maps.Map | null;
+  }) => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [inputValue, setInputValue] = useState("");
+
+    // URL에서 search 파라미터 읽어서 자동 검색
+    useEffect(() => {
+      const searchQuery = searchParams.get('search');
+      if (searchQuery && map && autocompleteRef.current) {
+        setInputValue(searchQuery);
+        autocompleteRef.current.value = searchQuery;
+        
+        // Google Places API로 검색 실행
+        performSearch(searchQuery);
+      }
+    }, [searchParams, map]);
+
+    const performSearch = async (query: string) => {
+      if (!map || !query.trim()) return;
+
+      try {
+        const google = await loadGoogleMapsAPI();
+        const service = new google.maps.places.PlacesService(map);
+
+        // Text Search 요청
+        const request = {
+          query: `${query.trim()}, Philippines`,
+          fields: ['place_id', 'geometry', 'name', 'formatted_address'],
+        };
+
+        service.textSearch(request, (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+            const place = results[0];
+            
+            if (place.geometry && place.geometry.location) {
+              // 검색 결과 위치로 맵 이동
+              if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+              } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+              }
+              
+              console.log(`Moved to: ${place.name} - ${place.formatted_address}`);
+            }
+          } else {
+            console.log('No results found for:', query);
+          }
+        });
+      } catch (error) {
+        console.error('Error performing search:', error);
+      }
+    };
+
+    const handleSearch = () => {
+      const query = autocompleteRef.current?.value.trim();
+      if (query) {
+        // URL에 search 파라미터 추가
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('search', query);
+        router.push(`?${params.toString()}`);
+        
+        // 검색 실행
+        performSearch(query);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+    };
+
+    return (
+      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
+        <div className="flex items-center">
+          <Input
+            ref={autocompleteRef}
+            type="text"
+            placeholder="Search area in the Philippines"
+            className="h-8 w-72 px-3 py-5 rounded-none rounded-l-sm focus:outline-none focus-visible:ring-0"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+          <button 
+            onClick={handleSearch}
+            className="bg-orange-400 h-8 px-5 py-5 border border-orange-400 rounded-r-sm flex items-center justify-center hover:bg-orange-500 transition-colors"
+          >
+            <FaSearch className="text-white" />
+          </button>
+        </div>
       </div>
-    </div>
-  )
+    );
+  }
 );
 
 const SellTypeToggle = () => {
@@ -127,8 +209,8 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     setVisibleUnits,
     setVisibleUnitCount,
     isLoading,
-    mapCenter,   // 저장된 맵 중심점
-    mapZoom,     // 저장된 맵 줌 레벨
+    mapCenter,
+    mapZoom,
   } = useMapStore();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -143,7 +225,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
     const zoom = map.getZoom();
     
     if (center && zoom) {
-      // 여기서는 직접 로컬 스토리지에 저장 (무한 루프 방지)
       const mapPosition = {
         center: { lat: center.lat(), lng: center.lng() },
         zoom: zoom
@@ -162,15 +243,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         isSidebarOpen ? "w-[calc(100%-400px)]" : "w-full"
       }`;
     }
-
-    // switch (sheetPosition) {
-    //   case "full":
-    //     return `${baseStyle} h-[60vh]`;
-    //   case "half":
-    //     return `${baseStyle} h-[60vh]`;
-    //   default:
-    //     return `${baseStyle} h-screen`;
-    // }
   }, [isMobile, isSidebarOpen, sheetPosition]);
 
   // 맵 초기화 함수 수정 - 저장된 위치 사용
@@ -181,15 +253,12 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       const google = await loadGoogleMapsAPI();
       const bounds = new google.maps.LatLngBounds(BOUNDS.south, BOUNDS.north);
   
-      // 단순히 window 객체를 통해 기기 타입 확인 (클라이언트 사이드에서만 실행됨)
       const isMobileDevice = typeof window !== 'undefined' && window.innerWidth <= 768;
       
-      // 기본 좌표 설정
       const defaultCoordinates = isMobileDevice 
-        ? { lat: 14.5430, lng: 121.0536 } // 모바일용 BGC 좌표
-        : { lat: 14.5877, lng: 121.0563 }; // 데스크톱용 마닐라 좌표
+        ? { lat: 14.5430, lng: 121.0536 }
+        : { lat: 14.5877, lng: 121.0563 };
       
-      // 저장된 위치 확인 - 로컬 스토리지에서 직접 읽기
       let savedPosition = null;
       try {
         const savedPositionStr = localStorage.getItem('mapPosition');
@@ -200,7 +269,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         console.error('Error reading saved map position:', e);
       }
       
-      // 저장된 위치 또는 기본 위치 사용
       const centerPosition = savedPosition 
         ? { lat: savedPosition.center.lat, lng: savedPosition.center.lng }
         : (mapCenter 
@@ -251,7 +319,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       setShouldRenderMarkers(false);
   
       unitsUpdateTimeoutRef.current = setTimeout(() => {
-        // 마커 매니저만 새로 생성
         markerManagerRef.current = `marker-manager-${Date.now()}`;
         setShouldRenderMarkers(true);
         setVisibleUnitCount(newUnits.length);
@@ -271,12 +338,10 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         clearTimeout(unitsUpdateTimeoutRef.current);
       }
       
-      // 컴포넌트 언마운트 시에만 맵 위치 저장
       if (map && mapInitializedRef.current) {
         saveMapPosition();
       }
       
-      // 맵 인스턴스는 제거하지 않고 유지
       setVisibleUnits([]);
       setVisibleUnitCount(0);
     };
@@ -305,7 +370,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         }
       );
   
-      // place_changed 이벤트 리스너
       autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
   
@@ -314,7 +378,6 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
           return;
         }
   
-        // 장소의 viewport가 있다면 그것을 사용하고, 없다면 위치를 중심으로 줌
         if (place.geometry.viewport) {
           map.fitBounds(place.geometry.viewport);
         } else {
@@ -330,7 +393,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
   return (
     <div className={containerStyle}>
       <DotLoader isLoading={isLoading} />
-      <SearchInput autocompleteRef={autocompleteRef} />
+      <SearchInput autocompleteRef={autocompleteRef} map={map} />
       {owner && <SellTypeToggle />}
       <div
         ref={mapRef}

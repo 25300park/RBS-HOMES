@@ -10,7 +10,7 @@ export interface MainFilterGroupProps {}
 
 const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
   return (
-    <div className="flex gap-2 justify-around w-full">
+    <div className="flex gap-2 justify-around w-full max-w-[350px]">
       <Link href={"/"} className="hidden md:block">
         <img
           src="/assets/images/RBS_symbol_60x60.png"
@@ -47,12 +47,15 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
 
   useEffect(() => {
     const activeParam = searchParams.get("activeTypes");
-    if (activeParam) {
+  
+    if (activeParam !== null) {
       setActiveTypes(activeParam.split(","));
     } else {
-      setActiveTypes(["rent", "sale", "preSale"]);
+      // 기본값: rent만 활성화
+      setActiveTypes(["rent"]);
     }
   }, [searchParams]);
+  
 
   const isActive = activeTypes.includes(type);
 
