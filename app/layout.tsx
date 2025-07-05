@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     title: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
     description:
       "Find long term and short term house rentals in the Philippines cities of Metro Manila Makati, Rockwell, Fort Bonifacio Global City, Ortigas and more.",
-    images: ["/og-image.jpg"],
+   images: ["https://rbs-homes.com/assets/images/ogimg.jpg"],
   },
   robots: {
     index: true,

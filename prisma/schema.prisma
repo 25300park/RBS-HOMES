@@ -488,3 +488,27 @@ model ComplainUnit {
 
   @@map("complainunit")
 }
+
+
+model popups {
+  id               Int       @id @default(autoincrement())
+  title            String    @db.VarChar(255)
+  content          String?   @db.Text
+  startDate        DateTime?
+  endDate          DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+  createdByUserId  Int
+  useOverlay       Boolean   @default(true)
+  isActive         Boolean   @default(true)
+  priority         Int       @default(10)
+  targetAudience   String?   @default("all")
+  targetConditions Json?
+  buttonText       String?   @db.VarChar(100)
+  buttonAction     String?   @db.VarChar(255)
+  images           String?   @db.Text
+  popupType        Int       @default(0)
+  triggerType      Int       @default(0)
+  triggerValue     String?
+  showFrequency    Int       @default(0)
+}

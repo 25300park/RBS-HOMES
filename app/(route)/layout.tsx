@@ -1,5 +1,6 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import PopupManager from "@/components/modals/popup-manager";
 import MobileFooterNav from "@/components/ui/mob-footer-nav";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -22,6 +23,7 @@ export default async function RootLayout({
   return (
     <div>
       <Header />
+      <PopupManager />
       {children}
       <Footer />
       <MobileFooterNav />
