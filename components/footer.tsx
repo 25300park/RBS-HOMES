@@ -1,14 +1,16 @@
-'use client'
+"use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const Footer = () => {
   const pathName = usePathname();
   const hiddenPaths = ["/map", "/account/unit/my-list", "/account"];
-  const shouldRenderFooter = !hiddenPaths.some(path => pathName.startsWith(path));
+  const shouldRenderFooter = !hiddenPaths.some((path) =>
+    pathName.startsWith(path)
+  );
 
-  if (!shouldRenderFooter) return null; 
-  
+  if (!shouldRenderFooter) return null;
+
   return (
     <footer className="bg-[#f7f7f7] border-t py-16 px-4 ">
       <div className="max-w-6xl mx-auto flex md:flex-col flex-row justify-between items-start md:items-center">
@@ -75,26 +77,35 @@ const Footer = () => {
 
       {/* Social Media Icons */}
       <div className="mt-16 flex justify-center space-x-14 text-zinc-500">
-        <Link href="#" className="hover:opacity-70 transition-opacity">
+        <Link
+          href="https://www.instagram.com/urhomesrbs/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:opacity-70 transition-opacity"
+        >
           <img src="/assets/icons/footer/instagram.png" alt="Instagram" />
         </Link>
-        <Link 
-          href="https://www.facebook.com/profile.php?id=61573655990869" 
-          target="_blank" 
+        <Link
+          href="https://www.facebook.com/mrhomes.phil/"
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:opacity-70 transition-opacity"
         >
           <img src="/assets/icons/footer/facebook.png" alt="Facebook" />
         </Link>
-        <Link 
-          href="https://www.youtube.com/@RBSHOMES" 
-          target="_blank" 
+        <Link
+          href="https://www.youtube.com/@RBSHOMES"
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:opacity-70 transition-opacity"
         >
           <img src="/assets/icons/footer/youtube.png" alt="YouTube" />
         </Link>
-        <Link href="#" className="hover:opacity-70 transition-opacity">
+        <Link
+          href="https://www.tiktok.com/@rbs_mrhomes"
+          target="_blank"
+          className="hover:opacity-70 transition-opacity"
+        >
           <img src="/assets/icons/footer/tiktok.png" alt="TikTok" />
         </Link>
       </div>
