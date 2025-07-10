@@ -66,7 +66,7 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
 
     // 새로운 타입으로 변경
     const newParams = new URLSearchParams(searchParams.toString());
-    newParams.set("activeType", type); // 단일 값으로 설정
+    newParams.set("activeTypes", type); 
     router.push(`${pathname}?${newParams.toString()}`);
   };
 
