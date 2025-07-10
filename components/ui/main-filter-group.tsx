@@ -46,7 +46,7 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
   const [activeType, setActiveType] = useState<string>("rent");
 
   useEffect(() => {
-    const activeParam = searchParams.get("activeType"); // activeTypes에서 activeType으로 변경
+    const activeParam = searchParams.get("activeTypes"); // activeTypes에서 activeType으로 변경
   
     if (activeParam !== null) {
       setActiveType(activeParam);
@@ -64,15 +64,10 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
       return;
     }
 
-    // 즉시 상태 업데이트 (빠른 UI 반응)
-    setActiveType(type);
-
     // 새로운 타입으로 변경
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set("activeType", type); // 단일 값으로 설정
-    
-    // replace 사용하여 중복 파라미터 방지
-    router.replace(`${pathname}?${newParams.toString()}`);
+    router.push(`${pathname}?${newParams.toString()}`);
   };
 
   // Style based on type when active
@@ -89,8 +84,8 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
 
   return (
     <Button
-      className={`py-5 space-x-1 relative w-[90px] text-xs transition-all duration-200 ${activeStyle} ${
-        isActive ? 'shadow-md transform scale-105' : 'hover:bg-gray-100 hover:shadow-sm'
+      className={`py-5 space-x-1 relative w-[90px] text-xs ${activeStyle} ${
+        isActive ? '' : 'hover:bg-gray-100'
       }`}
       variant={"outline"}
       onClick={handleClick}
