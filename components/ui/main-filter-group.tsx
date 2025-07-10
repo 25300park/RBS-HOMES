@@ -43,37 +43,30 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
   else if (type === "sale") typeString = "buy";
   else typeString = "preSale";
 
-  const [activeTypes, setActiveTypes] = useState<string[]>([]);
+  const [activeType, setActiveType] = useState<string>("rent");
 
   useEffect(() => {
-    const activeParam = searchParams.get("activeTypes");
+    const activeParam = searchParams.get("activeType"); // activeTypes에서 activeType으로 변경
   
     if (activeParam !== null) {
-      setActiveTypes(activeParam.split(","));
+      setActiveType(activeParam);
     } else {
-      // 기본값: rent만 활성화
-      setActiveTypes(["rent"]);
+      // 기본값: rent 활성화
+      setActiveType("rent");
     }
   }, [searchParams]);
-  
 
-  const isActive = activeTypes.includes(type);
+  const isActive = activeType === type;
 
   const handleClick = () => {
-    let newActiveTypes: string[];
-
+    // 이미 활성화된 버튼을 클릭한 경우 아무것도 하지 않음 (항상 하나는 선택되어 있어야 함)
     if (isActive) {
-      newActiveTypes = activeTypes.filter((t) => t !== type);
-    } else {
-      newActiveTypes = [...activeTypes, type];
+      return;
     }
 
-    // Update URL
+    // 새로운 타입으로 변경
     const newParams = new URLSearchParams(searchParams.toString());
-    if (newActiveTypes.length === 0) {
-      newActiveTypes = ["rent", "sale", "preSale"];
-    }
-    newParams.set("activeTypes", newActiveTypes.join(","));
+    newParams.set("activeType", type); // 단일 값으로 설정
     router.push(`${pathname}?${newParams.toString()}`);
   };
 
@@ -91,7 +84,9 @@ const SellTypeButton = ({ type }: { type: "rent" | "sale" | "preSale" }) => {
 
   return (
     <Button
-      className={`py-5 space-x-1 relative w-[90px] text-xs ${activeStyle}`}
+      className={`py-5 space-x-1 relative w-[90px] text-xs ${activeStyle} ${
+        isActive ? '' : 'hover:bg-gray-100'
+      }`}
       variant={"outline"}
       onClick={handleClick}
     >
