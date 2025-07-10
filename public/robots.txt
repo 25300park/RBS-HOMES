@@ -1,10 +1,19 @@
 User-agent: Googlebot
-Disallow: /adm/
+Disallow: /Adm/
 
 User-agent: Bingbot
-Disallow: /adm/
+Disallow: /Adm/
+
+User-agent: FacebookExternalHit
+Disallow: /Adm/
+
+User-agent: Facebot
+Disallow: /Adm/
+
+User-agent: Yeti
+Disallow: /Adm/
 
 User-agent: *
-Disallow: /
+Disallow: /Adm/
 
 Sitemap: https://rbs-homes.com/sitemap.xml
