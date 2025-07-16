@@ -11,6 +11,7 @@ import GalleryConverter from "./gallery-converter";
 import { ShareBtn } from "@/components/ui/share-btn";
 import AreaBannerSwiper from "./area-banner-swiper";
 import MoreBtn from "@/components/ui/more-btn";
+import InteractiveMap from "@/components/ui/interactive-map";
 
 interface DetailWrapProps {
   property: any;
@@ -52,7 +53,11 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           />
         </div>
         <PropertyInfo property={property} /> {/* 유닛의 상세 정보 */}
-        <StaticMap
+        {/* <StaticMap
+          latitude={property.latitude}
+          longitude={property.longitude}
+        /> */}
+        <InteractiveMap
           latitude={property.latitude}
           longitude={property.longitude}
         />

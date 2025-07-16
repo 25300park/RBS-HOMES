@@ -2,7 +2,13 @@
 
 import prisma from "@/lib/prisma";
 import { compare, hash } from "bcrypt";
-import { SignupFormSchema, FormState, LoginFormSchema, contactSchema, complainSchema } from "@/types/schema";
+import {
+  SignupFormSchema,
+  FormState,
+  LoginFormSchema,
+  contactSchema,
+  complainSchema,
+} from "@/types/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -48,9 +54,9 @@ export async function resetPassword(state: FormState, formData: FormData) {
       await tx.passwordResetLog.create({
         data: {
           email,
-          prevPassword: user.passwordOrigin || '', // 이전 비밀번호
-          newPassword: tempPassword,               // 새로운 임시 비밀번호
-          ip: formData.get("ip") as string || "unknown", 
+          prevPassword: user.passwordOrigin || "", // 이전 비밀번호
+          newPassword: tempPassword, // 새로운 임시 비밀번호
+          ip: (formData.get("ip") as string) || "unknown",
         },
       });
 
@@ -68,7 +74,6 @@ export async function resetPassword(state: FormState, formData: FormData) {
     });
 
     return result;
-
   } catch (error) {
     console.error("Reset password error:", error);
     return {
@@ -174,7 +179,25 @@ type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 // 필터 헬퍼 함수들
 const getSearchFilter = (search?: string) => {
   if (!search) return [];
-  return [{ title: { contains: search } }, { address3: { contains: search } }];
+
+  const searchTerms = search
+    .split(/[\s,]+/)
+    .filter((term) => term.length > 0)
+    .map((term) => term.trim());
+
+  if (searchTerms.length === 0) return [];
+
+  return searchTerms.map((term) => ({
+    OR: [
+      { title: { contains: term } },
+      { fullAdress: { contains: term } },
+      { address2: { contains: term } },
+      { address3: { contains: term } },
+      { address4: { contains: term } },
+      { note: { contains: term } },
+      { amenity: { contains: term } },
+    ],
+  }));
 };
 
 const getPriceFilter = (priceMin?: number, priceMax?: number) => {
@@ -211,17 +234,17 @@ export const getUnitList = async (
   try {
     // Parse filter values
     const type = searchParams.type !== "none" ? searchParams.type : undefined;
-    
+
     // activeTypes 파라미터 처리
-    const activeTypesArray = searchParams.activeTypes 
-      ? searchParams.activeTypes.split(',') 
+    const activeTypesArray = searchParams.activeTypes
+      ? searchParams.activeTypes.split(",")
       : DEFAULT_ACTIVE_TYPES;
-    
+
     // status 파라미터 처리 - 거래 완료된 매물 포함 여부
     const statusArray = searchParams.status
-      ? searchParams.status.split(',').map(s => parseInt(s))
+      ? searchParams.status.split(",").map((s) => parseInt(s))
       : DEFAULT_STATUS;
-    
+
     const bed = parseNumericValue(searchParams.bed);
     const bath = parseNumericValue(searchParams.bath);
     const parking = parseNumericValue(searchParams.parking);
@@ -235,30 +258,31 @@ export const getUnitList = async (
       searchParams.furniture !== "none" ? searchParams.furniture : undefined;
     const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
     const search = searchParams.search || undefined;
-    
+
     // 어메니티 처리
-    const amenities = searchParams.amenities !== undefined
-      ? (searchParams.amenities.trim() === ""
+    const amenities =
+      searchParams.amenities !== undefined
+        ? searchParams.amenities.trim() === ""
           ? [] // 빈 문자열이면 빈 배열 반환
-          : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
-      : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
-    
+          : decodeURIComponent(searchParams.amenities)
+              .split(",")
+              .map((a) => a.trim())
+        : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
+
     // Get filters
     const priceFilter = getPriceFilter(priceMin, priceMax);
     const searchFilter = getSearchFilter(search);
     const amenityFilter = getAmenityFilter(amenities);
     
-    // Combine all filters
-    const filters = [...priceFilter, ...searchFilter];
 
-    // Get units with filters
     const data = await prisma.unit.findMany({
       where: {
         status: {
-          in: statusArray // 변경: 이제 status 파라미터를 사용
+          in: statusArray,
         },
         // sellType 대신 activeTypes 사용
-        sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
+        sellType:
+          activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
         type: type ? { equals: type } : undefined,
         bed: bed ? { gte: bed } : undefined,
         bath: bath ? { gte: bath } : undefined,
@@ -273,8 +297,9 @@ export const getUnitList = async (
             : undefined,
         furniture: furniture ? { equals: furniture } : undefined,
         petPolicy: pet ? { equals: pet } : undefined,
-        ...(filters.length > 0 && { OR: filters }),
-        ...amenityFilter, // Add amenity filter
+        ...(priceFilter.length > 0 && { OR: priceFilter }),
+        ...(searchFilter.length > 0 && { AND: searchFilter }),
+        ...amenityFilter,
       },
       include: {
         admin: true,
@@ -306,17 +331,17 @@ export const getUnitCount = async (
   searchParams: Record<string, string>
 ): Promise<number> => {
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
-  
+
   // activeTypes 파라미터 처리
-  const activeTypesArray = searchParams.activeTypes 
-    ? searchParams.activeTypes.split(',') 
+  const activeTypesArray = searchParams.activeTypes
+    ? searchParams.activeTypes.split(",")
     : DEFAULT_ACTIVE_TYPES;
-  
+
   // status 파라미터 처리 - 거래 완료된 매물 포함 여부
   const statusArray = searchParams.status
-    ? searchParams.status.split(',').map(s => parseInt(s))
+    ? searchParams.status.split(",").map((s) => parseInt(s))
     : DEFAULT_STATUS;
-  
+
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
@@ -340,17 +365,20 @@ export const getUnitCount = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
-  
+
   // 어메니티 처리
-  const amenities = searchParams.amenities !== undefined
-    ? (searchParams.amenities.trim() === ""
+  const amenities =
+    searchParams.amenities !== undefined
+      ? searchParams.amenities.trim() === ""
         ? [] // 빈 문자열이면 빈 배열 반환
-        : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
-    : []; // 파라미터가 없는 경우만 기본값 적용
-  
+        : decodeURIComponent(searchParams.amenities)
+            .split(",")
+            .map((a) => a.trim())
+      : []; // 파라미터가 없는 경우만 기본값 적용
+
   // 어메니티 필터
   const amenityFilter = getAmenityFilter(amenities);
-  
+
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined
       ? [
@@ -372,10 +400,11 @@ export const getUnitCount = async (
   const count = await prisma.unit.count({
     where: {
       status: {
-        in: statusArray // 변경: 이제 status 파라미터를 사용
+        in: statusArray, // 변경: 이제 status 파라미터를 사용
       },
       // sellType 대신 activeTypes 사용
-      sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
+      sellType:
+        activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
@@ -408,17 +437,17 @@ export const getUnitCountOwner = async (
   const adminId = session.user.id;
 
   const type = searchParams.type !== "none" ? searchParams.type : undefined;
-  
+
   // activeTypes 파라미터 처리
-  const activeTypesArray = searchParams.activeTypes 
-    ? searchParams.activeTypes.split(',') 
+  const activeTypesArray = searchParams.activeTypes
+    ? searchParams.activeTypes.split(",")
     : DEFAULT_ACTIVE_TYPES;
-  
+
   // status 파라미터 처리 - 거래 완료된 매물 포함 여부
   const statusArray = searchParams.status
-    ? searchParams.status.split(',').map(s => parseInt(s))
+    ? searchParams.status.split(",").map((s) => parseInt(s))
     : DEFAULT_STATUS;
-  
+
   const bed = searchParams.bed ? parseInt(searchParams.bed) : undefined;
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking
@@ -442,17 +471,20 @@ export const getUnitCountOwner = async (
     searchParams.furniture !== "none" ? searchParams.furniture : undefined;
   const pet = searchParams.pet !== "none" ? searchParams.pet : undefined;
   const search = searchParams.search || undefined;
-  
+
   // 어메니티 처리
-  const amenities = searchParams.amenities !== undefined
-    ? (searchParams.amenities.trim() === ""
+  const amenities =
+    searchParams.amenities !== undefined
+      ? searchParams.amenities.trim() === ""
         ? [] // 빈 문자열이면 빈 배열 반환
-        : decodeURIComponent(searchParams.amenities).split(",").map((a) => a.trim()))
-    : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
-  
+        : decodeURIComponent(searchParams.amenities)
+            .split(",")
+            .map((a) => a.trim())
+      : DEFAULT_AMENITIES; // 파라미터가 없는 경우만 기본값 적용
+
   // 어메니티 필터
   const amenityFilter = getAmenityFilter(amenities);
-  
+
   const priceFilter =
     priceMin !== undefined || priceMax !== undefined
       ? [
@@ -475,10 +507,11 @@ export const getUnitCountOwner = async (
     where: {
       adminId: adminId,
       status: {
-        in: statusArray // 변경: 이제 status 파라미터를 사용
+        in: statusArray, // 변경: 이제 status 파라미터를 사용
       },
       // sellType 대신 activeTypes 사용
-      sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
+      sellType:
+        activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
       type: type ? { equals: type } : undefined,
       bed: bed ? { gte: bed } : undefined,
       bath: bath ? { gte: bath } : undefined,
@@ -497,7 +530,7 @@ export const getUnitCountOwner = async (
         [...priceFilter, ...searchFilter].length > 0
           ? [...priceFilter, ...searchFilter]
           : undefined,
-      ...amenityFilter, // 어메니티 필터 추가  
+      ...amenityFilter, // 어메니티 필터 추가
     },
   });
 
@@ -564,13 +597,13 @@ export async function sendContactForm(formData: FormData) {
     if (!validatedFields.success) {
       const fieldErrors = validatedFields.error.flatten().fieldErrors;
       let errorMessage = "";
-      
+
       for (const [field, errors] of Object.entries(fieldErrors)) {
         if (errors && errors.length > 0) {
-          errorMessage += `${errors.join(', ')} `;
+          errorMessage += `${errors.join(", ")} `;
         }
       }
-      
+
       return {
         success: false,
         message: errorMessage.trim(),
@@ -579,14 +612,14 @@ export async function sendContactForm(formData: FormData) {
     }
 
     const { name, email, phone, message } = validatedFields.data;
-    
+
     const headersList = headers();
-    const ip = 
-      headersList.get('x-forwarded-for')?.split(',')[0] || 
-      headersList.get('x-real-ip') || 
-      headersList.get('client-ip') ||
-      '127.0.0.1'; 
-    
+    const ip =
+      headersList.get("x-forwarded-for")?.split(",")[0] ||
+      headersList.get("x-real-ip") ||
+      headersList.get("client-ip") ||
+      "127.0.0.1";
+
     // Save to database
     const newContact = await prisma.contact.create({
       data: {
@@ -598,17 +631,18 @@ export async function sendContactForm(formData: FormData) {
         status: 0, // Unprocessed status
       },
     });
-    
+
     // Success response
     return {
       success: true,
-      message: "Your inquiry has been successfully submitted."
+      message: "Your inquiry has been successfully submitted.",
     };
   } catch (error) {
     console.error("Contact form submission error:", error);
     return {
       success: false,
-      message: "An error occurred while submitting your inquiry. Please try again."
+      message:
+        "An error occurred while submitting your inquiry. Please try again.",
     };
   }
 }
@@ -618,53 +652,54 @@ export async function sendComplainForm(formData: FormData) {
     // Get user info from session
     const session: any = await getServerSession(authOptions as any);
     const userId = session?.user?.id;
-    
+
     if (!userId) {
       return {
         success: false,
-        message: "Login required to submit a report."
+        message: "Login required to submit a report.",
       };
     }
-    
+
     const unitId = parseInt(formData.get("unitId") as string);
     const message = formData.get("message") as string;
-    
+
     if (!unitId || !message) {
       return {
         success: false,
-        message: "Required information is missing."
+        message: "Required information is missing.",
       };
     }
-    
+
     // Check if user already has a pending complaint for this unit
     const existingComplaint = await prisma.complainUnit.findFirst({
       where: {
         unitId,
         userId,
-        status: 0  // Status 0 means pending/processing
-      }
+        status: 0, // Status 0 means pending/processing
+      },
     });
-    
+
     if (existingComplaint) {
       return {
         success: false,
-        message: "Your previous report for this property is still being processed."
+        message:
+          "Your previous report for this property is still being processed.",
       };
     }
-    
+
     // Get unit information to find the writerId (adminId)
     const unit = await prisma.unit.findUnique({
       where: { id: unitId },
-      select: { adminId: true }
+      select: { adminId: true },
     });
-    
+
     if (!unit) {
       return {
         success: false,
-        message: "Unit not found."
+        message: "Unit not found.",
       };
     }
-    
+
     // Save to database
     const newComplain = await prisma.complainUnit.create({
       data: {
@@ -675,17 +710,18 @@ export async function sendComplainForm(formData: FormData) {
         status: 0, // Initial status
       },
     });
-    
+
     // Success response
     return {
       success: true,
-      message: "Your report has been submitted successfully."
+      message: "Your report has been submitted successfully.",
     };
   } catch (error) {
     console.error("Complain submission error:", error);
     return {
       success: false,
-      message: "An error occurred while submitting your report. Please try again."
+      message:
+        "An error occurred while submitting your report. Please try again.",
     };
   }
 }

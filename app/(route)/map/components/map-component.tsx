@@ -108,6 +108,7 @@ const SearchInput = React.memo(
         console.error('Error performing search:', error);
       }
     };
+    
 
     const handleSearch = () => {
       const query = autocompleteRef.current?.value.trim();
@@ -329,6 +330,8 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
   );
   
   useEffect(() => {
+
+    
     if (!mapInitializedRef.current) {
       initializeMap();
     }

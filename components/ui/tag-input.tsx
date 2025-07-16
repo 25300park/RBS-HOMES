@@ -12,14 +12,12 @@ interface TagInputProps {
 }
 
 export function TagInput({ label, value, onChange }: TagInputProps) {
-  // Pre-selected amenities
-  const preSelectedAmenities = ["Gym", "Pool", "24/7 Security", "Garden"];
+  const preSelectedAmenities:any = [];
 
-  // Override the initial value with pre-selected amenities if not already set
   useEffect(() => {
     const currentValues = new Set(value);
     const missingPreSelected = preSelectedAmenities.filter(
-      amenity => !currentValues.has(amenity)
+      (amenity: string) => !currentValues.has(amenity)
     );
 
     if (missingPreSelected.length > 0) {
