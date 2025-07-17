@@ -18,7 +18,7 @@ import { headers } from "next/headers";
 
 // 기본값 상수 정의
 const DEFAULT_ACTIVE_TYPES = ["rent"];
-const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
+const DEFAULT_AMENITIES:any = [];
 const DEFAULT_STATUS = [0, 1, 3]; // 기본적으로 진행 중(0)과 협상 중(3) 상태만 표시
 
 //비밀번호 찾기

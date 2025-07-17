@@ -72,7 +72,7 @@ const initialFilters: Filters = {
   furniture: "none",
   pet: "none",
   status: "0,3", // 추가: 기본 상태 값 (진행 중 + 협상 중)
-  amenities: "Gym,Pool,24/7 Security,Garden", // 추가: 기본 어메니티 값
+  amenities: "", // 추가: 기본 어메니티 값
 };
 
 const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {

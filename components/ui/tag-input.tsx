@@ -12,7 +12,7 @@ interface TagInputProps {
 }
 
 export function TagInput({ label, value, onChange }: TagInputProps) {
-  const preSelectedAmenities:any = [];
+  const preSelectedAmenities:any = ["Gym", "Pool", "24/7 Security", "Garden"];
 
   useEffect(() => {
     const currentValues = new Set(value);

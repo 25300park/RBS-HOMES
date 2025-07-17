@@ -7,7 +7,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { amenitiesData } from "@/lib/config/amenities";
 
 // 기본 어메니티 정의
-const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
+const DEFAULT_AMENITIES:any = [];
 
 const MainAmenityList = () => {
   const sliderRef = useRef<HTMLDivElement>(null);
