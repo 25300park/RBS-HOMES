@@ -396,8 +396,8 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
   return (
     <div className={containerStyle}>
       <DotLoader isLoading={isLoading} />
-      <SearchInput autocompleteRef={autocompleteRef} map={map} />
-      {owner && <SellTypeToggle />}
+  {!owner&&    <SearchInput autocompleteRef={autocompleteRef} map={map} />}
+      {/* {owner && <SellTypeToggle />} */}
       <div
         ref={mapRef}
         className="absolute w-full h-full"
