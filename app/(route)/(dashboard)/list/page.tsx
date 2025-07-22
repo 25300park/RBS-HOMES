@@ -2,6 +2,7 @@ import MainList from "../components/main-list-section";
 import BannerGroup from "../components/banner-group";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import PWAFloatingInstallButton from "@/components/ui/pwa-btn";
 
 export default async function DashBoard({
   searchParams,
@@ -25,6 +26,7 @@ export default async function DashBoard({
   return (
     <main>
       <BannerGroup />
+      <PWAFloatingInstallButton />
       <div className="mt-2">
         <MainList />
       </div>

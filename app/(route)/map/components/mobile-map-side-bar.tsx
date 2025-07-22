@@ -57,6 +57,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
   const [loadedUnits, setLoadedUnits] = useState<Unit[]>([]);
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"low" | "high">("low");
+  const [isPWA, setIsPWA] = useState(false);
 
   const hasMore = useMemo(
     () => loadedUnits.length < visibleUnits.length,
@@ -73,6 +74,19 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
 
     sheetRef.current.style.transform = `translateY(${positions[sheetPosition]})`;
   }, [sheetPosition]);
+
+    useEffect(() => {
+      const checkPWA = () => {
+        const isStandalone = window.matchMedia(
+          "(display-mode: standalone)"
+        ).matches;
+        const isIOSStandalone = (window.navigator as any).standalone === true;
+        setIsPWA(isStandalone || isIOSStandalone);
+      };
+  
+      checkPWA();
+    }, []);
+
   useEffect(() => {
     if (sheetRef.current && type) {
       sheetRef.current.style.transform = "translateY(calc(100% - 60px))";
@@ -256,7 +270,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
             e.stopPropagation();
             snapToPosition("minimized");
           }}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black text-white text-md px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50 pointer-events-auto"
+    className={`fixed ${isPWA? "bottom-28":"bottom-20"} left-1/2 transform -translate-x-1/2 bg-black text-white text-md px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50 pointer-events-auto`}
         >
           <Map size={20} />
           <span>View Map</span>
@@ -269,7 +283,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
       {ViewMapButton}
       <div
         ref={sheetRef}
-        className="absolute bottom-16 left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain"
+className={`absolute ${isPWA ? 'bottom-24' : 'bottom-16'} left-0 right-0 bg-white rounded-t-3xl shadow-lg pointer-events-auto overscroll-contain`}
         style={{
           height: "calc(100dvh - 60px)",
           transform: "translateY(calc(100% - 60px))",

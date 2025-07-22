@@ -1,0 +1,81 @@
+{
+  "name": "RBS Homes",
+  "short_name": "RBS Homes",
+  "description": "Find apartments, condos and houses for rent and sale in Philippines",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "/pwaicons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/pwaicons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/pwaicons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/pwaicons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Properties",
+      "short_name": "Search",
+      "description": "Search for apartments and condos",
+      "url": "/map",
+      "icons": [
+        {
+          "src": "/pwaicons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "My Listings",
+      "short_name": "My Units",
+      "description": "View my property listings",
+      "url": "/account/unit/my-list",
+      "icons": [
+        {
+          "src": "/pwaicons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "RBS Homes Desktop View"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "RBS Homes Mobile View"
+    }
+  ]
+}
