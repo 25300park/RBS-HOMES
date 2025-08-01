@@ -102,7 +102,6 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
           
           {/* 프로젝트 설명 에디터 콘텐츠 */}
           <div className="py-8 border-b">
-            <h3 className="text-xl font-medium text-gray-800 mb-6">Project Description</h3>
             <div 
               className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
               style={{
@@ -119,24 +118,8 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
           {/* 이미지 갤러리 스와이퍼 */}
           {galleryImages.length > 0 && (
             <div className="py-8 border-b">
-              <h3 className="text-xl font-medium text-gray-800 mb-6">Project Gallery</h3>
-              
-              {/* 캐러셀 이미지 설명 에디터 콘텐츠 */}
-              {property.carouselImagesContent && (
-                <div className="mb-6">
-                  <div 
-                    className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
-                    style={{
-                      fontSize: '16px',
-                      lineHeight: '1.6',
-                      color: '#374151'
-                    }}
-                    dangerouslySetInnerHTML={{ 
-                      __html: property.carouselImagesContent 
-                    }}
-                  />
-                </div>
-              )}
+              <h3 className="text-xl font-medium text-gray-800 mb-6">Gallery</h3>
+
 
               <div className="relative">
                 <Swiper
@@ -197,19 +180,10 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
                   <FaChevronRight className="text-gray-700 text-lg" />
                 </button>
               </div>
-            </div>
-          )}
 
-          {/* 프로젝트 비디오 */}
-          {videos.length > 0 && (
-            <div className="py-8 border-b">
-              <h3 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
-                <FaPlay className="mr-3 text-orange-600" />
-                Project Videos
-              </h3>
-              
-              {/* 비디오 설명 에디터 콘텐츠 */}
-              {property.videoDescriptionContent && (
+                            
+              {/* 캐러셀 이미지 설명 에디터 콘텐츠 */}
+              {property.carouselImagesContent && (
                 <div className="mb-6">
                   <div 
                     className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
@@ -219,11 +193,23 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
                       color: '#374151'
                     }}
                     dangerouslySetInnerHTML={{ 
-                      __html: property.videoDescriptionContent 
+                      __html: property.carouselImagesContent 
                     }}
                   />
                 </div>
               )}
+            </div>
+          )}
+
+          {/* 프로젝트 비디오 */}
+          {videos.length > 0 && (
+            <div className="py-8 border-b">
+              <h3 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
+                <FaPlay className="mr-3 text-orange-600" />
+                Videos
+              </h3>
+              
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {videos.map((videoUrl: string, index: number) => (
@@ -239,6 +225,22 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
                   </div>
                 ))}
               </div>
+                            {/* 비디오 설명 에디터 콘텐츠 */}
+              {property.videoDescriptionContent && (
+                <div className="mb-6">
+                  <div 
+                    className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
+                    style={{
+                      fontSize: '16px',
+                      lineHeight: '1.6',
+                      color: '#374151'
+                    }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: property.videoDescriptionContent 
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 

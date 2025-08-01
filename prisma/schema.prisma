@@ -259,7 +259,8 @@ model Unit {
   videos             Json?
   /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
   attachments        Json?
-
+  videoDescriptionContent String?   @db.Text  
+  carouselImagesContent  String?   @db.Text 
 
 
   // 관계 추가

@@ -95,7 +95,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
   return (
     <nav
       className={`w-full fixed bottom-0 z-40 bg-white border-t transition-transform duration-300 hidden md:block ${
-        isPWA ? 'h-24 pb-8' : 'h-16' 
+        isPWA ? 'h-16' : 'h-16' 
       }`}
     >
       <ul className="flex justify-around items-center h-full">
