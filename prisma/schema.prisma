@@ -251,6 +251,16 @@ model Unit {
   ownerEmail         String?  @db.VarChar(50)
   /// 전체 조회수
   viewCount          Int      @default(0)
+    /// 프로젝트 제목 (프리세일용)
+  projectTitle       String?  @db.VarChar(500)
+  /// 에디터 콘텐츠 (프리세일용 - HTML 형태의 상세 설명)
+  editorContent      String?  @db.Text
+  /// 프로젝트 동영상들 (프리세일용 - JSON 배열)
+  videos             Json?
+  /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
+  attachments        Json?
+
+
 
   // 관계 추가
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
