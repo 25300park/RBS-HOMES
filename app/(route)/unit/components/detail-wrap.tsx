@@ -57,12 +57,12 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           {/* 메인 이미지 - 크게, 라운디드 없이 */}
           {mainImage && (
             <div className="w-full">
-              <div className="relative w-full h-[800px] overflow-hidden">
+              <div className="relative w-full h-[720px] md:h-64 overflow-hidden">
                 <Image
                   src={mainImage}
                   alt="Main project image"
                   fill
-                  className="object-cover"
+                  className=""
                 />
               </div>
             </div>
