@@ -20,6 +20,9 @@ interface PreSalePropertyInfoProps {
     address4: string;
     fullAdress: string;
     price?: number;
+    area?: number | string;    // 면적 정보 추가
+    bed?: number | string;     // 침실 정보 추가
+    bath?: number | string;    // 욕실 정보 추가
     admin: any;
     lastUpdate: any;
     sellType: string;
@@ -78,11 +81,11 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
   return (
     <div className="mb-6 space-y-0 xl:px-2 md:space-y-0">
       {/* 상단 헤더 정보 */}
-      <section className="border-b mb-2 pb-1">
+      <section className="border-b pb-2 mb-3">
         <div className="flex w-full items-center justify-between md:p-4 md:space-y-4">
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold text-gray-900">
-              {property.title}
+              {property.projectTitle}
             </h2>
             <div className="flex flex-col">
               <p className="text-gray-600 mt-1 text-md md:text-sm">
@@ -90,7 +93,7 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
               </p>
             </div>
           </div>
-          <div className="text-xs text-gray-400 md: mt-2 ">
+          <div className="text-xs text-gray-400 md: mt-2">
             last updated at {getRelativeTime(property.lastUpdate)}
           </div>
         </div>
@@ -100,8 +103,48 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
         {/* 좌측 에디터 영역 */}
         <div className="flex flex-col max-w-[65%] md:w-full md:max-w-full">
           
+          {/* 프로젝트 스펙 정보 */}
+          <div className="flex gap-6">
+            {property.area && (
+              <div className="flex flex-col  min-w-[80px]">
+                <div className="text-gray-500 text-xs font-medium mb-1">Area</div>
+                <div className="flex items-center gap-1">
+                  <svg className="w-5 h-5 " fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"/>
+                  </svg>
+                  <span className="text-sm font-semibold text-gray-800">{property.area} sqm</span>
+                </div>
+              </div>
+            )}
+            
+            {property.bed && (
+              <div className="flex flex-col  min-w-[80px]">
+                <div className="text-gray-500 text-xs font-medium mb-1">Bedrooms</div>
+                <div className="flex items-center gap-1">
+                  <svg className="w-5 h-5 " fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 10.78V8c0-1.65-1.35-3-3-3h-4c-.77 0-1.47.3-2 .78-.53-.48-1.23-.78-2-.78H6c-1.65 0-3 1.35-3 3v2.78c-.61.55-1 1.34-1 2.22v6h2v-2h16v2h2v-6c0-.88-.39-1.67-1-2.22zM14 7h4c.55 0 1 .45 1 1v2H14V7zM5 8c0-.55.45-1 1-1h4v3H5V8zm15 5v2H4v-2c0-.55.45-1 1-1h14c.55 0 1 .45 1 1z"/>
+                  </svg>
+                  <span className="text-sm font-semibold text-gray-800">{property.bed}</span>
+                </div>
+              </div>
+            )}
+            
+            {property.bath && (
+              <div className="flex flex-col  min-w-[80px]">
+                <div className="text-gray-500 text-xs font-medium mb-1">Bathrooms</div>
+                <div className="flex items-center gap-1">
+                  <svg className="w-5 h-5 " fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 2v1h6V2h2v1h1c1.1 0 2 .9 2 2v1H4V5c0-1.1.9-2 2-2h1V2h2zm-5 5h16v13c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V7zm2 2v9h2V9H6zm4 0v9h2V9h-2zm4 0v9h2V9h-2z"/>
+                  </svg>
+                  <span className="text-sm font-semibold text-gray-800">{property.bath}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
           {/* 프로젝트 설명 에디터 콘텐츠 */}
           <div className="py-8 border-b">
+            <h3 className="text-xl font-medium text-gray-800 mb-6">Project Description</h3>
             <div 
               className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
               style={{
@@ -118,8 +161,24 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
           {/* 이미지 갤러리 스와이퍼 */}
           {galleryImages.length > 0 && (
             <div className="py-8 border-b">
-              <h3 className="text-xl font-medium text-gray-800 mb-6">Gallery</h3>
-
+              <h3 className="text-xl font-medium text-gray-800 mb-6">Project Gallery</h3>
+              
+              {/* 캐러셀 이미지 설명 에디터 콘텐츠 */}
+              {property.carouselImagesContent && (
+                <div className="mb-6">
+                  <div 
+                    className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
+                    style={{
+                      fontSize: '16px',
+                      lineHeight: '1.6',
+                      color: '#374151'
+                    }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: property.carouselImagesContent 
+                    }}
+                  />
+                </div>
+              )}
 
               <div className="relative">
                 <Swiper
@@ -180,24 +239,6 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
                   <FaChevronRight className="text-gray-700 text-lg" />
                 </button>
               </div>
-
-                            
-              {/* 캐러셀 이미지 설명 에디터 콘텐츠 */}
-              {property.carouselImagesContent && (
-                <div className="mb-6">
-                  <div 
-                    className="prose max-w-none prose-table:border-collapse prose-table:w-full prose-table:my-5 prose-table:bg-white prose-table:rounded-lg prose-table:shadow-sm prose-td:border prose-td:border-gray-200 prose-td:p-3 prose-th:border prose-th:border-gray-200 prose-th:p-3 prose-th:bg-gray-50 prose-th:font-semibold prose-img:rounded-lg prose-img:shadow-md prose-p:my-4 prose-headings:text-gray-900 prose-headings:font-semibold prose-ul:my-4 prose-ol:my-4 prose-li:my-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:pl-4 prose-blockquote:my-5 prose-blockquote:italic prose-blockquote:text-gray-600 prose-a:text-orange-600 prose-a:underline hover:prose-a:text-orange-800 prose-strong:font-semibold prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm"
-                    style={{
-                      fontSize: '16px',
-                      lineHeight: '1.6',
-                      color: '#374151'
-                    }}
-                    dangerouslySetInnerHTML={{ 
-                      __html: property.carouselImagesContent 
-                    }}
-                  />
-                </div>
-              )}
             </div>
           )}
 
@@ -206,26 +247,10 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
             <div className="py-8 border-b">
               <h3 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
                 <FaPlay className="mr-3 text-orange-600" />
-                Videos
+                Project Videos
               </h3>
               
-
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {videos.map((videoUrl: string, index: number) => (
-                  <div key={index} className="border">
-                    <video 
-                      controls 
-                      className="w-full h-[400px] object-cover"
-                      poster="/api/placeholder/400/200"
-                    >
-                      <source src={videoUrl} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                ))}
-              </div>
-                            {/* 비디오 설명 에디터 콘텐츠 */}
+              {/* 비디오 설명 에디터 콘텐츠 */}
               {property.videoDescriptionContent && (
                 <div className="mb-6">
                   <div 
@@ -241,6 +266,21 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
                   />
                 </div>
               )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {videos.map((videoUrl: string, index: number) => (
+                  <div key={index} className="border">
+                    <video 
+                      controls 
+                      className="w-full h-[400px] object-cover"
+                      poster="/api/placeholder/400/200"
+                    >
+                      <source src={videoUrl} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

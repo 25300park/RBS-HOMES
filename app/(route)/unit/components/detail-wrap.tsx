@@ -14,6 +14,7 @@ import AreaBannerSwiper from "./area-banner-swiper";
 import MoreBtn from "@/components/ui/more-btn";
 import InteractiveMap from "@/components/ui/interactive-map";
 import Image from "next/image";
+import PresaleMainImg from "./presale-main-img";
 
 interface DetailWrapProps {
   property: any;
@@ -57,17 +58,14 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           {/* 메인 이미지 - 크게, 라운디드 없이 */}
           {mainImage && (
             <div className="w-full">
-              <div className="relative w-full h-[720px] md:h-64 overflow-hidden">
-                <Image
-                  src={mainImage}
-                  alt="Main project image"
-                  fill
-                  className=""
-                />
-              </div>
+              <PresaleMainImg
+                isFavorited={property.isFavorited}
+                unitId={property.id}
+                mainImage={mainImage}
+              />
             </div>
           )}
-          
+
           <PreSalePropertyInfo property={property} />
         </div>
       </div>
