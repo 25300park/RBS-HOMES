@@ -29,7 +29,7 @@ export default async function RootLayout({
       <MobileFooterNav />
       <div class="relative size-32 z-40">
       <a href="https://m.me/498331016707865" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/archive/b/be/20201013163915%21Facebook_Messenger_logo_2020.svg"
+        <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
           width={25}
           height={25} 
           class="fixed right-5 bottom-5 size-16"
