@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import MainList from "../components/main-list-section";
 import BannerGroup from "../components/banner-group";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import Loading  from "./loading";
 
 export default async function DashBoard({
   searchParams,
@@ -23,11 +25,13 @@ export default async function DashBoard({
   // }
 
   return (
-    <main>
-      <BannerGroup />
-      <div className="mt-2">
-        <MainList />
-      </div>
-    </main>
+      <main>
+        <BannerGroup />
+        <Suspense fallback={<Loading />}>
+          <div className="mt-2">
+            <MainList />
+          </div>
+        </Suspense>
+      </main>
   );
 }

@@ -10,24 +10,39 @@ export interface MainFilterGroupProps {}
 
 const MainFilterGroup = ({}: MainFilterGroupProps): React.ReactNode => {
   return (
-    <div className="flex gap-2 justify-around w-full max-w-[350px]">
-      <Link href={"/"} className="hidden md:block">
-        <img
-          src="/assets/images/RBS_symbol_60x60.png"
-          alt="logo"
-          className="w-10 mr-2"
-        />
-      </Link>
-      <span className="md:hidden">
-        <FilterButton />
-      </span>
-      <span className="hidden md:block fixed top-[90px] left-2">
-        <FilterButton />
-      </span>
-      <SellTypeButton type="rent" />
-      <SellTypeButton type="sale" />
-      <SellTypeButton type="preSale" />
-    </div>
+    
+      <div className="flex gap-2 justify-around w-full max-w-[350px]">
+
+          <div class="header-menu-desktop">
+            <Link className="mr-16" href="/">
+              <img src="/assets/images/rbs-logo.png" alt="logo" />
+            </Link>
+          </div>
+
+          <div class="header-menu-mobile">
+            <Link href={"/"} className="hidden md:block">
+              <img
+                src="/assets/images/RBS_symbol_60x60.png"
+                alt="logo"
+                className="w-10 mr-2"
+              />
+            </Link>
+          </div>
+          
+          <SellTypeButton type="rent" />
+          <SellTypeButton type="sale" />
+          <SellTypeButton type="preSale" />
+
+          <span className="md:hidden">
+            <FilterButton />
+          </span>
+
+          <span className="hidden md:block fixed top-[90px] left-2">
+            <FilterButton />
+          </span>
+
+      </div>
+    
   );
 };
 

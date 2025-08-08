@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import MobileMapSideBar from "@/app/(route)/map/components/mobile-map-side-bar";
 import SideBarWrap from "../components/side-bar-wrap";
 import Loading from './loading';
+import FilterButton from "@/components/ui/filter-btn";
 
 export interface MapHomeProps {
   searchParams: any;
@@ -49,6 +50,11 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
           </div>
           <SideBarWrap />
         </Suspense>
+        
+        <span className="hidden md:block fixed top-[90px] left-2">
+            <FilterButton />
+        </span>
+        
       </div>
     </div>
   );
