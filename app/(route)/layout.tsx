@@ -33,7 +33,7 @@ export default async function RootLayout({
               <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
                 width={25}
                 height={25} 
-                class="fixed right-5 bottom-5 size-16 animate-fade-in"
+                class="fixed right-5 bottom-5 size-12 animate-fade-in"
                 alt=""/>
             </a>
           </div>
@@ -44,7 +44,7 @@ export default async function RootLayout({
               <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
                 width={25}
                 height={25} 
-                class="fixed right-5 bottom-16 size-16 animate-fade-in"
+                class="fixed right-5 bottom-20 size-11 animate-fade-in"
                 alt=""/>
             </a>
           </div>
