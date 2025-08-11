@@ -27,14 +27,27 @@ export default async function RootLayout({
       {children}
       <Footer />
       <MobileFooterNav />
-      <div class="relative size-32 z-40">
-      <a href="https://m.me/498331016707865" target="_blank">
-        <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
-          width={25}
-          height={25} 
-          class="fixed right-5 bottom-5 size-16"
-          alt=""/>
-      </a>
+      <div class="messenger-dekstop">
+          <div class="relative size-32 z-40">
+            <a href="https://m.me/498331016707865" target="_blank">
+              <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
+                width={25}
+                height={25} 
+                class="fixed right-5 bottom-5 size-16 animate-fade-in"
+                alt=""/>
+            </a>
+          </div>
+      </div>
+      <div class="messenger-mobile">
+          <div class="relative size-32 z-40">
+            <a href="https://m.me/498331016707865" target="_blank">
+              <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
+                width={25}
+                height={25} 
+                class="fixed right-5 bottom-16 size-16 animate-fade-in"
+                alt=""/>
+            </a>
+          </div>
       </div>
     </div>
   );
