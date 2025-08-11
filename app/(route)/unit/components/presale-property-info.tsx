@@ -101,7 +101,7 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
 
       <section className="flex h-full justify-between gap-10 md:px-4">
         {/* 좌측 에디터 영역 */}
-        <div className="flex flex-col max-w-[65%] md:w-full md:max-w-full">
+        <div className="flex flex-col max-w-[65%] w-full md:max-w-full">
           
           {/* 프로젝트 스펙 정보 */}
           <div className="flex gap-6">
