@@ -377,7 +377,6 @@ const HeroSection = () => {
       <div className="heading-home-section-mobile">
           <div className="max-w-6xl mx-auto p-3">
               <div className="flex">
-                
                 <div className="size-14 grow">
                   <img src="/assets/images/rbs-logo.png" alt="logo" className="w-42 h-auto float-left"/>
                 </div>
@@ -386,13 +385,11 @@ const HeroSection = () => {
                     <MainSearchBar isMobile />
                   </div>
                 </div>
-
               </div>
           </div>
 
           <div className="max-w-6xl mx-auto p-3">
-              <div className="grid grid-flow-col grid-rows-3 gap-1">
-                
+              <div className="grid grid-flow-col grid-rows-3 gap-1">  
                 <div className="row-span-2 p-12 h-auto px-5 border border-gray-200 rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
                   <a href="https://rbs-homes.com/map?activeTypes=rent" target="_self">
@@ -404,7 +401,6 @@ const HeroSection = () => {
                     </h6>
                   </a>
                 </div>
-                
                 <div className="col-span-2 row-start-1 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   <a href="https://rbs-homes.com/map?activeTypes=sale" target="_self">
                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left stroke-2">
@@ -415,7 +411,6 @@ const HeroSection = () => {
                     </h6>
                   </a>
                 </div>
-                
                 <div className="col-span-2 row-span-1 row-start-2 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   {/*<span class="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">New</span>*/}
                   <a href="https://rbs-homes.com/map?activeTypes=preSale" target="_self">
@@ -426,20 +421,16 @@ const HeroSection = () => {
                       Pre-Sale
                     </h6>
                   </a>
-                </div>
-                
+                </div>  
               </div>
           </div>
-
           <div className="max-w-6xl p-3">
             <div className="grid gap-4 customize-margin">
               <a className="bg-white  border border-gray-200 rounded-xl p-4 transition-all duration-300 group" href="/list"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list w-5 h-5 text-gray-600"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg></div><div class="text-left"><h4 class="text-base font-semibold text-gray-800">View as List</h4><p class="text-sm text-gray-500">Browse all properties</p></div></div><div class="w-8 h-8 bg-gray-100 group-hover:bg-orange-500 rounded-lg flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-gray-600 group-hover:text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>  
               <a className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl p-4 transition-all duration-300 group shadow-lg hover:shadow-xl" href="/map"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5 text-white animate-bounce"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="text-left"><h4 class="text-base font-semibold text-white">View on Map</h4><p class="text-sm text-orange-100">Explore locations</p></div></div><div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>
             </div>
           </div>
-        
       </div>
-      
     </>
   );
 };
