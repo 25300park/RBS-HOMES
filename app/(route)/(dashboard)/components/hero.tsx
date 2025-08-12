@@ -389,7 +389,7 @@ const HeroSection = () => {
           </div>
 
           <div className="max-w-6xl mx-auto p-3">
-              <div className="grid grid-flow-col grid-rows-3 gap-1">  
+              <div className="grid grid-flow-col grid-rows-3 gap-3">  
                 <div className="row-span-2 p-12 h-auto px-5 border border-gray-200 rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
                   <a href="https://rbs-homes.com/map?activeTypes=rent" target="_self">
