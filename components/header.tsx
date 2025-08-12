@@ -31,16 +31,16 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
         </nav>
         */}
         
-        <div className="max-w-6xl mx-auto p-3">
+        <div className="max-w-6xl mx-auto p-3 border-b border-gray-200">
             <div className="flex">
                   <div className="size-14 grow">
                     <Link className="mr-16" href="/">
-                      <img src="/assets/images/rbs-logo.png" alt="logo" />
+                      <img src="/assets/images/rbs-logo.png" alt="logo" className="mt-1" />
                     </Link>
                   </div>
                   
                   <div className="size-14 grow">
-                    <div className="w-fit float-right">
+                    <div className="w-fit float-right mt-2">
                       <MainSearchBar isMobile />
                     </div>
                   </div>
@@ -196,7 +196,7 @@ const DesktopHeader = ({
                 <div className="row-span-2 p-12 h-auto px-12 border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
                   <a href="https://rbs-homes.com/map?activeTypes=rent" target="_self">
-                    <div class="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
+                    <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house w-6 h-6 text-orange-500"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                     </div>
                     <h3 className="text-lg font-bold text-gray-800 text-center">
