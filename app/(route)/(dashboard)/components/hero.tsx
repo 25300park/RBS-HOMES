@@ -375,13 +375,13 @@ const HeroSection = () => {
       </div>
 
       <div className="heading-home-section-mobile">
-          <div className="max-w-6xl mx-auto p-3">
+          <div className="max-w-6xl mx-auto p-3 border-b border-gray-200">
               <div className="flex">
                 <div className="size-14 grow">
-                  <img src="/assets/images/rbs-logo.png" alt="logo" className="w-42 h-auto float-left"/>
+                  <img src="/assets/images/rbs-logo.png" alt="logo" className="w-42 h-auto float-left mt-1"/>
                 </div>
                 <div className="size-14 grow">
-                  <div className="w-fit float-right">
+                  <div className="w-fit float-right mt-2">
                     <MainSearchBar isMobile />
                   </div>
                 </div>
