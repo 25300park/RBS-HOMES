@@ -374,15 +374,15 @@ const HeroSection = () => {
         </div>
       </div>
 
-      <div class="heading-home-section-mobile">
-          <div class="max-w-6xl mx-auto p-3">
-              <div class="flex">
+      <div className="heading-home-section-mobile">
+          <div className="max-w-6xl mx-auto p-3">
+              <div className="flex">
                 
-                <div class="size-14 grow">
+                <div className="size-14 grow">
                   <img src="/assets/images/rbs-logo.png" alt="logo" className="w-42 h-auto float-left"/>
                 </div>
-                <div class="size-14 grow">
-                  <div class="w-fit float-right">
+                <div className="size-14 grow">
+                  <div className="w-fit float-right">
                     <MainSearchBar isMobile />
                   </div>
                 </div>
@@ -390,39 +390,39 @@ const HeroSection = () => {
               </div>
           </div>
 
-          <div class="max-w-6xl mx-auto p-3">
-              <div class="grid grid-flow-col grid-rows-3 gap-1">
+          <div className="max-w-6xl mx-auto p-3">
+              <div className="grid grid-flow-col grid-rows-3 gap-1">
                 
-                <div class="row-span-2 p-12 h-auto px-5 border border-gray-200 rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
-                  <span class="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
+                <div className="row-span-2 p-12 h-auto px-5 border border-gray-200 rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
+                  <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
                   <a href="https://rbs-homes.com/map?activeTypes=rent" target="_self">
-                    <div class="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
+                    <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house w-6 h-6 text-orange-500"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                     </div>
-                    <h6 class="text-sm font-bold text-gray-800 text-center mt-6">
+                    <h6 className="text-sm font-bold text-gray-800 text-center mt-6">
                       Rent
                     </h6>
                   </a>
                 </div>
                 
-                <div class="col-span-2 row-start-1 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
+                <div className="col-span-2 row-start-1 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   <a href="https://rbs-homes.com/map?activeTypes=sale" target="_self">
-                    <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left stroke-2">
+                    <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left stroke-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building w-6 h-6 text-orange-500"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
                     </div>
-                    <h6 class="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
+                    <h6 className="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
                         Buy
                     </h6>
                   </a>
                 </div>
                 
-                <div class="col-span-2 row-span-1 row-start-2 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
+                <div className="col-span-2 row-span-1 row-start-2 p-6 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
                   {/*<span class="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">New</span>*/}
                   <a href="https://rbs-homes.com/map?activeTypes=preSale" target="_self">
-                    <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left">
+                    <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6 text-orange-500"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
                     </div>
-                    <h6 class="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
+                    <h6 className="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
                       Pre-Sale
                     </h6>
                   </a>
@@ -431,10 +431,10 @@ const HeroSection = () => {
               </div>
           </div>
 
-          <div class="max-w-6xl p-3">
-            <div class="grid gap-4 customize-margin">
-              <a class="bg-white  border border-gray-200 rounded-xl p-4 transition-all duration-300 group" href="/list"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list w-5 h-5 text-gray-600"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg></div><div class="text-left"><h4 class="text-base font-semibold text-gray-800">View as List</h4><p class="text-sm text-gray-500">Browse all properties</p></div></div><div class="w-8 h-8 bg-gray-100 group-hover:bg-orange-500 rounded-lg flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-gray-600 group-hover:text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>  
-              <a class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl p-4 transition-all duration-300 group shadow-lg hover:shadow-xl" href="/map"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5 text-white animate-bounce"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="text-left"><h4 class="text-base font-semibold text-white">View on Map</h4><p class="text-sm text-orange-100">Explore locations</p></div></div><div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>
+          <div className="max-w-6xl p-3">
+            <div className="grid gap-4 customize-margin">
+              <a className="bg-white  border border-gray-200 rounded-xl p-4 transition-all duration-300 group" href="/list"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list w-5 h-5 text-gray-600"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg></div><div class="text-left"><h4 class="text-base font-semibold text-gray-800">View as List</h4><p class="text-sm text-gray-500">Browse all properties</p></div></div><div class="w-8 h-8 bg-gray-100 group-hover:bg-orange-500 rounded-lg flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-gray-600 group-hover:text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>  
+              <a className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl p-4 transition-all duration-300 group shadow-lg hover:shadow-xl" href="/map"><div class="flex items-center justify-between"><div class="flex items-center space-x-3"><div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5 text-white animate-bounce"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></div><div class="text-left"><h4 class="text-base font-semibold text-white">View on Map</h4><p class="text-sm text-orange-100">Explore locations</p></div></div><div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 text-white"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div></div></a>
             </div>
           </div>
         
