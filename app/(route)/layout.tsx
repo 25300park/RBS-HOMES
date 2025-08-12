@@ -27,7 +27,7 @@ export default async function RootLayout({
       {children}
       <Footer />
       <MobileFooterNav />
-      <div className="messenger-dekstop">
+      <div className="">
           <div className="relative size-32 z-40">
             <a href="https://m.me/498331016707865" target="_blank">
               <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
@@ -38,7 +38,7 @@ export default async function RootLayout({
             </a>
           </div>
       </div>
-      <div className="messenger-mobile">
+      <div className="">
           <div className="relative size-32 z-40">
             <a href="https://m.me/498331016707865" target="_blank">
               <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
