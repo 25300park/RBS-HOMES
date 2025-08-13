@@ -344,14 +344,14 @@ const MainList: React.FC = () => {
 
       {/* 로딩 중일 때 스켈레톤 표시 */}
       {isLoading ? (
-        <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
+        <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-2 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
           {Array.from({ length: LIMIT > 24 ? 24 : LIMIT }).map((_, index) => (
             <Skeleton key={index} />
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-1 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
+          <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-2 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
             {itemsWithAds.map((item: any) => {
               if (item.type === 'unit') {
                 const unit = item.data;
