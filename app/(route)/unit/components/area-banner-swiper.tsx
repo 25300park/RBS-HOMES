@@ -74,19 +74,44 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
           
           return images.map((image: any, imgIndex: number) => (
             <SwiperSlide key={`${index}-${imgIndex}`}>
-              <div className="relative w-full h-64 md:h-80">
-                <img
-                  src={image.url}
-                  alt={banner.title || "Banner image"}
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 flex flex-col justify-end p-6">
-                  <h3 className="text-white text-2xl font-bold">{banner.title}</h3>
-                  {banner.description && (
-                    <p className="text-white/80 mt-2 line-clamp-2">
-                      {banner.description}
-                    </p>
-                  )}
+              <div className="swiper-gallery-dekstop">
+                <div className="relative w-full h-full md:h-80">
+                  <img
+                    src={image.url}
+                    alt={banner.title || "Banner image"}
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 flex flex-col justify-end p-6">
+                    <h3 className="text-white text-2xl font-bold">{banner.title}</h3>
+                    {banner.description && (
+                      <p className="text-white/80 mt-2 line-clamp-2">
+                        {banner.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="swiper-gallery-mobile">
+                <div className="max-w-6xl mx-auto p-1">
+                  <div className="rounded-xl bg-white shadow-md">
+                    <img
+                        src={image.url}
+                        alt={banner.title || "Banner image"}
+                        className="h-48 w-full object-cover md:h-full"
+                    />
+                    <div class="p-5">
+                        <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
+                          {banner.title}
+                        </div>
+                        <p className="mt-2 text-gray-500">
+                          {banner.description && (
+                            <p>
+                              {banner.description}
+                            </p>
+                          )}
+                        </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </SwiperSlide>
