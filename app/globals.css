@@ -308,6 +308,12 @@
   .messenger-mobile {
     display: block;
   }
+  .swiper-gallery-dekstop {
+    display: none;
+  }
+  .swiper-gallery-mobile {
+    display: block;
+  }
 }
 @media (min-width: 280px) {
   .rbs-global-margin {
@@ -350,6 +356,12 @@
   .messenger-mobile {
     display: block;
   }
+  .swiper-gallery-dekstop {
+    display: none;
+  }
+  .swiper-gallery-mobile {
+    display: block;
+  }
 }
 @media (min-width: 180px) {
   .rbs-global-margin {
@@ -389,6 +401,12 @@
     display: none;
   }
   .messenger-mobile {
+    display: block;
+  }
+  .swiper-gallery-dekstop {
+    display: none;
+  }
+  .swiper-gallery-mobile {
     display: block;
   }
 }
@@ -434,6 +452,12 @@
   .messenger-mobile {
     display: none;
   }
+  .swiper-gallery-dekstop {
+    display: block;
+  }
+  .swiper-gallery-mobile {
+    display: none;
+  }
 }
 @media (min-width: 1024px) {
   .rbs-global-margin {
@@ -470,6 +494,12 @@
     display: block;
   }
   .messenger-mobile {
+    display: none;
+  }
+  .swiper-gallery-dekstop {
+    display: block;
+  }
+  .swiper-gallery-mobile {
     display: none;
   }
 }
@@ -515,6 +545,12 @@
   .messenger-mobile {
     display: none;
   }
+  .swiper-gallery-dekstop {
+    display: block;
+  }
+  .swiper-gallery-mobile {
+    display: none;
+  }
 }
 
 /* Display look desktop 853px */
@@ -558,6 +594,12 @@
   .messenger-mobile {
     display: none;
   }
+  .swiper-gallery-dekstop {
+    display: block;
+  }
+  .swiper-gallery-mobile {
+    display: none;
+  }
 }
 
 /* Display look desktop 880px */
@@ -599,6 +641,12 @@
     display: block;
   }
   .messenger-mobile {
+    display: none;
+  }
+  .swiper-gallery-dekstop {
+    display: block;
+  }
+  .swiper-gallery-mobile {
     display: none;
   }
 }
