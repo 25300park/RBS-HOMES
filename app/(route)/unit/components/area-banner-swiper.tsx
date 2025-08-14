@@ -93,23 +93,25 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
               </div>
               <div className="swiper-gallery-mobile">
                 <div className="max-w-6xl mx-auto px-6">
-                  <div className="rounded-xl bg-white shadow-md">
-                    <img
-                        src={image.url}
-                        alt={banner.title || "Banner image"}
-                        className="h-48 w-full object-cover md:h-full"
-                    />
-                    <div class="p-5">
-                        <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
-                          {banner.title}
-                        </div>
-                        <p className="mt-2 text-gray-500">
-                          {banner.description && (
-                            <p>
-                              {banner.description}
-                            </p>
-                          )}
-                        </p>
+                  <div className="max-w-md overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
+                    <div className="md:flex">
+                            <div className="md:shrink-0">
+                                <img
+                                    src={image.url}
+                                    alt={banner.title || "Banner image"}
+                                    className="h-48 w-full object-cover md:h-full"
+                                />
+                            </div>
+                            <div className="p-5">
+                              <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
+                                    {banner.title}
+                              </div>
+                              {banner.description && (
+                                    <p className="mt-2 text-gray-500">
+                                      {banner.description}
+                                    </p>
+                              )}
+                            </div>
                     </div>
                   </div>
                 </div>
