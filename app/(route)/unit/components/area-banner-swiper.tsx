@@ -92,7 +92,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                 </div>
               </div>
               <div className="swiper-gallery-mobile">
-                <div className="max-w-6xl mx-auto px-6">
+                <div className="max-w-6xl mx-auto">
                   <div className="max-w-md overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
                     <div className="md:shrink-0">
                       <img
