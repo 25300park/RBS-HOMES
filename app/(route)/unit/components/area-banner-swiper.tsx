@@ -79,7 +79,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                   <div class="md:flex">
                     <div class="md:shrink-0">
                       <img placeholder="blur"
-                        class="h-48 w-full object-cover md:h-full md:w-36"
+                        class="h-full w-full object-cover md:h-full md:w-36"
                         src={image.url}
                         alt={banner.title || "Banner image"}
                       />
@@ -103,7 +103,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                     <img
                       src={image.url}
                       alt={banner.title || "Banner image"}
-                      className="h-full w-full object-cover md:h-full"
+                      className="h-48 w-full object-cover md:h-full"
                     />
                   </div>
                   <div className="p-5">
