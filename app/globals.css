@@ -241,3 +241,102 @@
     display: none !important;
   }
 }
+
+/* globals.css 또는 별도의 CSS 모듈에 추가 */
+.custom-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.custom-prose table td,
+.custom-prose table th {
+  border: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.custom-prose table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.custom-prose table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.custom-prose table tr:hover {
+  background-color: #f3f4f6;
+}
+
+.custom-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-prose p {
+  margin: 16px 0;
+}
+
+.custom-prose h1, 
+.custom-prose h2, 
+.custom-prose h3, 
+.custom-prose h4, 
+.custom-prose h5, 
+.custom-prose h6 {
+  margin: 24px 0 12px 0;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.custom-prose ul, 
+.custom-prose ol {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.custom-prose li {
+  margin: 8px 0;
+}
+
+.custom-prose blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 16px;
+  margin: 20px 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.custom-prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.custom-prose a:hover {
+  color: #1d4ed8;
+}
+
+.custom-prose strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.custom-prose em {
+  font-style: italic;
+}
+
+.custom-prose code {
+  background-color: #f3f4f6;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

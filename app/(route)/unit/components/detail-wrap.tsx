@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 import ThumbSlider from "@/components/ui/thumb-slider";
 import AdminInfo from "./admin-info";
@@ -67,6 +69,10 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
           )}
 
           <PreSalePropertyInfo property={property} />
+                  <InteractiveMap
+          latitude={property.latitude}
+          longitude={property.longitude}
+        />
         </div>
       </div>
     );
