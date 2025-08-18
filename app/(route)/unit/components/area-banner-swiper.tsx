@@ -75,42 +75,46 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
           return images.map((image: any, imgIndex: number) => (
             <SwiperSlide key={`${index}-${imgIndex}`}>
               <div className="swiper-gallery-dekstop">
-                <div className="relative w-full h-full md:h-80">
-                  <img
-                    src={image.url}
-                    alt={banner.title || "Banner image"}
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 flex flex-col justify-end p-6">
-                    <h3 className="text-white text-2xl font-bold">{banner.title}</h3>
-                    {banner.description && (
-                      <p className="text-white/80 mt-2 line-clamp-2">
-                        {banner.description}
-                      </p>
-                    )}
+                <div class="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl mt-6">
+                  <div class="md:flex">
+                    <div class="md:shrink-0">
+                      <img placeholder="blur"
+                        class="h-48 w-full object-cover md:h-full md:w-36"
+                        src={image.url}
+                        alt={banner.title || "Banner image"}
+                      />
+                    </div>
+                    <div class="p-5">
+                      <h3 class="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
+                        {banner.title}
+                      </h3>
+                      {banner.description && (
+                        <p className="mt-2 text-gray-500">
+                          {banner.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="swiper-gallery-mobile">
-                <div className="p-5">
-                  <div className="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
-                    <div className="md:shrink-0">
-                      <img
-                        src={image.url}
-                        alt={banner.title || "Banner image"}
-                        className="h-full w-full object-cover md:h-full"
-                      />
+                <div className="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
+                  <div className="md:shrink-0">
+                    <img
+                      src={image.url}
+                      alt={banner.title || "Banner image"}
+                      className="h-full w-full object-cover md:h-full"
+                    />
+                  </div>
+                  <div className="p-5">
+                      <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
+                        {banner.title}
                       </div>
-                      <div className="p-5">
-                        <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
-                          {banner.title}
-                        </div>
-                        {banner.description && (
-                          <p className="mt-2 text-gray-500">
-                            {banner.description}
-                          </p>
-                        )}
-                      </div>
+                      {banner.description && (
+                        <p className="mt-2 text-gray-500">
+                          {banner.description}
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
@@ -121,5 +125,4 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
     </div>
   );
 };
-
 export default AreaBannerSwiper;
