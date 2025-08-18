@@ -75,17 +75,17 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
           return images.map((image: any, imgIndex: number) => (
             <SwiperSlide key={`${index}-${imgIndex}`}>
               <div className="swiper-gallery-dekstop">
-                <div class="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl mt-6">
-                  <div class="md:flex">
-                    <div class="md:shrink-0">
+                <div className="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl mt-6">
+                  <div className="md:flex">
+                    <div className="md:shrink-0">
                       <img placeholder="blur"
-                        class="h-full w-full object-cover md:h-full md:w-36"
+                        className="h-full w-full object-cover md:h-full md:w-36"
                         src={image.url}
                         alt={banner.title || "Banner image"}
                       />
                     </div>
-                    <div class="p-5">
-                      <h3 class="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
+                    <div className="p-5">
+                      <h3 className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
                         {banner.title}
                       </h3>
                       {banner.description && (
