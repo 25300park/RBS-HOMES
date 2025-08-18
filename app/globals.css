@@ -92,41 +92,6 @@
   --app-height: 100%;
 }
 
-@media (max-width: 768px) {
-  * {
-    scrollbar-width: none;
-  }
-
-  *::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* 스크롤바를 표시하고 싶은 특정 클래스 */
-  .show-scrollbar {
-    scrollbar-width: auto !important;
-    -ms-overflow-style: auto !important;
-  }
-
-  .show-scrollbar::-webkit-scrollbar {
-    display: block !important;
-    width: 6px;  /* 스크롤바 너비 */
-  }
-
-  .show-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-
-  .show-scrollbar::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-  }
-
-  .show-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-}
-
 @supports (-webkit-touch-callout: none) {
   body {
     height: 100dvh;
@@ -236,17 +201,6 @@
   display: none;             /* Chrome, Safari, Opera */
 }
 
-@media (max-width: 768px) {
-  a[href^="mailto:"] {
-    display: none !important;
-  }
-
-  .rbs-global-margin {
-   padding:12px 12px 12px 12px;
-  }
-
-}
-
 .badge-customize {
   background-color: #f66e14;
   padding:1px 14px 5px 14px;
@@ -264,6 +218,49 @@
 
 .customize-margin {
   margin:-109px 0px 0px 0px;
+}
+
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  a[href^="mailto:"] {
+    display: none !important;
+  }
+
+  .rbs-global-margin {
+   padding:12px 12px 12px 12px;
+  }
+
+  /* 스크롤바를 표시하고 싶은 특정 클래스 */
+  .show-scrollbar {
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .show-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    width: 6px;  /* 스크롤바 너비 */
+  }
+
+  .show-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 }
 
 /* Customize class .rbs-global-margin */
