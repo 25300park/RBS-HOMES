@@ -36,7 +36,7 @@ const MAP_STYLE = [
   {
     featureType: "poi",
     elementType: "labels",
-    stylers: [{ visibility: "off" }],
+    stylers: [{ visibility: "on" }],
   },
   {
     featureType: "poi.school",
@@ -46,6 +46,18 @@ const MAP_STYLE = [
     featureType: "poi.park",
     stylers: [{ visibility: "on" }],
   },
+  {
+    featureType: "administrative.locality",
+    stylers: [{ visibility: "on" }],
+  },
+  {
+    featureType: "landscape.man_made",
+    stylers: [{ visibility: "on" }],
+  },
+  {
+    featureType: "road.local",
+    stylers: [{ visibility: "on" }],
+  }
 ];
 
 const SearchInput = React.memo(
