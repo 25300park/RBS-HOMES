@@ -44,7 +44,7 @@ const MobileHeader = ({ pathName }: { pathName: string }) => {
                       <MainSearchBar isMobile />
                     </div>
                   </div>
-                  <span className="hidden md:block fixed top-[90px] left-2">
+                  <span className="hidden md:block fixed top-[90px] left-2 z-40">
                     <FilterButton />
                   </span>
             </div>
