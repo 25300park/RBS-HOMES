@@ -27,35 +27,37 @@ const BOUNDS = {
 const MAP_STYLE = [
   {
     featureType: "poi.business",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "transit",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "poi.school",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "poi.park",
+    elementType: "core",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "poi.school",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
+    featureType: "transit",
+    elementType: "core",
+    stylers: [{ visibility: "off" }],
+  },
+  {
     featureType: "administrative.locality",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "landscape.man_made",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "road.local",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   }
 ];
@@ -142,7 +144,7 @@ const SearchInput = React.memo(
     };
 
     return (
-      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
+      <div className="absolute bottom-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
         <div className="flex items-center">
           <Input
             ref={autocompleteRef}
@@ -297,9 +299,10 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         zoom: zoomLevel,
         minZoom: 5,
         maxZoom: 20,
-        disableDefaultUI: true,
+        disableDefaultUI: false,
         gestureHandling: "greedy",
-        zoomControl: true,
+        mapTypeId: 'satellite',
+        zoomControl: false,
         styles: MAP_STYLE,
         restriction: {
           latLngBounds: bounds,

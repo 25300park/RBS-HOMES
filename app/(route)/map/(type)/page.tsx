@@ -23,6 +23,7 @@ const generateSearchKey = (params: MapHomeProps["searchParams"]) => {
 };
 
 const MapHome = async ({ searchParams, params }: MapHomeProps) => {
+  
   const newSearchParams = await searchParams;
   const searchKey = generateSearchKey(newSearchParams);
   // 데이터 가져오기
@@ -40,9 +41,10 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   return (
     <div>
       <div className="flex h-[calc(100vh-10rem)] md:h-screen relative md:static top-20">
+        
         <Suspense fallback={<Loading />}>
           <div className="w-full h-full">
-            <MapComponent
+            <MapComponent 
               // key={`map-${searchKey}`}
               units={units}
               searchKey={searchKey}

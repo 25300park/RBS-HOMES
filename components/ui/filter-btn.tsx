@@ -95,25 +95,48 @@ const FilterButton = ({
   return (
     <div className="space-y-4">
       <div className="flex w-full gap-4">
-        <Button
-          onClick={openModalHandler}
-          className={`${
-            activeFilterCount > 0 ? "border-orange-400 " : "border"
-          } py-5 space-x-2 relative px-2`}
-          variant={"outline"}
-        >
-          <FaSliders
+        <div className="filter-button-pc">
+          <Button
+            onClick={openModalHandler}
             className={`${
-              activeFilterCount > 0 ? "text-orange-400 " : "text-[#A9A9A9]"
-            }  `}
-          />
-          <p className="text-xs">Filters</p>
-          {activeFilterCount > 0 && (
-            <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-        </Button>
+              activeFilterCount > 0 ? "border-orange-400 " : "border"
+            } py-5 space-x-2 relative px-2`}
+            variant={"outline"}
+          >
+            <FaSliders
+              className={`${
+                activeFilterCount > 0 ? "text-orange-400 " : "text-[#A9A9A9]"
+              }  `}
+            />
+            <p className="text-xs">Filters</p>
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        </div>
+        <div className="filter-button-mobile">
+          <Button
+            onClick={openModalHandler}
+            className={`${
+              activeFilterCount > 0 ? "border-orange-400 " : "border"
+            } py-5 absolute top-64 z-0 left-0 space-x-2 px-2`}
+            variant={"outline"}
+          >
+            <FaSliders
+              className={`${
+                activeFilterCount > 0 ? "text-orange-400 " : "text-[#A9A9A9]"
+              }  `}
+            />
+            <p className="text-xs">Filters</p>
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-2 -top-1 bg-orange-400 text-white w-4 h-4 rounded-full text-[8px] border border-white flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+        </div>
         {withClear && <FilterResetButton />}
       </div>
       {(activeFilterCount > 0 && withClear) && (
