@@ -262,7 +262,6 @@
     background: #555;
   }
 }
-
 /* Customize class .rbs-global-margin */
 @media (min-width: 320px) {
   .rbs-global-margin {
@@ -309,6 +308,13 @@
     display: none;
   }
   .swiper-gallery-mobile {
+    display: block;
+  }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: none;
+  }
+  .filter-button-mobile {
     display: block;
   }
 }
@@ -359,6 +365,13 @@
   .swiper-gallery-mobile {
     display: block;
   }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: none;
+  }
+  .filter-button-mobile {
+    display: block;
+  }
 }
 @media (min-width: 180px) {
   .rbs-global-margin {
@@ -404,6 +417,13 @@
     display: none;
   }
   .swiper-gallery-mobile {
+    display: block;
+  }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: none;
+  }
+  .filter-button-mobile {
     display: block;
   }
 }
@@ -455,6 +475,15 @@
   .swiper-gallery-mobile {
     display: none;
   }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: block;
+  }
+  .filter-button-mobile {
+    margin:47px 0px 0px 0px;
+    display: none;
+    z-index: 1;
+  }
 }
 @media (min-width: 1024px) {
   .rbs-global-margin {
@@ -498,6 +527,15 @@
   }
   .swiper-gallery-mobile {
     display: none;
+  }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: block;
+  }
+  .filter-button-mobile {
+    margin:47px 0px 0px 0px;
+    display: none;
+    z-index: 1;
   }
 }
 
@@ -548,6 +586,15 @@
   .swiper-gallery-mobile {
     display: none;
   }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: block;
+  }
+  .filter-button-mobile {
+    margin:47px 0px 0px 0px;
+    display: none;
+    z-index: 1;
+  }
 }
 
 /* Display look desktop 853px */
@@ -597,6 +644,15 @@
   .swiper-gallery-mobile {
     display: none;
   }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: block;
+  }
+  .filter-button-mobile {
+    margin:47px 0px 0px 0px;
+    display: none;
+    z-index: 1;
+  }
 }
 
 /* Display look desktop 880px */
@@ -645,5 +701,14 @@
   }
   .swiper-gallery-mobile {
     display: none;
+  }
+  .filter-button-pc {
+    margin:0px 0px 0px 0px;
+    display: block;
+  }
+  .filter-button-mobile {
+    margin:47px 0px 0px 0px;
+    display: none;
+    z-index: 1;
   }
 }

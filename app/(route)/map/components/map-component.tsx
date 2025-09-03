@@ -130,7 +130,7 @@ const SearchInput = React.memo(
     };
 
     return (
-      <div className="absolute top-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
+      <div className="absolute bottom-8 left-6 z-10 p-4 bg-white shadow-md border md:hidden">
         <div className="flex items-center">
           <Input
             ref={autocompleteRef}
@@ -285,7 +285,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         zoom: zoomLevel,
         minZoom: 5,
         maxZoom: 20,
-        disableDefaultUI: true,
+        disableDefaultUI: false,
         gestureHandling: "greedy",
         zoomControl: true,
         styles: MAP_STYLE,
