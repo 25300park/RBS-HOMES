@@ -301,7 +301,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         maxZoom: 20,
         disableDefaultUI: false,
         gestureHandling: "greedy",
-        mapTypeId: 'satellite',
+        //mapTypeId: 'satellite',
         zoomControl: false,
         styles: MAP_STYLE,
         restriction: {
