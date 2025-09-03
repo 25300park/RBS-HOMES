@@ -27,25 +27,39 @@ const BOUNDS = {
 const MAP_STYLE = [
   {
     featureType: "poi.business",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "transit",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "poi.school",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "poi.park",
+    elementType: "core",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "poi.school",
+    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
+  {
+    featureType: "transit",
+    elementType: "core",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "administrative.locality",
+    elementType: "core",
+    stylers: [{ visibility: "on" }],
+  },
+  {
+    featureType: "landscape.man_made",
+    elementType: "core",
+    stylers: [{ visibility: "on" }],
+  },
+  {
+    featureType: "road.local",
+    elementType: "core",
+    stylers: [{ visibility: "on" }],
+  }
 ];
 
 const SearchInput = React.memo(
@@ -287,7 +301,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
         maxZoom: 20,
         disableDefaultUI: false,
         gestureHandling: "greedy",
-        zoomControl: true,
+        zoomControl: false,
         styles: MAP_STYLE,
         restriction: {
           latLngBounds: bounds,

@@ -174,7 +174,7 @@ model Schedule {
   /// 시작시간 
   startedAt   DateTime?
   title       String?   @db.VarChar(100)
-
+  
   @@map("schedule")
 }
 
