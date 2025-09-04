@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import { useMapStore } from "@/store/use-map-store";
 import SideUnitCard from "./side-unit-card";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { useLoading } from "@/hooks/use-loading";
 import { LodaingUi } from "@/components/ui/loading-ui";
 import { IoIosArrowDown } from "react-icons/io";
 import { Map } from "lucide-react";
-import { useState } from "react";
+import FilterButton from "@/components/ui/filter-btn-mobile";
 
 const TRANSITION_DURATION = 400;
 const SWIPE_COOLDOWN = 700;
@@ -229,17 +229,15 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
         className="w-full h-16 select-none touch-none bg-white rounded-t-3xl"
         onClick={handleHeaderClick}
       >
+        
         <div className="w-full h-full flex flex-col justify-center items-center">
+        <FilterButton />
           <div className="w-16 h-1 bg-gray-300 rounded-full mb-2" />
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">
               {visibleUnits.length} units found
             </span>
-            <IoIosArrowDown
-              className={`transform transition-transform duration-500 ${
-                sheetPosition === "full" ? "rotate-180" : ""
-              }`}
-            />
+
           </div>
         </div>
       </div>
