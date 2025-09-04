@@ -44,7 +44,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
   if (isLoading || !banners || banners.length === 0) return null;
 
   return (
-    <div className="mt-8 mb-8 bg-white rounded-lg overflow-hidden">
+    <div className="mt-8 mb-8 bg-white rounded-lg overflow-hidden shadow-md">
       <Swiper
         modules={[Pagination, Autoplay]}
         pagination={{ clickable: true }}
@@ -75,8 +75,8 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
           return images.map((image: any, imgIndex: number) => (
             <SwiperSlide key={`${index}-${imgIndex}`}>
               <div className="swiper-gallery-dekstop">
-                <div className="overflow-hidden rounded-xl bg-white md:max-w-2xl">
-                  <div className="md:flex">
+                <div className="overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl mt-6">
+                  <div className="lg:flex">
                     <div className="md:shrink-0">
                       <img placeholder="blur"
                         className="object-cover h-full w-full max-w-full md:h-full h-96 md:w-36 sm:w-24"
@@ -84,7 +84,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                         alt={banner.title || "Banner image"}
                       />
                     </div>
-                    <div className="p-3">
+                    <div className="p-5">
                       <h3 className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
                         {banner.title}
                       </h3>
@@ -106,7 +106,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                       className="h-48 w-full object-cover md:h-full"
                     />
                   </div>
-                  <div className="p-0">
+                  <div className="p-5">
                       <div className="mt-1 block text-lg leading-tight font-medium text-black hover:underline">
                         {banner.title}
                       </div>
