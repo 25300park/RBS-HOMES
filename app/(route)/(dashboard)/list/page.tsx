@@ -4,6 +4,7 @@ import BannerGroup from "../components/banner-group";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Loading  from "./loading";
+import FilterButton from '@/components/ui/filter-list-btn';
 
 export default async function DashBoard({
   searchParams,
@@ -32,6 +33,9 @@ export default async function DashBoard({
             <MainList />
           </div>
         </Suspense>
+        <span className="hidden md:block fixed top-[90px] left-2">
+            <FilterButton />
+        </span>
       </main>
   );
 }
