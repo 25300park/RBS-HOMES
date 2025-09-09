@@ -396,7 +396,7 @@ const HeroSection = () => {
                     <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house w-6 h-6 text-orange-500"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                     </div>
-                    <h6 className="text-sm font-bold text-gray-800 text-center mt-6">
+                    <h6 className="text-base font-bold text-gray-800 text-center mt-6">
                       Rent
                     </h6>
                   </a>
@@ -406,7 +406,7 @@ const HeroSection = () => {
                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left stroke-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building w-6 h-6 text-orange-500"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
                     </div>
-                    <h6 className="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
+                    <h6 className="text-base font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
                         Buy
                     </h6>
                   </a>
@@ -417,7 +417,7 @@ const HeroSection = () => {
                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6 text-orange-500"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
                     </div>
-                    <h6 className="text-sm font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
+                    <h6 className="text-base font-bold text-gray-800 p-9 absolute inset-y-0 right-0 w-auto text-nowrap">
                       Pre-Sale
                     </h6>
                   </a>
