@@ -186,6 +186,11 @@ const YouTubeSection = () => {
             
           </div>
         </div>
+
+        <div className="max-w-6xl mx-auto mt-24">
+            <iframe src='https://widgets.sociablekit.com/google-reviews/iframe/25581582' frameborder='0' width='100%' height='600px'></iframe>
+        </div>
+
       </div>
 
       {/* YouTube Video Modal */}
