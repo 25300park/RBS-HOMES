@@ -26,38 +26,23 @@ const BOUNDS = {
 
 const MAP_STYLE = [
   {
-    featureType: "poi.business",
-    elementType: "core",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "core",
+    featureType: "poi",
     stylers: [{ visibility: "off" }],
   },
   {
-    featureType: "poi.school",
-    elementType: "core",
-    stylers: [{ visibility: "on" }],
-  },
-  {
     featureType: "transit",
-    elementType: "core",
     stylers: [{ visibility: "off" }],
   },
   {
     featureType: "administrative.locality",
-    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "landscape.man_made",
-    elementType: "core",
     stylers: [{ visibility: "on" }],
   },
   {
     featureType: "road.local",
-    elementType: "core",
     stylers: [{ visibility: "on" }],
   }
 ];
@@ -293,7 +278,7 @@ export const MapComponent = React.memo(({ units, searchKey, owner }: MapProps) =
       const zoomLevel = savedPosition 
         ? savedPosition.zoom
         : (mapZoom || (isMobileDevice ? 14 : 13));
-      
+
       const initializedMap = new google.maps.Map(mapRef.current, {
         center: centerPosition,
         zoom: zoomLevel,
