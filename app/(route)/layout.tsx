@@ -25,8 +25,6 @@ export default async function RootLayout({
       <Header />
       <PopupManager />
       {children}
-      <Footer />
-      <MobileFooterNav />
       <div className="messenger-dekstop">
           <div className="relative size-32 z-40">
             <a href="https://m.me/498331016707865" target="_blank">
@@ -49,6 +47,8 @@ export default async function RootLayout({
             </a>
           </div>
       </div>
+      <Footer />
+      <MobileFooterNav />
     </div>
   );
 }
