@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 import ThumbSlider from "@/components/ui/thumb-slider";
 import AdminInfo from "./admin-info";
