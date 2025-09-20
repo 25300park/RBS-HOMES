@@ -26,7 +26,7 @@ export default async function RootLayout({
       <PopupManager />
       {children}
       <div className="messenger-dekstop">
-          <div className="relative size-32 z-40">
+          <div className="fixed size-32 z-40">
             <a href="https://m.me/498331016707865" target="_blank">
               <img src="https://static.xx.fbcdn.net/rsrc.php/yb/r/M8rOX7S5AN3.svg"
                 width={25}

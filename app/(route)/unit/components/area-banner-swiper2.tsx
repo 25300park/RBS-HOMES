@@ -7,7 +7,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import Image from "next/image";
-import { getAreaBanners } from "../unit/action";
+import { getAreaBanners } from "../../unit/action";
 
 interface AreaBannerSwiperProps {
   unitCity?: string;
@@ -55,7 +55,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                             >
                             
                                 <SwiperSlide>
-                                    <img placeholder="blur"
+                                    <img 
                                         className="object-cover md:h-full h-96 w-full max-w-full md:w-36 sm:w-24"
                                         src="https://mrhomes2024.s3.ap-southeast-1.amazonaws.com/29/20250324073734533Z_bgc_avida_towers_34th_st_1740040847_763bae8a_progressive.jpg"
                                     />
@@ -70,7 +70,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                                 </SwiperSlide>
 
                                 <SwiperSlide>
-                                    <img placeholder="blur"
+                                    <img 
                                         className="object-cover md:h-full h-96 w-full max-w-full md:w-36 sm:w-24"
                                         src="https://mrhomes2024.s3.ap-southeast-1.amazonaws.com/29/20250324073734531Z_bgc_avida_towers_34th_st_1740040847_82e5e302_progressive.jpg"
                                     />
@@ -101,7 +101,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                 >
                     <div className="md:shrink-0">
                     <SwiperSlide>
-                        <img placeholder="blur"
+                        <img 
                             className="h-full w-full object-cover md:h-full"
                             src="https://mrhomes2024.s3.ap-southeast-1.amazonaws.com/29/20250324073734528Z_bgc_avida_towers_34th_st_1740040847_0e156592_progressive.jpg"
                         />
@@ -116,7 +116,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
                     </SwiperSlide>
 
                     <SwiperSlide>
-                        <img placeholder="blur"
+                        <img 
                             className="h-full w-full object-cover md:h-full"
                             src="https://mrhomes2024.s3.ap-southeast-1.amazonaws.com/29/20250324073734531Z_bgc_avida_towers_34th_st_1740040847_82e5e302_progressive.jpg"
                         />

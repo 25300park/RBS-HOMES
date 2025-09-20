@@ -9,11 +9,14 @@ export interface UnitDetailProps {
 
 export async function generateMetadata({ params }: UnitDetailProps): Promise<Metadata> {
  const unitId = parseInt(params?.id);
- 
+const baseUrl = 'https://rbs-homes.com';
  if (!unitId || isNaN(unitId)) {
    return {
      title: 'Property Not Found',
-     description: 'The requested property could not be found.'
+     description: 'The requested property could not be found.',
+      alternates: {
+       canonical: `${baseUrl}/unit/detail/${params?.id || ''}`, 
+     },
    };
  }
 
@@ -24,7 +27,10 @@ export async function generateMetadata({ params }: UnitDetailProps): Promise<Met
    if (!unitDetail) {
      return {
        title: 'Property Not Found',
-       description: 'The requested property could not be found.'
+       description: 'The requested property could not be found.',
+             alternates: {
+       canonical: `${baseUrl}/unit/detail/${params?.id || ''}`, 
+     },
      };
    }
 

@@ -12,7 +12,7 @@ import { IoMdShare } from "react-icons/io";
 import FavoriteButton from "@/components/favorite-button";
 import GalleryConverter from "./gallery-converter";
 import { ShareBtn } from "@/components/ui/share-btn";
-import AreaBannerSwiper from "./area-banner-swiper";
+import AreaBannerSwiper from "./area-banner-swiper2";
 import MoreBtn from "@/components/ui/more-btn";
 import InteractiveMap from "@/components/ui/interactive-map";
 import Image from "next/image";

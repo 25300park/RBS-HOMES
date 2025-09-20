@@ -99,7 +99,7 @@ const FeaturedPropertiesSection = () => {
       try {
         setIsLoading(true);
         // 모든 지역의 매물을 가져옴
-        const response = await fetch('/api/units/best?type=all&limit=6');
+        const response = await fetch('/api/units/best?type=all&limit=4');
         
         if (!response.ok) {
           throw new Error('Failed to fetch featured properties');
@@ -126,7 +126,7 @@ const FeaturedPropertiesSection = () => {
 
   const renderSkeletonCards = () => (
     <div className="grid grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-3">
-      {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="bg-gray-200 rounded-lg h-64 animate-pulse" />
       ))}
     </div>
