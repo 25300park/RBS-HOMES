@@ -55,11 +55,11 @@ interface FeaturedPropertiesResponse {
 const AREA_ICONS = {
   bonifacio: <Building2 className="w-6 h-6 text-orange-500" />,
   makati: <Building2 className="w-6 h-6 text-orange-500" />,
-  mandaluyong: <Building2 className="w-6 h-6 text-orange-500" />,
-  muntinlupa: <Building2 className="w-6 h-6 text-orange-500" />,
+  // mandaluyong: <Building2 className="w-6 h-6 text-orange-500" />,
+  // muntinlupa: <Building2 className="w-6 h-6 text-orange-500" />,
   pasay: <Building2 className="w-6 h-6 text-orange-500" />,
-  quezon: <Building2 className="w-6 h-6 text-orange-500" />,
-  paranaque: <Building2 className="w-6 h-6 text-orange-500" />,
+  // quezon: <Building2 className="w-6 h-6 text-orange-500" />,
+  // paranaque: <Building2 className="w-6 h-6 text-orange-500" />,
   recent: <Clock className="w-6 h-6 text-orange-500" />
 };
 
@@ -67,11 +67,11 @@ const AREA_ICONS = {
 const AREA_DESCRIPTIONS = {
   bonifacio: "Premium properties in BGC and Bonifacio Global City",
   makati: "Prime CBD location with business district convenience",
-  mandaluyong: "Modern developments in Ortigas and Mandaluyong area",
-  muntinlupa: "Family-friendly communities in Alabang and Muntinlupa",
+  // mandaluyong: "Modern developments in Ortigas and Mandaluyong area",
+  // muntinlupa: "Family-friendly communities in Alabang and Muntinlupa",
   pasay: "Strategic location near airport and entertainment district",
-  quezon: "Diverse neighborhoods in the largest city of Metro Manila",
-  paranaque: "Coastal living with city accessibility",
+  // quezon: "Diverse neighborhoods in the largest city of Metro Manila",
+  // paranaque: "Coastal living with city accessibility",
   recent: "Latest properties added to our platform"
 };
 
@@ -79,11 +79,11 @@ const AREA_DESCRIPTIONS = {
 const AREA_SEARCH_LINKS = {
   bonifacio: "/map?search=Bonifacio",
   makati: "/map?search=Makati",
-  mandaluyong: "/map?search=Mandaluyong",
-  muntinlupa: "/map?search=Muntinlupa",
+  // mandaluyong: "/map?search=Mandaluyong",
+  // muntinlupa: "/map?search=Muntinlupa",
   pasay: "/map?search=Pasay",
-  quezon: "/map?search=Quezon",
-  paranaque: "/map?search=Paranaque",
+  // quezon: "/map?search=Quezon",
+  // paranaque: "/map?search=Paranaque",
   recent: "/map"
 };
 
@@ -189,7 +189,7 @@ const FeaturedPropertiesSection = () => {
 
   // 섹션 순서 정의 (recent를 마지막에)
   const getSectionOrder = () => {
-    const areaOrder = ['bonifacio', 'makati', 'mandaluyong', 'muntinlupa', 'pasay', 'quezon', 'paranaque'];
+    const areaOrder = ['bonifacio', 'makati',  'pasay',];
     const orderedSections: string[] = [];
     
     // 지역별 섹션들을 순서대로 추가
