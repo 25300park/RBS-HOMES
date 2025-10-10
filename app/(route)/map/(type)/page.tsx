@@ -27,7 +27,7 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
   const newSearchParams = await searchParams;
   const searchKey = generateSearchKey(newSearchParams);
   // 데이터 가져오기
-  const { units, error } = await getUnitList(newSearchParams).catch(
+  const { units, error } = await getUnitList({}).catch(
     (error) => ({
       units: [],
       error: error,

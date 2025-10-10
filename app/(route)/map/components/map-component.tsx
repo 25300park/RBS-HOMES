@@ -47,6 +47,22 @@ const MAP_STYLE = [
   },
 ];
 
+// 🎯 지역별 정확한 좌표 정의
+const AREA_COORDINATES: { [key: string]: { lat: number; lng: number; zoom: number } } = {
+  // BGC 관련
+  'bonifacio': { lat: 14.551160310701608, lng: 121.04935827129007, zoom: 16 },
+  'bgc': { lat: 14.551160310701608, lng: 121.04935827129007, zoom: 16 },
+  'bonifacio global city': { lat: 14.551160310701608, lng: 121.04935827129007, zoom: 16 },
+  
+  // Makati
+  'makati': { lat: 14.55708635672368, lng: 121.02445350095418, zoom: 16 },
+  'makati city': { lat: 14.55708635672368, lng: 121.02445350095418, zoom: 16 },
+  
+  // Pasay
+  'pasay': { lat: 14.532908416630356, lng: 121.00240833758669, zoom: 16 },
+  'pasay city': { lat: 14.532908416630356, lng: 121.00240833758669, zoom: 16 },
+};
+
 const SearchInput = React.memo(
   ({
     autocompleteRef,
@@ -66,7 +82,7 @@ const SearchInput = React.memo(
         setInputValue(searchQuery);
         autocompleteRef.current.value = searchQuery;
 
-        // Google Places API로 검색 실행
+        // 검색 실행
         performSearch(searchQuery);
       }
     }, [searchParams, map]);
@@ -74,6 +90,20 @@ const SearchInput = React.memo(
     const performSearch = async (query: string) => {
       if (!map || !query.trim()) return;
 
+      const normalizedQuery = query.trim().toLowerCase();
+      
+      // 🎯 미리 정의된 좌표가 있는지 확인
+      const predefinedCoord = AREA_COORDINATES[normalizedQuery];
+      
+      if (predefinedCoord) {
+        // ✅ 정확한 좌표로 이동
+        map.setCenter({ lat: predefinedCoord.lat, lng: predefinedCoord.lng });
+        map.setZoom(predefinedCoord.zoom);
+        console.log(`Moved to predefined location: ${query} (${predefinedCoord.lat}, ${predefinedCoord.lng})`);
+        return;
+      }
+
+      // 정의되지 않은 지역은 기존 Google Places 검색 사용
       try {
         const google = await loadGoogleMapsAPI();
         const service = new google.maps.places.PlacesService(map);
@@ -292,7 +322,7 @@ export const MapComponent = React.memo(
           minZoom: 5,
           maxZoom: 20,
           disableDefaultUI: true,
-           streetViewControl: false,  
+          streetViewControl: false,  
           gestureHandling: "greedy",
           zoomControl: false,
           styles: MAP_STYLE,
