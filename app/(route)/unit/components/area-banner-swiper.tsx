@@ -17,7 +17,7 @@ interface AreaBannerSwiperProps {
 const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddress }) => {
   const [banners, setBanners] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  console.log(banners)
   useEffect(() => {
     const fetchBanners = async () => {
       if (!unitCity && !unitAddress) {
