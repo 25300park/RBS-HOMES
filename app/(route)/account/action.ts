@@ -118,7 +118,7 @@ export const getUnitSceduleList = async () => {
     const userId = session.user.id;
 
     const units = await prisma.unit.findMany({
-      where: { adminId: userId },
+      where: { adminId: userId, status: 0},
       select: {
         id: true,
         title: true,

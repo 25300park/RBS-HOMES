@@ -20,7 +20,7 @@ export const getUnitListByOwner = async (
   // activeTypes 파라미터만 처리
   const activeTypesArray = searchParams.activeTypes 
     ? searchParams.activeTypes.split(',') 
-    : ["rent"]; // 기본적으로 모든 유형 포함
+    : ["rent", "sale", "presale"]; // 기본적으로 모든 유형 포함
   
   const bath = searchParams.bath ? parseInt(searchParams.bath) : undefined;
   const parking = searchParams.parking

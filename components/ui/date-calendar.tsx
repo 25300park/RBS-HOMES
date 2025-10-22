@@ -232,7 +232,7 @@ const ScheduleDisplay = ({
   });
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-4 md:p-0 ${className}`}>
+    <div className={`bg-white rounded-lg  md:p-0 w-full ${className}`}>
       <h3 className="text-lg font-semibold border-b pb-2 sticky top-0 bg-white">
         {title}
       </h3>
@@ -435,7 +435,7 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
   };
 
   return (
-    <div className="w-full flex space-y-0 gap-6 md:space-y-6 md:block">
+    <div className="w-full flex space-y-0 gap-6 md:space-y-6 flex-col">
       {/* Calendar Side */}
       <div className="flex-1 md:w-full">
         {/* Calendar Header */}
@@ -471,18 +471,18 @@ const DateCalendar: React.FC<DateCalendarProps> = ({
         </button>
       </div>
 
-      <div className="w-80 space-y-6 md:w-full">
+      <div className=" w-full flex md:block md:space-y-10 space-x-6 md:space-x-0">
         <ScheduleDisplay
           schedules={selectedSchedules}
           unitDetails={unitDetails}
           title={selectedDate ? format(selectedDate, "PPP") : "Select a date"}
-          maxHeight="max-h-[300px]"
+          maxHeight=""
         />
         <ScheduleDisplay
           schedules={upcomingSchedules}
           unitDetails={upcomingUnitDetails}
           title="Upcoming (Next 7 Days)"
-          maxHeight="max-h-[400px]"
+          maxHeight=""
           showDate={true}
         />
       </div>

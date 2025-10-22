@@ -20,9 +20,10 @@ import PresaleMainImg from "./presale-main-img";
 
 interface DetailWrapProps {
   property: any;
+  unitId: any;
 }
 
-const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
+const DetailWrap: React.FC<DetailWrapProps> = ({ property, unitId }) => {
   const city = property.address2?.split(",")[0]?.trim();
   const address = property.address3;
   const isPreSale = property.sellType === "presale";
@@ -52,7 +53,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
                 />
               </div>
               <div>
-                <MoreBtn />
+                <MoreBtn unitId={unitId} adminId={property.adminId}/>
               </div>
             </div>
           </div>
@@ -100,7 +101,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property }) => {
               />
             </div>
             <div>
-              <MoreBtn />
+                <MoreBtn unitId={unitId} adminId={property.adminId}/>
             </div>
           </div>
         </div>

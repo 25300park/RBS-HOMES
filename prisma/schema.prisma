@@ -53,6 +53,12 @@ model User {
   loginLog          LoginLog[]
   unitViews         UnitViewLog[]
   SiteVisitorLog    SiteVisitorLog[]
+  sentMessages         Message[]                  @relation("MessageSender")
+  receivedMessages     Message[]                  @relation("MessageRecipient")
+  messageTemplates     MessageTemplate[]          @relation("MessageTemplateCreator")
+  createdGroups        MessageGroup[]             @relation("MessageGroupCreator")
+  messageGroupMembers  MessageGroupMember[]       @relation("MessageGroupMember")
+  notifications        Notification[]             @relation("UserNotifications")
   processedContacts Contact[]        @relation("ProcessedContacts")
   userContacts      Contact[]        @relation("UserContacts")
   processedComplain ComplainUnit[]   @relation("ProcessedComplain")
@@ -256,7 +262,7 @@ model Unit {
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
   favorites Favorite[]
   viewLogs  UnitViewLog[]
-
+  messages Message[]
   @@index([adminId], map: "Unit_adminId_fkey")
   @@map("unit")
 }
@@ -511,4 +517,108 @@ model popups {
   triggerType      Int       @default(0)
   triggerValue     String?
   showFrequency    Int       @default(0)
+}
+
+model MessageTemplate {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  title       String    @db.VarChar(255)
+  content     String    @db.Text
+  type        Int       @default(0)
+  createdBy   Int
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  createdByUser User     @relation("MessageTemplateCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  messages      Message[]
+
+  @@index([type])
+  @@index([createdBy])
+  @@map("messagetemplate")
+}
+
+model MessageGroup {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  createdBy   Int
+  status      Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  creator      User                    @relation("MessageGroupCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members      MessageGroupMember[]
+  messages     Message[]
+
+  @@index([createdBy])
+  @@map("messagegroup")
+}
+
+model MessageGroupMember {
+  id      Int      @id @default(autoincrement())
+  groupId Int
+  userId  Int
+  addedAt DateTime @default(now())
+
+  group       MessageGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User         @relation("MessageGroupMember", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("messagegroupmember")
+}
+
+model Message {
+  id           Int       @id @default(autoincrement())
+  senderId     Int
+  recipientId  Int?
+  groupId      Int?
+  title        String    @db.VarChar(255)
+  content      String    @db.Text
+  type         Int       @default(0)
+  templateId   Int?
+  status       Int       @default(0)
+  sentAt       DateTime  @default(now())
+  readAt       DateTime?
+  attachments  Json?
+  unitId       Int?
+  scheduleId   Int?
+  contactId    Int?
+  priority     Int       @default(0)
+
+  sender       User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient    User?             @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  group        MessageGroup?     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  template     MessageTemplate?  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  unit         Unit?             @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([groupId])
+  @@index([status])
+  @@index([sentAt])
+  @@index([templateId])
+  @@map("message")
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  isRead    Boolean   @default(false)
+  type      Int       @default(0)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  message   Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User      @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notification")
 }

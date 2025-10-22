@@ -171,10 +171,10 @@ const DesktopHeader = ({
           )}
           <div className="flex items-center space-x-4 w-fit gap-2 justify-end">
             <div
-              className="text-sm text-white bg-orange-400 py-2 px-4 rounded-xl hover:bg-orange-500 cursor-pointer"
+              className="text-sm  py-2 px-4 rounded-2xl hover:bg-orange-300 cursor-pointer"
               onClick={() => openModal("contact")}
             >
-              SELL / CONTACT US
+              Contact us
             </div>
             {session === null ? (
               <HeaderGuestProfile />

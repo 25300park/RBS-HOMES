@@ -12,8 +12,39 @@ const formatDecimal = (value: Decimal | null | undefined) => {
     ? Math.floor(Number(value.toString())).toLocaleString()
     : Math.floor(Number(value)).toLocaleString();
 };
+
+// 유닛이 현재 사용자의 소유인지 확인하는 헬퍼 함수
+async function verifyUnitOwnership(unitId: string, userId: string) {
+  const unit = await prisma.unit.findUnique({
+    where: {
+      id: parseInt(unitId),
+    },
+    select: {
+      id: true,
+      adminId: true,
+    },
+  });
+
+  if (!unit) {
+    throw new Error("Unit not found");
+  }
+
+  if (unit.adminId !== parseInt(userId)) {
+    throw new Error("Unauthorized: You do not have permission to access this unit");
+  }
+
+  return true;
+}
+
 export async function getUnitById(unitId: string) {
   try {
+    const session: any = await getServerSession(authOptions as any);
+
+    // 세션 확인
+    if (!session || !session.user?.id) {
+      throw new Error("Unauthorized: Please log in");
+    }
+
     const unit = await prisma.unit.findUnique({
       where: {
         id: parseInt(unitId),
@@ -22,6 +53,11 @@ export async function getUnitById(unitId: string) {
 
     if (!unit) {
       return null;
+    }
+
+    // 권한 검증: 자신의 유닛만 조회 가능
+    if (unit.adminId !== session.user.id) {
+      throw new Error("Unauthorized: You do not have permission to access this unit");
     }
 
     // 데이터 구조 변환
@@ -70,6 +106,17 @@ export async function getUnitById(unitId: string) {
 export async function updateUnit(unitId: string, data: any) {
   try {
     const session: any = await getServerSession(authOptions as any);
+
+    // 세션 확인
+    if (!session || !session.user?.id) {
+      return {
+        success: false,
+        message: "Unauthorized: Please log in",
+      };
+    }
+
+    // 권한 검증: 해당 유닛의 소유자인지 확인
+    await verifyUnitOwnership(unitId, session.user.id);
 
     const transformedData = {
       adminId: session.user.id,
@@ -123,6 +170,68 @@ export async function updateUnit(unitId: string, data: any) {
     };
   } catch (error) {
     console.error("Error updating unit:", error);
-    return { success: false, message: "Update failed", error: String(error) };
+    
+    // 에러 메시지에 따라 적절한 응답 반환
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    if (errorMessage.includes("Unauthorized")) {
+      return {
+        success: false,
+        message: errorMessage,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Update failed",
+      error: errorMessage,
+    };
+  }
+}
+
+// 추가: 유닛 삭제 시에도 권한 검증 적용
+export async function deleteUnit(unitId: string) {
+  try {
+    const session: any = await getServerSession(authOptions as any);
+
+    if (!session || !session.user?.id) {
+      return {
+        success: false,
+        message: "Unauthorized: Please log in",
+      };
+    }
+
+    // 권한 검증
+    await verifyUnitOwnership(unitId, session.user.id);
+
+    await prisma.unit.delete({
+      where: {
+        id: parseInt(unitId),
+      },
+    });
+
+    revalidatePath("/account/unit/my-list");
+
+    return {
+      success: true,
+      message: "Delete successful",
+    };
+  } catch (error) {
+    console.error("Error deleting unit:", error);
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    if (errorMessage.includes("Unauthorized")) {
+      return {
+        success: false,
+        message: errorMessage,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Delete failed",
+      error: errorMessage,
+    };
   }
 }

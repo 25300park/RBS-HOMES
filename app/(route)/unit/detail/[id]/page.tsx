@@ -180,7 +180,7 @@ const UnitDetail = async ({ params }: UnitDetailProps) => {
    return (
      <div className="max-w-[1140px] mx-auto">
        <Suspense fallback={<PropertyLoading />}>
-         <DetailWrap property={unitDetail} />
+         <DetailWrap property={unitDetail} unitId={unitId} />
        </Suspense>
      </div>
    );

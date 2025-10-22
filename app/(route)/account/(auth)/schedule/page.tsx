@@ -6,7 +6,7 @@ export interface ScheduleHomeProps {}
 const ScheduleHome = async  ({}: ScheduleHomeProps) => {
   const { schedules, datesArray } = await getUserSchedules();
   return (
-    <div className="px-4 max-w-[1440px] mx-auto">
+    <div className="px-4 max-w-[1440px] mx-auto mb-12 md:mb-0">
      <DateCalendar markedDates={datesArray} schedules={schedules} fetchUnitDetails={getUnitDetails}/>
     </div>
   );

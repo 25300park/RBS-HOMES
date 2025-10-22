@@ -858,4 +858,10 @@
   padding: 2px 4px;
   border-radius: 4px;
   font-size: 0.9em;
+  
+}
+
+.ql-editor {
+  min-height: 300px; 
+  max-height: 600px; 
 }

@@ -29,10 +29,22 @@ import {
 } from "@/lib/config/unit-options";
 import { useModalStore } from "@/store/use-modal-store";
 import { Textarea } from "@/components/ui/textarea";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
 
 interface EditFormProps {
   unitId: string;
 }
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+const QUILL_MODULES = {
+  toolbar: [
+    ["bold", "italic", "underline"],
+    [{ size: ["small", false, "large", "huge"] }],
+    [{ color: [] }, { background: [] }],
+    [{ list: "ordered" }, { list: "bullet" }],
+  ],
+};
 
 const EditForm = ({ unitId }: EditFormProps) => {
   const router = useRouter();
@@ -264,15 +276,19 @@ const EditForm = ({ unitId }: EditFormProps) => {
           </div>
           {/* Description (Note) Section */}
           <div className="col-span-2">
-            <label className="block text-xs mb-1 font-medium text-zinc-500">
+            <label className="block text-xs mb-2 font-medium text-zinc-700">
               Description
             </label>
-            <Textarea
-              value={unitData.note || ""}
-              onChange={(e) => handleChange("note", e.target.value)}
-              placeholder="Explain the advantages of a unit to the client"
-              className="mb-2 p-2 border w-full h-36 md:h-24"
-            />
+            <div className="border border-gray-300 rounded-lg overflow-hidden h-64 md:h-64">
+              <ReactQuill
+                theme="snow"
+                value={unitData.note || ""}
+                onChange={(value) => handleChange("note", value)}
+                modules={QUILL_MODULES}
+                placeholder="Explain the advantages of this property"
+                className="h-full bg-white"
+              />
+            </div>
           </div>
           {/* Price and Sale Type */}
           <div className="flex gap-4 w-full md:flex-col col-span-1">

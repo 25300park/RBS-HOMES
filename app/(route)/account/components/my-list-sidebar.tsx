@@ -90,7 +90,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
     areaMax: "",
     furniture: "none",
     pet: "none",
-    activeTypes: ["rent", "sale"]
+    activeTypes: ["rent", "sale", "presale"]
   });
 
   const hasMore = loadedUnits.length < filteredUnits.length;
@@ -111,7 +111,7 @@ const MyListSide = ({ type }: MyListSideProps) => {
       areaMax: searchParams.get('areaMax') || "",
       furniture: searchParams.get('furniture') || "none",
       pet: searchParams.get('pet') || "none",
-      activeTypes: searchParams.get('activeTypes')?.split(',') || ["rent", "sale"]
+      activeTypes: searchParams.get('activeTypes')?.split(',') || ["rent", "sale", "presale"]
     };
     setFilters(urlFilters);
   }, [searchParams]);

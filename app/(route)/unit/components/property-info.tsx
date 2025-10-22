@@ -28,7 +28,7 @@ interface PropertyInfoProps {
     address2: string;
     address3: string;
     address4: string;
-    note?: string;
+    note?: any;
     furniture?: string;
     interiored?: string;
     petPolicy?: string;
@@ -99,7 +99,10 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
           {/* 메모 */}
           <div className="border-b border-gray-200 py-8 text-gray-700 space-y-4">
             <h3 className="text-xl font-medium text-gray-800">Description</h3>
-            <p className="text-base">{property.note}</p>
+<div 
+  dangerouslySetInnerHTML={{ __html: property.note }}
+  className="prose prose-sm"
+/>
           </div>
 
           {/* 부동산 주요 정보 */}

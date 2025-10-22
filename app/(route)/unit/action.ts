@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
 
 // DTO 함수 정의
 const unitWithAdminDTO = (unit: any) => ({
@@ -81,7 +81,6 @@ export async function getUnitsWithAdmin(
     priceMin !== undefined || priceMax !== undefined
       ? [
           { price: { gte: priceMin, lte: priceMax } },
-          // { priceRent: { gte: priceMin, lte: priceMax } },
         ]
       : [];
 
@@ -131,11 +130,124 @@ export async function getUnitsWithAdmin(
     total: totalUnits,
   };
 }
+
+/**
+ * IP 주소 추출 헬퍼 함수 (IPv6 처리 개선)
+ */
+const getClientIp = (): string => {
+  const headersList = headers();
+  
+  console.log("Headers received:", {
+    'x-forwarded-for': headersList.get('x-forwarded-for'),
+    'x-real-ip': headersList.get('x-real-ip'),
+    'cf-connecting-ip': headersList.get('cf-connecting-ip'),
+  });
+
+  const cleanIp = (ip: string | null): string => {
+    if (!ip || ip.trim() === '') return 'unknown';
+    
+    ip = ip.trim();
+    
+    // [IPv6]:PORT 형태 처리 (예: [::1]:8080 -> ::1)
+    if (ip.startsWith("[")) {
+      const match = ip.match(/\[(.*?)\]/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    // IPv6 주소 직접 처리 (예: ::1 또는 2001:db8::1)
+    // IPv6은 콜론이 많으므로 콜론이 2개 이상이면 IPv6으로 판단
+    if ((ip.match(/:/g) || []).length >= 2) {
+      // IPv6 형태 그대로 반환
+      return ip;
+    }
+    
+    // IPv4 + 포트 처리 (예: 192.168.1.1:8080 -> 192.168.1.1)
+    const parts = ip.split(":");
+    if (parts.length === 2 && /^\d+$/.test(parts[1])) {
+      return parts[0];
+    }
+    
+    // 기타 경우 그대로 반환
+    return ip;
+  };
+
+  // 1. Cloudflare
+  let ip = headersList.get('cf-connecting-ip');
+  if (ip) {
+    const cleaned = cleanIp(ip);
+    console.log("Using cf-connecting-ip:", cleaned);
+    return cleaned;
+  }
+
+  // 2. x-forwarded-for (프록시)
+  ip = headersList.get('x-forwarded-for');
+  if (ip) {
+    const ips = ip.split(",");
+    const cleaned = cleanIp(ips[0].trim());
+    console.log("Using x-forwarded-for:", cleaned);
+    return cleaned;
+  }
+
+  // 3. x-real-ip (nginx)
+  ip = headersList.get('x-real-ip');
+  if (ip) {
+    const cleaned = cleanIp(ip);
+    console.log("Using x-real-ip:", cleaned);
+    return cleaned;
+  }
+
+  console.log("No IP header found, returning 'unknown'");
+  return 'unknown';
+};
+
+async function recordUnitViewSimple(
+  unitId: number,
+  userId: string | null,
+  ip: string
+) {
+  try {
+    // 1초 이내의 중복 확인 (경쟁 조건 방지)
+    const oneSecondAgo = new Date(Date.now() - 1000);
+    
+    const existingLog = await prisma.unitViewLog.findFirst({
+      where: {
+        unitId,
+        userId: userId ? parseInt(userId) : null,
+        ip: ip,
+        createdAt: {
+          gte: oneSecondAgo,
+        },
+      },
+    });
+
+    if (existingLog) {
+      console.log("Recent view log already exists, skipping:", { unitId, userId, ip });
+      return;
+    }
+
+    // 로그 생성
+    await prisma.unitViewLog.create({
+      data: {
+        unitId,
+        userId: userId ? parseInt(userId) : null,
+        ip: ip,
+      },
+    });
+
+    console.log("View log created:", { unitId, userId, ip });
+  } catch (error) {
+    console.error("Error recording view:", error);
+  }
+}
+
 export const getUnitDetail = async (unitId: number) => {
   try {
-    const headersList = headers();
     const session: any = await getServerSession(authOptions as any);
-    const ip = headersList.get('x-forwarded-for') || 'unknown';
+    const ip = getClientIp();
+
+    console.log("getUnitDetail called:", { unitId, userId: session?.user?.id, ip });
 
     const unitDetail = await prisma.unit.findUnique({
       where: {
@@ -145,14 +257,14 @@ export const getUnitDetail = async (unitId: number) => {
         admin: true,
       },
     });
- 
+
     if (!unitDetail) {
       return {
         error: "Unit not found",
         status: 404,
       };
     }
- 
+
     let isFavorited = false;
     if (session?.user?.id) {
       const favorite = await prisma.favorite.findFirst({
@@ -164,31 +276,22 @@ export const getUnitDetail = async (unitId: number) => {
       isFavorited = !!favorite;
     }
 
-    // 조회 로그 기록
-    try {
-      await prisma.unitViewLog.create({
-        data: {
-          unitId,
-          userId: session?.user?.id ? parseInt(session.user.id) : null,
-          ip,
-        }
-      });
-    } catch (error) {
-      console.error("Error recording view:", error);
-    }
- 
+    // 조회 로그 기록 (비동기 - 페이지 로드 블로킹 안 함)
+    recordUnitViewSimple(unitId, session?.user?.id || null, ip).catch((error) => {
+      console.error("View log error (non-blocking):", error);
+    });
+
     const transformedUnitDetail = {
       ...unitDetail,
       price: unitDetail.price?.toNumber() ?? null,
       outstandingPayment: unitDetail.outstandingPayment?.toNumber() ?? null,
       isFavorited,
     };
- 
-    return { 
+
+    return {
       unitDetail: transformedUnitDetail,
       status: 200,
     };
- 
   } catch (error) {
     console.error("Error fetching unit detail:", error);
     return {
@@ -198,7 +301,6 @@ export const getUnitDetail = async (unitId: number) => {
   }
 };
 
- 
 interface ScheduleRequest {
   name: string;
   email: string;
@@ -213,7 +315,7 @@ interface ScheduleRequest {
 export async function requestSchedule(formData: ScheduleRequest) {
   try {
     const validatedData = reservationSchema.parse(formData);
-    
+
     const scheduleData = {
       unitId: validatedData.unitId,
       userId: validatedData.userId,
@@ -232,28 +334,27 @@ export async function requestSchedule(formData: ScheduleRequest) {
     });
 
     revalidatePath("/account/unit/my-list");
-    
+
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errorMessages = error.errors.map((err) => ({
-        field: err.path.join('.'),
-        message: err.message
+        field: err.path.join("."),
+        message: err.message,
       }));
-      
-      return { 
-        success: false, 
-        error: "Validation failed", 
-        validationErrors: errorMessages 
+
+      return {
+        success: false,
+        error: "Validation failed",
+        validationErrors: errorMessages,
       };
     }
 
-    // Prisma 또는 다른 에러
     console.error("Schedule creation error:", error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: "Failed to create schedule",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -261,139 +362,49 @@ export async function requestSchedule(formData: ScheduleRequest) {
 export const getAreaBanners = async (city?: string, address?: string) => {
   try {
     const whereConditions = [];
-    
-    // 정확한 주소 매칭 (우선순위 높음)
+
     if (address) {
       whereConditions.push({
-        matchType: 'exact_address',
+        matchType: "exact_address",
         matchValue: {
-          contains: address
-        }
+          contains: address,
+        },
       });
     }
-    
-    // 도시 매칭 (우선순위 낮음)
+
     if (city) {
       whereConditions.push({
-        matchType: 'city',
+        matchType: "city",
         matchValue: {
-          contains: city
-        }
+          contains: city,
+        },
       });
     }
-    
-    // 배너가 없으면 빈 배열 반환
+
     if (whereConditions.length === 0) {
       return { banners: [], status: 200 };
     }
-    
-    // 데이터베이스 쿼리
+
     const banners = await prisma.areaBanner.findMany({
       where: {
         isActive: true,
-        OR: whereConditions
+        OR: whereConditions,
       },
       orderBy: {
-        priority: 'asc' // 우선순위 높은 순 (값이 낮을수록 높은 우선순위)
-      }
+        priority: "asc",
+      },
     });
-    
-    return { 
+
+    return {
       banners,
-      status: 200 
+      status: 200,
     };
   } catch (error) {
     console.error("Error fetching area banners:", error);
     return {
       error: "Failed to fetch area banners",
       status: 500,
-      banners: []
+      banners: [],
     };
   }
 };
-
-// 쿠키사용
-// export const getUnitDetail = async (unitId: number) => {
-//   try {
-//     const headersList = headers();
-//     const cookieStore = cookies();
-//     const session: any = await getServerSession(authOptions as any);
-//     const ip = headersList.get('x-forwarded-for') || 'unknown';
-//     // 유닛 정보 조회
-//     const unitDetail = await prisma.unit.findUnique({
-//       where: {
-//         id: unitId,
-//       },
-//       include: {
-//         admin: true,
-//       },
-//     });
- 
-//     // 유닛이 없을 경우
-//     if (!unitDetail) {
-//       return {
-//         error: "Unit not found",
-//         status: 404,
-//       };
-//     }
- 
-//     // 로그인된 경우 즐겨찾기 상태 확인
-//     let isFavorited = false;
-//     if (session?.user?.id) {
-//       const favorite = await prisma.favorite.findFirst({
-//         where: {
-//           unitId,
-//           userId: parseInt(session.user.id),
-//         },
-//       });
-//       isFavorited = !!favorite;
-//     }
-
-//     // 조회 로그 기록 (별도 처리)
-//     try {
-//       const viewKey = `unit_view_${unitId}`;
-//       const lastView = cookieStore.get(viewKey);
-
-//       // 마지막 조회로부터 30분이 지났거나, 조회 기록이 없는 경우에만 기록
-//       if (!lastView || Date.now() - new Date(lastView.value).getTime() > 30 * 60 * 1000) {
-//         // 조회 로그 생성
-//         await prisma.unitViewLog.create({
-//           data: {
-//             unitId,
-//             userId: session?.user?.id ? parseInt(session.user.id) : null,
-//             ip,
-//           }
-//         });
-
-//         // 쿠키 설정 (30분 유효)
-//         cookieStore.set(viewKey, new Date().toISOString(), {
-//           expires: new Date(Date.now() + 30 * 60 * 1000),
-//           httpOnly: true
-//         });
-//       }
-//     } catch (error) {
-//       console.error("Error recording view:", error);
-//       // 조회 로그 기록 실패해도 계속 진행
-//     }
- 
-//     // 데이터 정제
-//     const transformedUnitDetail = {
-//       ...unitDetail,
-//       price: unitDetail.price?.toNumber() ?? null,
-//       outstandingPayment: unitDetail.outstandingPayment?.toNumber() ?? null,
-//       isFavorited,
-//     };
- 
-//     return { 
-//       unitDetail: transformedUnitDetail,
-//       status: 200,
-//     };
- 
-//   } catch (error) {
-//     console.error("Error fetching unit detail:", error);
-//     return {
-//       error: "Failed to fetch unit details",
-//       status: 500,
-//     };
-//   }
-// };
