@@ -258,6 +258,17 @@ model Unit {
   /// 전체 조회수
   viewCount          Int      @default(0)
 
+  /// 프로젝트 제목 (프리세일용)
+  projectTitle       String?  @db.VarChar(500)
+  /// 에디터 콘텐츠 (프리세일용 - HTML 형태의 상세 설명)
+  editorContent      String?  @db.Text
+  /// 프로젝트 동영상들 (프리세일용 - JSON 배열)
+  videos             Json?
+  videoDescriptionContent String?   @db.Text  
+  carouselImagesContent  String?   @db.Text 
+  /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
+  attachments        Json?
+
   // 관계 추가
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
   favorites Favorite[]
@@ -496,28 +507,59 @@ model ComplainUnit {
 }
 
 
-model popups {
-  id               Int       @id @default(autoincrement())
-  title            String    @db.VarChar(255)
-  content          String?   @db.Text
-  startDate        DateTime?
-  endDate          DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime
-  createdByUserId  Int
-  useOverlay       Boolean   @default(true)
-  isActive         Boolean   @default(true)
-  priority         Int       @default(10)
-  targetAudience   String?   @default("all")
+model Popup {
+  /// 고유 아이디
+  id            Int       @id @default(autoincrement())
+  /// 팝업 제목
+  title         String    @db.VarChar(255)
+  /// 팝업 내용
+  content       String?   @db.Text
+  
+  /// 시작일
+  startDate     DateTime?
+  /// 종료일
+  endDate       DateTime?
+  
+  /// 등록일
+  createdAt     DateTime  @default(now())
+  /// 마지막 업데이트 시간
+  updatedAt     DateTime  @updatedAt
+  /// 등록한 유저 아이디
+  createdByUserId Int
+  
+  /// 오버레이 사용 여부
+  useOverlay    Boolean   @default(true)
+  /// 활성화 상태
+  isActive      Boolean   @default(true)
+  /// 우선순위
+  priority      Int       @default(10)
+  
+  /// 타겟 대상
+  targetAudience String?  @default("all")
+  /// 타겟 조건 (JSON)
   targetConditions Json?
-  buttonText       String?   @db.VarChar(100)
-  buttonAction     String?   @db.VarChar(255)
-  images           String?   @db.Text
-  popupType        Int       @default(0)
-  triggerType      Int       @default(0)
-  triggerValue     String?
-  showFrequency    Int       @default(0)
+  
+  /// 버튼 텍스트
+  buttonText    String?   @db.VarChar(100)
+  /// 버튼 액션 (URL 또는 액션)
+  buttonAction  String?   @db.VarChar(255)
+  
+  /// 이미지 정보 (JSON)
+  images        String?   @db.Text
+  
+  /// 팝업 타입 (0: modal, 1: banner, 2: notification, 3: fullscreen)
+  popupType     Int       @default(0)
+  /// 트리거 타입 (0: page_load, 1: time_delay, 2: scroll, 3: exit_intent)
+  triggerType   Int       @default(0)
+  /// 트리거 값
+  triggerValue  String?
+  
+  /// 표시 빈도 (0: always, 1: once, 2: daily)
+  showFrequency Int       @default(0)
+
+  @@map("popups")
 }
+
 
 model MessageTemplate {
   id          Int       @id @default(autoincrement())

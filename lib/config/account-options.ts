@@ -1,4 +1,4 @@
-import { LuSettings, LuBell, LuHome, LuHeart, LuLayoutDashboard, LuClipboard, LuUserCircle, LuCalendarCheck } from "react-icons/lu";
+import { LuSettings, LuBell, LuHome, LuHeart, LuLayoutDashboard, LuClipboard, LuUserCircle, LuCalendarCheck, LuMessageCircle } from "react-icons/lu";
 
 export const accountSideBarOption = [
   {
@@ -24,6 +24,12 @@ export const accountSideBarOption = [
         link: "/account/management?tabs=EditInformation",
         icon: LuUserCircle,
         isTab: true,
+      },
+      {
+        name: "Message List",
+        description: "Check your Message List",
+        link: "/account/messages",
+        icon: LuMessageCircle,
       },
     ],
   },

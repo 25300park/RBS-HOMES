@@ -31,6 +31,10 @@ const BREADCRUMB_MAP: BreadcrumbMap = {
    label: "My List",
    show: true,
  },
+ messages : {
+   label: "Message List",
+   show: true,
+ },
  favorites: {
    label: "Favorites",
    show: true,

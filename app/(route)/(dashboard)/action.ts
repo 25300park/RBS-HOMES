@@ -50,7 +50,7 @@ export async function getActivePopups() {
   try {
     const now = new Date();
     
-    const popups = await prisma.popups.findMany({
+    const popups = await prisma.popup.findMany({
       where: {
         isActive: true,
         OR: [

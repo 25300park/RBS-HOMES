@@ -4,9 +4,10 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { subDays } from "date-fns";
 
 /**
- * 수신 메시지 목록 조회
+ * 수신 메시지 목록 조회 (읽음/미읽음 상태 포함, 30일 필터링)
  */
 export async function getReceivedMessages(page: number = 1, limit: number = 20) {
   try {
@@ -17,6 +18,7 @@ export async function getReceivedMessages(page: number = 1, limit: number = 20) 
     }
 
     const userId = parseInt(session.user.id);
+    const thirtyDaysAgo = subDays(new Date(), 30);
 
     const [messages, total] = await Promise.all([
       prisma.message.findMany({
@@ -32,6 +34,7 @@ export async function getReceivedMessages(page: number = 1, limit: number = 20) 
             },
           ],
           status: { not: 2 }, // 삭제되지 않은 메시지
+          sentAt: { gte: thirtyDaysAgo }, // 30일 이내
         },
         include: {
           sender: {
@@ -47,6 +50,16 @@ export async function getReceivedMessages(page: number = 1, limit: number = 20) 
               id: true,
               name: true,
             },
+          },
+          // 현재 사용자의 읽음 상태 조회
+          notifications: {
+            where: { userId },
+            select: {
+              id: true,
+              isRead: true,
+              readAt: true,
+            },
+            take: 1,
           },
         },
         orderBy: { sentAt: 'desc' },
@@ -66,11 +79,23 @@ export async function getReceivedMessages(page: number = 1, limit: number = 20) 
             },
           ],
           status: { not: 2 },
+          sentAt: { gte: thirtyDaysAgo },
         },
       }),
     ]);
 
-    return { success: true, messages, total };
+    // 메시지에 사용자 개인의 읽음 상태 추가
+    const messagesWithReadStatus = messages.map((msg: any) => {
+      const notification = msg.notifications?.[0];
+      return {
+        ...msg,
+        isReadByUser: notification?.isRead ?? false,
+        userReadAt: notification?.readAt ?? null,
+        notifications: undefined, // 불필요한 필드 제거
+      };
+    });
+
+    return { success: true, messages: messagesWithReadStatus, total };
   } catch (error) {
     console.error("Error fetching messages:", error);
     return { success: false, error: String(error) };
@@ -166,7 +191,7 @@ export async function markMessageAsRead(messageId: number) {
       },
     });
 
-    revalidatePath("/messages");
+    revalidatePath("/account/messages");
 
     return { success: true, message };
   } catch (error) {
@@ -176,30 +201,6 @@ export async function markMessageAsRead(messageId: number) {
 }
 
 // ==================== 알림 관련 ====================
-
-/**
- * 미읽음 알림 개수 조회
- */
-export async function getUnreadNotificationCount() {
-  try {
-    const session: any = await getServerSession(authOptions as any);
-
-    if (!session?.user?.id) {
-      return { success: false, count: 0, error: "Unauthorized" };
-    }
-
-    const userId = parseInt(session.user.id);
-
-    const count = await prisma.notification.count({
-      where: { userId, isRead: false },
-    });
-
-    return { success: true, count };
-  } catch (error) {
-    console.error("Error fetching unread count:", error);
-    return { success: false, count: 0, error: String(error) };
-  }
-}
 
 /**
  * 사용자 알림 조회
@@ -282,7 +283,8 @@ export async function markNotificationAsRead(notificationId: number) {
         readAt: new Date(),
       },
     });
-
+   revalidatePath("/account/messages");
+   revalidatePath("/");
     return { success: true, notification };
   } catch (error) {
     console.error("Error marking notification as read:", error);
@@ -310,7 +312,7 @@ export async function markAllNotificationsAsRead() {
         readAt: new Date(),
       },
     });
-
+   revalidatePath("/account/messages");
     return { success: true, updated: result.count };
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
