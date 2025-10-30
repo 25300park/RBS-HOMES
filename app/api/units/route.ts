@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/auth";
 // 기본값 상수 정의
 const DEFAULT_ACTIVE_TYPES = ["rent"];
 const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
-const DEFAULT_STATUS = [0, 1, 3]; 
+const DEFAULT_STATUS = [0, 3]; 
 
 type SortOption = "latest" | "oldest" | "priceAsc" | "priceDesc";
 

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import HeroSection from "./components/hero";
 import YouTubeSection from "./components/youtube-section";
 import FeaturedPropertiesSection from "./components/featured-properties-section";
+import GoogleReviews from "./components/google-reviews";
 
 export default async function DashBoard({
   searchParams,

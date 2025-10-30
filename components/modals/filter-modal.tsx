@@ -273,7 +273,7 @@ const FilterModal = ({ onClose, modalProps }: FilterModalProps) => {
           </div>
         )} */}
 
-        <section className="max-h-[800px] overflow-scroll px-2 hide-scroll">
+        <section className="max-h-[calc(100vh-300px)] overflow-scroll px-2 hide-scroll">
           {/* Property Type Selection */}
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
