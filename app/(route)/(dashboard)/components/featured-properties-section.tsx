@@ -77,11 +77,11 @@ const AREA_DESCRIPTIONS = {
 
 // 지역별 검색 링크 매핑
 const AREA_SEARCH_LINKS = {
-  bonifacio: "/map?search=Bonifacio",
-  makati: "/map?search=Makati",
+  bonifacio: "/map",
+  makati: "/map",
   // mandaluyong: "/map?search=Mandaluyong",
   // muntinlupa: "/map?search=Muntinlupa",
-  pasay: "/map?search=Pasay",
+  pasay: "/map",
   // quezon: "/map?search=Quezon",
   // paranaque: "/map?search=Paranaque",
   recent: "/map"

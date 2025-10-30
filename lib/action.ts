@@ -725,3 +725,25 @@ export async function sendComplainForm(formData: FormData) {
     };
   }
 }
+
+
+export async function getGoogleReviews(): Promise<any> {
+  try {
+    // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = 'http://localhost:3000';
+    // 
+    const response = await fetch(`${baseUrl}/api/google-reviews`, {
+      next: { revalidate: 86400 }, // 24시간 캐싱
+    });
+
+    if (!response.ok) {
+      throw new Error(`API 에러: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('리뷰 조회 에러:', error);
+    return null;
+  }
+}
