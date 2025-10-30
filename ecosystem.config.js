@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "front",
+      name: "front-rbs",
       script: "./server.js",
       env: {
         NODE_ENV: "production",
