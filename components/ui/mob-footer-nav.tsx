@@ -19,7 +19,7 @@ const MobileFooterNav = ({}: MobileFooterNavProps): React.ReactElement | null =>
   const pathname = usePathname();
   const { openModal } = useModalStore();
   const router = useRouter();
-  const hiddenPaths = ["/unit/detail"];
+  const hiddenPaths = ["/unit/detail", "/properties"];
   const shouldRenderFooter = !hiddenPaths.some(path => pathname.startsWith(path));
 
   const FooterNavList = [

@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteUnit } from "../(auth)/unit/my-list/action";
 import { useToast } from "@/hooks/use-toast";
+import { generatePropertySlug } from "@/lib/utils";
+
 
 const TRANSITION_DURATION = 400;
 const SWIPE_COOLDOWN = 700;
@@ -32,7 +34,7 @@ interface Unit {
   images: string[];
   bed: number;
   bath: number;
-  fullAdress: string;
+  fullAddress: string;
 }
 
 interface MyListMobSideBarProps {
@@ -222,11 +224,12 @@ const MyListMobSideBar = React.memo(({ type }: MyListMobSideBarProps) => {
   }, [sheetPosition, page, visibleUnits, sortUnits, startLoading, stopLoading]);
 
   const handleUnitClick = useCallback(
-    (unitId: number) => {
-      router.push("/unit/detail/" + unitId);
-    },
-    [router]
-  );
+  (unit: Unit) => {
+    const slug = generatePropertySlug(unit)
+    router.push(`/properties/${slug}`);
+  },
+  [router]
+);
 
   const { lastElementRef } = useObserver(loadMoreUnits, hasMore, isLoading);
 
@@ -286,12 +289,12 @@ const MyListMobSideBar = React.memo(({ type }: MyListMobSideBarProps) => {
           ref={index === 0 ? firstCardRef : undefined}
           onMouseEnter={() => setHoverUnitId(unit.id)}
           onMouseLeave={() => setHoverUnitId(null)}
-          onClick={() => handleUnitClick(unit.id)}
+          onClick={() => handleUnitClick(unit)}
           title={unit.title}
           price={Number(unit.price)}
           sellType={unit.sellType}
           area={unit.area}
-          location={`${unit.fullAdress}`}
+          location={`${unit.fullAddress}`}
           imageUrl={unit.images[0]}
           postedDate="2 days ago"
           isVip={true}

@@ -57,7 +57,7 @@ const AreaBannerSwiper: React.FC<AreaBannerSwiperProps> = ({ unitCity, unitAddre
           try {
             // 문자열인 경우 파싱
             images = typeof banner.images === 'string' 
-              ? JSON.parse(banner.images) 
+              ? (Array.isArray(banner.images) ? banner.images : JSON.parse(banner.images)) 
               : banner.images;
           } catch (e) {
             console.error("Error parsing images:", e);

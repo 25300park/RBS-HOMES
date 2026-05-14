@@ -1,3 +1,14 @@
+-- ============================================
+-- Migration: 20240911010108
+-- 작업내용: Account 테이블 컬럼명 변경
+--   - accessToken → access_token
+--   - expiresAt   → expires_at
+--   - idToken     → id_token
+--   - tokenType   → token_type
+--   (camelCase → snake_case 통일)
+-- 작성일: 2024-09-11
+-- ============================================
+
 /*
   Warnings:
 

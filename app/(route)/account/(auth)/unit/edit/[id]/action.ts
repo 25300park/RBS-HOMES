@@ -82,14 +82,14 @@ export async function getUnitById(unitId: string) {
       furniture: unit.furniture,
       interiored: unit.interiored,
       petPolicy: unit.petPolicy,
-      amenity: JSON.parse(unit.amenity || "[]"),
+      amenity: unit.amenity ?? [],
       yearCompletion: unit.yearCompletion,
       outstandingPayment: formatDecimal(unit.outstandingPayment),
       price: formatDecimal(unit.price),
       note: unit.note,
       images:
         typeof unit.images === "string"
-          ? JSON.parse(unit.images)
+          ? (Array.isArray(unit.images) ? unit.images : JSON.parse(unit.images))
           : unit.images || [],
       latitude: unit.latitude,
       longitude: unit.longitude,
@@ -123,7 +123,7 @@ export async function updateUnit(unitId: string, data: any) {
       title: data.title,
       type: data.unitType,
       sellType: data.saleType,
-      fullAdress: data.fullAddress,
+      fullAddress: data.fullAddress,
       address1: parseInt(data.address1),
       address2: data.address2,
       address3: data.address3,
@@ -140,7 +140,7 @@ export async function updateUnit(unitId: string, data: any) {
       furniture: data.furniture,
       interiored: data.interiored,
       petPolicy: data.petPolicy,
-      amenity: JSON.stringify(data.amenity),
+      amenity: data.amenity,
       yearCompletion: data.yearCompletion,
       outstandingPayment: data.outstandingPayment
         ? new Decimal(data.outstandingPayment.replace(/,/g, ""))

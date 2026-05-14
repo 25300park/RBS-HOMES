@@ -1,3 +1,18 @@
+-- ============================================
+-- Migration: 20250826071318
+-- 작업내용: 주요 테이블 추가 및 구조 개선
+--   - featuredunit    : 추천 매물 테이블 추가
+--   - passwordresetlog: 비밀번호 재설정 로그 추가
+--   - unitviewlog     : 매물 조회 로그 추가
+--   - sitevisitorlog  : 사이트 방문 로그 추가
+--   - areabanner      : 지역 배너 테이블 추가
+--   - contact         : 문의 테이블 추가
+--   - complainunit    : 신고 테이블 추가
+--   - popups          : 팝업 테이블 추가
+--   - unit.images     : VarChar → Json 타입 변경
+--   - user            : canPreSale, memo 필드 추가
+-- 작성일: 2025-08-26
+-- ============================================
 /*
   Warnings:
 

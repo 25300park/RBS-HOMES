@@ -19,7 +19,7 @@ const FavoriteList = ({ data }: FavoriteListProps): React.ReactNode => {
           title={unit.title}
           price={unit.price}
           area={unit.area}
-          location={unit.fullAdress}
+          location={unit.fullAddress}
           imageUrl={unit.images ? unit.images[0] : ""}
           postedDate={unit.postedDate}
           bed={unit.bed}
@@ -27,7 +27,7 @@ const FavoriteList = ({ data }: FavoriteListProps): React.ReactNode => {
           sellType={unit.sellType}
           isUrgent={false}
           isFavorited={unit.isFavorited}
-          onClick={() => handleUnitClick(unit.id)}
+          onClick={() => handleUnitClick(unit)}
         />
       ))}
     </div>

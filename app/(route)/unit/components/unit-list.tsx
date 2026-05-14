@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/spinner";
 import { useObserver } from "@/hooks/use-observer";
 import { useLoading } from "@/hooks/use-loading";
 import UnitCard from "./unit-card";
+import { generatePropertySlug } from "@/lib/utils";
 
 interface Unit {
   id: number;
@@ -110,7 +111,7 @@ const UnitList = () => {
           <div
             key={unit.id}
             ref={units.length === index + 1 ? lastElementRef : null}
-            onClick={() => router.push(`/unit/detail/${unit.id}`)}
+            onClick={() => router.push(`/properties/${generatePropertySlug(unit)}`)}
           >
             <UnitCard unit={unit} />
           </div>

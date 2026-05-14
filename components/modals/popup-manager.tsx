@@ -228,7 +228,7 @@ const PopupManager: React.FC<PopupManagerProps> = ({
   const parseImages = (imagesJson: string | null): string[] => {
     if (!imagesJson) return [];
     try {
-      const images = JSON.parse(imagesJson);
+      const images = Array.isArray(imagesJson) ? imagesJson : JSON.parse(imagesJson);
       return Array.isArray(images) ? images.map(img => img.url || img) : [];
     } catch (e) {
       return [];

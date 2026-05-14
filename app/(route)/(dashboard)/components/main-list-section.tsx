@@ -25,7 +25,7 @@ interface Unit {
   sellType: string;
   bed: number;
   bath: number;
-  fullAdress: string;
+  fullAddress: string;
   isFavorited: boolean;
 }
 
@@ -362,8 +362,8 @@ const MainList: React.FC = () => {
                     title={unit.title}
                     price={unit.price}
                     area={unit.area}
-                    location={unit.fullAdress}
-                    imageUrl={unit.images ? JSON.parse(unit.images)[0] : ""}
+                    location={unit.fullAddress}
+                    imageUrl={unit.images ? (Array.isArray(unit.images) ? unit.images[0] : JSON.parse(unit.images)[0]) : ""}
                     postedDate={unit.postedDate}
                     bed={unit.bed}
                     bath={unit.bath}
@@ -371,7 +371,7 @@ const MainList: React.FC = () => {
                     isUrgent={unit.isUrgent}
                     isFavorited={unit.isFavorited}
                     featured={unit.featured}
-                    onClick={() => handleUnitClick(unit.id)}
+                    onClick={() => handleUnitClick(unit)}
                   />
                 );
               } else if (item.type === 'ad') {

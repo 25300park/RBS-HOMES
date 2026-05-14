@@ -26,6 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { deleteSchedule, updateSchedule } from "@/app/(route)/account/action";
 import { ConfirmDialog } from "./confirm-dialog";
+import { generatePropertySlug } from "@/lib/utils";
 
 interface Schedule {
   id: number;
@@ -99,7 +100,20 @@ const ScheduleCard = ({
 
   const handleUnitClick = (e: React.MouseEvent, unitId: number) => {
     e.stopPropagation();
-    const url = `/unit/detail/${unitId}`;
+
+    // unitDetail prop에서 unit 정보 가져오기
+    const slug = unitDetail
+      ? generatePropertySlug({
+          id: unitId,
+          sellType: unitDetail.data?.sellType,
+          type: unitDetail.data?.type,
+          address2: unitDetail.data?.address2,
+          title: unitDetail.data?.title,
+        })
+      : `id${unitId}` // unitDetail 없을 경우 ID만 사용
+
+    const url = `/properties/${slug}`
+
     if (window.innerWidth > 768) {
       window.open(url, "_blank");
     } else {
@@ -185,7 +199,7 @@ const ScheduleCard = ({
         >
           <div className="flex gap-3">
             <img
-              src={JSON.parse(unitDetail.data.images)[0]}
+              src={Array.isArray(unitDetail.data.images) ? unitDetail.data.images[0] : JSON.parse(unitDetail.data.images)[0]}
               alt="Unit"
               className="w-20 h-20 object-cover rounded-md"
             />
@@ -194,7 +208,7 @@ const ScheduleCard = ({
                 {unitDetail.data.title}
               </h4>
               <p className="text-sm text-gray-600 mt-1 truncate">
-                {unitDetail.data.fullAdress}
+                {unitDetail.data.fullAddress}
               </p>
               <p className="text-sm font-medium text-orange-600 mt-1">
                 {formatPrice(unitDetail.data.price)}

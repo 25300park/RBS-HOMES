@@ -10,6 +10,8 @@ import { LodaingUi } from "@/components/ui/loading-ui";
 import { IoIosArrowDown } from "react-icons/io";
 import { Map } from "lucide-react";
 import FilterButton from "@/components/ui/filter-btn-mobile";
+import { generatePropertySlug } from "@/lib/utils";
+
 
 const TRANSITION_DURATION = 400;
 const SWIPE_COOLDOWN = 700;
@@ -208,8 +210,9 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
   }, [sheetPosition, page, visibleUnits, sortUnits, startLoading, stopLoading]);
 
   const handleUnitClick = useCallback(
-    (unitId: number) => {
-      router.push("/unit/detail/" + unitId);
+    (unit: Unit) => {
+      const slug = generatePropertySlug(unit)
+      router.push(`/properties/${slug}`);
     },
     [router]
   );
@@ -296,7 +299,7 @@ const MobileMapSideBar = React.memo(({ type }: MobileMapSideBarProps) => {
                   key={`${unit.id}-${unit.title}`}
                   onMouseEnter={() => setHoverUnitId(unit.id)}
                   onMouseLeave={() => setHoverUnitId(null)}
-                  onClick={() => handleUnitClick(unit.id)}
+                  onClick={() => handleUnitClick(unit)}
                   title={unit.title}
                   price={Number(unit.price)}
                   sellType={unit.sellType}

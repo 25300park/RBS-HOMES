@@ -107,7 +107,7 @@ export const getUnitDetails = async (unitId: number) => {
   }
 };
 
-export const getUnitSceduleList = async () => {
+export const getUnitShceduleList = async () => {
   try {
     const session: any = await getServerSession(authOptions as any);
 
@@ -130,7 +130,8 @@ export const getUnitSceduleList = async () => {
     const data = units.map((unit: any) => ({
       ...unit,
       price: unit.price ? parseFloat(unit.price.toString()) : null,
-      images: unit.images ? JSON.parse(unit.images) : [],
+      // ✅ 변경: Prisma Json 타입은 이미 파싱됨 → JSON.parse 불필요
+      images: unit.images ?? [],
     }));
     return { data };
   } catch (error) {
@@ -174,8 +175,9 @@ export const addSchedule = async (scheduleData: any) => {
       data: {
         userId,
         email: user.email,
-        username: user.username,
-        mobile: user.mobile,
+        // ✅ 변경: session에 없는 필드 제거
+        // username: user.username,  ← 삭제 (session에 없음)
+        // mobile: user.mobile,      ← 삭제 (session에 없음)
         title: validationResult.data.title,
         desc: validationResult.data.desc,
         date,
@@ -231,15 +233,14 @@ export const getFavoriteList = async () => {
 
     const data = units.map((unit: any) => ({
       ...unit,
-      price: unit.price
-        ? parseFloat(unit.price.toString())
-        : null,
+      price: unit.price ? parseFloat(unit.price.toString()) : null,
       outstandingPayment: unit.outstandingPayment
         ? parseFloat(unit.outstandingPayment.toString())
         : null,
-      images: unit.images ? JSON.parse(unit.images) : [],
-      isFavorited: true, // 이미 즐겨찾기된 유닛들만 가져왔으므로 true
-      favorites: undefined // favorites 필드 제거
+      // ✅ 변경: JSON.parse 제거
+      images: unit.images ?? [],
+      isFavorited: true,
+      favorites: undefined,
     }));
 
     revalidatePath('/account/unit/favorites');

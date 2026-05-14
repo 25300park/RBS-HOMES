@@ -13,6 +13,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteUnit } from "../(auth)/unit/my-list/action";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { generatePropertySlug } from "@/lib/utils";
 
 // 유닛 상태 enum 정의
 enum UnitStatus {
@@ -35,7 +36,7 @@ interface Unit {
   bed: number;
   bath: number;
   status: UnitStatus;
-  fullAdress: string;
+  fullAddress: string;
   type: string;
   furniture: string;
   petPolicy: string;
@@ -273,11 +274,14 @@ const MyListSide = ({ type }: MyListSideProps) => {
     }, 500);
   };
 
-  const handleUnitClick = (unitId: number) => {
+  // ✅ 교체
+  const handleUnitClick = (unit: Unit) => {
+    const slug = generatePropertySlug(unit)
+    const url = `/properties/${slug}`
     if (isMobile) {
-      router.push("/unit/detail/" + unitId);
+      router.push(url);
     } else {
-      window.open("/unit/detail/" + unitId, "_blank");
+      window.open(url, "_blank");
     }
   };
 
@@ -493,12 +497,12 @@ const MyListSide = ({ type }: MyListSideProps) => {
                   <SideUnitCard
                     onMouseEnter={() => setHoverUnitId(unit.id)}
                     onMouseLeave={() => setHoverUnitId(null)}
-                    onClick={() => handleUnitClick(unit.id)}
+                    onClick={() => handleUnitClick(unit)}
                     title={unit.title}
                     price={Number(unit.price)}
                     sellType={unit.sellType}
                     area={unit.area}
-                    location={`${unit.fullAdress}`}
+                    location={`${unit.fullAddress}`}
                     imageUrl={unit.images[0]}
                     postedDate={"2 days ago"}
                     isVip={true}

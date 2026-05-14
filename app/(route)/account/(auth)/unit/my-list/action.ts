@@ -96,8 +96,8 @@ export const getUnitListByOwner = async (
       ? parseFloat(unit.outstandingPayment.toString())
       : null,
     price: unit.price ? parseFloat(unit.price.toString()) : null,
-    amenity: unit.amenity ? JSON.parse(unit.amenity) : [],
-    images: unit.images ? JSON.parse(unit.images) : [],
+    amenity: unit.amenity ?? [],
+    images: unit.images ? (Array.isArray(unit.images) ? unit.images : JSON.parse(unit.images)) : [],
   }));
   return units;
 };

@@ -13,6 +13,8 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { LodaingUi } from "@/components/ui/loading-ui";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { getFeaturedUnits } from "../../(dashboard)/action";
+import { generatePropertySlug } from "@/lib/utils";
+
 
 export interface MapSideBarProps {
  type?: "rent" | "sale";
@@ -77,19 +79,21 @@ const MapSideBar = ({ type }: MapSideBarProps) => {
    setPage(2);
  }, [visibleUnits, sortOrder]);
 
- const handleUnitClick = (unitId: number) => {
-   if (isMobile) {
-     router.push("/unit/detail/" + unitId);
-   } else {
-     window.open("/unit/detail/" + unitId, "_blank");
-   }
+ const handleUnitClick = (unit: any) => {
+  const slug = generatePropertySlug(unit)
+  const url = `/properties/${slug}`
+  if (isMobile) {
+    router.push(url);
+  } else {
+    window.open(url, "_blank");
+  }
  };
 
  const renderUnitCard = (card: any, index: number, isFeatured: boolean = false) => (
    <SideUnitCard
      onMouseEnter={() => setHoverUnitId(card.id)}
      onMouseLeave={() => setHoverUnitId(null)}
-     onClick={() => handleUnitClick(card.id)}
+     onClick={() => handleUnitClick(card)}
      key={isFeatured ? `featured-${card.id}` : index}
      title={card.title}
      price={Number(card.price)}

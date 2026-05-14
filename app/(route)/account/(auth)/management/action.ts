@@ -7,7 +7,7 @@ import z from "zod";
 import { revalidatePath } from "next/cache";
 import { FormState } from "@/types/schema";
 import { EditPasswordSchema } from "@/types/schema";
-import { hash } from "bcrypt";
+import bcrypt, { hash } from "bcryptjs";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Full name is required").max(100),
@@ -88,8 +88,10 @@ export const editPassword = async (
   if (!session || !session.user?.id) {
     throw new Error("User not authenticated");
   }
+
   try {
     const userId = session.user.id;
+
     const validatedFields = EditPasswordSchema.safeParse({
       prevPassword: formData.get("prevPassword"),
       newPassword: formData.get("newPassword"),
@@ -101,29 +103,36 @@ export const editPassword = async (
         errors: validatedFields.error.flatten().fieldErrors,
       };
     }
+
     const { prevPassword, newPassword } = validatedFields.data;
 
     const findUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
     });
 
-    // 이전 비밀번호 체크
-    if (findUser?.passwordOrigin !== prevPassword) {
+    if (!findUser || !findUser.password) {
+      return { status: 404, message: "User not found." };
+    }
+
+    // ✅ 변경1: passwordOrigin 평문 비교 → bcrypt.compare 해시 비교
+    const isPrevPasswordValid = await bcrypt.compare(
+      prevPassword,
+      findUser.password
+    );
+
+    if (!isPrevPasswordValid) {
       return { status: 400, message: "Your existing password does not match." };
     }
 
-    // 새 비밀번호로 업데이트
+    // ✅ 변경2: 새 비밀번호 해시화
     const hashedPassword = await hash(newPassword, 10);
 
     await prisma.user.update({
-      where: {
-        id: findUser.id,
-      },
+      where: { id: findUser.id },
       data: {
         password: hashedPassword,
-        passwordOrigin: newPassword,
+        // ✅ 변경3: passwordOrigin 저장 제거
+        lastUpdate: new Date(),
       },
     });
 

@@ -60,7 +60,7 @@ const baseUrl = 'https://rbs-homes.com';
 
    // 이미지 안전한 처리
    const images = Array.isArray(unitDetail.images) ? unitDetail.images : [];
-   const firstImageUrl = images[0] || '/assets/images/cities/BGC.png';
+   const firstImageUrl = String(images[0] || '/assets/images/cities/BGC.png');
 
    // 날짜 안전한 처리
    const publishedTime = unitDetail?.regdate ? String(unitDetail.regdate) : new Date().toISOString();
@@ -73,7 +73,7 @@ const baseUrl = 'https://rbs-homes.com';
        title,
        description,
        type: 'article',
-       images: [],
+       images: [{ url: firstImageUrl, width: 1200, height: 630, alt: title }],
        publishedTime,
        modifiedTime,
        siteName: 'MR Homes Philippines',
@@ -83,7 +83,7 @@ const baseUrl = 'https://rbs-homes.com';
        card: 'summary_large_image',
        title,
        description,
-       images: [],
+       images: [firstImageUrl],
      },
      alternates: {
        canonical: `https://rbs-homes/unit/detail/${unitId}`,

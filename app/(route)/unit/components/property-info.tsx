@@ -208,7 +208,7 @@ const PropertyInfo: React.FC<PropertyInfoProps> = ({ property }) => {
           <div className="py-12 space-y-4">
             <h3 className="text-xl font-medium text-gray-800">Amenity List</h3>
             <div className="grid grid-cols-2 gap-6">
-              {JSON.parse(property.amenity).map((amenity: any) => {
+              {(Array.isArray(property.amenity) ? property.amenity : []).map((amenity: any) => {
                 const amenityData = amenitiesData.find(
                   (item) => item.label === amenity
                 );

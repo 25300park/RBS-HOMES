@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -10,8 +10,20 @@ const nextConfig = {
         protocol: "https",
         hostname: "mrhomes2024.s3.ap-southeast-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.rbs-homes.com",
+      },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/unit/detail/:id',
+        destination: '/properties/id:id',
+        permanent: true,
+      },
+    ]
+  },
 };
-
 export default nextConfig;

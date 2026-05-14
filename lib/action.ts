@@ -46,16 +46,14 @@ export async function resetPassword(state: FormState, formData: FormData) {
         where: { email },
         data: {
           password: hashedPassword,
-          passwordOrigin: tempPassword,
-        },
+          lastUpdate: new Date(),
+          },
       });
 
       // 비밀번호 재설정 로그 생성
       await tx.passwordResetLog.create({
         data: {
           email,
-          prevPassword: user.passwordOrigin || "", // 이전 비밀번호
-          newPassword: tempPassword, // 새로운 임시 비밀번호
           ip: (formData.get("ip") as string) || "unknown",
         },
       });
@@ -115,7 +113,6 @@ export async function signup(
     data: {
       // username,
       email,
-      passwordOrigin: password,
       password: hashedPassword,
     },
   });
@@ -190,7 +187,7 @@ const getSearchFilter = (search?: string) => {
   return searchTerms.map((term) => ({
     OR: [
       { title: { contains: term } },
-      { fullAdress: { contains: term } },
+      { fullAddress: { contains: term } },
       { address2: { contains: term } },
       { address3: { contains: term } },
       { address4: { contains: term } },
@@ -316,8 +313,8 @@ export const getUnitList = async (
         ? parseFloat(unit.outstandingPayment.toString())
         : null,
       price: unit.price ? parseFloat(unit.price.toString()) : null,
-      amenity: unit.amenity ? JSON.parse(unit.amenity as string) : [],
-      images: unit.images ? JSON.parse(unit.images as string) : [],
+      amenity: unit.amenity ?? [],
+      images: unit.images ?? [],
     }));
 
     return { units };

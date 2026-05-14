@@ -19,7 +19,7 @@ interface PreSalePropertyInfoProps {
     address2: string;
     address3: string;
     address4: string;
-    fullAdress: string;
+    fullAddress: string;
     price?: number;
     area?: number | string;
     bed?: number | string;
@@ -38,7 +38,7 @@ interface PreSalePropertyInfoProps {
 
 const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) => {
   // 기존 이미지 처리 (메인 이미지)
-  const images = property.images ? JSON.parse(property.images) : [];
+  const images = property.images ? (Array.isArray(property.images) ? property.images : JSON.parse(property.images)) : [];
   const mainImage = images[0];
 
   // 새로운 구조의 캐러셀 아이템 파싱
@@ -148,7 +148,7 @@ const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) =
             </h2>
             <div className="flex flex-col">
               <p className="text-gray-600 mt-1 text-md md:text-sm">
-                {property.fullAdress}
+                {property.fullAddress}
               </p>
             </div>
           </div>

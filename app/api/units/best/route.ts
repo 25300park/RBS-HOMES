@@ -5,10 +5,10 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-// 기본 상태 (거래 가능한 매물만)
+// 湲곕낯 ?곹깭 (嫄곕옒 媛?ν븳 留ㅻЪ留?
 const DEFAULT_STATUS = [0, 1, 3];
 
-// 인기 지역 설정
+// ?멸린 吏???ㅼ젙
 const POPULAR_AREAS = {
   bonifacio: {
     name: "Bonifacio Global City",
@@ -72,7 +72,7 @@ interface Unit {
   };
 }
 
-// 지역별 필터 조건 생성 함수
+// 吏??퀎 ?꾪꽣 議곌굔 ?앹꽦 ?⑥닔
 function createAreaFilter(keywords: string[]) {
   return {
     OR: keywords.flatMap(keyword => [
@@ -85,7 +85,7 @@ function createAreaFilter(keywords: string[]) {
   };
 }
 
-// 특정 지역의 매물을 가져오는 함수
+// ?뱀젙 吏??쓽 留ㅻЪ??媛?몄삤???⑥닔
 async function getUnitsByArea(areaKey: string, limit: number = 6) {
   const area = POPULAR_AREAS[areaKey as keyof typeof POPULAR_AREAS];
   if (!area) return [];
@@ -124,14 +124,14 @@ export async function GET(req: Request) {
     const session: any = await getServerSession(authOptions as any);
     const userId = Number(session?.user?.id);
 
-    // 요청 타입 확인
-    const type = searchParams.get("type") || "all"; // all, recent, 또는 특정 지역명
+    // ?붿껌 ????뺤씤
+    const type = searchParams.get("type") || "all"; // all, recent, ?먮뒗 ?뱀젙 吏??챸
     const limit = parseInt(searchParams.get("limit") || "6");
-    const areas = searchParams.get("areas")?.split(",") || []; // 특정 지역들만 요청
+    const areas = searchParams.get("areas")?.split(",") || []; // ?뱀젙 吏??뱾留??붿껌
 
     let result: { [key: string]: any } = {};
 
-    // 최근 매물 (전체 지역)
+    // 理쒓렐 留ㅻЪ (?꾩껜 吏??
     if (type === "recent" || type === "all") {
       result.recentUnits = await prisma.unit.findMany({
         where: {
@@ -160,7 +160,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // 지역별 매물들
+    // 吏??퀎 留ㅻЪ??
     if (type === "all" || areas.length > 0) {
       const areasToFetch = areas.length > 0 ? areas : Object.keys(POPULAR_AREAS);
       
@@ -174,13 +174,13 @@ export async function GET(req: Request) {
       }
     }
 
-    // 특정 지역만 요청하는 경우
+    // ?뱀젙 吏??쭔 ?붿껌?섎뒗 寃쎌슦
     if (type !== "all" && type !== "recent" && POPULAR_AREAS[type as keyof typeof POPULAR_AREAS]) {
       const units = await getUnitsByArea(type, limit);
       result[`${type}Units`] = units;
     }
 
-    // 사용자의 즐겨찾기 정보 가져오기
+    // ?ъ슜?먯쓽 利먭꺼李얘린 ?뺣낫 媛?몄삤湲?
     let favorites: { unitId: number }[] = [];
     if (userId) {
       const allUnitIds = Object.values(result)
@@ -202,7 +202,7 @@ export async function GET(req: Request) {
       }
     }
 
-    // 데이터 변환 함수
+    // ?곗씠??蹂???⑥닔
     const transformUnits = (units: Unit[]) => {
       return units.map((unit) => ({
         ...unit,
@@ -215,13 +215,13 @@ export async function GET(req: Request) {
       }));
     };
 
-    // 모든 결과를 변환
+    // 紐⑤뱺 寃곌낵瑜?蹂??
     const transformedResult: { [key: string]: any } = {};
     for (const [key, units] of Object.entries(result)) {
       transformedResult[key] = transformUnits(units as Unit[]);
     }
 
-    // 지역 정보도 함께 반환
+    // 吏???뺣낫???④퍡 諛섑솚
     transformedResult.areaInfo = POPULAR_AREAS;
 
     return NextResponse.json(transformedResult);

@@ -107,7 +107,7 @@ const getSearchFilter = (search?: string) => {
     OR: searchTerms.map((term) => ({
       OR: [
         { title: { contains: term } },
-        { fullAdress: { contains: term } },
+        { fullAddress: { contains: term } },
         { address2: { contains: term } },
         { address3: { contains: term } },
         { address4: { contains: term } },

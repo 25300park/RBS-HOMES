@@ -30,7 +30,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property, unitId }) => {
 
   // 프리세일일 경우 PreSalePropertyInfo만 렌더링
   if (isPreSale) {
-    const images = property.images ? JSON.parse(property.images) : [];
+    const images = property.images ? (Array.isArray(property.images) ? property.images : JSON.parse(property.images)) : [];
     const mainImage = images[0];
 
     return (
@@ -108,7 +108,7 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property, unitId }) => {
 
         <div className="w-full ">
           <GalleryConverter
-            images={JSON.parse(property.images)}
+            images={Array.isArray(property.images) ? property.images : JSON.parse(property.images)}
             isFavorited={property.isFavorited}
             unitId={property.id}
           />

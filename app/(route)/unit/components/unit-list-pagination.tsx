@@ -7,6 +7,7 @@ import { useLoading } from "@/hooks/use-loading";
 import UnitCard from "./unit-card";
 import Pagination from "@/components/ui/pagination";
 import Link from "next/link";
+import { generatePropertySlug } from "@/lib/utils";
 
 interface Unit {
   id: number;
@@ -90,7 +91,7 @@ const UnitListPagination = () => {
       ) : (
         <div className="grid grid-cols-2 gap-6">
           {units.map((unit) => (
-            <Link key={unit.id} href={`/unit/detail/${unit.id}`}>
+            <Link key={unit.id} href={`/properties/${generatePropertySlug(unit)}`}>
               <UnitCard unit={unit} />
             </Link>
           ))}

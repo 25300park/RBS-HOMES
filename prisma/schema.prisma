@@ -22,16 +22,32 @@ model User {
   password       String?   @db.VarChar(255)
   /// 비밀번호 원본 (선택적)
   passwordOrigin String?   @db.VarChar(255)
-  /// 0: 관리자  1: 일반유저 2: 에이전트 (면허x) 3:브로커 4: 오너  20: 프리세일 가능 에이전트 30: 프리세일가능 브로커 40: 프리세일 가능 오너
-  level          Int       @default(1)
+  /// 사용자 권한 레벨
+  /// 0:  관리자 (Admin)
+  /// 1:  일반유저 (User)
+  /// 2:  에이전트 (Agent)
+  /// 3:  브로커 (Broker)
+  /// 4:  오너 (Owner)
+  /// 20: 프리세일 에이전트 (Presale Agent)
+  /// 30: 프리세일 브로커 (Presale Broker)
+  /// 40: 프리세일 오너 (Presale Owner)
+  /// 프리세일 권한: [0, 20, 30, 40]
+  level Int @default(1)
   /// 이름
   name           String?   @db.VarChar(50)
   /// 페이스북 정보
   facebook       String?   @db.VarChar(500)
-  /// -1: 정상 0: 정지 1: 탈퇴
-  status         Int       @default(-1)
-  /// 프리세일 가능여부 0: 불가능 1:가능
-  canPreSale     Int       @default(0)
+  /// 계정 상태 (Account Status)
+  /// -1: 정상 (Active)
+  ///  0: 정지 (Suspended)
+  ///  1: 탈퇴 (Withdrawn)
+  status Int @default(-1)
+  /// 프리세일 가능여부 (Presale Permission)
+  /// 0: 불가능 (Not Allowed)
+  /// 1: 가능 (Allowed)
+  /// ⚠️ 현재 미사용 - 프리세일 권한은 level 필드로 관리
+  /// 실제 권한 체크: [0, 20, 30, 40].includes(level)
+  canPreSale Int @default(0)
   /// 회사
   company        String?   @db.VarChar(50)
   /// 면허
@@ -44,6 +60,8 @@ model User {
   phone          String?   @db.VarChar(50)
   /// 메모
   memo           String?   @db.Text
+  // User 모델 관계 필드에 추가
+  schedules Schedule[] // 추가 
 
   // 관계 필드 추가
   unit              Unit[]
@@ -168,7 +186,9 @@ model Schedule {
   /// 신청 희망일
   requestDate DateTime?
   /// 직접 스케줄 추가시 유저아이디
-  userId      Int?
+  userId   Int?
+  // 관계 추가
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   /// 유저 ID
   username    String?   @db.VarChar(50)
   /// 내용 
@@ -180,7 +200,10 @@ model Schedule {
   /// 시작시간 
   startedAt   DateTime?
   title       String?   @db.VarChar(100)
-  
+  messages Message[]
+
+  @@index([userId], map: "Schedule_userId_idx")
+  @@index([unitId], map: "Schedule_unitId_idx")
   @@map("schedule")
 }
 
@@ -195,8 +218,9 @@ model Unit {
   type               String
   /// 판매 유형 (예: 매매, 임대 등)
   sellType           String
-  /// 우편번호
-  address1           Int?
+  /// 우편번호 (Postal Code)
+  /// ⚠️ 앞자리 0이 있는 경우를 위해 String 타입 사용
+  address1 String? @db.VarChar(20)
   /// 도시
   address2           String?  @db.VarChar(200)
   /// 상세주소 (예: 도로명, 건물명 등)
@@ -225,11 +249,13 @@ model Unit {
   interiored         String?  @db.VarChar(50)
   /// 애완동물 정책
   petPolicy          String?  @db.VarChar(50)
-  /// 편의시설정보 
-  amenity            String?
+  /// 편의시설 목록 (Amenity List)
+  /// JSON 배열 형태로 저장 예시: ["Swimming Pool", "Gym"]
+  amenity            Json?
   /// 완공 연도
   yearCompletion     String?  @db.Char(10)
-  /// 커미션
+  /// 커미션 금액 (Commission Amount)
+  /// ⚠️ 필드명(outstandingPayment)은 하위 호환성을 위해 유지
   outstandingPayment Decimal? @db.Decimal(18, 2)
   /// 가격
   price              Decimal? @db.Decimal(18, 2)
@@ -252,7 +278,7 @@ model Unit {
   /// 경도
   longitude          Float?
   /// 풀주소
-  fullAdress         String?  @db.VarChar(250)
+  fullAddress         String?  @db.VarChar(250)
   /// 소유주 이메일
   ownerEmail         String?  @db.VarChar(50)
   /// 전체 조회수
@@ -347,10 +373,6 @@ model PasswordResetLog {
   /// 비밀번호를 찾은 사용자의 이메일
   email        String   @db.VarChar(300)
   /// 변경 전 비밀번호
-  prevPassword String?  @db.VarChar(255)
-  /// 변경된 비밀번호
-  newPassword  String?  @db.VarChar(255)
-  /// 생성일
   createdAt    DateTime @default(now())
   /// IP 주소 
   ip           String?  @db.VarChar(100)
@@ -463,6 +485,8 @@ model Contact {
   ip           String?   @db.VarChar(100)
   /// (선택) 문의자가 회원인 경우 회원 ID
   userId       Int?
+  messages Message[]
+
 
   admin User? @relation(name: "ProcessedContacts", fields: [adminId], references: [id], onDelete: SetNull)
   user  User? @relation(name: "UserContacts", fields: [userId], references: [id], onDelete: SetNull)
@@ -503,6 +527,10 @@ model ComplainUnit {
   admin User? @relation(name: "ProcessedComplain", fields: [adminId], references: [id], onDelete: SetNull)
   user  User  @relation(name: "UserComplain", fields: [userId], references: [id])
 
+  @@index([unitId],   map: "ComplainUnit_unitId_idx")
+  @@index([writerId], map: "ComplainUnit_writerId_idx")
+  @@index([userId],   map: "ComplainUnit_userId_idx")
+  @@index([status],   map: "ComplainUnit_status_idx")
   @@map("complainunit")
 }
 
@@ -628,6 +656,9 @@ model Message {
   unitId       Int?
   scheduleId   Int?
   contactId    Int?
+  // 관계 추가
+  schedule   Schedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
   priority     Int       @default(0)
 
   sender       User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
@@ -644,6 +675,8 @@ model Message {
   @@index([sentAt])
   @@index([templateId])
   @@map("message")
+  @@index([scheduleId], map: "Message_scheduleId_idx")
+  @@index([contactId], map: "Message_contactId_idx")
 }
 
 model Notification {

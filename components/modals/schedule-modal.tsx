@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  getUnitSceduleList,
+  getUnitShceduleList,
   addSchedule,
   updateSchedule,
   getUnitDetails,
@@ -73,7 +73,7 @@ export default function ScheduleModal({
   const [isUnitSelectOpen, setIsUnitSelectOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 시간 상태를 Date 객체로 관리
+  // ?쒓컙 ?곹깭瑜?Date 媛앹껜濡?愿由?
   const [startTime, setStartTime] = useState<Date>(() => {
     if (existingData?.startedAt) {
       return new Date(existingData.startedAt);
@@ -90,20 +90,20 @@ export default function ScheduleModal({
     return setMinutes(setHours(date, 10), 0);
   });
 
-  // 초기 데이터 로드
+  // 珥덇린 ?곗씠??濡쒕뱶
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // 유닛 목록 로드
-        const unitsData = await getUnitSceduleList();
+        // ?좊떅 紐⑸줉 濡쒕뱶
+        const unitsData = await getUnitShceduleList();
         setUnits(unitsData);
 
-        // 수정 모드에서 유닛 데이터 로드
+        // ?섏젙 紐⑤뱶?먯꽌 ?좊떅 ?곗씠??濡쒕뱶
         if (isEditMode && existingData?.unitId && existingData.unitId !== -1) {
           const unitData = await getUnitDetails(existingData.unitId);
           setSelectedUnit(unitData);
 
-          // 시간 설정
+          // ?쒓컙 ?ㅼ젙
           if (existingData.startedAt && existingData.endedAt) {
             setIsAllDay(false);
             const start = new Date(existingData.startedAt);
@@ -139,7 +139,7 @@ export default function ScheduleModal({
         return;
       }
 
-      // 날짜와 시간 결합
+      // ?좎쭨? ?쒓컙 寃고빀
       const startDateTime = new Date(selectedDate);
       const endDateTime = new Date(selectedDate);
 
@@ -147,7 +147,7 @@ export default function ScheduleModal({
         startDateTime.setHours(startTime.getHours(), startTime.getMinutes(), 0);
         endDateTime.setHours(endTime.getHours(), endTime.getMinutes(), 0);
       } else {
-        // 종일 일정의 경우 시작은 0시 0분, 종료는 23시 59분으로 설정
+        // 醫낆씪 ?쇱젙??寃쎌슦 ?쒖옉? 0??0遺? 醫낅즺??23??59遺꾩쑝濡??ㅼ젙
         const start = startOfDay(startDateTime);
         const end = endOfDay(endDateTime);
         startDateTime.setHours(
@@ -208,7 +208,7 @@ export default function ScheduleModal({
 
   return (
     <form className="grid gap-4 pt-8 md:px-4" onSubmit={handleSave}>
-      {/* 이벤트 타입 선택 버튼 */}
+      {/* ?대깽??????좏깮 踰꾪듉 */}
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -236,7 +236,7 @@ export default function ScheduleModal({
         </Button>
       </div>
 
-      {/* 제목과 설명 입력 */}
+      {/* ?쒕ぉ怨??ㅻ챸 ?낅젰 */}
       <div className="grid gap-2">
         <Input
           type="text"
@@ -257,7 +257,7 @@ export default function ScheduleModal({
         />
       </div>
 
-      {/* 날짜 및 시간 선택 */}
+      {/* ?좎쭨 諛??쒓컙 ?좏깮 */}
       <div className="space-y-4">
         <div className="grid">
           <DatePicker
@@ -334,7 +334,7 @@ export default function ScheduleModal({
         )}
       </div>
 
-      {/* 유닛 선택 */}
+      {/* ?좊떅 ?좏깮 */}
       {eventType === "unit" && (
         <div>
           {units?.data?.length > 0 ? (
@@ -356,7 +356,7 @@ export default function ScheduleModal({
                         {selectedUnit.title}
                       </div>
                       <div className="text-orange-500 text-sm">
-                        ₱ {selectedUnit.price.toLocaleString()}
+                        ??{selectedUnit.price.toLocaleString()}
                       </div>
                       <div className="text-gray-500 text-sm truncate">
                         {selectedUnit.fullAddress}
@@ -370,7 +370,7 @@ export default function ScheduleModal({
                 )}
               </button>
 
-              {/* 유닛 선택 모달 */}
+              {/* ?좊떅 ?좏깮 紐⑤떖 */}
               {isUnitSelectOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
                   <div className="bg-white w-full md:h-[85vh] h-[600px] md:w-full max-w-[500px] md:mt-auto md:mb-auto md:rounded-lg overflow-hidden duration-300">
@@ -414,7 +414,7 @@ export default function ScheduleModal({
                               {unit.title}
                             </div>
                             <div className="text-orange-500 text-sm">
-                              ₱ {unit.price.toLocaleString()}
+                              ??{unit.price.toLocaleString()}
                             </div>
                             <div className="text-gray-500 text-sm truncate">
                               {unit.fullAddress}
