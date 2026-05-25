@@ -83,7 +83,7 @@ export const getUnitDetails = async (unitId: number) => {
         title: true,
         type: true,
         sellType: true,
-        fullAdress: true,
+        fullAddress: true,
         ownerName: true,
         ownerMobile: true,
         ownerEmail: true,
@@ -122,7 +122,7 @@ export const getUnitShceduleList = async () => {
       select: {
         id: true,
         title: true,
-        fullAdress: true,
+        fullAddress: true,
         price: true,
         images: true,
       },

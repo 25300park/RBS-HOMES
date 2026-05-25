@@ -59,7 +59,7 @@ interface Unit {
   sellType: string;
   bed: number;
   bath: number;
-  fullAdress: string;
+  fullAddress: string;
   admin: {
     id: number;
     username: string;
@@ -79,7 +79,7 @@ function createAreaFilter(keywords: string[]) {
       { address2: { contains: keyword } },
       { address3: { contains: keyword } },
       { address4: { contains: keyword } },
-      { fullAdress: { contains: keyword } },
+      { fullAddress: { contains: keyword } },
       { title: { contains: keyword } }
     ])
   };
