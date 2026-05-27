@@ -192,7 +192,7 @@ const getSearchFilter = (search?: string) => {
       { address3: { contains: term } },
       { address4: { contains: term } },
       { note: { contains: term } },
-      { amenity: { contains: term } },
+      { amenity: { string_contains: term } },
     ],
   }));
 };
@@ -214,7 +214,7 @@ const getAmenityFilter = (amenities: string[]) => {
 
   return {
     AND: amenities.map((amenity) => ({
-      amenity: { contains: amenity },
+      amenity: { array_contains: amenity },
     })),
   };
 };
