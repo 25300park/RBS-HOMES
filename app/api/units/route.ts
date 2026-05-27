@@ -83,10 +83,9 @@ const getAmenityFilter = (amenities: string[]) => {
 
   return {
     AND: [
-      { amenity: { not: null } },
-      { amenity: { not: "[]" } },
+      { amenity: { not: Prisma.DbNull } },
       ...amenities.map((amenity) => ({
-        amenity: { contains: amenity },
+        amenity: { array_contains: amenity },
       })),
     ],
   };
@@ -112,7 +111,7 @@ const getSearchFilter = (search?: string) => {
         { address3: { contains: term } },
         { address4: { contains: term } },
         { note: { contains: term } },
-        { amenity: { contains: term } },
+        { amenity: { string_contains: term } },
       ],
     })),
   };
