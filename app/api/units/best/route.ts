@@ -204,15 +204,27 @@ export async function GET(req: Request) {
 
     // ?곗씠??蹂???⑥닔
     const transformUnits = (units: Unit[]) => {
-      return units.map((unit) => ({
-        ...unit,
-        price: unit.price?.toNumber(),
-        outstandingPayment: unit.outstandingPayment?.toNumber(),
-        isFavorited: userId
-          ? favorites.some((favorite) => favorite.unitId === unit.id)
-          : false,
-        postedDate: unit.lastUpdate.toISOString(),
-      }));
+      return units.map((unit) => {
+        // images null 안전 처리
+        let images: string[] = [];
+        if (unit.images) {
+          if (Array.isArray(unit.images)) {
+            images = unit.images as string[];
+          } else if (typeof unit.images === 'string') {
+            try { images = JSON.parse(unit.images); } catch { images = []; }
+          }
+        }
+        return {
+          ...unit,
+          images,
+          price: unit.price?.toNumber(),
+          outstandingPayment: unit.outstandingPayment?.toNumber(),
+          isFavorited: userId
+            ? favorites.some((favorite) => favorite.unitId === unit.id)
+            : false,
+          postedDate: unit.lastUpdate.toISOString(),
+        };
+      });
     };
 
     // 紐⑤뱺 寃곌낵瑜?蹂??
