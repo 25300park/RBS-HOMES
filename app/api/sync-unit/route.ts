@@ -57,12 +57,15 @@ export async function POST(req: NextRequest) {
       photo_url,
       photos,
       rbs_unit_id,    // 기존에 동기화된 unit ID (update 시)
+      lat,            // CRM 위도
+      lng,            // CRM 경도
     } = body
 
-    // images 배열 구성 (Supabase URL 그대로 사용)
+    // ── 이미지 배열 구성: photo_url 항상 첫 번째, photos[]에서 중복 제거 ──
+    const photosArr: string[] = Array.isArray(photos) ? photos : []
     const imageArr = [
       ...(photo_url ? [photo_url] : []),
-      ...(Array.isArray(photos) ? photos : [])
+      ...photosArr.filter((p: string) => p !== photo_url)
     ]
     const imagesJson = JSON.stringify(imageArr)
 
@@ -93,6 +96,8 @@ export async function POST(req: NextRequest) {
       price:       price ? price : null,
       note:        remarks || null,
       images:      imagesJson,
+      latitude:    lat  ? parseFloat(lat)  : null,   // 위도
+      longitude:   lng  ? parseFloat(lng)  : null,   // 경도
       status:      0,   // Ongoing (active)
       lastUpdate:  new Date(),
     }
@@ -100,7 +105,7 @@ export async function POST(req: NextRequest) {
     let unit
 
     if (rbs_unit_id) {
-      // 기존 매물 업데이트
+      // 기존 매물 업데이트 (재발행 시 덮어쓰기)
       unit = await prisma.unit.update({
         where: { id: rbs_unit_id },
         data:  unitData,
