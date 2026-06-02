@@ -65,14 +65,17 @@ const UnitList = () => {
 
       const data = await response.json();
 
+      // 안전 처리: data.units가 null/undefined일 경우 빈 배열로
+      const fetchedUnits = Array.isArray(data.units) ? data.units : [];
+
       if (reset) {
-        setUnits(data.units); // 필터 변경 시 기존 데이터를 덮어씀
+        setUnits(fetchedUnits);
       } else {
-        setUnits((prevUnits) => [...prevUnits, ...data.units]); // 스크롤 시 데이터 추가
+        setUnits((prevUnits) => [...prevUnits, ...fetchedUnits]);
       }
 
-      setTotalUnit(data.total);
-      setHasMore(data.units.length > 0 && units.length + data.units.length < data.total);
+      setTotalUnit(data.total || 0);
+      setHasMore(fetchedUnits.length > 0 && units.length + fetchedUnits.length < (data.total || 0));
     } catch (error) {
       console.error("Error fetching units:", error);
     } finally {
