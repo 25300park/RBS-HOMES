@@ -29,6 +29,11 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
     unit;
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // admin null 안전처리
+  const adminName    = admin?.name    || '';
+  const adminCompany = admin?.company || 'No company';
+  const adminImage   = admin?.image   || '';
+
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
@@ -85,15 +90,15 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
         <div className="flex items-center justify-between border-t px-4 py-3">
           <div className="flex items-center gap-2">
             <Avatar className="w-12 h-12">
-              <AvatarImage src={`${admin.image}`} />
+              <AvatarImage src={adminImage} />
               <AvatarFallback>
                 <FaRegUser className="text-2xl" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <p>{admin.name}</p>
+              <p>{adminName}</p>
               <p className="text-gray-500 text-xs">
-                {admin.company || "No company"}
+                {adminCompany}
               </p>
             </div>
           </div>
