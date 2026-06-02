@@ -259,14 +259,27 @@ async function getFilteredUnits(
   }
 
   // 각 unit에 즐겨찾기 여부 추가
-  const transformedUnits = units.map((unit) => ({
-    ...unit,
-    price: unit.price?.toNumber(),
-    outstandingPayment: unit.outstandingPayment?.toNumber(),
-    isFavorited: userId
-      ? favorites.some((favorite) => favorite.unitId === unit.id)
-      : false,
-  }));
+  const transformedUnits = units.map((unit) => {
+    // images null 안전 처리: null이면 빈 배열, string이면 JSON.parse
+    let images: string[] = [];
+    if (unit.images) {
+      if (Array.isArray(unit.images)) {
+        images = unit.images as string[];
+      } else if (typeof unit.images === 'string') {
+        try { images = JSON.parse(unit.images); } catch { images = []; }
+      }
+    }
+
+    return {
+      ...unit,
+      images,
+      price: unit.price?.toNumber(),
+      outstandingPayment: unit.outstandingPayment?.toNumber(),
+      isFavorited: userId
+        ? favorites.some((favorite) => favorite.unitId === unit.id)
+        : false,
+    };
+  });
 
   return {
     units: transformedUnits,
