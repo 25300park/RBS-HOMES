@@ -13,7 +13,7 @@ interface Unit {
   title: string;
   type: string;
   sellType: string;
-  fullAddress: string;
+  fullAddress: string | null; // ✅ null 허용 (DB에 null 값 존재)
   address2: string | null;
   address3: string | null;
   area: number;

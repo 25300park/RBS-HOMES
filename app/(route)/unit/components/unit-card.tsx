@@ -14,7 +14,7 @@ interface UnitCardProps {
     bed: number | null;
     bath: number | null;
     images: string[];
-    fullAddress: string;
+    fullAddress: string | null; // ✅ null 허용 (DB에 null 값 존재)
     note?: string | null;
     admin: {
       name: string | null;
@@ -50,7 +50,7 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
       <div className="">
         <div className="p-4">
           <h2 className="text-xl font-semibold mb-2 ">{title}</h2>
-          <div>{fullAddress}</div>
+          <div>{fullAddress ?? '—'}</div> {/* ✅ null 안전처리 */}
           <div className="text-zinc-400 font-extralight text-sm">{note}</div>
           <div className="flex justify-between md:block mt-4">
             <div className=" font-bold text-2xl mb-1">
