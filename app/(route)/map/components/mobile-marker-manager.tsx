@@ -80,6 +80,7 @@ export const MobileMarkerManager = React.memo(({ map, units }: MobileMarkerManag
       const currentBounds = map.getBounds();
       if (currentBounds) {
         const newVisibleUnits = units.filter((unit) =>
+          unit.latitude != null && unit.longitude != null && // ✅ null 좌표 필터
           currentBounds.contains(
             new google.maps.LatLng(unit.latitude, unit.longitude)
           )
@@ -95,6 +96,7 @@ export const MobileMarkerManager = React.memo(({ map, units }: MobileMarkerManag
     const currentBounds = map.getBounds();
     if (currentBounds) {
       const initialVisibleUnits = units.filter((unit) =>
+        unit.latitude != null && unit.longitude != null && // ✅ null 좌표 필터
         currentBounds.contains(
           new google.maps.LatLng(unit.latitude, unit.longitude)
         )
@@ -104,7 +106,9 @@ export const MobileMarkerManager = React.memo(({ map, units }: MobileMarkerManag
     }
 
     const createMarkers = () => {
-      return units.map((unit) => {
+      return units
+        .filter((unit) => unit.latitude != null && unit.longitude != null) // ✅ null 좌표 마커 제외
+        .map((unit) => {
         const marker = new google.maps.Marker({
           position: { 
             lat: parseFloat(unit.latitude.toString()), 

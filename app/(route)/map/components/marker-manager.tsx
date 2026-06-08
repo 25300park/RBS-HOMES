@@ -75,7 +75,9 @@ export const MarkerManager = React.memo(({ map, units }: MarkerManagerProps) => 
 
   useEffect(() => {
     const createMarkers = () => {
-      return units.map((unit) => {
+      return units
+        .filter((unit) => unit.latitude != null && unit.longitude != null) // ✅ null 좌표 마커 제외
+        .map((unit) => {
         const lat = parseFloat(unit.latitude.toString());
         const lng = parseFloat(unit.longitude.toString());
 
@@ -243,6 +245,7 @@ export const MarkerManager = React.memo(({ map, units }: MarkerManagerProps) => 
     const mapBounds = map.getBounds();
     if (mapBounds) {
       const visibleUnits = units.filter((unit) =>
+        unit.latitude != null && unit.longitude != null && // ✅ null 좌표 필터
         mapBounds.contains(
           new google.maps.LatLng(unit.latitude, unit.longitude)
         )
@@ -259,6 +262,7 @@ export const MarkerManager = React.memo(({ map, units }: MarkerManagerProps) => 
       const currentBounds = map.getBounds();
       if (currentBounds) {
         const newVisibleUnits = units.filter((unit) =>
+          unit.latitude != null && unit.longitude != null && // ✅ null 좌표 필터
           currentBounds.contains(
             new google.maps.LatLng(unit.latitude, unit.longitude)
           )
