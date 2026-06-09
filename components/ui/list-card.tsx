@@ -15,6 +15,7 @@ interface ListCardProps {
   bed: number;
   bath: number;
   isFavorited: boolean;
+  priority?: boolean; // ✅ 추가: 첫 N개 카드에 priority 적용 (LCP 개선)
   featured?: {
     label: string;
     description: string | null;
@@ -37,6 +38,7 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
       onClick,
       featured,
       isFavorited = false,
+      priority = false, // ✅ 기본값 false (lazy load)
     },
     ref
   ) => {
@@ -55,14 +57,12 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
             Urgent Sale
           </span>
         )}
-
         {/* Featured Badge */}
         {featured && (
           <div className="bg-orange-400 text-white px-2 py-1 text-sm absolute top-2 left-2 z-10">
             {featured.label || "Featured"}
           </div>
         )}
-
         {/* Main Image */}
         <div className="relative w-full pt-[97%] rounded-md overflow-hidden">
           <Image
@@ -70,8 +70,10 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
             alt={title}
             fill
             className="object-cover transition-all duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            loading="lazy"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+            // ✅ priority=true면 즉시 로드(LCP 개선), false면 lazy load
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
             onError={() => setImgSrc(fallbackImage)}
           />
           <FavoriteButton
@@ -80,45 +82,27 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
             className="absolute top-2 right-2 z-20"
           />
         </div>
-
         {/* Content */}
         <div className="p-1 pt-2 bg-white rounded-b-md">
           <h3 className="font-semibold text-md truncate group-hover:text-primary">
             {title}
           </h3>
           <p className="text-gray-600 text-sm truncate">{location}</p>
-
           <div className="flex items-center my-2 text-primary font-bold">
             ₱ {price.toLocaleString()}
           </div>
-
           <div className="flex justify-between items-center text-gray-500 text-sm">
             <div className="flex gap-2">
               <div className="flex items-center gap-1">
-                <Image
-                  src="/assets/icons/bed.png"
-                  width={16}
-                  height={16}
-                  alt="bedroom"
-                />
+                <Image src="/assets/icons/bed.png" width={16} height={16} alt="bedroom" />
                 <span>{bed}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Image
-                  src="/assets/icons/bath.png"
-                  width={16}
-                  height={16}
-                  alt="bathroom"
-                />
+                <Image src="/assets/icons/bath.png" width={16} height={16} alt="bathroom" />
                 <span>{bath}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Image
-                  src="/assets/icons/sqm.png"
-                  width={16}
-                  height={16}
-                  alt="area"
-                />
+                <Image src="/assets/icons/sqm.png" width={16} height={16} alt="area" />
                 <span>{area}m²</span>
               </div>
             </div>
@@ -130,5 +114,4 @@ const ListCard = forwardRef<HTMLDivElement, ListCardProps>(
 );
 
 ListCard.displayName = "ListCard";
-
 export default ListCard;

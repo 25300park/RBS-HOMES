@@ -371,6 +371,7 @@ const MainList: React.FC = () => {
                     isUrgent={unit.isUrgent}
                     isFavorited={unit.isFavorited}
                     featured={unit.featured}
+                    priority={itemsWithAds.indexOf(item) < 6}
                     onClick={() => handleUnitClick(unit)}
                   />
                 );
