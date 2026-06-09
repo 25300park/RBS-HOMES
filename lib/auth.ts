@@ -3,31 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { AuthOptions } from "next-auth";
-import { NextRequest } from "next/server";
-
-const getClientIp = (req: NextRequest): string => {
-  const cleanIp = (ip: string | undefined) => {
-    if (!ip) return "unknown";
-    if (ip.includes("[")) {
-      return ip.split("]")[0] + "]";
-    }
-    return ip.split(":")[0];
-  };
-
-  const cfConnectingIp = req.headers.get("cf-connecting-ip");
-  if (cfConnectingIp) return cleanIp(cfConnectingIp);
-
-  const xForwardedFor = req.headers.get("x-forwarded-for");
-  if (xForwardedFor) {
-    const ips = xForwardedFor.split(",");
-    return cleanIp(ips[0].trim());
-  }
-
-  const xRealIp = req.headers.get("x-real-ip");
-  if (xRealIp) return cleanIp(xRealIp);
-
-  return "unknown";
-};
 
 const authOptions: AuthOptions = {
   providers: [
@@ -42,7 +17,7 @@ const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const clientIp = getClientIp(req as unknown as NextRequest);
+        const clientIp = "unknown";
 
         if (!credentials?.email || !credentials?.password) {
           await prisma.loginLog.create({
