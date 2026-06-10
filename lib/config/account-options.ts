@@ -3,7 +3,7 @@ import { LuSettings, LuBell, LuHome, LuHeart, LuLayoutDashboard, LuClipboard, Lu
 export const accountSideBarOption = [
   {
     name: "Dashboard",
-    link: "/account/dashboard",
+    link: "/dashboard",
     description: "Check your account overview and status",
     icon: LuLayoutDashboard,
     children: [],

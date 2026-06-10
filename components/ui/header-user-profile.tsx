@@ -16,7 +16,7 @@ import { getNotifications, markNotificationAsRead } from "@/lib/message-action";
 
 const MENU_LIST = [
   { label: "Account Home", link: "/account" },
-  { label: "Dashboard", link: "/account/dashboard" },
+  { label: "Dashboard", link: "/dashboard" },
   { label: "Schedule", link: "/account/schedule" },
   { label: "Registration", link: "/account/unit/registration/step-one" },
   { label: "My unit", link: "/account/unit/my-list" },

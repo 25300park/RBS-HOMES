@@ -1,0 +1,691 @@
+
+
+=== FILE: ./prisma/migrations/20240911004029_new_db/migration.sql ===
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(50) NULL,
+    `email` VARCHAR(300) NULL,
+    `emailVerified` DATETIME(3) NULL,
+    `image` VARCHAR(500) NULL,
+    `password` VARCHAR(255) NULL,
+    `passwordOrigin` VARCHAR(255) NULL,
+    `level` INTEGER NOT NULL DEFAULT 1,
+    `name` VARCHAR(50) NULL,
+    `mobile` VARCHAR(50) NULL,
+    `facebook` VARCHAR(500) NULL,
+    `status` INTEGER NOT NULL DEFAULT -1,
+    `company` VARCHAR(50) NULL,
+    `license` VARCHAR(50) NULL,
+    `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `lastUpdate` DATETIME(3) NULL,
+
+    UNIQUE INDEX `User_username_key`(`username`),
+    UNIQUE INDEX `User_email_key`(`email`),
+    INDEX `ix_user_user_id`(`username`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Account` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `provider` VARCHAR(191) NOT NULL,
+    `providerAccountId` VARCHAR(191) NOT NULL,
+    `refreshToken` TEXT NULL,
+    `accessToken` TEXT NULL,
+    `expiresAt` DATETIME(3) NULL,
+    `tokenType` VARCHAR(191) NULL,
+    `scope` VARCHAR(191) NULL,
+    `idToken` TEXT NULL,
+    `sessionState` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `Account_provider_providerAccountId_key`(`provider`, `providerAccountId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Session` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `sessionToken` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `expires` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `VerificationToken` (
+    `identifier` VARCHAR(191) NOT NULL,
+    `token` VARCHAR(191) NOT NULL,
+    `expires` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `VerificationToken_token_key`(`token`),
+    UNIQUE INDEX `VerificationToken_identifier_token_key`(`identifier`, `token`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Notice` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(255) NOT NULL,
+    `contents` TEXT NULL,
+    `state` INTEGER NOT NULL DEFAULT 0,
+    `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `ix_notice_state`(`state`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Schedule` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `unitId` INTEGER NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `status` INTEGER NOT NULL,
+
+    INDEX `ix_schedule_unit_id`(`unitId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Unit` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `adminId` INTEGER NOT NULL,
+    `title` VARCHAR(500) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `sellType` VARCHAR(191) NOT NULL,
+    `address1` INTEGER NOT NULL,
+    `address2` VARCHAR(200) NULL,
+    `address3` VARCHAR(200) NULL,
+    `address4` VARCHAR(200) NULL,
+    `addressSelf` VARCHAR(200) NULL,
+    `ownerName` VARCHAR(50) NOT NULL,
+    `ownerMobile` VARCHAR(50) NULL,
+    `area` INTEGER NOT NULL,
+    `floor` INTEGER NULL,
+    `bed` INTEGER NULL,
+    `bath` INTEGER NULL,
+    `parking` INTEGER NULL,
+    `furniture` VARCHAR(50) NULL,
+    `interiored` VARCHAR(50) NULL,
+    `petPolicy` VARCHAR(50) NULL,
+    `amenity` VARCHAR(50) NULL,
+    `yearCompletion` CHAR(10) NULL,
+    `outstandingPayment` DECIMAL(18, 2) NULL,
+    `price` DECIMAL(18, 2) NULL,
+    `priceRent` DECIMAL(18, 2) NULL,
+    `note` TEXT NULL,
+    `requested` TEXT NULL,
+    `images` JSON NULL,
+    `mapinfo` VARCHAR(500) NULL,
+    `status` INTEGER NOT NULL DEFAULT 0,
+    `lastUpdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `regdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `latitude` DOUBLE NULL,
+    `longitude` DOUBLE NULL,
+
+    INDEX `ix_unit_admin_id`(`adminId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Favorite` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
+    `unitId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `Favorite_userId_unitId_key`(`userId`, `unitId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LoginLog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `ip` VARCHAR(100) NULL,
+    `userId` INTEGER NULL,
+    `attemptStatus` VARCHAR(50) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Schedule` ADD CONSTRAINT `Schedule_unitId_fkey` FOREIGN KEY (`unitId`) REFERENCES `Unit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Unit` ADD CONSTRAINT `Unit_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Favorite` ADD CONSTRAINT `Favorite_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Favorite` ADD CONSTRAINT `Favorite_unitId_fkey` FOREIGN KEY (`unitId`) REFERENCES `Unit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LoginLog` ADD CONSTRAINT `LoginLog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+
+=== FILE: ./prisma/migrations/20240911010108_d/migration.sql ===
+-- ============================================
+-- Migration: 20240911010108
+-- 작업내용: Account 테이블 컬럼명 변경
+--   - accessToken → access_token
+--   - expiresAt   → expires_at
+--   - idToken     → id_token
+--   - tokenType   → token_type
+--   (camelCase → snake_case 통일)
+-- 작성일: 2024-09-11
+-- ============================================
+
+/*
+  Warnings:
+
+  - You are about to drop the column `accessToken` on the `Account` table. All the data in the column will be lost.
+  - You are about to drop the column `expiresAt` on the `Account` table. All the data in the column will be lost.
+  - You are about to drop the column `idToken` on the `Account` table. All the data in the column will be lost.
+  - You are about to drop the column `tokenType` on the `Account` table. All the data in the column will be lost.
+
+*/
+-- AlterTable
+ALTER TABLE `Account` DROP COLUMN `accessToken`,
+    DROP COLUMN `expiresAt`,
+    DROP COLUMN `idToken`,
+    DROP COLUMN `tokenType`,
+    ADD COLUMN `access_token` TEXT NULL,
+    ADD COLUMN `expires_at` DATETIME(3) NULL,
+    ADD COLUMN `id_token` TEXT NULL,
+    ADD COLUMN `token_type` VARCHAR(191) NULL;
+
+
+=== FILE: ./prisma/migrations/20240911010255_11/migration.sql ===
+/*
+  Warnings:
+
+  - The `expires_at` column on the `Account` table would be dropped and recreated. This will lead to data loss if there is data in the column.
+
+*/
+-- AlterTable
+ALTER TABLE `Account` DROP COLUMN `expires_at`,
+    ADD COLUMN `expires_at` INTEGER NULL;
+
+
+=== FILE: ./prisma/migrations/20240921070148_d/migration.sql ===
+-- ============================================
+-- Migration: 20240921070148
+-- 작업내용: Unit 테이블 address1 NULL 허용
+--   - address1: NOT NULL → NULL 허용으로 변경
+-- 작성일: 2024-09-21
+-- ============================================
+
+-- AlterTable
+ALTER TABLE `Unit` MODIFY `address1` INTEGER NULL;
+
+
+=== FILE: ./prisma/migrations/20240927174938_f/migration.sql ===
+-- ============================================
+-- Migration: 20240927174938
+-- 작업내용: Unit 테이블 필드 추가/삭제
+--   - priceRent  : 컬럼 삭제
+--   - fullAddress: 컬럼 추가 (VARCHAR 250)
+--   - ownerEmail : 컬럼 추가 (VARCHAR 50)
+-- 작성일: 2024-09-27
+-- ============================================
+
+/*
+  Warnings:
+
+  - You are about to drop the column `priceRent` on the `Unit` table. All the data in the column will be lost.
+
+*/
+-- AlterTable
+ALTER TABLE `Unit` DROP COLUMN `priceRent`,
+    ADD COLUMN `fullAddress` VARCHAR(250) NULL,
+    ADD COLUMN `ownerEmail` VARCHAR(50) NULL;
+
+
+=== FILE: ./prisma/migrations/20240927184818_dd/migration.sql ===
+-- ============================================
+-- Migration: 20240927184818
+-- 작업내용: Unit 테이블 amenity 타입 변경
+--   - amenity: VarChar(50) → Json
+-- 작성일: 2024-09-27
+-- ============================================
+
+/*
+  Warnings:
+
+  - You are about to alter the column `amenity` on the `Unit` table. The data in that column could be lost. The data in that column will be cast from `VarChar(50)` to `Json`.
+
+*/
+-- AlterTable
+ALTER TABLE `Unit` MODIFY `amenity` JSON NULL;
+
+
+=== FILE: ./prisma/migrations/20241012061253_schedule/migration.sql ===
+/*
+  Warnings:
+
+  - You are about to drop the column `title` on the `Schedule` table. All the data in the column will be lost.
+  - Added the required column `email` to the `Schedule` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `message` to the `Schedule` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `mobile` to the `Schedule` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `username` to the `Schedule` table without a default value. This is not possible if the table is not empty.
+
+*/
+-- DropForeignKey
+ALTER TABLE `Schedule` DROP FOREIGN KEY `Schedule_unitId_fkey`;
+
+-- DropIndex
+DROP INDEX `ix_user_user_id` ON `User`;
+
+-- AlterTable
+ALTER TABLE `Schedule` DROP COLUMN `title`,
+    ADD COLUMN `date` DATETIME(3) NULL,
+    ADD COLUMN `email` VARCHAR(300) NOT NULL,
+    ADD COLUMN `lastUpdate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    ADD COLUMN `message` VARCHAR(255) NOT NULL,
+    ADD COLUMN `mobile` VARCHAR(50) NOT NULL,
+    ADD COLUMN `regId` INTEGER NULL,
+    ADD COLUMN `requestDate` DATETIME(3) NULL,
+    ADD COLUMN `userId` INTEGER NULL,
+    ADD COLUMN `username` VARCHAR(50) NOT NULL,
+    MODIFY `status` INTEGER NOT NULL DEFAULT 0;
+
+-- CreateIndex
+CREATE INDEX `ix_user_user_id` ON `User`(`id`);
+
+
+=== FILE: ./prisma/migrations/20241015173815_schedule1/migration.sql ===
+-- DropIndex
+DROP INDEX `ix_schedule_unit_id` ON `Schedule`;
+
+-- AlterTable
+ALTER TABLE `Schedule` ADD COLUMN `desc` VARCHAR(255) NULL,
+    ADD COLUMN `endedAt` DATETIME(3) NULL,
+    ADD COLUMN `location` VARCHAR(255) NULL,
+    ADD COLUMN `startedAt` DATETIME(3) NULL,
+    ADD COLUMN `title` VARCHAR(100) NULL,
+    MODIFY `email` VARCHAR(300) NULL,
+    MODIFY `message` VARCHAR(255) NULL,
+    MODIFY `mobile` VARCHAR(50) NULL,
+    MODIFY `username` VARCHAR(50) NULL;
+
+
+=== FILE: ./prisma/migrations/20241015205745_phone/migration.sql ===
+/*
+  Warnings:
+
+  - You are about to drop the column `mobile` on the `User` table. All the data in the column will be lost.
+
+*/
+-- AlterTable
+ALTER TABLE `User` DROP COLUMN `mobile`,
+    ADD COLUMN `phone` VARCHAR(50) NULL;
+
+
+=== FILE: ./prisma/migrations/20241026055622_amenity/migration.sql ===
+-- AlterTable
+ALTER TABLE `Unit` MODIFY `amenity` VARCHAR(191) NULL;
+
+
+=== FILE: ./prisma/migrations/20241026070334_image/migration.sql ===
+-- AlterTable
+ALTER TABLE `Unit` MODIFY `images` VARCHAR(191) NULL;
+
+
+=== FILE: ./prisma/migrations/20250110041527_add_sitevisitorlog/migration.sql ===
+/*
+  Warnings:
+
+  - You are about to alter the column `images` on the `Unit` table. The data in that column could be lost. The data in that column will be cast from `VarChar(191)` to `Json`.
+
+*/
+-- AlterTable
+ALTER TABLE `Unit` ADD COLUMN `viewCount` INTEGER NOT NULL DEFAULT 0,
+    MODIFY `images` JSON NULL;
+
+-- CreateTable
+CREATE TABLE `SiteVisitorLog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `sessionId` VARCHAR(255) NOT NULL,
+    `userId` INTEGER NULL,
+    `ip` VARCHAR(100) NOT NULL,
+    `userAgent` VARCHAR(500) NOT NULL,
+    `visitStart` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `visitEnd` DATETIME(3) NULL,
+    `lastActive` DATETIME(3) NULL,
+    `isLoggedIn` BOOLEAN NOT NULL DEFAULT false,
+
+    INDEX `SiteVisitorLog_userId_idx`(`userId`),
+    INDEX `SiteVisitorLog_visitStart_idx`(`visitStart`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PasswordResetLog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(300) NOT NULL,
+    `prevPassword` VARCHAR(255) NULL,
+    `newPassword` VARCHAR(255) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `ip` VARCHAR(100) NULL,
+
+    INDEX `PasswordResetLog_createdAt_idx`(`createdAt`),
+    INDEX `PasswordResetLog_email_idx`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `UnitViewLog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `unitId` INTEGER NOT NULL,
+    `userId` INTEGER NULL,
+    `ip` VARCHAR(100) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `UnitViewLog_createdAt_idx`(`createdAt`),
+    INDEX `UnitViewLog_unitId_idx`(`unitId`),
+    INDEX `UnitViewLog_userId_idx`(`userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `UnitViewLog` ADD CONSTRAINT `UnitViewLog_unitId_fkey` FOREIGN KEY (`unitId`) REFERENCES `Unit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `UnitViewLog` ADD CONSTRAINT `UnitViewLog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+
+=== FILE: ./prisma/migrations/20250826071318_/migration.sql ===
+-- ============================================
+-- Migration: 20250826071318
+-- 작업내용: 주요 테이블 추가 및 구조 개선
+--   - featuredunit    : 추천 매물 테이블 추가
+--   - passwordresetlog: 비밀번호 재설정 로그 추가
+--   - unitviewlog     : 매물 조회 로그 추가
+--   - sitevisitorlog  : 사이트 방문 로그 추가
+--   - areabanner      : 지역 배너 테이블 추가
+--   - contact         : 문의 테이블 추가
+--   - complainunit    : 신고 테이블 추가
+--   - popups          : 팝업 테이블 추가
+--   - unit.images     : VarChar → Json 타입 변경
+--   - user            : canPreSale, memo 필드 추가
+-- 작성일: 2025-08-26
+-- ============================================
+/*
+  Warnings:
+
+  - You are about to alter the column `images` on the `unit` table. The data in that column could be lost. The data in that column will be cast from `VarChar(191)` to `Json`.
+
+*/
+-- DropForeignKey
+ALTER TABLE `account` DROP FOREIGN KEY `Account_userId_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `favorite` DROP FOREIGN KEY `Favorite_unitId_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `favorite` DROP FOREIGN KEY `Favorite_userId_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `loginlog` DROP FOREIGN KEY `LoginLog_userId_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `session` DROP FOREIGN KEY `Session_userId_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `unit` DROP FOREIGN KEY `Unit_adminId_fkey`;
+
+-- DropIndex
+DROP INDEX `ix_notice_state` ON `notice`;
+
+-- DropIndex
+DROP INDEX `ix_user_user_id` ON `user`;
+
+-- AlterTable
+ALTER TABLE `schedule` ADD COLUMN `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3);
+
+-- AlterTable
+ALTER TABLE `unit` ADD COLUMN `viewCount` INTEGER NOT NULL DEFAULT 0,
+    MODIFY `images` JSON NULL;
+
+-- AlterTable
+ALTER TABLE `user` ADD COLUMN `canPreSale` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `memo` TEXT NULL;
+
+-- CreateTable
+CREATE TABLE `featuredunit` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `unitId` INTEGER NOT NULL,
+    `order` INTEGER NOT NULL,
+    `label` VARCHAR(50) NOT NULL,
+    `description` TEXT NULL,
+    `backgroundColor` VARCHAR(191) NULL,
+    `textColor` VARCHAR(191) NULL,
+    `startDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `endDate` DATETIME(3) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `FeaturedUnit_unitId_key`(`unitId`),
+    INDEX `FeaturedUnit_order_idx`(`order`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `passwordresetlog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(300) NOT NULL,
+    `prevPassword` VARCHAR(255) NULL,
+    `newPassword` VARCHAR(255) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `ip` VARCHAR(100) NULL,
+
+    INDEX `PasswordResetLog_createdAt_idx`(`createdAt`),
+    INDEX `PasswordResetLog_email_idx`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `unitviewlog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `unitId` INTEGER NOT NULL,
+    `userId` INTEGER NULL,
+    `ip` VARCHAR(100) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `UnitViewLog_createdAt_idx`(`createdAt`),
+    INDEX `UnitViewLog_unitId_idx`(`unitId`),
+    INDEX `UnitViewLog_userId_idx`(`userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `sitevisitorlog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `sessionId` VARCHAR(100) NOT NULL,
+    `userId` INTEGER NULL,
+    `ip` VARCHAR(100) NOT NULL,
+    `userAgent` TEXT NULL,
+    `visitStart` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `visitEnd` DATETIME(3) NULL,
+    `lastActive` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `isLoggedIn` BOOLEAN NOT NULL DEFAULT false,
+    `path` VARCHAR(255) NULL,
+
+    INDEX `SiteVisitorLog_ip_idx`(`ip`),
+    INDEX `SiteVisitorLog_sessionId_idx`(`sessionId`),
+    INDEX `SiteVisitorLog_userId_fkey`(`userId`),
+    INDEX `SiteVisitorLog_visitStart_idx`(`visitStart`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `areabanner` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `matchType` VARCHAR(191) NOT NULL,
+    `matchValue` VARCHAR(191) NOT NULL,
+    `priority` INTEGER NOT NULL DEFAULT 10,
+    `title` VARCHAR(200) NULL,
+    `description` TEXT NULL,
+    `images` LONGTEXT NOT NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `createdBy` INTEGER NULL,
+    `fullAddress` VARCHAR(500) NULL,
+    `latitude` DOUBLE NULL,
+    `longitude` DOUBLE NULL,
+
+    INDEX `AreaBanner_matchType_matchValue_idx`(`matchType`, `matchValue`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `contact` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(100) NOT NULL,
+    `email` VARCHAR(300) NOT NULL,
+    `phone` VARCHAR(50) NOT NULL,
+    `message` TEXT NOT NULL,
+    `status` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `adminId` INTEGER NULL,
+    `response` TEXT NULL,
+    `responseType` INTEGER NULL,
+    `respondedAt` DATETIME(3) NULL,
+    `memo` VARCHAR(191) NULL,
+    `ip` VARCHAR(100) NULL,
+    `userId` INTEGER NULL,
+
+    INDEX `Contact_adminId_fkey`(`adminId`),
+    INDEX `Contact_userId_fkey`(`userId`),
+    INDEX `Contact_status_idx`(`status`),
+    INDEX `Contact_createdAt_idx`(`createdAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `complainunit` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `unitId` INTEGER NOT NULL,
+    `writerId` INTEGER NOT NULL,
+    `userId` INTEGER NOT NULL,
+    `message` TEXT NOT NULL,
+    `status` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `adminId` INTEGER NULL,
+    `response` TEXT NULL,
+    `responseType` INTEGER NULL,
+    `respondedAt` DATETIME(3) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `popups` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(255) NOT NULL,
+    `content` TEXT NULL,
+    `startDate` DATETIME(3) NULL,
+    `endDate` DATETIME(3) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdByUserId` INTEGER NOT NULL,
+    `useOverlay` BOOLEAN NOT NULL DEFAULT true,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `priority` INTEGER NOT NULL DEFAULT 10,
+    `targetAudience` VARCHAR(191) NULL DEFAULT 'all',
+    `targetConditions` JSON NULL,
+    `buttonText` VARCHAR(100) NULL,
+    `buttonAction` VARCHAR(255) NULL,
+    `images` TEXT NULL,
+    `popupType` INTEGER NOT NULL DEFAULT 0,
+    `triggerType` INTEGER NOT NULL DEFAULT 0,
+    `triggerValue` VARCHAR(191) NULL,
+    `showFrequency` INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `account` ADD CONSTRAINT `account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `session` ADD CONSTRAINT `session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `unit` ADD CONSTRAINT `unit_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `favorite` ADD CONSTRAINT `favorite_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `favorite` ADD CONSTRAINT `favorite_unitId_fkey` FOREIGN KEY (`unitId`) REFERENCES `unit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `loginlog` ADD CONSTRAINT `loginlog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `unitviewlog` ADD CONSTRAINT `unitviewlog_unitId_fkey` FOREIGN KEY (`unitId`) REFERENCES `unit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `unitviewlog` ADD CONSTRAINT `unitviewlog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `sitevisitorlog` ADD CONSTRAINT `sitevisitorlog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `contact` ADD CONSTRAINT `contact_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `contact` ADD CONSTRAINT `contact_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `complainunit` ADD CONSTRAINT `complainunit_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `user`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `complainunit` ADD CONSTRAINT `complainunit_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- RedefineIndex
+CREATE INDEX `Unit_adminId_fkey` ON `unit`(`adminId`);
+DROP INDEX `ix_unit_admin_id` ON `unit`;
+
+
+=== FILE: ./prisma/migrations/20250827012651_rbs_user_database/migration.sql ===
+/*
+  Warnings:
+
+  - You are about to drop the column `createAt` on the `schedule` table. All the data in the column will be lost.
+
+*/
+-- AlterTable
+ALTER TABLE `schedule` DROP COLUMN `createAt`;
+
+-- RedefineIndex
+CREATE INDEX `Account_userId_fkey` ON `account`(`userId`);
+DROP INDEX `account_userId_fkey` ON `account`;
+
+-- RedefineIndex
+CREATE INDEX `Favorite_unitId_fkey` ON `favorite`(`unitId`);
+DROP INDEX `favorite_unitId_fkey` ON `favorite`;
+
+-- RedefineIndex
+CREATE INDEX `LoginLog_userId_fkey` ON `loginlog`(`userId`);
+DROP INDEX `loginlog_userId_fkey` ON `loginlog`;
+
+-- RedefineIndex
+CREATE INDEX `Session_userId_fkey` ON `session`(`userId`);
+DROP INDEX `session_userId_fkey` ON `session`;

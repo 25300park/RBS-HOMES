@@ -1,3 +1,9 @@
+import bundleAnalyzer from '@next/bundle-analyzer'
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true', // ✅ 환경변수로 제어 (배포 시엔 비활성화)
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -30,4 +36,5 @@ const nextConfig = {
     ]
   },
 };
-export default nextConfig;
+
+export default withBundleAnalyzer(nextConfig);

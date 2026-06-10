@@ -1,0 +1,311 @@
+.
+|____app
+| |____(route)
+| | |____(dashboard)
+| | | |____action.ts
+| | | |____components
+| | | |____list
+| | | |____page.tsx
+| | |____account
+| | | |____(auth)
+| | | |____action.ts
+| | | |____components
+| | | |____layout.tsx
+| | | |____loading.tsx
+| | | |____page.tsx
+| | |____layout.tsx
+| | |____map
+| | | |____(type)
+| | | |____components
+| | |____policy
+| | | |____page.tsx
+| | |____presale
+| | | |____layout.tsx
+| | |____properties
+| | | |____[slug]
+| | |____sell
+| | | |____page.tsx
+| | |____terms
+| | | |____page.tsx
+| | |____unit
+| | | |____action.ts
+| | | |____buy
+| | | |____components
+| | | |____detail
+| | | |____rent
+| |____api
+| | |____auth
+| | | |____[...nextauth]
+| | |____google-reviews
+| | | |____route.ts
+| | |____image-upload
+| | | |____profile
+| | | |____unit
+| | |____nearby
+| | | |____route.ts
+| | |____sync-unit
+| | | |____route.ts
+| | |____units
+| | | |____best
+| | | |____route.ts
+| | |____visitor
+| | | |____activity
+| | | |____exit
+| | | |____route.ts
+| |____favicon.ico
+| |____globals.css
+| |____layout.tsx
+| |____robots.ts
+| |____sitemap.ts
+|____components
+| |____favorite-button.tsx
+| |____footer.tsx
+| |____header.tsx
+| |____modals
+| | |____auth-modal.tsx
+| | |____complain-modal.tsx
+| | |____contact-modal.tsx
+| | |____edit-password-modal.tsx
+| | |____filter-modal.tsx
+| | |____popup-manager.tsx
+| | |____preview-modal.tsx
+| | |____schedule-modal.tsx
+| |____ui
+| | |____alert-dialog.tsx
+| | |____avatar.tsx
+| | |____button.tsx
+| | |____calendar.tsx
+| | |____checkbox.tsx
+| | |____city-img-card.tsx
+| | |____command.tsx
+| | |____confirm-dialog.tsx
+| | |____contact-buttons.tsx
+| | |____date-calendar.tsx
+| | |____date-picker-popover.tsx
+| | |____dialog.tsx
+| | |____dot-loader.tsx
+| | |____drawer.tsx
+| | |____dropdown-menu.tsx
+| | |____filter-btn-mobile.tsx
+| | |____filter-btn.tsx
+| | |____filter-list-btn.tsx
+| | |____filter-reset-btn.tsx
+| | |____google-search-bar.tsx
+| | |____header-guest-profile.tsx
+| | |____header-user-profile.tsx
+| | |____hover-card.tsx
+| | |____image-gallery.tsx
+| | |____input.tsx
+| | |____interactive-map.tsx
+| | |____label.tsx
+| | |____list-card.tsx
+| | |____loading-ui.tsx
+| | |____logout-btn.tsx
+| | |____main-amenity-list.tsx
+| | |____main-filter-group.tsx
+| | |____main-search-bar.tsx
+| | |____mob-footer-nav.tsx
+| | |____mob-image-gallery.tsx
+| | |____more-btn.tsx
+| | |____pagination.tsx
+| | |____popover.tsx
+| | |____property-card.tsx
+| | |____pwa-btn.tsx
+| | |____pwa-splash-screen.tsx
+| | |____responsive-drawer.tsx
+| | |____search-bar.tsx
+| | |____search-input.tsx
+| | |____select-box.tsx
+| | |____select.tsx
+| | |____share-btn.tsx
+| | |____skeleton.tsx
+| | |____slider.tsx
+| | |____spinner.tsx
+| | |____static-map.tsx
+| | |____submit-btn.tsx
+| | |____tag-input.tsx
+| | |____textarea.tsx
+| | |____thumb-slider.tsx
+| | |____toast.tsx
+| | |____toaster.tsx
+| | |____tooltip.tsx
+| |____visitor-tracker.tsx
+|____components.json
+|____directory_structure.txt
+|____ecosystem.config.js
+|____hooks
+| |____use-click-outside.ts
+| |____use-cooldown.ts
+| |____use-debounce.ts
+| |____use-handle-unit-click.ts
+| |____use-image-compression.ts
+| |____use-loading.ts
+| |____use-media-query.ts
+| |____use-observer.ts
+| |____use-toast.ts
+| |____use-upload-s3.ts
+|____lib
+| |____action.ts
+| |____auth.ts
+| |____config
+| | |____account-options.ts
+| | |____amenities.ts
+| | |____unit-options.ts
+| |____email.ts
+| |____google.ts
+| |____indexed-db.ts
+| |____map.js
+| |____message-action.ts
+| |____message-text.tsx
+| |____prisma.ts
+| |____svg-gen.ts
+| |____utils.ts
+|____middleware.ts
+|____mock
+| |____data.ts
+|____next.config.mjs
+|____package-lock.json
+|____package.json
+|____postcss.config.mjs
+|____prisma
+| |____migrations
+| | |____20240911004029_new_db
+| | | |____migration.sql
+| | |____20240911010108_d
+| | | |____migration.sql
+| | |____20240911010255_11
+| | | |____migration.sql
+| | |____20240921070148_d
+| | | |____migration.sql
+| | |____20240927174938_f
+| | | |____migration.sql
+| | |____20240927184818_dd
+| | | |____migration.sql
+| | |____20241012061253_schedule
+| | | |____migration.sql
+| | |____20241015173815_schedule1
+| | | |____migration.sql
+| | |____20241015205745_phone
+| | | |____migration.sql
+| | |____20241026055622_amenity
+| | | |____migration.sql
+| | |____20241026070334_image
+| | | |____migration.sql
+| | |____20250110041527_add_sitevisitorlog
+| | | |____migration.sql
+| | |____20250826071318_
+| | | |____migration.sql
+| | |____20250827012651_rbs_user_database
+| | | |____migration.sql
+| | |____migration_lock.toml
+| |____schema.prisma
+| |____seed.js
+|____project_tree.txt
+|____provider
+| |____auth-provider.tsx
+| |____idb-provider.tsx
+| |____modal-provider.tsx
+|____public
+| |____assets
+| | |____icons
+| | | |____address.png
+| | | |____alarm.png
+| | | |____alarm_on.png
+| | | |____amenities
+| | | |____apple.png
+| | | |____area.png
+| | | |____back.png
+| | | |____back_orange.png
+| | | |____bath.png
+| | | |____bath_white.png
+| | | |____bed-1.png
+| | | |____bed.png
+| | | |____bed_white.png
+| | | |____bookmark.png
+| | | |____bookmark_off.png
+| | | |____bookmark_on.png
+| | | |____buy.png
+| | | |____calendar.png
+| | | |____check.png
+| | | |____commision.png
+| | | |____complete.png
+| | | |____down.png
+| | | |____edit.png
+| | | |____filter.png
+| | | |____floor.png
+| | | |____floors.png
+| | | |____footer
+| | | |____funiture.png
+| | | |____Furniture.png
+| | | |____gallery.png
+| | | |____google.png
+| | | |____hide.png
+| | | |____home.png
+| | | |____interior.png
+| | | |____location.png
+| | | |____mail.png
+| | | |____map.gif
+| | | |____message.png
+| | | |____my.png
+| | | |____note.png
+| | | |____owner.png
+| | | |____parking.png
+| | | |____pet.png
+| | | |____plus.png
+| | | |____rent.png
+| | | |____requested.png
+| | | |____search.png
+| | | |____search_circle.png
+| | | |____setting.png
+| | | |____share.png
+| | | |____sqm.png
+| | | |____user.png
+| | | |____view.png
+| | | |____viewxx.png
+| | |____images
+| | | |____ad_desk.jpg
+| | | |____ad_desk.png
+| | | |____ad_desk0.png
+| | | |____ad_desk1.png
+| | | |____ad_mob.jpg
+| | | |____ad_mob0.png
+| | | |____ad_mob1.png
+| | | |____banner.png
+| | | |____cardtest.png
+| | | |____cities
+| | | |____default-avatar.png
+| | | |____exclusive
+| | | |____house-img.png
+| | | |____image1722828672720-1.jpg
+| | | |____kakao.png
+| | | |____kakaoOpen.png
+| | | |____login-bg.png
+| | | |____LOGO.png
+| | | |____main-banner.png
+| | | |____Messenger_Icon_Primary_Blue.png
+| | | |____ogimg.jpg
+| | | |____phone.png
+| | | |____rbs-logo.png
+| | | |____RBS_LOGO.png
+| | | |____RBS_symbol_60x60.png
+| | | |____sub-image.png
+| | | |____typo.png
+| |____manifest.json
+| |____naver86e33a94ccaadfc58b4fc991f4e773b8.html
+| |____next.svg
+| |____sw.js
+| |____vercel.svg
+|____README.md
+|____script
+| |____clean-amenities.ts
+|____server.js
+|____store
+| |____use-auth-store.tsx
+| |____use-map-store.tsx
+| |____use-modal-store.tsx
+|____tailwind.config.ts
+|____tsconfig.json
+|____types
+| |____global.d.ts
+| |____next-auth.d.ts
+| |____schema.ts
