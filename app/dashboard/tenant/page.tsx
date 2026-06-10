@@ -6,8 +6,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import {
-  FileText,
-  Banknote,
+  Wallet,
   Wrench,
   MessageSquare,
   AlertTriangle,
@@ -18,12 +17,21 @@ import {
 } from "lucide-react";
 import { ContractStatus } from "@prisma/client";
 import ReceiptUploadButton from "./components/receipt-upload-button";
+import BottomNav from "./components/bottom-nav";
+import LogoutButton from "./components/logout-button";
 
 const careStatusLabel: Record<string, { text: string; cls: string }> = {
-  PENDING: { text: "접수", cls: "bg-gray-100 text-gray-600" },
-  SCHEDULED: { text: "일정 확정", cls: "bg-blue-100 text-blue-600" },
-  COMPLETED: { text: "완료", cls: "bg-green-100 text-green-700" },
-  CANCELLED: { text: "취소", cls: "bg-gray-100 text-gray-400" },
+  PENDING: { text: "Pending", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
+  SCHEDULED: { text: "Scheduled", cls: "bg-[#3B82F6]/15 text-[#3B82F6]" },
+  COMPLETED: { text: "Completed", cls: "bg-[#10B981]/15 text-[#10B981]" },
+  CANCELLED: { text: "Cancelled", cls: "bg-[#334155] text-[#94A3B8]" },
+};
+
+const careServiceTypeLabel: Record<string, string> = {
+  AIRCON: "Aircon Service",
+  CLEANING: "Cleaning",
+  REPAIR: "Repair",
+  HANDYMAN: "Handyman",
 };
 
 export default async function TenantDashboardPage() {
@@ -42,7 +50,7 @@ export default async function TenantDashboardPage() {
   const sixMonthsAgo = new Date(now);
   sixMonthsAgo.setMonth(now.getMonth() - 6);
 
-  // 현재 활성 계약 (가장 최근 1개)
+  // Current active (or expiring soon) lease
   const activeLease = await prisma.leaseContract.findFirst({
     where: {
       tenantId: userId,
@@ -57,11 +65,14 @@ export default async function TenantDashboardPage() {
 
   if (!activeLease) {
     return (
-      <div className="max-w-[1140px] mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          안녕하세요, {session.user.name ?? "임차인"}님
-        </h1>
-        <EmptyState message="현재 활성 임대차 계약이 없습니다. 관리자에게 문의하세요." />
+      <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC]">
+        <div className="max-w-[640px] mx-auto px-4 py-10 pb-24">
+          <Header userName={session.user.name} />
+          <div className="mt-6">
+            <EmptyState message="You don't have an active lease yet. Please contact us." />
+          </div>
+        </div>
+        <BottomNav communityHref="/dashboard/tenant#community" />
       </div>
     );
   }
@@ -77,10 +88,10 @@ export default async function TenantDashboardPage() {
     prisma.paymentSchedule.findMany({
       where: { contractId: leaseId, dueDate: { gte: sixMonthsAgo, lt: startOfMonth } },
       orderBy: { dueDate: "desc" },
-      take: 20,
+      take: 6,
     }),
     prisma.careServiceRequest.findMany({
-      where: { contractId: leaseId, status: { not: "CANCELLED" } },
+      where: { contractId: leaseId, status: { in: ["PENDING", "SCHEDULED"] } },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
@@ -96,237 +107,251 @@ export default async function TenantDashboardPage() {
 
   const isExpiringSoon = new Date(activeLease.endDate) <= sixtyDaysLater;
   const thisMonthPayment = thisMonthPayments[0] ?? null;
+  const communityHref = condoId
+    ? `/dashboard/tenant/community?condoId=${condoId}`
+    : "/dashboard/tenant#community";
 
   return (
-    <div className="max-w-[1140px] mx-auto px-4 py-10 space-y-10">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          안녕하세요, {session.user.name ?? "임차인"}님
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">나의 계약과 납부 현황을 확인하세요.</p>
-      </div>
+    <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC]">
+      <div className="max-w-[640px] mx-auto px-4 py-6 pb-24 space-y-6">
+        <Header userName={session.user.name} />
 
-      {/* 만료 임박 배너 */}
-      {isExpiringSoon && (
-        <div className="flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        {/* Lease expiring banner */}
+        {isExpiringSoon && (
+          <div className="flex items-start gap-3 bg-[#F59E0B]/10 border border-[#F59E0B]/40 rounded-xl p-4">
+            <AlertTriangle className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-amber-700 text-sm">계약 만료 60일 이내</p>
-              <p className="text-xs text-amber-600 mt-0.5">
-                만료일: {new Date(activeLease.endDate).toLocaleDateString("ko-KR")}
+              <p className="font-semibold text-[#F59E0B] text-sm">
+                Your lease is expiring soon. Contact us.
+              </p>
+              <p className="text-xs text-[#94A3B8] mt-0.5">
+                Lease end date: {new Date(activeLease.endDate).toLocaleDateString("en-US")}
               </p>
             </div>
           </div>
-          <Link
-            href="/units"
-            className="flex items-center gap-1 flex-shrink-0 text-sm bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg font-medium transition-colors"
-          >
-            새 매물 보러가기 <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      )}
-
-      {/* 현재 계약 요약 */}
-      <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <FileText className="w-5 h-5 text-blue-500" />
-          </div>
-          <h2 className="text-lg font-bold text-gray-800">현재 계약</h2>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-          <div className="grid grid-cols-3 md:grid-cols-1 gap-4">
-            <div>
-              <p className="text-xs text-gray-400 mb-1">유닛</p>
-              <p className="font-semibold text-gray-800">{activeLease.unit.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 mb-1">월 임대료</p>
-              <p className="font-bold text-orange-500 text-lg">
-                ₱ {Number(activeLease.monthlyRent).toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 mb-1">계약 기간</p>
-              <p className="font-medium text-gray-700 text-sm">
-                {new Date(activeLease.startDate).toLocaleDateString("ko-KR")} ~{" "}
-                {new Date(activeLease.endDate).toLocaleDateString("ko-KR")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 이번 달 납부 */}
-      <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-            <Banknote className="w-5 h-5 text-green-600" />
-          </div>
-          <h2 className="text-lg font-bold text-gray-800">이번 달 납부</h2>
-        </div>
-
-        {!thisMonthPayment ? (
-          <EmptyState message="이번 달 납부 스케줄이 없습니다." />
-        ) : (
-          <ThisMonthPaymentCard payment={thisMonthPayment} />
         )}
-      </section>
 
-      {/* 납부 이력 */}
-      <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Clock className="w-5 h-5 text-gray-500" />
-          </div>
-          <h2 className="text-lg font-bold text-gray-800">납부 이력 (최근 6개월)</h2>
-        </div>
-
-        {paymentHistory.length === 0 ? (
-          <EmptyState message="납부 이력이 없습니다." />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 text-gray-500 text-xs">
-                  <th className="text-left px-4 py-2 font-medium">납부 기준월</th>
-                  <th className="text-right px-4 py-2 font-medium">금액</th>
-                  <th className="text-center px-4 py-2 font-medium">상태</th>
-                  <th className="text-right px-4 py-2 font-medium">확인일</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white border border-gray-200 rounded-lg">
-                {paymentHistory.map((p) => (
-                  <tr key={p.id}>
-                    <td className="px-4 py-3 text-gray-700">
-                      {new Date(p.dueDate).toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "long",
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-gray-800">
-                      ₱ {Number(p.amountDue).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <PaymentStatusBadge status={p.status} />
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-500">
-                      {p.verifiedAt ? new Date(p.verifiedAt).toLocaleDateString("ko-KR") : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      {/* 홈케어 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Wrench className="w-5 h-5 text-purple-500" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">홈케어</h2>
-          </div>
-          <Link
-            href={`/dashboard/tenant/care/new?contractId=${leaseId}`}
-            className="text-sm bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg font-medium transition-colors"
-          >
-            + 케어 신청
-          </Link>
-        </div>
-
-        {careRequests.length === 0 ? (
-          <EmptyState message="진행 중인 홈케어 신청이 없습니다." />
-        ) : (
-          <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
-            {careRequests.map((c) => {
-              const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-gray-100 text-gray-600" };
-              return (
-                <div key={c.id} className="flex items-center justify-between px-4 py-3">
-                  <div>
-                    <p className="font-medium text-sm text-gray-800">{c.serviceType}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      희망일: {new Date(c.preferredDate).toLocaleDateString("ko-KR")}
-                    </p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
-                    {cfg.text}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* 커뮤니티 */}
-      {condoId && (
+        {/* Lease summary */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-teal-500" />
+          <SectionTitle>Lease Summary</SectionTitle>
+          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-[#F8FAFC] truncate">{activeLease.unit.title}</p>
+                <p className="text-xs text-[#94A3B8] mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
               </div>
-              <h2 className="text-lg font-bold text-gray-800">콘도 커뮤니티</h2>
+              <LeaseStatusBadge status={activeLease.status} />
             </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p className="text-xs text-[#94A3B8] mb-1">Lease Period</p>
+                <p className="text-sm font-medium text-[#F8FAFC]">
+                  {new Date(activeLease.startDate).toLocaleDateString("en-US")}
+                  {" – "}
+                  {new Date(activeLease.endDate).toLocaleDateString("en-US")}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-[#94A3B8] mb-1">Monthly Rent</p>
+                <p className="text-sm font-bold text-[#3B82F6]">
+                  ₱ {Number(activeLease.monthlyRent).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* This month payment */}
+        <section id="payments">
+          <SectionTitle>This Month's Payment</SectionTitle>
+          {!thisMonthPayment ? (
+            <EmptyState message="No payment scheduled for this month." />
+          ) : (
+            <ThisMonthPaymentCard payment={thisMonthPayment} />
+          )}
+        </section>
+
+        {/* Payment history */}
+        <section>
+          <SectionTitle>Payment History (Last 6 Months)</SectionTitle>
+          {paymentHistory.length === 0 ? (
+            <EmptyState message="No payment history yet." />
+          ) : (
+            <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-[#94A3B8] text-xs border-b border-[#334155]">
+                    <th className="text-left px-4 py-2 font-medium">Month</th>
+                    <th className="text-right px-4 py-2 font-medium">Amount</th>
+                    <th className="text-center px-4 py-2 font-medium">Status</th>
+                    <th className="text-right px-4 py-2 font-medium">Date Paid</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#334155]">
+                  {paymentHistory.map((p) => (
+                    <tr key={p.id}>
+                      <td className="px-4 py-3 text-[#F8FAFC]">
+                        {new Date(p.dueDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-[#F8FAFC]">
+                        ₱ {Number(p.amountDue).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <PaymentStatusBadge status={p.status} />
+                      </td>
+                      <td className="px-4 py-3 text-right text-[#94A3B8]">
+                        {p.verifiedAt ? new Date(p.verifiedAt).toLocaleDateString("en-US") : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* Care service */}
+        <section id="care">
+          <div className="flex items-center justify-between mb-3">
+            <SectionTitle noMargin>Care Service</SectionTitle>
             <Link
-              href={`/dashboard/tenant/community?condoId=${condoId}`}
-              className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
+              href="/dashboard/tenant/care"
+              className="flex items-center justify-center gap-1.5 min-h-[44px] px-4 bg-[#3B82F6] hover:bg-[#3B82F6]/90 text-white rounded-lg text-sm font-semibold transition-colors"
             >
-              전체 보기 <ArrowRight className="w-4 h-4" />
+              Request Care Service
+            </Link>
+          </div>
+
+          {careRequests.length === 0 ? (
+            <EmptyState message="No active care requests." />
+          ) : (
+            <div className="bg-[#1E293B] border border-[#334155] rounded-xl divide-y divide-[#334155] overflow-hidden">
+              {careRequests.map((c) => {
+                const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-[#334155] text-[#94A3B8]" };
+                return (
+                  <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-[#F8FAFC]">
+                        {careServiceTypeLabel[c.serviceType] ?? c.serviceType}
+                      </p>
+                      <p className="text-xs text-[#94A3B8] mt-0.5">
+                        Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
+                      </p>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${cfg.cls}`}>
+                      {cfg.text}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Community board */}
+        <section id="community">
+          <div className="flex items-center justify-between mb-3">
+            <SectionTitle noMargin>Community Board</SectionTitle>
+            <Link
+              href={communityHref}
+              className="flex items-center gap-1 text-sm text-[#3B82F6] hover:text-[#3B82F6]/80 font-medium transition-colors"
+            >
+              View All <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           {communityPosts.length === 0 ? (
-            <EmptyState message="게시글이 없습니다." />
+            <EmptyState message="No posts yet." />
           ) : (
-            <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="bg-[#1E293B] border border-[#334155] rounded-xl divide-y divide-[#334155] overflow-hidden">
               {communityPosts.map((post) => (
                 <div key={post.id} className="flex items-center justify-between px-4 py-3 gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       {post.isNotice && (
-                        <span className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded font-medium flex-shrink-0">
-                          공지
+                        <span className="text-xs px-1.5 py-0.5 bg-[#3B82F6]/15 text-[#3B82F6] rounded font-medium flex-shrink-0">
+                          Notice
                         </span>
                       )}
-                      <p className="font-medium text-sm text-gray-800 truncate">{post.title}</p>
+                      <p className="font-medium text-sm text-[#F8FAFC] truncate">{post.title}</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{post.author.name}</p>
+                    <p className="text-xs text-[#94A3B8] mt-0.5">{post.author.name}</p>
                   </div>
-                  <span className="text-xs text-gray-400 flex-shrink-0">
-                    {new Date(post.createdAt).toLocaleDateString("ko-KR")}
+                  <span className="text-xs text-[#94A3B8] flex-shrink-0">
+                    {new Date(post.createdAt).toLocaleDateString("en-US")}
                   </span>
                 </div>
               ))}
             </div>
           )}
         </section>
-      )}
+      </div>
+
+      <BottomNav communityHref={communityHref} />
     </div>
   );
 }
 
-// ── 이번 달 납부 카드 (상태별 UI) ────────────────────────────────
+// ── Header ────────────────────────────────────────────────
+function Header({ userName }: { userName?: string | null }) {
+  return (
+    <div className="flex items-center justify-between">
+      <h1 className="text-xl font-bold text-[#F8FAFC]">My Dashboard</h1>
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-[#F8FAFC] font-medium truncate max-w-[120px]">
+          {userName ?? "Tenant"}
+        </span>
+        <LogoutButton />
+      </div>
+    </div>
+  );
+}
+
+// ── Section title ─────────────────────────────────────────
+function SectionTitle({ children, noMargin }: { children: React.ReactNode; noMargin?: boolean }) {
+  return (
+    <h2 className={`text-sm font-bold text-[#F8FAFC] uppercase tracking-wide ${noMargin ? "" : "mb-3"}`}>
+      {children}
+    </h2>
+  );
+}
+
+// ── Lease status badge ────────────────────────────────────
+function LeaseStatusBadge({ status }: { status: ContractStatus }) {
+  const map: Record<string, { text: string; cls: string }> = {
+    ACTIVE: { text: "Active", cls: "bg-[#10B981]/15 text-[#10B981]" },
+    EXPIRING_SOON: { text: "Expiring Soon", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
+    EXPIRED: { text: "Expired", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
+    TERMINATED: { text: "Terminated", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
+  };
+  const cfg = map[status] ?? { text: status, cls: "bg-[#334155] text-[#94A3B8]" };
+  return (
+    <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 ${cfg.cls}`}>
+      {cfg.text}
+    </span>
+  );
+}
+
+// ── This month payment card (status-based UI) ────────────
 function ThisMonthPaymentCard({ payment }: { payment: any }) {
-  const due = new Date(payment.dueDate).toLocaleDateString("ko-KR", {
+  const due = new Date(payment.dueDate).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
   });
+  const amount = `₱ ${Number(payment.amountDue).toLocaleString()}`;
 
   if (payment.status === "PAID") {
     return (
-      <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-5">
-        <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-[#10B981]/10 border border-[#10B981]/40 rounded-xl p-4">
+        <CheckCircle2 className="w-6 h-6 text-[#10B981] flex-shrink-0" />
         <div>
-          <p className="font-semibold text-green-700">{due} 납부 완료</p>
-          <p className="text-sm text-green-600 mt-0.5">
-            ₱ {Number(payment.amountDue).toLocaleString()}
+          <p className="font-semibold text-[#10B981]">Payment Confirmed ✓</p>
+          <p className="text-sm text-[#F8FAFC] mt-0.5">
+            {due} · {amount}
           </p>
         </div>
       </div>
@@ -335,11 +360,13 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   if (payment.status === "AWAITING_APPROVAL") {
     return (
-      <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-5">
-        <Clock className="w-6 h-6 text-blue-500 flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-[#3B82F6]/10 border border-[#3B82F6]/40 rounded-xl p-4">
+        <Clock className="w-6 h-6 text-[#3B82F6] flex-shrink-0" />
         <div>
-          <p className="font-semibold text-blue-700">{due} — 영수증 확인 중입니다</p>
-          <p className="text-sm text-blue-500 mt-0.5">관리자가 확인 후 승인합니다.</p>
+          <p className="font-semibold text-[#3B82F6]">Receipt Submitted - Pending Approval</p>
+          <p className="text-sm text-[#94A3B8] mt-0.5">
+            {due} · {amount}
+          </p>
         </div>
       </div>
     );
@@ -347,12 +374,12 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   if (payment.status === "OVERDUE") {
     return (
-      <div className="flex items-center gap-3 bg-red-50 border border-red-300 rounded-xl p-5">
-        <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
-        <div className="flex-1">
-          <p className="font-bold text-red-700">{due} — 연체 중입니다</p>
-          <p className="text-sm text-red-500 mt-0.5">
-            ₱ {Number(payment.amountDue).toLocaleString()} · 빠른 납부 후 영수증을 업로드하세요.
+      <div className="flex items-center gap-3 bg-[#EF4444]/10 border border-[#EF4444]/50 rounded-xl p-4">
+        <XCircle className="w-6 h-6 text-[#EF4444] flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-[#EF4444]">OVERDUE - Please contact us immediately</p>
+          <p className="text-sm text-[#F8FAFC] mt-0.5">
+            {due} · {amount}
           </p>
         </div>
         <ReceiptUploadButton paymentId={payment.id} />
@@ -362,42 +389,43 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   // PENDING
   return (
-    <div className="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl p-5">
+    <div className="flex items-center justify-between gap-4 bg-[#F59E0B]/10 border border-[#F59E0B]/40 rounded-xl p-4">
       <div>
-        <p className="font-semibold text-gray-800">{due}</p>
-        <p className="text-orange-500 font-bold text-lg mt-0.5">
-          ₱ {Number(payment.amountDue).toLocaleString()}
+        <p className="font-semibold text-[#F59E0B]">Payment Due</p>
+        <p className="text-sm text-[#F8FAFC] mt-0.5">
+          {due} · {amount}
         </p>
-        <p className="text-xs text-gray-500 mt-1">납부 후 영수증을 업로드하세요.</p>
       </div>
       <ReceiptUploadButton paymentId={payment.id} />
     </div>
   );
 }
 
+// ── Payment history badge ─────────────────────────────────
 function PaymentStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    PENDING: "bg-gray-100 text-gray-600",
-    AWAITING_APPROVAL: "bg-orange-100 text-orange-600",
-    PAID: "bg-green-100 text-green-700",
-    OVERDUE: "bg-red-100 text-red-600",
+    PENDING: "bg-[#F59E0B]/15 text-[#F59E0B]",
+    AWAITING_APPROVAL: "bg-[#3B82F6]/15 text-[#3B82F6]",
+    PAID: "bg-[#10B981]/15 text-[#10B981]",
+    OVERDUE: "bg-[#EF4444]/15 text-[#EF4444]",
   };
   const label: Record<string, string> = {
-    PENDING: "대기",
-    AWAITING_APPROVAL: "확인 중",
-    PAID: "완료",
-    OVERDUE: "연체",
+    PENDING: "Pending",
+    AWAITING_APPROVAL: "Pending Approval",
+    PAID: "Paid",
+    OVERDUE: "Overdue",
   };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status] ?? "bg-gray-100 text-gray-500"}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status] ?? "bg-[#334155] text-[#94A3B8]"}`}>
       {label[status] ?? status}
     </span>
   );
 }
 
+// ── Empty state ────────────────────────────────────────────
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex items-center justify-center h-24 border border-dashed border-gray-200 rounded-lg text-sm text-gray-400">
+    <div className="flex items-center justify-center h-20 border border-dashed border-[#334155] rounded-xl text-sm text-[#94A3B8]">
       {message}
     </div>
   );
