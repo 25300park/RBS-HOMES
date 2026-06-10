@@ -53,9 +53,6 @@ export async function POST(req: Request) {
     const session: any = await getServerSession(authOptions as any);
 
     const authHeader = req.headers.get("authorization");
-    console.log("[PMS leases POST] authorization 헤더:", authHeader ? `${authHeader.substring(0, 10)}...(길이:${authHeader.length})` : "없음");
-    console.log("[PMS leases POST] RBS_SYNC_SECRET 존재:", !!process.env.RBS_SYNC_SECRET, "길이:", process.env.RBS_SYNC_SECRET?.length);
-    console.log("[PMS leases POST] 일치 여부:", authHeader === `Bearer ${process.env.RBS_SYNC_SECRET}`);
     const isSyncRequest =
       !!authHeader &&
       !!process.env.RBS_SYNC_SECRET &&
