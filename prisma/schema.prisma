@@ -773,8 +773,8 @@ model LeaseContract {
   id          Int            @id @default(autoincrement())
   unitId      Int
   condoId     Int?
-  landlordId  Int
-  tenantId    Int
+  landlordId  Int?
+  tenantId    Int?
   startDate   DateTime       @db.Date
   endDate     DateTime       @db.Date
   monthlyRent Decimal        @db.Decimal(12, 2)
@@ -788,8 +788,8 @@ model LeaseContract {
 
   unit             Unit                 @relation(fields: [unitId],      references: [id])
   condo            CondoMaster?         @relation(fields: [condoId],     references: [id])
-  landlord         User                 @relation("LandlordLeases",      fields: [landlordId],  references: [id])
-  tenant           User                 @relation("TenantLeases",        fields: [tenantId],    references: [id])
+  landlord         User?                @relation("LandlordLeases",      fields: [landlordId],  references: [id], onDelete: SetNull)
+  tenant           User?                @relation("TenantLeases",        fields: [tenantId],    references: [id], onDelete: SetNull)
   createdBy        User?                @relation("LeaseCreatedBy",      fields: [createdById], references: [id], onDelete: SetNull)
   paymentSchedules PaymentSchedule[]
   careRequests     CareServiceRequest[]

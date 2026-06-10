@@ -51,16 +51,25 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
-    if (!session?.user?.id) {
+
+    const authHeader = req.headers.get("authorization");
+    const isSyncRequest =
+      !!authHeader &&
+      !!process.env.RBS_SYNC_SECRET &&
+      authHeader === `Bearer ${process.env.RBS_SYNC_SECRET}`;
+
+    if (!session?.user?.id && !isSyncRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const level = Number(session.user.level ?? 1);
-    if (level !== 0) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (session?.user?.id) {
+      const level = Number(session.user.level ?? 1);
+      if (level !== 0) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
-    const createdById = Number(session.user.id);
+    const createdById = session?.user?.id ? Number(session.user.id) : null;
     const body = await req.json();
     const {
       unitId,
@@ -75,7 +84,7 @@ export async function POST(req: Request) {
       crmDealId,
     } = body;
 
-    if (!unitId || !landlordId || !tenantId || !startDate || !endDate || !monthlyRent) {
+    if (!unitId || !startDate || !endDate || !monthlyRent) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -98,8 +107,8 @@ export async function POST(req: Request) {
       data: {
         unitId: Number(unitId),
         condoId: condoId ? Number(condoId) : null,
-        landlordId: Number(landlordId),
-        tenantId: Number(tenantId),
+        landlordId: landlordId ? Number(landlordId) : null,
+        tenantId: tenantId ? Number(tenantId) : null,
         startDate: start,
         endDate: end,
         monthlyRent: Number(monthlyRent),
@@ -122,7 +131,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ lease }, { status: 201 });
+    return NextResponse.json({ leaseId: lease.id, ...lease }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/pms/leases]", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
