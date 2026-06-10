@@ -156,7 +156,7 @@ export default async function LandlordDashboardPage() {
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5 truncate">{l.unit.fullAddress}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        임차인: {l.tenant.name} · 월세: ₱ {Number(l.monthlyRent).toLocaleString()}
+                        임차인: {l.tenant?.name ?? "미지정"} · 월세: ₱ {Number(l.monthlyRent).toLocaleString()}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
