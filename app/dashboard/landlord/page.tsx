@@ -9,17 +9,25 @@ import { Building2, Banknote, Wrench, AlertTriangle, ArrowRight } from "lucide-r
 import { ContractStatus, PaymentStatus } from "@prisma/client";
 
 const paymentStatusConfig: Record<PaymentStatus, { text: string; cls: string }> = {
-  PENDING: { text: "납부 대기", cls: "bg-gray-100 text-gray-600" },
-  AWAITING_APPROVAL: { text: "확인 대기", cls: "bg-orange-100 text-orange-600" },
-  PAID: { text: "납부 완료", cls: "bg-green-100 text-green-700" },
-  OVERDUE: { text: "연체", cls: "bg-red-100 text-red-600" },
+  PENDING: { text: "Pending", cls: "bg-gray-100 text-gray-600" },
+  AWAITING_APPROVAL: { text: "Awaiting Approval", cls: "bg-orange-100 text-orange-600" },
+  PAID: { text: "Paid", cls: "bg-green-100 text-green-700" },
+  OVERDUE: { text: "Overdue", cls: "bg-red-100 text-red-600" },
 };
 
+// PENDING 상태의 계약 목록 배지는 "Payment Due"로 표시
+const leaseBadgeLabel: Record<PaymentStatus, string> = {
+  ...Object.fromEntries(
+    Object.entries(paymentStatusConfig).map(([k, v]) => [k, v.text])
+  ),
+  PENDING: "Payment Due",
+} as Record<PaymentStatus, string>;
+
 const careStatusLabel: Record<string, string> = {
-  PENDING: "접수",
-  SCHEDULED: "일정 확정",
-  COMPLETED: "완료",
-  CANCELLED: "취소",
+  PENDING: "Received",
+  SCHEDULED: "Scheduled",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
 };
 
 export default async function LandlordDashboardPage() {
@@ -75,9 +83,9 @@ export default async function LandlordDashboardPage() {
     <div className="max-w-[1140px] mx-auto px-4 py-10 space-y-10">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">
-          안녕하세요, {session.user.name ?? "임대인"}님
+          Hello, {session.user.name ?? "Landlord"}
         </h1>
-        <p className="text-gray-500 mt-1 text-sm">보유 유닛과 임대 현황을 확인하세요.</p>
+        <p className="text-gray-500 mt-1 text-sm">Check your units and lease status.</p>
       </div>
 
       {/* 만료 60일 이내 경고 배너 */}
@@ -86,13 +94,13 @@ export default async function LandlordDashboardPage() {
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-amber-700 text-sm">
-              계약 만료 임박 — {expiringLeases.length}건
+              Lease Expiring Soon — {expiringLeases.length}
             </p>
             <ul className="mt-1 space-y-0.5">
               {expiringLeases.map((l) => (
                 <li key={l.id} className="text-xs text-amber-600">
-                  {l.unit.title} · 만료일:{" "}
-                  {new Date(l.endDate).toLocaleDateString("ko-KR")} (60일 이내)
+                  {l.unit.title} · Expires:{" "}
+                  {new Date(l.endDate).toLocaleDateString("en-US")} (within 60 days)
                 </li>
               ))}
             </ul>
@@ -106,7 +114,7 @@ export default async function LandlordDashboardPage() {
           <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
             <Banknote className="w-5 h-5 text-green-600" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800">이번 달 납부 현황</h2>
+          <h2 className="text-lg font-bold text-gray-800">This Month Payment Status</h2>
         </div>
         <div className="grid grid-cols-4 md:grid-cols-2 gap-3">
           {(["PENDING", "AWAITING_APPROVAL", "PAID", "OVERDUE"] as PaymentStatus[]).map((s) => {
@@ -128,18 +136,18 @@ export default async function LandlordDashboardPage() {
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <Building2 className="w-5 h-5 text-orange-500" />
             </div>
-            <h2 className="text-lg font-bold text-gray-800">활성 계약</h2>
+            <h2 className="text-lg font-bold text-gray-800">Active Leases</h2>
           </div>
           <Link
             href="/api/pms/leases"
             className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
           >
-            전체 보기 <ArrowRight className="w-4 h-4" />
+            View All <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         {leases.length === 0 ? (
-          <EmptyState message="활성 임대차 계약이 없습니다." />
+          <EmptyState message="No active leases." />
         ) : (
           <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
             {leases.map((l) => {
@@ -156,16 +164,16 @@ export default async function LandlordDashboardPage() {
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5 truncate">{l.unit.fullAddress}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        임차인: {l.tenant?.name ?? "미지정"} · 월세: ₱ {Number(l.monthlyRent).toLocaleString()}
+                        Tenant: {l.tenant?.name ?? "Unassigned"} · Monthly Rent: ₱ {Number(l.monthlyRent).toLocaleString()}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       <span className="text-xs text-gray-400">
-                        ~ {new Date(l.endDate).toLocaleDateString("ko-KR")}
+                        ~ {new Date(l.endDate).toLocaleDateString("en-US")}
                       </span>
-                      {paymentCfg && (
+                      {paymentCfg && thisMonthPayment && (
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentCfg.cls}`}>
-                          {paymentCfg.text}
+                          {leaseBadgeLabel[thisMonthPayment.status]}
                         </span>
                       )}
                     </div>
@@ -183,11 +191,11 @@ export default async function LandlordDashboardPage() {
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <Wrench className="w-5 h-5 text-purple-500" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800">케어 서비스 진행 현황</h2>
+          <h2 className="text-lg font-bold text-gray-800">Care Service Status</h2>
         </div>
 
         {allCareRequests.length === 0 ? (
-          <EmptyState message="진행 중인 케어 서비스가 없습니다." />
+          <EmptyState message="No active care service requests." />
         ) : (
           <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
             {allCareRequests.map((c) => (
@@ -197,7 +205,7 @@ export default async function LandlordDashboardPage() {
                     {c.serviceType} · {c.unit.title}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    희망일: {new Date(c.preferredDate).toLocaleDateString("ko-KR")}
+                    Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
                   </p>
                 </div>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium flex-shrink-0 ml-4">
