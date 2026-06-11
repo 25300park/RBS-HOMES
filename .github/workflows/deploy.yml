@@ -19,3 +19,17 @@ jobs:
             git pull origin main
             npm run build
             pm2 restart front-rbs --update-env
+
+      - name: Notify Telegram on Success
+        if: success()
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="✅ RBS-HOMES 배포 완료%0A브랜치: main%0A시간: $(date '+%Y-%m-%d %H:%M:%S')"
+
+      - name: Notify Telegram on Failure
+        if: failure()
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="❌ RBS-HOMES 배포 실패%0A브랜치: main%0A시간: $(date '+%Y-%m-%d %H:%M:%S')%0A확인: https://github.com/25300park/RBS-HOMES/actions"
