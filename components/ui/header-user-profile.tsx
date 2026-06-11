@@ -313,6 +313,19 @@ export default function HeaderUserProfile({ session }: any) {
               }
             };
 
+            if (menu.label === "Dashboard") {
+              return (
+                <DropdownMenuItem
+                  key={menu.label}
+                  className="text-sm cursor-pointer px-4 py-3 flex items-center gap-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => (window.location.href = menu.link)}
+                >
+                  <span>{getIcon(menu.label)}</span>
+                  <span>{menu.label}</span>
+                </DropdownMenuItem>
+              );
+            }
+
             return (
               <DropdownMenuItem key={menu.label} asChild>
                 <Link
