@@ -36,7 +36,17 @@ export async function GET(req: Request) {
           orderBy: { dueDate: "desc" },
         },
         careRequests: {
-          where: { status: { in: ["PENDING", "SCHEDULED"] } },
+          where: {
+            status: {
+              in: [
+                "PENDING",
+                "PENDING_OWNER_APPROVAL",
+                "SCHEDULED",
+                "IN_PROGRESS",
+                "AWAITING_TENANT_CONFIRMATION",
+              ],
+            },
+          },
           orderBy: { createdAt: "desc" },
         },
       },

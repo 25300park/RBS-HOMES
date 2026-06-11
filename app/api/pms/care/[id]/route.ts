@@ -5,7 +5,70 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
-// level 0: 전체 수정 / level 5: 취소(CANCELLED)만 가능
+// 케어 서비스 상태 변경 시 관련자에게 알림 생성
+const careStatusNotifications: Record<
+  string,
+  { recipient: "landlord" | "tenant"; title: string; content: (unitTitle: string) => string }
+> = {
+  "PENDING->PENDING_OWNER_APPROVAL": {
+    recipient: "landlord",
+    title: "Care Service Approval Needed",
+    content: (unitTitle) => `A care service request for ${unitTitle} needs your approval.`,
+  },
+  "PENDING_OWNER_APPROVAL->SCHEDULED": {
+    recipient: "tenant",
+    title: "Care Service Scheduled",
+    content: (unitTitle) => `Your care service request for ${unitTitle} has been scheduled.`,
+  },
+  "IN_PROGRESS->AWAITING_TENANT_CONFIRMATION": {
+    recipient: "tenant",
+    title: "Please Confirm Care Service Completion",
+    content: (unitTitle) => `Please confirm the completed care service for ${unitTitle}.`,
+  },
+  "AWAITING_TENANT_CONFIRMATION->COMPLETED": {
+    recipient: "landlord",
+    title: "Care Service Completed",
+    content: (unitTitle) =>
+      `The care service for ${unitTitle} has been confirmed as completed by the tenant.`,
+  },
+};
+
+async function notifyCareStatusChange(
+  existing: {
+    status: string;
+    contract: { tenantId: number | null; landlordId: number | null; unit: { title: string } };
+  },
+  newStatus: string,
+  actorId: number
+) {
+  const transition = careStatusNotifications[`${existing.status}->${newStatus}`];
+  if (!transition) return;
+
+  const recipientId =
+    transition.recipient === "landlord" ? existing.contract.landlordId : existing.contract.tenantId;
+  if (!recipientId) return;
+
+  const message = await prisma.message.create({
+    data: {
+      senderId: actorId,
+      recipientId,
+      title: transition.title,
+      content: transition.content(existing.contract.unit.title),
+      type: 1,
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      messageId: message.id,
+      userId: recipientId,
+      type: 1,
+    },
+  });
+}
+
+// level 0: 전체 수정 / level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
+// level 5: 본인 계약의 케어만, 취소 또는 완료 확인(AWAITING_TENANT_CONFIRMATION → COMPLETED)만 가능
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
@@ -22,7 +85,11 @@ export async function PATCH(
 
     const existing = await prisma.careServiceRequest.findUnique({
       where: { id: careId },
-      include: { contract: { select: { tenantId: true } } },
+      include: {
+        contract: {
+          select: { tenantId: true, landlordId: true, unit: { select: { title: true } } },
+        },
+      },
     });
 
     if (!existing) {
@@ -32,22 +99,59 @@ export async function PATCH(
     const body = await req.json();
 
     if (level === 5) {
-      // 임차인: 본인 계약의 케어만, 취소 상태로만 변경 가능
+      // 임차인: 본인 계약의 케어만
       if (existing.contract.tenantId !== userId) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
 
-      if (body.status !== "CANCELLED") {
+      if (body.status === "CANCELLED") {
+        const updated = await prisma.careServiceRequest.update({
+          where: { id: careId },
+          data: { status: "CANCELLED" },
+        });
+
+        return NextResponse.json({ careRequest: updated });
+      }
+
+      if (existing.status === "AWAITING_TENANT_CONFIRMATION" && body.status === "COMPLETED") {
+        const updated = await prisma.careServiceRequest.update({
+          where: { id: careId },
+          data: { status: "COMPLETED", completedAt: new Date() },
+        });
+
+        await notifyCareStatusChange(existing, "COMPLETED", userId);
+
+        return NextResponse.json({ careRequest: updated });
+      }
+
+      return NextResponse.json(
+        { error: "Tenant can only cancel a care request or confirm its completion" },
+        { status: 403 }
+      );
+    }
+
+    if (level === 4) {
+      // 오너: 본인 유닛의 케어 승인만 가능
+      if (existing.contract.landlordId !== userId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      if (existing.status !== "PENDING_OWNER_APPROVAL" || body.status !== "SCHEDULED") {
         return NextResponse.json(
-          { error: "Tenant can only cancel a care request" },
+          { error: "Owner can only approve a care request awaiting approval" },
           { status: 403 }
         );
       }
 
       const updated = await prisma.careServiceRequest.update({
         where: { id: careId },
-        data: { status: "CANCELLED" },
+        data: {
+          status: "SCHEDULED",
+          scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : new Date(),
+        },
       });
+
+      await notifyCareStatusChange(existing, "SCHEDULED", userId);
 
       return NextResponse.json({ careRequest: updated });
     }
@@ -79,6 +183,10 @@ export async function PATCH(
         ...(description !== undefined && { description }),
       },
     });
+
+    if (status !== undefined && status !== existing.status) {
+      await notifyCareStatusChange(existing, status, userId);
+    }
 
     return NextResponse.json({ careRequest: updated });
   } catch (error) {

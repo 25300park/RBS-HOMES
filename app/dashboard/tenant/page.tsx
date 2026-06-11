@@ -17,14 +17,18 @@ import {
 } from "lucide-react";
 import { ContractStatus } from "@prisma/client";
 import ReceiptUploadButton from "./components/receipt-upload-button";
+import ConfirmCareCompletionButton from "./components/confirm-care-completion-button";
 import BottomNav from "./components/bottom-nav";
 import LogoutButton from "./components/logout-button";
 
 const careStatusLabel: Record<string, { text: string; cls: string }> = {
-  PENDING: { text: "Pending", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
+  PENDING: { text: "Requested", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
+  PENDING_OWNER_APPROVAL: { text: "Awaiting Owner Approval", cls: "bg-orange-500/15 text-orange-400" },
   SCHEDULED: { text: "Scheduled", cls: "bg-[#3B82F6]/15 text-[#3B82F6]" },
-  COMPLETED: { text: "Completed", cls: "bg-[#10B981]/15 text-[#10B981]" },
-  CANCELLED: { text: "Cancelled", cls: "bg-[#334155] text-[#94A3B8]" },
+  IN_PROGRESS: { text: "In Progress", cls: "bg-purple-500/15 text-purple-400" },
+  AWAITING_TENANT_CONFIRMATION: { text: "Please Confirm", cls: "bg-[#10B981]/15 text-[#10B981] animate-pulse" },
+  COMPLETED: { text: "Completed", cls: "bg-[#334155] text-[#94A3B8]" },
+  CANCELLED: { text: "Cancelled", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
 };
 
 const careServiceTypeLabel: Record<string, string> = {
@@ -91,7 +95,18 @@ export default async function TenantDashboardPage() {
       take: 6,
     }),
     prisma.careServiceRequest.findMany({
-      where: { contractId: leaseId, status: { in: ["PENDING", "SCHEDULED"] } },
+      where: {
+        contractId: leaseId,
+        status: {
+          in: [
+            "PENDING",
+            "PENDING_OWNER_APPROVAL",
+            "SCHEDULED",
+            "IN_PROGRESS",
+            "AWAITING_TENANT_CONFIRMATION",
+          ],
+        },
+      },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
@@ -242,9 +257,14 @@ export default async function TenantDashboardPage() {
                         Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
                       </p>
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${cfg.cls}`}>
-                      {cfg.text}
-                    </span>
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
+                        {cfg.text}
+                      </span>
+                      {c.status === "AWAITING_TENANT_CONFIRMATION" && (
+                        <ConfirmCareCompletionButton careId={c.id} />
+                      )}
+                    </div>
                   </div>
                 );
               })}
