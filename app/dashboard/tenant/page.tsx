@@ -164,7 +164,7 @@ export default async function TenantDashboardPage() {
 
         {/* This month payment */}
         <section id="payments">
-          <SectionTitle>This Month's Payment</SectionTitle>
+          <SectionTitle>{`This Month's Payment`}</SectionTitle>
           {!thisMonthPayment ? (
             <EmptyState message="No payment scheduled for this month." />
           ) : (
