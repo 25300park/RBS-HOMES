@@ -5,6 +5,53 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+const careServiceTypeLabel: Record<string, string> = {
+  AIRCON: "Air Conditioning",
+  CLEANING: "Cleaning",
+  REPAIR: "Repair",
+  HANDYMAN: "Handyman",
+};
+
+// 신규 케어 요청 등록 시 오너/관리자에게 알림 전송
+async function notifyNewCareRequest(
+  serviceType: string,
+  unitTitle: string,
+  tenantName: string,
+  landlordId: number | null,
+  senderId: number
+) {
+  const admins = await prisma.user.findMany({
+    where: { level: 0 },
+    select: { id: true },
+  });
+
+  const recipientIds = new Set<number>();
+  if (landlordId) recipientIds.add(landlordId);
+  admins.forEach((a) => recipientIds.add(a.id));
+  recipientIds.delete(senderId);
+
+  const title = "New Care Service Request";
+  const content = `${tenantName} requested ${
+    careServiceTypeLabel[serviceType] ?? serviceType
+  } for ${unitTitle}.`;
+
+  for (const recipientId of Array.from(recipientIds)) {
+    const message = await prisma.message.create({
+      data: {
+        senderId,
+        recipientId,
+        title,
+        content,
+        type: 1,
+      },
+    });
+
+    await prisma.notification.create({
+      data: { messageId: message.id, userId: recipientId, type: 1 },
+    });
+  }
+}
+
 export async function GET(req: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
@@ -85,7 +132,11 @@ export async function POST(req: Request) {
     // 본인 계약인지 검증
     const lease = await prisma.leaseContract.findUnique({
       where: { id: Number(contractId) },
-      select: { tenantId: true },
+      select: {
+        tenantId: true,
+        landlordId: true,
+        unit: { select: { title: true } },
+      },
     });
 
     if (!lease || lease.tenantId !== userId) {
@@ -100,6 +151,14 @@ export async function POST(req: Request) {
         description: description ?? null,
       },
     });
+
+    await notifyNewCareRequest(
+      serviceType,
+      lease.unit.title,
+      session.user.name ?? "A tenant",
+      lease.landlordId,
+      userId
+    );
 
     return NextResponse.json({ careRequest }, { status: 201 });
   } catch (error) {
