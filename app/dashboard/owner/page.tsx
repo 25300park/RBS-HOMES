@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Building2, FileText, Wrench, ExternalLink } from "lucide-react";
 import LogoutButton from "./components/logout-button";
+import ApproveCareButton from "./components/approve-care-button";
 
 const careServiceTypeLabel: Record<string, string> = {
   AIRCON: "Aircon Service",
@@ -15,8 +16,13 @@ const careServiceTypeLabel: Record<string, string> = {
 };
 
 const careStatusLabel: Record<string, { text: string; cls: string }> = {
-  PENDING: { text: "Pending", cls: "bg-gray-100 text-gray-600" },
+  PENDING: { text: "Requested", cls: "bg-gray-100 text-gray-600" },
+  PENDING_OWNER_APPROVAL: { text: "Awaiting Your Approval", cls: "bg-orange-100 text-orange-600" },
   SCHEDULED: { text: "Scheduled", cls: "bg-blue-100 text-blue-600" },
+  IN_PROGRESS: { text: "In Progress", cls: "bg-purple-100 text-purple-600" },
+  AWAITING_TENANT_CONFIRMATION: { text: "Awaiting Tenant Confirmation", cls: "bg-green-100 text-green-700" },
+  COMPLETED: { text: "Completed", cls: "bg-gray-100 text-gray-500" },
+  CANCELLED: { text: "Cancelled", cls: "bg-red-100 text-red-600" },
 };
 
 async function getOwnerDashboardData() {
@@ -196,6 +202,11 @@ export default async function OwnerDashboardPage() {
                     <p className="text-xs text-gray-500 mt-3">
                       Requested: {new Date(c.createdAt).toLocaleDateString("en-US")}
                     </p>
+                    {c.status === "PENDING_OWNER_APPROVAL" && (
+                      <div className="mt-3">
+                        <ApproveCareButton careId={c.id} />
+                      </div>
+                    )}
                   </div>
                 );
               })}
