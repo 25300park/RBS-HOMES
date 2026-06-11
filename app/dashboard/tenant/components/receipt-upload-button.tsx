@@ -21,27 +21,27 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
     setError(null);
 
     try {
-      // 1. Cloudflare R2에 이미지 업로드
+      // 1. Upload image to Cloudflare R2
       const formData = new FormData();
       formData.append("file", file);
       const uploadRes = await fetch("/api/image-upload/profile", {
         method: "POST",
         body: formData,
       });
-      if (!uploadRes.ok) throw new Error("이미지 업로드에 실패했습니다.");
+      if (!uploadRes.ok) throw new Error("Failed to upload image.");
       const { imageUrl } = await uploadRes.json();
 
-      // 2. 납부 스케줄에 영수증 URL 기록 → AWAITING_APPROVAL
+      // 2. Record receipt URL on payment schedule → AWAITING_APPROVAL
       const patchRes = await fetch(`/api/pms/payments/${paymentId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receiptImageUrl: imageUrl }),
       });
-      if (!patchRes.ok) throw new Error("납부 정보 업데이트에 실패했습니다.");
+      if (!patchRes.ok) throw new Error("Failed to update payment information.");
 
       setDone(true);
     } catch (err: any) {
-      setError(err.message ?? "오류가 발생했습니다.");
+      setError(err.message ?? "An error occurred.");
     } finally {
       setUploading(false);
     }
@@ -50,7 +50,7 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
   if (done) {
     return (
       <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
-        영수증 제출 완료 — 확인 중입니다
+        Receipt submitted — pending approval
       </span>
     );
   }
@@ -67,7 +67,7 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
         ) : (
           <Upload className="w-4 h-4" />
         )}
-        {uploading ? "업로드 중..." : "영수증 업로드"}
+        {uploading ? "Uploading..." : "Upload Receipt"}
       </button>
       <input
         ref={inputRef}
