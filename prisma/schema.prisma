@@ -90,6 +90,10 @@ model User {
   processedComplain ComplainUnit[]   @relation("ProcessedComplain")
   userComplain      ComplainUnit[]   @relation("UserComplain")
 
+  // ── 에이전트 확장 ───────────────────────────────────────
+  agentUnits     Unit[]          @relation("AgentUnits")
+  agentSchedules AgentSchedule[] @relation("AgentSchedules")
+
   @@map("user")
 }
 
@@ -308,6 +312,11 @@ model Unit {
   condo          CondoMaster?    @relation(fields: [condoId], references: [id], onDelete: SetNull)
   leaseContracts LeaseContract[]
 
+  // ── 에이전트 확장 ───────────────────────────────────────
+  agentId        Int?
+  agent          User?           @relation("AgentUnits", fields: [agentId], references: [id], onDelete: SetNull)
+  agentSchedules AgentSchedule[]
+
   // 관계 추가
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
   favorites Favorite[]
@@ -315,6 +324,7 @@ model Unit {
   messages Message[]
   @@index([condoId], map: "Unit_condoId_fkey")
   @@index([adminId], map: "Unit_adminId_fkey")
+  @@index([agentId])
   @@map("unit")
 }
 
@@ -865,4 +875,21 @@ model CommunityPost {
   @@index([condoId])
   @@index([authorId])
   @@map("communitypost")
+}
+
+model AgentSchedule {
+  id        Int       @id @default(autoincrement())
+  agentId   Int
+  unitId    Int?
+  title     String    @db.VarChar(200)
+  date      DateTime
+  memo      String?   @db.Text
+  status    Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  agent     User      @relation("AgentSchedules", fields: [agentId], references: [id], onDelete: Cascade)
+  unit      Unit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  @@index([agentId])
+  @@index([unitId])
+  @@map("agentschedule")
 }
