@@ -9,7 +9,7 @@ import { Heart, CalendarDays, MessageSquare, ArrowRight } from "lucide-react";
 
 export default async function BuyerDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect("/");
 
   const userId = Number(session.user.id);
 

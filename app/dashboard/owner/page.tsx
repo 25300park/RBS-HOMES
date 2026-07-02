@@ -42,7 +42,7 @@ async function getOwnerDashboardData() {
 
 export default async function OwnerDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/auth/login");
+  if (!session?.user?.id) redirect("/");
 
   const data = await getOwnerDashboardData();
   const leases = data?.leases ?? [];
