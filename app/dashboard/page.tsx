@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   const session: any = await getServerSession(authOptions as any);
 
   if (!session?.user?.id) {
-    redirect("/login");
+    redirect("/");
   }
 
   const level = Number(session.user.level ?? 1);

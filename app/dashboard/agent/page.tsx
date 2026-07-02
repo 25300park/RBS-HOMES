@@ -40,7 +40,7 @@ async function getAgentDashboardData() {
 
 export default async function AgentDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/auth/login");
+  if (!session?.user?.id) redirect("/");
 
   const data = await getAgentDashboardData();
   const units = data?.units ?? [];

@@ -11,7 +11,7 @@ import CareRequestForm from "./components/care-request-form";
 
 export default async function CareRequestPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect("/");
 
   const userId = Number(session.user.id);
 
