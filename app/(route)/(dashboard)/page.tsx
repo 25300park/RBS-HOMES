@@ -6,6 +6,7 @@ import HeroSection from "./components/hero";
 import YouTubeSection from "./components/youtube-section";
 import FeaturedPropertiesSection from "./components/featured-properties-section";
 import GoogleReviews from "./components/google-reviews";
+import { getFeaturedProperties } from "@/lib/units/get-featured";
 
 export default async function DashBoard({
   searchParams,
@@ -32,11 +33,13 @@ export default async function DashBoard({
   //   redirect("/map");
   // }
 
+  const featuredData = await getFeaturedProperties(4);
+
   return (
     <main>
       <div className="">
         <HeroSection />
-        <FeaturedPropertiesSection />
+        <FeaturedPropertiesSection initialData={featuredData} />
         <YouTubeSection />
       </div>
     </main>

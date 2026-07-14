@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ListCard from "@/components/ui/list-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import useHandleUnitClick from "@/hooks/use-handle-unit-click";
@@ -87,42 +87,28 @@ const AREA_SEARCH_LINKS = {
   recent: "/map"
 };
 
-const FeaturedPropertiesSection = () => {
-  const [data, setData] = useState<FeaturedPropertiesResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [visibleSections, setVisibleSections] = useState<string[]>([]);
+const FeaturedPropertiesSection = ({
+  initialData,
+}: {
+  initialData?: FeaturedPropertiesResponse;
+}) => {
+  const data = initialData ?? null;
+  const isLoading = false;
+  const error = null;
+
+  const visibleSections = useMemo(
+    () =>
+      data
+        ? Object.keys(data).filter(
+            (key) =>
+              key.endsWith("Units") &&
+              (data as any)[key]?.length > 0
+          )
+        : [],
+    [data]
+  );
+
   const handleUnitClick = useHandleUnitClick();
-
-  useEffect(() => {
-    const fetchFeaturedProperties = async () => {
-      try {
-        setIsLoading(true);
-        // 모든 지역의 매물을 가져옴
-        const response = await fetch('/api/units/best?type=all&limit=4');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch featured properties');
-        }
-        
-        const result = await response.json();
-        setData(result);
-
-        // 데이터가 있는 섹션들 확인
-        const sections = Object.keys(result).filter(key => 
-          key.endsWith('Units') && result[key]?.length > 0
-        );
-        setVisibleSections(sections);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        console.error('Failed to fetch featured properties:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFeaturedProperties();
-  }, []);
 
   const renderSkeletonCards = () => (
     <div className="grid grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-3">
