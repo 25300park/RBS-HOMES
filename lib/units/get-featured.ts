@@ -94,31 +94,37 @@ function transformUnits(units: any[]) {
 }
 
 export async function getFeaturedProperties(limit = 4) {
-  const result: { [key: string]: any } = {};
+  const areaEntries = Object.entries(POPULAR_AREAS);
 
-  // 최근 매물
-  result.recentUnits = await prisma.unit.findMany({
-    where: { status: { in: DEFAULT_STATUS } },
-    include: { admin: { select: ADMIN_SELECT } },
-    orderBy: { lastUpdate: "desc" },
-    take: limit,
-  });
-
-  // 지역별 매물
-  for (const [areaKey, area] of Object.entries(POPULAR_AREAS)) {
-    const units = await prisma.unit.findMany({
-      where: {
-        status: { in: DEFAULT_STATUS },
-        ...createAreaFilter(area.keywords),
-      },
+  // 모든 쿼리를 동시에 시작
+  const [recentUnits, ...areaResults] = await Promise.all([
+    prisma.unit.findMany({
+      where: { status: { in: DEFAULT_STATUS } },
       include: { admin: { select: ADMIN_SELECT } },
       orderBy: { lastUpdate: "desc" },
       take: limit,
-    });
-    if (units.length > 0) {
-      result[`${areaKey}Units`] = units;
+    }),
+    ...areaEntries.map(([, area]) =>
+      prisma.unit.findMany({
+        where: {
+          status: { in: DEFAULT_STATUS },
+          ...createAreaFilter(area.keywords),
+        },
+        include: { admin: { select: ADMIN_SELECT } },
+        orderBy: { lastUpdate: "desc" },
+        take: limit,
+      })
+    ),
+  ]);
+
+  // 결과 취합
+  const result: { [key: string]: any } = {};
+  result.recentUnits = recentUnits;
+  areaEntries.forEach(([areaKey], i) => {
+    if (areaResults[i].length > 0) {
+      result[`${areaKey}Units`] = areaResults[i];
     }
-  }
+  });
 
   const transformed: { [key: string]: any } = {};
   for (const [key, units] of Object.entries(result)) {
