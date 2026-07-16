@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from "next/image";
 import { Home, Building, TrendingUp, ArrowRight, List, MapPin, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -204,10 +205,11 @@ const HeroSection = () => {
                                 onClick={() => handleSearch(city.name, 'list')}
                                 className="relative group overflow-hidden rounded-lg aspect-video hover:shadow-md transition-all"
                               >
-                                <img
+                                <Image
                                   src={city.image}
                                   alt={city.name}
-                                  className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-200"
+                                  fill
+                                  className="object-cover group-hover:scale-110 transition-transform duration-200"
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
                                     target.src = `https://via.placeholder.com/300x200/f97316/ffffff?text=${encodeURIComponent(city.name)}`;
@@ -360,7 +362,13 @@ const HeroSection = () => {
           <div className="max-w-6xl mx-auto p-3 border-b border-gray-200">
               <div className="flex">
                 <div className="size-14 grow">
-                  <img src="/assets/images/rbs-logo.png" alt="logo" className="w-42 h-auto float-left mt-1"/>
+                  <Image
+                    src="/assets/images/rbs-logo.png"
+                    alt="logo"
+                    width={168}
+                    height={40}
+                    className="w-42 h-auto float-left mt-1"
+                  />
                 </div>
                 <div className="size-14 grow">
                   <div className="w-fit float-right mt-2">

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export interface CityCardProps {
   name: string;
   listings: string;
@@ -7,7 +9,7 @@ export interface CityCardProps {
 
 const CityCard = ({ name, listings, imageUrl, description }: CityCardProps) => (
   <div className="relative overflow-hidden rounded-lg shadow-lg h-full min-h-[210px]">
-    <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+    <Image src={imageUrl} alt={name} fill className="object-cover" />
     
     {/* 그라데이션 배경 */}
     <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-95"></div>

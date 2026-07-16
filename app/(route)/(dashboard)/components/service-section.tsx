@@ -55,7 +55,12 @@ const ServiceSection = ({}: ServiceSectionProps): React.ReactNode => {
             ))}
           </div>
         </div>
-        <img src="/assets/images/sub-image.png" alt="sub" className=""/>
+        <Image
+          src="/assets/images/sub-image.png"
+          alt="sub"
+          width={350}
+          height={370}
+        />
       </div>
     </section>
   );
