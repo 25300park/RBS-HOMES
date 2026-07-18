@@ -40,7 +40,7 @@ const careServiceTypeLabel: Record<string, string> = {
 
 export default async function TenantDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect("/");
 
   const userId = Number(session.user.id);
 

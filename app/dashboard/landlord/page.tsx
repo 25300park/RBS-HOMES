@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { Building2, Banknote, Wrench, AlertTriangle, ArrowRight } from "lucide-react";
 import { ContractStatus, PaymentStatus } from "@prisma/client";
+import ApproveCareButton from "./components/approve-care-button";
 
 const paymentStatusConfig: Record<PaymentStatus, { text: string; cls: string }> = {
   PENDING: { text: "Pending", cls: "bg-gray-100 text-gray-600" },
@@ -25,14 +26,17 @@ const leaseBadgeLabel: Record<PaymentStatus, string> = {
 
 const careStatusLabel: Record<string, string> = {
   PENDING: "Received",
+  PENDING_OWNER_APPROVAL: "Awaiting Your Approval",
   SCHEDULED: "Scheduled",
+  IN_PROGRESS: "In Progress",
+  AWAITING_TENANT_CONFIRMATION: "Awaiting Tenant Confirmation",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
 };
 
 export default async function LandlordDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect("/");
 
   const userId = Number(session.user.id);
 
@@ -56,7 +60,17 @@ export default async function LandlordDashboardPage() {
         take: 1,
       },
       careRequests: {
-        where: { status: { in: ["PENDING", "SCHEDULED"] } },
+        where: {
+          status: {
+            in: [
+              "PENDING",
+              "PENDING_OWNER_APPROVAL",
+              "SCHEDULED",
+              "IN_PROGRESS",
+              "AWAITING_TENANT_CONFIRMATION",
+            ],
+          },
+        },
         orderBy: { createdAt: "desc" },
         take: 3,
       },
@@ -208,9 +222,14 @@ export default async function LandlordDashboardPage() {
                     Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
                   </p>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium flex-shrink-0 ml-4">
-                  {careStatusLabel[c.status] ?? c.status}
-                </span>
+                <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-4">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium">
+                    {careStatusLabel[c.status] ?? c.status}
+                  </span>
+                  {c.status === "PENDING_OWNER_APPROVAL" && (
+                    <ApproveCareButton careId={c.id} />
+                  )}
+                </div>
               </div>
             ))}
           </div>

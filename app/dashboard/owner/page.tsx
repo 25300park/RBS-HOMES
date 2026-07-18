@@ -42,7 +42,7 @@ async function getOwnerDashboardData() {
 
 export default async function OwnerDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/auth/login");
+  if (!session?.user?.id) redirect("/");
 
   const data = await getOwnerDashboardData();
   const leases = data?.leases ?? [];
@@ -50,6 +50,8 @@ export default async function OwnerDashboardPage() {
   const allCareRequests = leases.flatMap((l: any) =>
     l.careRequests.map((c: any) => ({ ...c, unit: l.unit }))
   );
+  console.log("[DEBUG] allCareRequests:", JSON.stringify(allCareRequests));
+  console.log("[DEBUG] leases careRequests:", JSON.stringify(leases.map((l: any) => l.careRequests)));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -176,6 +178,8 @@ export default async function OwnerDashboardPage() {
             </div>
           )}
         </section>
+
+        {/* DEBUG: {JSON.stringify(allCareRequests)} */}
 
         {/* Care Service Requests */}
         <section>

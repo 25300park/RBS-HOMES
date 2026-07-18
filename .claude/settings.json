@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(mkdir -p \"d:/01. RBS-HOMES Backup/01. RBS-HOMES/app/api/pms/owner-dashboard\" \"d:/01. RBS-HOMES Backup/01. RBS-HOMES/app/dashboard/owner/components\")",
+      "Bash(git fetch *)",
+      "Bash(git stash *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)"
+    ],
+    "additionalDirectories": [
+      "d:\\01. RBS-HOMES Backup\\01. RBS-HOMES\\app\\api\\pms"
     ]
   }
 }

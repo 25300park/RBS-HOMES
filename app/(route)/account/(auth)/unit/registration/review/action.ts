@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+// 에이전트 레벨: 이 레벨이 등록하면 본인을 담당 에이전트(agentId)로 자동 연결
+// (dashboardByLevel의 agent 매핑 기준: 2, 3)
+const AGENT_LEVELS = [2, 3];
+
 export async function registerUnit(data: any) {
   try {
     const session: any = await getServerSession(authOptions as any);
@@ -17,6 +21,10 @@ export async function registerUnit(data: any) {
       };
     }
     
+    // 등록자가 에이전트 레벨이면 본인을 담당 에이전트로 자동 연결
+    const registrantLevel = Number(session.user.level ?? 0);
+    const isAgent = AGENT_LEVELS.includes(registrantLevel);
+
     if (data.saleType === "presale") {
       const userLevel = session.user.level as number;
       const hasPreSalePermission = [0, 20, 30, 40].includes(userLevel);
@@ -32,6 +40,8 @@ export async function registerUnit(data: any) {
     
     const transformedData = {
       adminId: session.user.id,
+      // 에이전트가 등록한 경우 본인 id를 담당 에이전트로 자동 연결 (그 외에는 null → 이후 Admin이 배정)
+      agentId: isAgent ? Number(session.user.id) : null,
       title: data.title,
       type: data.unitType, 
       sellType: data.saleType,
