@@ -878,18 +878,20 @@ model CommunityPost {
 }
 
 model AgentSchedule {
-  id        Int       @id @default(autoincrement())
-  agentId   Int
-  unitId    Int?
-  title     String    @db.VarChar(200)
-  date      DateTime
-  memo      String?   @db.Text
-  status    Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  agent     User      @relation("AgentSchedules", fields: [agentId], references: [id], onDelete: Cascade)
-  unit      Unit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  id               Int       @id @default(autoincrement())
+  agentId          Int
+  unitId           Int?
+  title            String    @db.VarChar(200)
+  date             DateTime
+  memo             String?   @db.Text
+  status           Int       @default(0)
+  sourceScheduleId Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  agent            User      @relation("AgentSchedules", fields: [agentId], references: [id], onDelete: Cascade)
+  unit             Unit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
   @@index([agentId])
   @@index([unitId])
+  @@index([sourceScheduleId])
   @@map("agentschedule")
 }
