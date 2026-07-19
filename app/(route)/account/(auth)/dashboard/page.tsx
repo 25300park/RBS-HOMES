@@ -1,9 +1,5 @@
-export interface AccountDashBoardProps {
-  
-};
+﻿import { permanentRedirect } from "next/navigation";
 
-const AccountDashBoard = ({  }: AccountDashBoardProps): React.ReactNode => {
-  return <div>dashboard</div>
-};
-
-export default AccountDashBoard;
+export default function AccountDashBoard() {
+  permanentRedirect("/dashboard");
+}
