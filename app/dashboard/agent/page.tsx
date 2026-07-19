@@ -5,9 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Building2, CalendarDays, ClipboardList, Plus } from "lucide-react";
+import { Building2, CalendarDays, ClipboardList, Plus, Bell } from "lucide-react";
 import LogoutButton from "./components/logout-button";
 import AgentScheduleForm from "./components/agent-schedule-form";
+import TourActionButtons from "./components/tour-action-buttons";
 
 const unitStatusConfig: Record<number, { text: string; cls: string }> = {
   0: { text: "Ongoing", cls: "bg-blue-500/15 text-blue-400" },
@@ -46,6 +47,7 @@ export default async function AgentDashboardPage() {
   const units = data?.units ?? [];
   const schedules = data?.schedules ?? [];
   const tourRequests = data?.tourRequests ?? [];
+  const todoSummary = data?.todoSummary ?? { pendingTourCount: 0, upcomingSchedules: [] };
 
   const summary = {
     total: units.length,
@@ -70,6 +72,47 @@ export default async function AgentDashboardPage() {
             <LogoutButton />
           </div>
         </div>
+
+        {/* 지금 할 일 */}
+        <section>
+          <SectionTitle icon={<Bell className="w-4 h-4 text-amber-400" />}>지금 할 일</SectionTitle>
+
+          <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-300">Pending Tour Requests</span>
+              {todoSummary.pendingTourCount > 0 ? (
+                <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full">
+                  {todoSummary.pendingTourCount}
+                </span>
+              ) : (
+                <span className="text-xs text-slate-500">0</span>
+              )}
+            </div>
+
+            {todoSummary.upcomingSchedules.length > 0 && (
+              <div className="space-y-2 border-t border-slate-700 pt-3">
+                <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Today / Tomorrow</p>
+                {(todoSummary.upcomingSchedules as any[]).map((s) => (
+                  <div key={s.id} className="flex items-start justify-between gap-2">
+                    <p className="text-sm text-white truncate">{s.title}</p>
+                    <span className="text-xs text-slate-400 flex-shrink-0">
+                      {new Date(s.date).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {todoSummary.pendingTourCount === 0 && todoSummary.upcomingSchedules.length === 0 && (
+              <p className="text-sm text-slate-500 text-center py-1">처리할 항목이 없습니다.</p>
+            )}
+          </div>
+        </section>
 
         {/* My Listings */}
         <section>
@@ -139,6 +182,7 @@ export default async function AgentDashboardPage() {
                     <th className="text-left px-3 py-2 font-medium">Contact</th>
                     <th className="text-left px-3 py-2 font-medium">Preferred Date</th>
                     <th className="text-center px-3 py-2 font-medium">Status</th>
+                    <th className="text-center px-3 py-2 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700">
@@ -156,6 +200,13 @@ export default async function AgentDashboardPage() {
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
                             {cfg.text}
                           </span>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {t.status === 0 ? (
+                            <TourActionButtons scheduleId={t.id} />
+                          ) : (
+                            <span className="text-xs text-slate-600">—</span>
+                          )}
                         </td>
                       </tr>
                     );
