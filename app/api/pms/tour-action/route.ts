@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
 
 const AGENT_LEVELS = [2, 3];
 
@@ -61,6 +62,39 @@ export async function POST(req: Request) {
         data: { status: 3, lastUpdate: new Date() },
       });
 
+      if (!schedule.userId && schedule.email) {
+        try {
+          await sendEmail({
+            to: schedule.email,
+            subject: "Your tour request has been declined - RBS HOMES",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <h1 style="color: #333;">RBS HOMES</h1>
+                </div>
+                <p style="color: #666; margin-bottom: 20px;">
+                  Hello, this is RBS HOMES.<br>
+                  We regret to inform you that your tour request has been declined.
+                </p>
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                  <h3 style="color: #333; margin-bottom: 10px;">Tour Request Details</h3>
+                  <p style="color: #555; margin: 0;"><strong>Listing:</strong> ${unit.title}</p>
+                </div>
+                <p style="color: #666; margin: 20px 0;">
+                  If you have any questions, please feel free to contact us or submit a new tour request.
+                </p>
+                <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px; font-size: 12px; color: #999;">
+                  <p>This email was sent automatically. Please do not reply to this email.</p>
+                  <p>&copy; 2024 RBS HOMES. All rights reserved.</p>
+                </div>
+              </div>
+            `,
+          });
+        } catch (emailErr) {
+          console.error("[tour-action] reject email failed:", emailErr);
+        }
+      }
+
       return NextResponse.json({ success: true, action: "rejected" });
     }
 
@@ -90,6 +124,52 @@ export async function POST(req: Request) {
           },
         }),
       ]);
+
+      if (!schedule.userId && schedule.email) {
+        const formattedDate = confirmedDate.toLocaleString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        const agentName = (session.user as any).name ?? "Your agent";
+        const agentPhone = (session.user as any).phone ?? "";
+        try {
+          await sendEmail({
+            to: schedule.email,
+            subject: "Your tour request is confirmed - RBS HOMES",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <h1 style="color: #333;">RBS HOMES</h1>
+                </div>
+                <p style="color: #666; margin-bottom: 20px;">
+                  Hello, this is RBS HOMES.<br>
+                  Great news! Your tour request has been confirmed.
+                </p>
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                  <h3 style="color: #333; margin-bottom: 10px;">Tour Details</h3>
+                  <p style="color: #555; margin: 4px 0;"><strong>Listing:</strong> ${unit.title}</p>
+                  <p style="color: #555; margin: 4px 0;"><strong>Date:</strong> ${formattedDate}</p>
+                  <p style="color: #555; margin: 4px 0;"><strong>Agent:</strong> ${agentName}</p>
+                  ${agentPhone ? `<p style="color: #555; margin: 4px 0;"><strong>Contact:</strong> ${agentPhone}</p>` : ""}
+                </div>
+                <p style="color: #666; margin: 20px 0;">
+                  Please arrive on time. If you need to reschedule or have any questions, contact your agent directly.
+                </p>
+                <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px; font-size: 12px; color: #999;">
+                  <p>This email was sent automatically. Please do not reply to this email.</p>
+                  <p>&copy; 2024 RBS HOMES. All rights reserved.</p>
+                </div>
+              </div>
+            `,
+          });
+        } catch (emailErr) {
+          console.error("[tour-action] approve email failed:", emailErr);
+        }
+      }
 
       return NextResponse.json({ success: true, action: "approved" });
     }
