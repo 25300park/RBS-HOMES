@@ -4,6 +4,7 @@ import FavoriteButton from "@/components/favorite-button";
 import { useState } from "react";
 import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaRegUser } from "react-icons/fa";
+import Image from "next/image";
 
 interface UnitCardProps {
   unit: {
@@ -41,10 +42,11 @@ const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
   return (
     <div className="bg-white  overflow-hidden border shadow-sm rounded-sm cursor-pointer">
       <div className="relative h-64">
-        <img
-          src={"/assets/images/cardtest.png"}
+        <Image
+          src={images[0] ?? "/assets/images/cardtest.png"}
           alt={title}
-          className={`absolute top-0 left-0 w-full h-full object-cover`}
+          fill
+          className="object-cover"
         />
       </div>
       <div className="">
