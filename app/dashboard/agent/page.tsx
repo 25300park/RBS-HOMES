@@ -59,6 +59,10 @@ export default async function AgentDashboardPage() {
   const scheduleUnits = units.map((u: any) => ({ id: u.id, title: u.title }));
   const unitTitleById = new Map<number, string>(units.map((u: any) => [u.id, u.title]));
 
+  const pendingTourCountByUnit: Record<number, number> = (tourRequests as any[])
+    .filter((t) => t.status === 0)
+    .reduce((acc, t) => { acc[t.unitId] = (acc[t.unitId] ?? 0) + 1; return acc; }, {} as Record<number, number>);
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-white">
       <div className="max-w-3xl mx-auto px-4 py-6 pb-12 space-y-8">
@@ -228,7 +232,14 @@ export default async function AgentDashboardPage() {
               {schedules.map((s: any) => (
                 <div key={s.id} className="px-4 py-3">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-sm text-white">{s.title}</p>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <p className="font-medium text-sm text-white truncate">{s.title}</p>
+                      {s.sourceScheduleId && (
+                        <span className="flex-shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400">
+                          🔗 From Tour Request
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-slate-400 flex-shrink-0">
                       {new Date(s.date).toLocaleString("en-US", {
                         month: "short",
@@ -245,7 +256,7 @@ export default async function AgentDashboardPage() {
             </div>
           )}
 
-          <AgentScheduleForm units={scheduleUnits} />
+          <AgentScheduleForm units={scheduleUnits} pendingTourCountByUnit={pendingTourCountByUnit} />
         </section>
       </div>
     </div>

@@ -6,9 +6,10 @@ import { Loader2, Plus } from "lucide-react";
 
 interface AgentScheduleFormProps {
   units: { id: number; title: string }[];
+  pendingTourCountByUnit?: Record<number, number>;
 }
 
-export default function AgentScheduleForm({ units }: AgentScheduleFormProps) {
+export default function AgentScheduleForm({ units, pendingTourCountByUnit = {} }: AgentScheduleFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -93,6 +94,11 @@ export default function AgentScheduleForm({ units }: AgentScheduleFormProps) {
               </option>
             ))}
           </select>
+          {unitId && (pendingTourCountByUnit[Number(unitId)] ?? 0) > 0 && (
+            <p className="mt-1.5 text-xs text-amber-400">
+              이 매물에 대기 중인 투어 요청이 {pendingTourCountByUnit[Number(unitId)]}건 있습니다. TOUR REQUESTS에서 먼저 확인해보세요.
+            </p>
+          )}
         </div>
       </div>
 
