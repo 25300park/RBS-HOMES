@@ -63,6 +63,7 @@ export async function POST(req: Request) {
       });
 
       if (!schedule.userId && schedule.email) {
+        console.log("[tour-action] Sending email to:", schedule.email);
         try {
           await sendEmail({
             to: schedule.email,
@@ -90,8 +91,9 @@ export async function POST(req: Request) {
               </div>
             `,
           });
-        } catch (emailErr) {
-          console.error("[tour-action] reject email failed:", emailErr);
+          console.log("[tour-action] Email sent successfully to:", schedule.email);
+        } catch (emailErr: any) {
+          console.error("[tour-action] Email failed:", emailErr?.message, emailErr);
         }
       }
 
@@ -136,6 +138,7 @@ export async function POST(req: Request) {
         });
         const agentName = (session.user as any).name ?? "Your agent";
         const agentPhone = (session.user as any).phone ?? "";
+        console.log("[tour-action] Sending email to:", schedule.email);
         try {
           await sendEmail({
             to: schedule.email,
@@ -166,8 +169,9 @@ export async function POST(req: Request) {
               </div>
             `,
           });
-        } catch (emailErr) {
-          console.error("[tour-action] approve email failed:", emailErr);
+          console.log("[tour-action] Email sent successfully to:", schedule.email);
+        } catch (emailErr: any) {
+          console.error("[tour-action] Email failed:", emailErr?.message, emailErr);
         }
       }
 
