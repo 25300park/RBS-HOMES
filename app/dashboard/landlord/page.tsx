@@ -74,11 +74,19 @@ export default async function LandlordDashboardPage() {
 
       {/* 납부 현황 요약 */}
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-            <Banknote className="w-5 h-5 text-green-600" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Banknote className="w-5 h-5 text-green-600" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-800">This Month Payment Status</h2>
           </div>
-          <h2 className="text-lg font-bold text-gray-800">This Month Payment Status</h2>
+          <Link
+            href="/dashboard/landlord/payments"
+            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
+          >
+            View All <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
         <div className="grid grid-cols-4 md:grid-cols-2 gap-3">
           {(["PENDING", "AWAITING_APPROVAL", "PAID", "OVERDUE"] as PaymentStatus[]).map((s) => {
