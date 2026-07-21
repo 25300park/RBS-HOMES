@@ -112,7 +112,7 @@ export default async function AgentDashboardPage() {
               View All Listings
             </Link>
             <Link
-              href="/unit/register"
+              href="/account/unit/registration/step-one"
               className="flex-1 flex items-center justify-center gap-2 min-h-[44px] bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors"
             >
               <Plus className="w-4 h-4" />
