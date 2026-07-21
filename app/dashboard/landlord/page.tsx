@@ -103,7 +103,7 @@ export default async function LandlordDashboardPage() {
             <h2 className="text-lg font-bold text-gray-800">Active Leases</h2>
           </div>
           <Link
-            href="/api/pms/leases"
+            href="/dashboard/landlord/leases"
             className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
           >
             View All <ArrowRight className="w-4 h-4" />
