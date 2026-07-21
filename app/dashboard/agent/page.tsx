@@ -7,7 +7,6 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { Building2, CalendarDays, ClipboardList, Plus, Bell } from "lucide-react";
 import LogoutButton from "./components/logout-button";
-import AgentScheduleForm from "./components/agent-schedule-form";
 import TourActionButtons from "./components/tour-action-buttons";
 
 const unitStatusConfig: Record<number, { text: string; cls: string }> = {
@@ -45,7 +44,6 @@ export default async function AgentDashboardPage() {
 
   const data = await getAgentDashboardData();
   const units = data?.units ?? [];
-  const schedules = data?.schedules ?? [];
   const tourRequests = data?.tourRequests ?? [];
   const todoSummary = data?.todoSummary ?? { pendingTourCount: 0, upcomingSchedules: [] };
 
@@ -56,12 +54,7 @@ export default async function AgentDashboardPage() {
     negotiation: units.filter((u: any) => u.status === 3).length,
   };
 
-  const scheduleUnits = units.map((u: any) => ({ id: u.id, title: u.title }));
   const unitTitleById = new Map<number, string>(units.map((u: any) => [u.id, u.title]));
-
-  const pendingTourCountByUnit: Record<number, number> = (tourRequests as any[])
-    .filter((t) => t.status === 0)
-    .reduce((acc, t) => { acc[t.unitId] = (acc[t.unitId] ?? 0) + 1; return acc; }, {} as Record<number, number>);
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white">
@@ -221,42 +214,22 @@ export default async function AgentDashboardPage() {
           )}
         </section>
 
-        {/* My Schedule */}
+        {/* My Schedule — 요약 카드 */}
         <section>
           <SectionTitle icon={<CalendarDays className="w-4 h-4 text-blue-400" />}>My Schedule</SectionTitle>
 
-          {schedules.length === 0 ? (
-            <EmptyState message="No upcoming schedules." />
-          ) : (
-            <div className="bg-[#1e293b] border border-slate-700 rounded-xl divide-y divide-slate-700 overflow-hidden mb-4">
-              {schedules.map((s: any) => (
-                <div key={s.id} className="px-4 py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <p className="font-medium text-sm text-white truncate">{s.title}</p>
-                      {s.sourceScheduleId && (
-                        <span className="flex-shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400">
-                          🔗 From Tour Request
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-slate-400 flex-shrink-0">
-                      {new Date(s.date).toLocaleString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  {s.unit && <p className="text-xs text-slate-400 mt-0.5">{s.unit.title}</p>}
-                  {s.memo && <p className="text-xs text-slate-400 mt-1">{s.memo}</p>}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <AgentScheduleForm units={scheduleUnits} pendingTourCountByUnit={pendingTourCountByUnit} />
+          <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-300">
+              다가오는 일정{" "}
+              <span className="font-bold text-white">{todoSummary.upcomingSchedules.length}건</span>
+            </p>
+            <Link
+              href="/account/schedule"
+              className="flex-shrink-0 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Schedule 바로가기 →
+            </Link>
+          </div>
         </section>
       </div>
     </div>
