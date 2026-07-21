@@ -103,33 +103,39 @@ export async function POST(req: Request) {
       cursor.setMonth(cursor.getMonth() + 1);
     }
 
-    const lease = await prisma.leaseContract.create({
-      data: {
-        unitId: Number(unitId),
-        condoId: condoId ? Number(condoId) : null,
-        landlordId: landlordId ? Number(landlordId) : null,
-        tenantId: tenantId ? Number(tenantId) : null,
-        startDate: start,
-        endDate: end,
-        monthlyRent: Number(monthlyRent),
-        paymentType: paymentType ?? "MONTHLY_TRANSFER",
-        status: ContractStatus.ACTIVE,
-        notes: notes ?? null,
-        crmDealId: crmDealId ?? null,
-        createdById,
-        paymentSchedules: {
-          createMany: {
-            data: paymentDates.map((d) => ({
-              dueDate: d,
-              amountDue: Number(monthlyRent),
-            })),
+    const [lease] = await prisma.$transaction([
+      prisma.leaseContract.create({
+        data: {
+          unitId: Number(unitId),
+          condoId: condoId ? Number(condoId) : null,
+          landlordId: landlordId ? Number(landlordId) : null,
+          tenantId: tenantId ? Number(tenantId) : null,
+          startDate: start,
+          endDate: end,
+          monthlyRent: Number(monthlyRent),
+          paymentType: paymentType ?? "MONTHLY_TRANSFER",
+          status: ContractStatus.ACTIVE,
+          notes: notes ?? null,
+          crmDealId: crmDealId ?? null,
+          createdById,
+          paymentSchedules: {
+            createMany: {
+              data: paymentDates.map((d) => ({
+                dueDate: d,
+                amountDue: Number(monthlyRent),
+              })),
+            },
           },
         },
-      },
-      include: {
-        paymentSchedules: true,
-      },
-    });
+        include: {
+          paymentSchedules: true,
+        },
+      }),
+      prisma.unit.update({
+        where: { id: Number(unitId) },
+        data: { status: 2 },
+      }),
+    ]);
 
     return NextResponse.json({ leaseId: lease.id, ...lease }, { status: 201 });
   } catch (error) {

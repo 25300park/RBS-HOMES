@@ -76,16 +76,42 @@ export async function PATCH(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const lease = await prisma.leaseContract.update({
-      where: { id: leaseId },
-      data: {
-        ...(status !== undefined && { status }),
-        ...(notes !== undefined && { notes }),
-        ...(monthlyRent !== undefined && { monthlyRent: Number(monthlyRent) }),
-        ...(endDate !== undefined && { endDate: new Date(endDate) }),
-        ...(paymentType !== undefined && { paymentType }),
-      },
-    });
+    const leaseUpdateData = {
+      ...(status !== undefined && { status }),
+      ...(notes !== undefined && { notes }),
+      ...(monthlyRent !== undefined && { monthlyRent: Number(monthlyRent) }),
+      ...(endDate !== undefined && { endDate: new Date(endDate) }),
+      ...(paymentType !== undefined && { paymentType }),
+    };
+
+    const isTerminating = status === "EXPIRED" || status === "TERMINATED";
+
+    let lease;
+
+    if (isTerminating) {
+      // 재노출 가드: Unit.status가 정확히 2(Contracted)일 때만 판단
+      const unit = await prisma.unit.findUnique({
+        where: { id: existing.unitId },
+        select: { status: true },
+      });
+
+      const shouldRestoreUnit =
+        unit?.status === 2 &&
+        (await prisma.leaseContract.count({
+          where: { unitId: existing.unitId, status: "ACTIVE", id: { not: leaseId } },
+        })) === 0;
+
+      if (shouldRestoreUnit) {
+        [lease] = await prisma.$transaction([
+          prisma.leaseContract.update({ where: { id: leaseId }, data: leaseUpdateData }),
+          prisma.unit.update({ where: { id: existing.unitId }, data: { status: 0 } }),
+        ]);
+      } else {
+        lease = await prisma.leaseContract.update({ where: { id: leaseId }, data: leaseUpdateData });
+      }
+    } else {
+      lease = await prisma.leaseContract.update({ where: { id: leaseId }, data: leaseUpdateData });
+    }
 
     return NextResponse.json({ lease });
   } catch (error) {
