@@ -51,9 +51,6 @@ export default async function TenantDashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const sixMonthsAgo = new Date(now);
-  sixMonthsAgo.setMonth(now.getMonth() - 6);
-
   // Current active (or expiring soon) lease
   const activeLease = await prisma.leaseContract.findFirst({
     where: {
@@ -84,15 +81,10 @@ export default async function TenantDashboardPage() {
   const leaseId = activeLease.id;
   const condoId = activeLease.unit.condoId ?? activeLease.condoId;
 
-  const [thisMonthPayments, paymentHistory, careRequests, communityPosts] = await Promise.all([
+  const [thisMonthPayments, careRequests, communityPosts] = await Promise.all([
     prisma.paymentSchedule.findMany({
       where: { contractId: leaseId, dueDate: { gte: startOfMonth, lte: endOfMonth } },
       orderBy: { dueDate: "asc" },
-    }),
-    prisma.paymentSchedule.findMany({
-      where: { contractId: leaseId, dueDate: { gte: sixMonthsAgo, lt: startOfMonth } },
-      orderBy: { dueDate: "desc" },
-      take: 6,
     }),
     prisma.careServiceRequest.findMany({
       where: {
@@ -187,46 +179,20 @@ export default async function TenantDashboardPage() {
           )}
         </section>
 
-        {/* Payment history */}
+        {/* Payment history summary */}
         <section>
-          <SectionTitle>Payment History (Last 6 Months)</SectionTitle>
-          {paymentHistory.length === 0 ? (
-            <EmptyState message="No payment history yet." />
-          ) : (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-[#94A3B8] text-xs border-b border-[#334155]">
-                    <th className="text-left px-4 py-2 font-medium">Month</th>
-                    <th className="text-right px-4 py-2 font-medium">Amount</th>
-                    <th className="text-center px-4 py-2 font-medium">Status</th>
-                    <th className="text-right px-4 py-2 font-medium">Date Paid</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#334155]">
-                  {paymentHistory.map((p) => (
-                    <tr key={p.id}>
-                      <td className="px-4 py-3 text-[#F8FAFC]">
-                        {new Date(p.dueDate).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                        })}
-                      </td>
-                      <td className="px-4 py-3 text-right font-medium text-[#F8FAFC]">
-                        ₱ {Number(p.amountDue).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <PaymentStatusBadge status={p.status} />
-                      </td>
-                      <td className="px-4 py-3 text-right text-[#94A3B8]">
-                        {p.verifiedAt ? new Date(p.verifiedAt).toLocaleDateString("en-US") : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div className="flex items-center justify-between mb-3">
+            <SectionTitle noMargin>Payment History</SectionTitle>
+            <Link
+              href="/dashboard/tenant/payments"
+              className="flex items-center gap-1 text-sm text-[#3B82F6] hover:text-[#3B82F6]/80 font-medium transition-colors"
+            >
+              View All <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 text-sm text-[#94A3B8]">
+            View your full payment history.
+          </div>
         </section>
 
         {/* Care service */}
@@ -418,27 +384,6 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
       </div>
       <ReceiptUploadButton paymentId={payment.id} />
     </div>
-  );
-}
-
-// ── Payment history badge ─────────────────────────────────
-function PaymentStatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    PENDING: "bg-[#F59E0B]/15 text-[#F59E0B]",
-    AWAITING_APPROVAL: "bg-[#3B82F6]/15 text-[#3B82F6]",
-    PAID: "bg-[#10B981]/15 text-[#10B981]",
-    OVERDUE: "bg-[#EF4444]/15 text-[#EF4444]",
-  };
-  const label: Record<string, string> = {
-    PENDING: "Pending",
-    AWAITING_APPROVAL: "Pending Approval",
-    PAID: "Paid",
-    OVERDUE: "Overdue",
-  };
-  return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${map[status] ?? "bg-[#334155] text-[#94A3B8]"}`}>
-      {label[status] ?? status}
-    </span>
   );
 }
 
