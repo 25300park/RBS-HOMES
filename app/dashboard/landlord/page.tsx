@@ -7,31 +7,11 @@ import Link from "next/link";
 import { getLandlordLeaseData } from "@/lib/landlord/get-landlord-leases";
 import { Building2, Banknote, Wrench, AlertTriangle, ArrowRight } from "lucide-react";
 import { PaymentStatus } from "@prisma/client";
-import ApproveCareButton from "./components/approve-care-button";
-
 const paymentStatusConfig: Record<PaymentStatus, { text: string; cls: string }> = {
   PENDING: { text: "Pending", cls: "bg-gray-100 text-gray-600" },
   AWAITING_APPROVAL: { text: "Awaiting Approval", cls: "bg-orange-100 text-orange-600" },
   PAID: { text: "Paid", cls: "bg-green-100 text-green-700" },
   OVERDUE: { text: "Overdue", cls: "bg-red-100 text-red-600" },
-};
-
-// PENDING 상태의 계약 목록 배지는 "Payment Due"로 표시
-const leaseBadgeLabel: Record<PaymentStatus, string> = {
-  ...Object.fromEntries(
-    Object.entries(paymentStatusConfig).map(([k, v]) => [k, v.text])
-  ),
-  PENDING: "Payment Due",
-} as Record<PaymentStatus, string>;
-
-const careStatusLabel: Record<string, string> = {
-  PENDING: "Received",
-  PENDING_OWNER_APPROVAL: "Awaiting Your Approval",
-  SCHEDULED: "Scheduled",
-  IN_PROGRESS: "In Progress",
-  AWAITING_TENANT_CONFIRMATION: "Awaiting Tenant Confirmation",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
 };
 
 export default async function LandlordDashboardPage() {
@@ -118,89 +98,34 @@ export default async function LandlordDashboardPage() {
           </Link>
         </div>
 
-        {leases.length === 0 ? (
-          <EmptyState message="No active leases." />
-        ) : (
-          <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
-            {leases.map((l) => {
-              const thisMonthPayment = l.paymentSchedules[0];
-              const paymentCfg = thisMonthPayment
-                ? paymentStatusConfig[thisMonthPayment.status]
-                : null;
-              return (
-                <div key={l.id} className="px-4 py-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm text-gray-800 truncate">
-                        {l.unit.title}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">{l.unit.fullAddress}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Tenant: {l.tenant?.name ?? "Unassigned"} · Monthly Rent: ₱ {Number(l.monthlyRent).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className="text-xs text-gray-400">
-                        ~ {new Date(l.endDate).toLocaleDateString("en-US")}
-                      </span>
-                      {paymentCfg && thisMonthPayment && (
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${paymentCfg.cls}`}>
-                          {leaseBadgeLabel[thisMonthPayment.status]}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+          <p className="text-xs text-gray-500">Active Leases</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{leases.length}</p>
+        </div>
       </section>
 
-      {/* 케어 서비스 진행 현황 */}
+      {/* 케어 서비스 요약 */}
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-            <Wrench className="w-5 h-5 text-purple-500" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Wrench className="w-5 h-5 text-purple-500" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-800">Care Service Status</h2>
           </div>
-          <h2 className="text-lg font-bold text-gray-800">Care Service Status</h2>
+          <Link
+            href="/dashboard/tenant/care"
+            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
+          >
+            View All <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {allCareRequests.length === 0 ? (
-          <EmptyState message="No active care service requests." />
-        ) : (
-          <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
-            {allCareRequests.map((c) => (
-              <div key={c.id} className="flex items-center justify-between px-4 py-3">
-                <div className="min-w-0">
-                  <p className="font-medium text-sm text-gray-800">
-                    {c.serviceType} · {c.unit.title}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-4">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 font-medium">
-                    {careStatusLabel[c.status] ?? c.status}
-                  </span>
-                  {c.status === "PENDING_OWNER_APPROVAL" && (
-                    <ApproveCareButton careId={c.id} />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+          <p className="text-xs text-gray-500">Active Requests</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{allCareRequests.length}</p>
+        </div>
       </section>
-    </div>
-  );
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex items-center justify-center h-24 border border-dashed border-gray-200 rounded-lg text-sm text-gray-400">
-      {message}
     </div>
   );
 }
