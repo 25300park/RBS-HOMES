@@ -12,6 +12,7 @@ import { SubmitButton } from "@/components/ui/submit-btn";
 import SelectionBox from "@/components/ui/select-box";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function StepOneForm() {
   const router = useRouter();
@@ -121,6 +122,19 @@ export default function StepOneForm() {
         </div>
       ) : (
         <div>
+          {/* AI entry banner */}
+          <div className="flex items-center justify-between gap-4 mb-6 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              매물 설명을 붙여넣기만 하면 AI가 자동으로 채워드려요
+            </p>
+            <Link
+              href="/account/unit/registration/ai-entry"
+              className="flex-shrink-0 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              AI로 빠르게 작성하기 →
+            </Link>
+          </div>
+
           <section className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
             {/* Title */}
             <div className="col-span-2">
