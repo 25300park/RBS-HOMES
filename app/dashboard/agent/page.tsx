@@ -5,16 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Building2, CalendarDays, ClipboardList, Plus, Bell } from "lucide-react";
+import { Building2, CalendarDays, Plus, Bell } from "lucide-react";
 import LogoutButton from "./components/logout-button";
-import TourActionButtons from "./components/tour-action-buttons";
-
-const tourStatusConfig: Record<number, { text: string; cls: string }> = {
-  0: { text: "Requested", cls: "bg-blue-500/15 text-blue-400" },
-  1: { text: "Pending", cls: "bg-amber-500/15 text-amber-400" },
-  2: { text: "Confirmed", cls: "bg-emerald-500/15 text-emerald-400" },
-  3: { text: "Cancelled", cls: "bg-red-500/15 text-red-400" },
-};
 
 async function getAgentDashboardData() {
   const headersList = headers();
@@ -37,7 +29,6 @@ export default async function AgentDashboardPage() {
 
   const data = await getAgentDashboardData();
   const units = data?.units ?? [];
-  const tourRequests = data?.tourRequests ?? [];
   const todoSummary = data?.todoSummary ?? { pendingTourCount: 0, upcomingSchedules: [] };
 
   const summary = {
@@ -46,8 +37,6 @@ export default async function AgentDashboardPage() {
     contracted: units.filter((u: any) => u.status === 2).length,
     negotiation: units.filter((u: any) => u.status === 3).length,
   };
-
-  const unitTitleById = new Map<number, string>(units.map((u: any) => [u.id, u.title]));
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white">
@@ -132,55 +121,22 @@ export default async function AgentDashboardPage() {
           </div>
         </section>
 
-        {/* Tour Requests */}
+        {/* Tour Requests — 요약 카드 */}
         <section>
-          <SectionTitle icon={<ClipboardList className="w-4 h-4 text-blue-400" />}>Tour Requests</SectionTitle>
+          <SectionTitle icon={<Bell className="w-4 h-4 text-blue-400" />}>Tour Requests</SectionTitle>
 
-          {tourRequests.length === 0 ? (
-            <EmptyState message="No tour requests yet." />
-          ) : (
-            <div className="bg-[#1e293b] border border-slate-700 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-slate-400 text-xs border-b border-slate-700">
-                    <th className="text-left px-3 py-2 font-medium">Listing</th>
-                    <th className="text-left px-3 py-2 font-medium">Applicant</th>
-                    <th className="text-left px-3 py-2 font-medium">Contact</th>
-                    <th className="text-left px-3 py-2 font-medium">Preferred Date</th>
-                    <th className="text-center px-3 py-2 font-medium">Status</th>
-                    <th className="text-center px-3 py-2 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-700">
-                  {tourRequests.map((t: any) => {
-                    const cfg = tourStatusConfig[t.status] ?? { text: "Unknown", cls: "bg-slate-600/40 text-slate-300" };
-                    return (
-                      <tr key={t.id}>
-                        <td className="px-3 py-3 text-white truncate max-w-[140px]">{unitTitleById.get(t.unitId) ?? "—"}</td>
-                        <td className="px-3 py-3 text-slate-300">{t.username ?? t.email ?? "—"}</td>
-                        <td className="px-3 py-3 text-slate-300">{t.mobile ?? "—"}</td>
-                        <td className="px-3 py-3 text-slate-300">
-                          {t.requestDate ? new Date(t.requestDate).toLocaleDateString("en-US") : "—"}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
-                            {cfg.text}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {t.status === 0 ? (
-                            <TourActionButtons scheduleId={t.id} />
-                          ) : (
-                            <span className="text-xs text-slate-600">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-300">
+              대기 중인 투어 요청{" "}
+              <span className="font-bold text-white">{todoSummary.pendingTourCount}건</span>
+            </p>
+            <Link
+              href="/dashboard/agent/tour-requests"
+              className="flex-shrink-0 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              View All →
+            </Link>
+          </div>
         </section>
 
         {/* My Schedule — 요약 카드 */}
@@ -225,11 +181,3 @@ function SummaryCard({ label, value }: { label: string; value: number }) {
   );
 }
 
-// ── Empty state ────────────────────────────────────────────
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex items-center justify-center h-20 border border-dashed border-slate-700 rounded-xl text-sm text-slate-400 mb-4">
-      {message}
-    </div>
-  );
-}
