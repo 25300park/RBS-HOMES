@@ -9,13 +9,6 @@ import { Building2, CalendarDays, ClipboardList, Plus, Bell } from "lucide-react
 import LogoutButton from "./components/logout-button";
 import TourActionButtons from "./components/tour-action-buttons";
 
-const unitStatusConfig: Record<number, { text: string; cls: string }> = {
-  0: { text: "Ongoing", cls: "bg-blue-500/15 text-blue-400" },
-  1: { text: "Completed", cls: "bg-slate-600/40 text-slate-300" },
-  2: { text: "Contracted", cls: "bg-emerald-500/15 text-emerald-400" },
-  3: { text: "Under Negotiation", cls: "bg-amber-500/15 text-amber-400" },
-};
-
 const tourStatusConfig: Record<number, { text: string; cls: string }> = {
   0: { text: "Requested", cls: "bg-blue-500/15 text-blue-400" },
   1: { text: "Pending", cls: "bg-amber-500/15 text-amber-400" },
@@ -122,45 +115,21 @@ export default async function AgentDashboardPage() {
             <SummaryCard label="Negotiation" value={summary.negotiation} />
           </div>
 
-          {units.length === 0 ? (
-            <EmptyState message="No listings assigned to you yet." />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-              {units.map((u: any) => {
-                const cfg = unitStatusConfig[u.status] ?? { text: "Unknown", cls: "bg-slate-600/40 text-slate-300" };
-                return (
-                  <div key={u.id} className="bg-[#1e293b] border border-slate-700 rounded-xl p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-semibold text-sm text-white truncate">{u.title}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${cfg.cls}`}>
-                        {cfg.text}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1 truncate">
-                      {[u.address1, u.address2].filter(Boolean).join(" ")}
-                    </p>
-                    <div className="flex items-center justify-between mt-3 text-xs text-slate-400">
-                      <span>{u.type} · {u.sellType}</span>
-                      <span>{u.viewCount} views</span>
-                    </div>
-                    {u.price && (
-                      <p className="text-sm font-bold text-blue-400 mt-2">
-                        ₱ {Number(u.price).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          <Link
-            href="/unit/register"
-            className="flex items-center justify-center gap-2 min-h-[44px] bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Register New Listing
-          </Link>
+          <div className="flex gap-2 mt-2">
+            <Link
+              href="/account/unit/my-list"
+              className="flex-1 flex items-center justify-center min-h-[44px] border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white rounded-lg text-sm font-semibold transition-colors"
+            >
+              View All Listings
+            </Link>
+            <Link
+              href="/unit/register"
+              className="flex-1 flex items-center justify-center gap-2 min-h-[44px] bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Register New Listing
+            </Link>
+          </div>
         </section>
 
         {/* Tour Requests */}

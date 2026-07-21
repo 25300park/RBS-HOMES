@@ -10,6 +10,9 @@ export const getUnitListByOwner = async (
 ): Promise<any> => {
   const session: any = await getServerSession(authOptions as any);
   const adminId = session.user.id;
+  const level = Number(session.user.level ?? 1);
+  const AGENT_LEVELS = [2, 3];
+  const isAgent = AGENT_LEVELS.includes(level);
 
   if (!adminId) {
     return { message: "Invalid access" };
@@ -68,8 +71,11 @@ export const getUnitListByOwner = async (
   
   const data = await prisma.unit.findMany({
     where: {
-      status: { not: 5 }, 
-      adminId: adminId,
+      status: { not: 5 },
+      // 에이전트: 본인이 등록했거나 담당으로 배정된 매물 모두 포함
+      ...(isAgent
+        ? { OR: [{ adminId }, { agentId: adminId }] }
+        : { adminId }),
       type: type ? { equals: type } : undefined,
       // 오직 activeTypes로만 필터링
       sellType: activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
@@ -86,7 +92,8 @@ export const getUnitListByOwner = async (
           : undefined,
       furniture: furniture ? { equals: furniture } : undefined,
       petPolicy: pet ? { equals: pet } : undefined,
-      ...(filters.length > 0 && { OR: filters }), // 필터가 있을 때만 OR 사용
+      // AND: price/search 필터는 AND로 결합 (에이전트 OR와 키 충돌 방지)
+      ...(filters.length > 0 && { AND: filters }),
     },
   });
 
