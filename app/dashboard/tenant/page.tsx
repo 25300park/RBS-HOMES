@@ -250,30 +250,11 @@ export default async function TenantDashboardPage() {
             </Link>
           </div>
 
-          {communityPosts.length === 0 ? (
-            <EmptyState message="No posts yet." />
-          ) : (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-xl divide-y divide-[#334155] overflow-hidden">
-              {communityPosts.map((post) => (
-                <div key={post.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      {post.isNotice && (
-                        <span className="text-xs px-1.5 py-0.5 bg-[#3B82F6]/15 text-[#3B82F6] rounded font-medium flex-shrink-0">
-                          Notice
-                        </span>
-                      )}
-                      <p className="font-medium text-sm text-[#F8FAFC] truncate">{post.title}</p>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] mt-0.5">{post.author.name}</p>
-                  </div>
-                  <span className="text-xs text-[#94A3B8] flex-shrink-0">
-                    {new Date(post.createdAt).toLocaleDateString("en-US")}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 text-sm text-[#94A3B8]">
+            {communityPosts.length === 0
+              ? "No posts yet."
+              : `게시글 ${communityPosts.length}건`}
+          </div>
         </section>
       </div>
 
