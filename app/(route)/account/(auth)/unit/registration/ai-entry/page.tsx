@@ -28,21 +28,38 @@ export default function AiEntryPage() {
       }
       const extracted = await res.json();
 
-      // null 필드 제거 — step-one의 기본값(saleType:"rent", unitType:"condo")을 덮어쓰지 않도록
-      const filtered: Record<string, string | number> = {};
-      for (const [key, val] of Object.entries(extracted)) {
-        if (val !== null && val !== undefined) {
-          if (key === "price" && typeof val === "string") {
-            // step-one의 price 포맷(toLocaleString)에 맞게 변환
-            const raw = val.replace(/[^0-9]/g, "");
-            if (raw) filtered[key] = Number(raw).toLocaleString();
-          } else {
-            filtered[key] = val as string;
-          }
+      const STEP1_KEYS = ["title", "ownerName", "price", "saleType", "unitType", "ownerEmail", "ownerMobile"];
+      const STEP2_KEYS = ["area", "floor", "bed", "bath", "parking", "furniture", "interiored", "petPolicy", "yearCompletion", "outstandingPayment", "amenity"];
+
+      // step1 저장 — null 제거, price toLocaleString 포맷
+      const step1: Record<string, string | number> = {};
+      for (const key of STEP1_KEYS) {
+        const val = extracted[key];
+        if (val === null || val === undefined) continue;
+        if (key === "price" && typeof val === "string") {
+          const raw = val.replace(/[^0-9]/g, "");
+          if (raw) step1[key] = Number(raw).toLocaleString();
+        } else {
+          step1[key] = val;
         }
       }
+      saveToLocalStorage("step1", step1);
 
-      saveToLocalStorage("step1", filtered);
+      // step2 저장 — null 제거, 빈 amenity 제외, outstandingPayment toLocaleString 포맷
+      const step2: Record<string, string | number | string[]> = {};
+      for (const key of STEP2_KEYS) {
+        const val = extracted[key];
+        if (val === null || val === undefined) continue;
+        if (key === "amenity") {
+          if (Array.isArray(val) && val.length > 0) step2[key] = val;
+        } else if (key === "outstandingPayment" && typeof val === "string") {
+          const raw = val.replace(/[^0-9]/g, "");
+          if (raw) step2[key] = Number(raw).toLocaleString();
+        } else {
+          step2[key] = val;
+        }
+      }
+      if (Object.keys(step2).length > 0) saveToLocalStorage("step2", step2);
       router.push("/account/unit/registration/step-one");
     } catch (err) {
       toast({

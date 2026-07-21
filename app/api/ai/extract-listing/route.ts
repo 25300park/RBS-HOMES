@@ -25,8 +25,40 @@ const TOOL_DEFINITION = {
       },
       ownerEmail: { type: ["string", "null"], description: "소유자 이메일" },
       ownerMobile: { type: ["string", "null"], description: "소유자 휴대폰 번호" },
+      area: { type: ["string", "null"], description: "전용면적, 숫자만 (예: 50)" },
+      floor: { type: ["string", "null"], description: "층수 (예: 43)" },
+      bed: { type: ["string", "null"], description: "침실 개수, 숫자 (예: 2)" },
+      bath: { type: ["string", "null"], description: "화장실 개수, 숫자 (예: 1)" },
+      parking: { type: ["string", "null"], description: "주차 대수, 숫자 (예: 1)" },
+      furniture: {
+        type: ["string", "null"],
+        enum: ["none", "fully", "semi", "unfurnished", null],
+        description: "가구 상태. 이 4개 값 중 하나만, 애매하면 null.",
+      },
+      interiored: {
+        type: ["string", "null"],
+        enum: ["Interiored", "Non Interiored", null],
+        description: "인테리어 여부. 이 2개 값 중 하나만, 애매하면 null.",
+      },
+      petPolicy: {
+        type: ["string", "null"],
+        enum: ["none", "Allow", "Small Only", "Not allowed", null],
+        description: "반려동물 정책. 이 4개 값 중 하나만, 애매하면 null.",
+      },
+      yearCompletion: { type: ["string", "null"], description: "완공연도 (예: 2020)" },
+      outstandingPayment: { type: ["string", "null"], description: "미납금, 숫자만" },
+      amenity: {
+        type: ["array", "null"],
+        items: { type: "string" },
+        description:
+          "언급된 편의시설만. 반드시 다음 목록의 정확한 문자열만 사용: Gym, Pool, Pet, 24/7 Security, Garden, High Ceiling, Playroom, Jogging, Ocean View, Mountain View, Large Windows, Soundproof, Sauna, Concierge, Library, Retail. 목록에 없는 건 절대 넣지 말 것. 언급 없으면 빈 배열이나 null.",
+      },
     },
-    required: ["title", "ownerName", "price", "saleType", "unitType", "ownerEmail", "ownerMobile"],
+    required: [
+      "title", "ownerName", "price", "saleType", "unitType", "ownerEmail", "ownerMobile",
+      "area", "floor", "bed", "bath", "parking", "furniture", "interiored",
+      "petPolicy", "yearCompletion", "outstandingPayment", "amenity",
+    ],
   },
 };
 
@@ -35,7 +67,8 @@ const SYSTEM_PROMPT =
   "확신이 없는 필드는 반드시 null로 반환하세요. " +
   "saleType은 반드시 'rent' 또는 'sale' 중 하나만 사용하고, 애매하면 null로 반환하세요. " +
   "unitType은 반드시 'condo', 'village', 'apartment', 'land', 'etc' 중 하나만 사용하고, 애매하면 null로 반환하세요. " +
-  "주소, 위치 좌표, 상세 주소는 절대 추출하지 마세요 (별도 방식으로 입력됩니다).";
+  "주소, 위치 좌표, 상세 주소는 절대 추출하지 마세요 (별도 방식으로 입력됩니다). " +
+  "amenity는 반드시 주어진 목록의 값만 사용하고, 목록에 없는 편의시설은 절대 만들어내지 마세요.";
 
 export async function POST(req: NextRequest) {
   const session: any = await getServerSession(authOptions as any);
