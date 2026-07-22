@@ -1,4 +1,4 @@
-import { getFilteredUnits } from "@/app/api/units/route";
+import { getFilteredUnits } from "@/lib/units/get-filtered-units";
 import { generatePropertySlug } from "@/lib/utils";
 
 export async function searchUnitsForChat(params: {
