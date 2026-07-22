@@ -147,7 +147,7 @@ const parseNumericValue = (value: string | undefined): number | undefined => {
   return isNaN(parsed) ? undefined : parsed;
 };
 
-async function getFilteredUnits(
+export async function getFilteredUnits(
   page: number,
   limit: number,
   params: FilterParams,
