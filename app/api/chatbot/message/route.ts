@@ -7,6 +7,7 @@ import {
   saveMessages,
 } from "@/lib/chatbot/conversation";
 import { searchUnitsForChat } from "@/lib/chatbot/search-units-tool";
+import { checkRateLimit } from "@/lib/chatbot/rate-limit";
 
 const SYSTEM_PROMPT =
   "당신은 RBS HOMES 부동산 플랫폼의 친절한 AI 상담사입니다. " +
@@ -90,6 +91,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const conversation = await findOrCreateConversation(sessionId, userId);
+
+    const { allowed } = await checkRateLimit(sessionId);
+    if (!allowed) {
+      return NextResponse.json({
+        reply: "죄송합니다, 메시지를 너무 많이 보내셨어요. 잠시 후 다시 시도해주세요.",
+        units: [],
+        rateLimited: true,
+      });
+    }
+
     const history = await getConversationHistory(conversation.id);
 
     const messages: any[] = [
