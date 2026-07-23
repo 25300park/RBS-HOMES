@@ -19,7 +19,7 @@ const SYSTEM_PROMPT =
   "투어 예약은 매물 상세 페이지에서 신청할 수 있습니다. " +
   "고객이 특정 매물을 찾고 싶다고 하면 search_units 도구를 사용해 실제 매물을 검색하세요. " +
   "모르는 내용은 모른다고 솔직하게 답하고, 자세한 상담은 담당자에게 문의하도록 안내하세요. " +
-  "항상 한국어로 응답하되, 고객이 영어로 물어보면 영어로 답하세요.";
+  "Always respond in English by default. If the customer writes in Korean, you may respond in Korean instead.";
 
 const SEARCH_UNITS_TOOL = {
   name: "search_units",
