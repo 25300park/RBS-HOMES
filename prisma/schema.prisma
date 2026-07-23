@@ -791,6 +791,7 @@ enum ContractDraftStatus {
   REVISION_REQUESTED
   APPROVED
   FINALIZED
+  REJECTED
 }
 
 // ═══════════════════════════════════════════════════════
