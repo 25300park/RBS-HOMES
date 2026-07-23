@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import SignaturePad from "@/components/signature/signature-pad";
+import Link from "next/link";
 
 const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
   DRAFT:                 { text: "Draft",             cls: "bg-gray-100 text-gray-600" },
@@ -28,9 +29,10 @@ interface LoiData {
 interface Props {
   loi: LoiData;
   viewerRole: "landlord" | "tenant";
+  contractDraftId: number | null;
 }
 
-export default function LoiDetail({ loi, viewerRole }: Props) {
+export default function LoiDetail({ loi, viewerRole, contractDraftId }: Props) {
   const router = useRouter();
   const [isCountering, setIsCountering] = useState(false);
   const [counterContent, setCounterContent] = useState(loi.content);
@@ -192,6 +194,27 @@ export default function LoiDetail({ loi, viewerRole }: Props) {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Contract Draft 진입점 (SIGNED 후) */}
+      {loi.status === "SIGNED" && (
+        <div className="flex justify-end">
+          {contractDraftId !== null ? (
+            <Link
+              href={`/contract-draft/${contractDraftId}`}
+              className="text-sm text-orange-500 hover:underline"
+            >
+              View Contract Draft →
+            </Link>
+          ) : (
+            <Link
+              href={`/contract-draft/new?loiId=${loi.id}`}
+              className="text-sm text-orange-500 hover:underline"
+            >
+              Create Contract Draft →
+            </Link>
+          )}
         </div>
       )}
 
