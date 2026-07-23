@@ -94,6 +94,14 @@ model User {
   agentUnits     Unit[]          @relation("AgentUnits")
   agentSchedules AgentSchedule[] @relation("AgentSchedules")
 
+  // ── LOI / 계약서 확장 ──────────────────────────────────
+  loiAsLandlord        LoiDocument[]   @relation("LoiLandlord")
+  loiAsTenantBroker    LoiDocument[]   @relation("LoiTenantBroker")
+  loiAsLandlordBroker  LoiDocument[]   @relation("LoiLandlordBroker")
+  contractAsLandlordBroker ContractDraft[] @relation("ContractLandlordBroker")
+  contractAsTenantBroker   ContractDraft[] @relation("ContractTenantBroker")
+  contractUploads      ContractUpload[] @relation("ContractUploader")
+
   @@map("user")
 }
 
@@ -321,7 +329,10 @@ model Unit {
   admin     User          @relation(fields: [adminId], references: [id], onDelete: Cascade)
   favorites Favorite[]
   viewLogs  UnitViewLog[]
-  messages Message[]
+  messages         Message[]
+  loiDocuments     LoiDocument[]
+  contractDrafts   ContractDraft[]
+  contractUploads  ContractUpload[]
   @@index([condoId], map: "Unit_condoId_fkey")
   @@index([adminId], map: "Unit_adminId_fkey")
   @@index([agentId])
@@ -764,6 +775,24 @@ enum ContractStatus {
   TERMINATED
 }
 
+enum LoiStatus {
+  DRAFT
+  UNDER_LANDLORD_REVIEW
+  COUNTER_OFFERED
+  TENANT_APPROVED
+  SIGNED
+  REJECTED
+}
+
+enum ContractDraftStatus {
+  DRAFT
+  UNDER_LANDLORD_REVIEW
+  SENT_TO_TENANT
+  REVISION_REQUESTED
+  APPROVED
+  FINALIZED
+}
+
 // ═══════════════════════════════════════════════════════
 // PMS Models
 // ═══════════════════════════════════════════════════════
@@ -806,6 +835,7 @@ model LeaseContract {
   createdBy        User?                @relation("LeaseCreatedBy",      fields: [createdById], references: [id], onDelete: SetNull)
   paymentSchedules PaymentSchedule[]
   careRequests     CareServiceRequest[]
+  contractUpload   ContractUpload?
 
   @@index([unitId])
   @@index([landlordId])
@@ -922,4 +952,74 @@ model ChatMessage {
 
   @@index([conversationId])
   @@map("chat_message")
+}
+
+// ═══════════════════════════════════════════════════════
+// LOI & Contract Models
+// ═══════════════════════════════════════════════════════
+
+model LoiDocument {
+  id               Int       @id @default(autoincrement())
+  unitId           Int
+  landlordId       Int
+  tenantBrokerId   Int
+  landlordBrokerId Int?
+  content          String    @db.Text
+  status           LoiStatus @default(DRAFT)
+  landlordSignature String?  @db.Text
+  tenantSignature   String?  @db.Text
+  signedAt          DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  unit           Unit  @relation(fields: [unitId],           references: [id])
+  landlord       User  @relation("LoiLandlord",       fields: [landlordId],       references: [id])
+  tenantBroker   User  @relation("LoiTenantBroker",   fields: [tenantBrokerId],   references: [id])
+  landlordBroker User? @relation("LoiLandlordBroker", fields: [landlordBrokerId], references: [id])
+  contractDrafts ContractDraft[]
+
+  @@index([unitId])
+  @@index([landlordId])
+  @@map("loi_document")
+}
+
+model ContractDraft {
+  id               Int                 @id @default(autoincrement())
+  unitId           Int
+  loiId            Int
+  landlordBrokerId Int
+  tenantBrokerId   Int?
+  content          String              @db.Text
+  status           ContractDraftStatus @default(DRAFT)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  unit           Unit        @relation(fields: [unitId],           references: [id])
+  loi            LoiDocument @relation(fields: [loiId],            references: [id])
+  landlordBroker User        @relation("ContractLandlordBroker", fields: [landlordBrokerId], references: [id])
+  tenantBroker   User?       @relation("ContractTenantBroker",   fields: [tenantBrokerId],   references: [id])
+  uploads        ContractUpload[]
+
+  @@index([unitId])
+  @@index([loiId])
+  @@map("contract_draft")
+}
+
+model ContractUpload {
+  id              Int      @id @default(autoincrement())
+  unitId          Int
+  contractDraftId Int
+  pdfUrl          String   @db.VarChar(500)
+  uploadedById    Int
+  leaseContractId Int?     @unique
+  createdAt       DateTime @default(now())
+
+  unit          Unit           @relation(fields: [unitId],           references: [id])
+  contractDraft ContractDraft  @relation(fields: [contractDraftId],  references: [id])
+  uploadedBy    User           @relation("ContractUploader",  fields: [uploadedById],    references: [id])
+  leaseContract LeaseContract? @relation(fields: [leaseContractId],  references: [id])
+
+  @@index([unitId])
+  @@index([contractDraftId])
+  @@map("contract_upload")
 }
