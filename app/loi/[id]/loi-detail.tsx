@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import SignaturePad from "@/components/signature/signature-pad";
 
 const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
   DRAFT:                 { text: "Draft",             cls: "bg-gray-100 text-gray-600" },
@@ -18,6 +19,8 @@ interface LoiData {
   unit: { title: string };
   content: string;
   status: string;
+  landlordSignature: string | null;
+  tenantSignature: string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -32,6 +35,7 @@ export default function LoiDetail({ loi, viewerRole }: Props) {
   const [isCountering, setIsCountering] = useState(false);
   const [counterContent, setCounterContent] = useState(loi.content);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState("");
 
   const badge = STATUS_LABEL[loi.status] ?? { text: loi.status, cls: "bg-gray-100 text-gray-600" };
@@ -39,6 +43,10 @@ export default function LoiDetail({ loi, viewerRole }: Props) {
   const showActions =
     (loi.status === "UNDER_LANDLORD_REVIEW" && viewerRole === "landlord") ||
     (loi.status === "COUNTER_OFFERED" && viewerRole === "tenant");
+
+  const mySignature =
+    viewerRole === "landlord" ? loi.landlordSignature : loi.tenantSignature;
+  const viewerHasSigned = Boolean(mySignature);
 
   const callAction = async (action: "approve" | "counter" | "reject") => {
     setIsLoading(true);
@@ -65,6 +73,30 @@ export default function LoiDetail({ loi, viewerRole }: Props) {
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSign = async (dataUrl: string) => {
+    setIsSigning(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/loi/${loi.id}/sign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signatureDataUrl: dataUrl }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "서명 제출에 실패했습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      router.refresh();
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setIsSigning(false);
     }
   };
 
@@ -96,24 +128,81 @@ export default function LoiDetail({ loi, viewerRole }: Props) {
         </p>
       </div>
 
-      {/* Status messages (terminal states) */}
+      {/* TENANT_APPROVED: 서명 단계 */}
       {loi.status === "TENANT_APPROVED" && (
-        <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
-          Both parties have agreed. E-signature feature coming soon.
+        <div className="space-y-4">
+          {viewerHasSigned ? (
+            <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-xl space-y-3">
+              <p className="text-sm text-green-700">
+                You have signed. Waiting for the other party to sign.
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mySignature!}
+                alt="Your signature"
+                className="h-16 object-contain border border-green-200 rounded bg-white p-1"
+              />
+            </div>
+          ) : (
+            <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+              <p className="text-sm text-gray-700 font-medium">
+                Please sign below to confirm this LOI.
+              </p>
+              {isSigning && (
+                <p className="text-xs text-gray-400">Submitting signature…</p>
+              )}
+              <SignaturePad onSave={handleSign} />
+              {error && <p className="text-sm text-red-600">{error}</p>}
+            </div>
+          )}
         </div>
       )}
+
+      {/* SIGNED: 양측 서명 표시 */}
       {loi.status === "SIGNED" && (
-        <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700">
-          This LOI has been signed by both parties.
+        <div className="border border-emerald-200 rounded-xl p-4 space-y-4">
+          <p className="text-sm text-emerald-700 font-medium">
+            This LOI has been signed by both parties.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Landlord Signature</p>
+              {loi.landlordSignature ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={loi.landlordSignature}
+                  alt="Landlord signature"
+                  className="w-full max-h-24 object-contain border border-gray-200 rounded bg-white p-1"
+                />
+              ) : (
+                <p className="text-xs text-gray-400">—</p>
+              )}
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Tenant Signature</p>
+              {loi.tenantSignature ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={loi.tenantSignature}
+                  alt="Tenant signature"
+                  className="w-full max-h-24 object-contain border border-gray-200 rounded bg-white p-1"
+                />
+              ) : (
+                <p className="text-xs text-gray-400">—</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
+
+      {/* REJECTED */}
       {loi.status === "REJECTED" && (
         <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
           This LOI was rejected.
         </div>
       )}
 
-      {/* Action area */}
+      {/* Action area (협상 단계) */}
       {showActions && (
         <div className="space-y-3">
           {isCountering ? (
