@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
@@ -34,6 +34,51 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
   const [editContent, setEditContent] = useState(draft.content);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Upload form state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [monthlyRent, setMonthlyRent] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const canUpload =
+    uploadFile !== null && startDate !== "" && endDate !== "" && monthlyRent !== "";
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canUpload || !uploadFile) return;
+
+    setIsUploading(true);
+    setUploadError("");
+
+    try {
+      const fd = new FormData();
+      fd.append("file", uploadFile);
+      fd.append("startDate", startDate);
+      fd.append("endDate", endDate);
+      fd.append("monthlyRent", monthlyRent);
+
+      const res = await fetch(`/api/contract-draft/${draft.id}/upload`, {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setUploadError(data.error ?? "Upload failed. Please try again.");
+        return;
+      }
+
+      router.refresh();
+    } catch {
+      setUploadError("Network error. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const badge = STATUS_LABEL[draft.status] ?? { text: draft.status, cls: "bg-gray-100 text-gray-600" };
 
@@ -104,11 +149,77 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
         </p>
       </div>
 
-      {/* Terminal state messages */}
+      {/* APPROVED: 공증 PDF 업로드 폼 */}
       {draft.status === "APPROVED" && (
-        <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
-          Both parties have agreed. Please proceed with in-person signing, then upload the
-          notarized document. (Upload feature coming soon.)
+        <div className="border border-green-200 rounded-xl p-4 space-y-4">
+          <p className="text-sm text-green-700">
+            Both parties have agreed. Please proceed with in-person signing and notarization,
+            then upload the notarized PDF below.
+          </p>
+          <form onSubmit={handleUpload} className="space-y-4">
+            {/* PDF 파일 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notarized PDF
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                disabled={isUploading}
+                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50"
+              />
+            </div>
+
+            {/* 날짜 + 임대료 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  disabled={isUploading}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  disabled={isUploading}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Monthly Rent (₱)</label>
+                <input
+                  type="number"
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(e.target.value)}
+                  disabled={isUploading}
+                  min="0"
+                  placeholder="e.g. 25000"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
+                />
+              </div>
+            </div>
+
+            {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={!canUpload || isUploading}
+                className="px-5 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-lg disabled:bg-orange-200 disabled:cursor-not-allowed transition-colors"
+              >
+                {isUploading ? "Uploading…" : "Upload & Finalize"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
       {draft.status === "FINALIZED" && (
