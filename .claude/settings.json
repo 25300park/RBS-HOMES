@@ -8,10 +8,20 @@
       "Bash(git fetch *)",
       "Bash(git stash *)",
       "Bash(git merge *)",
-      "Bash(git rebase *)"
+      "Bash(git rebase *)",
+      "Bash(ls app/dashboard/agent/)",
+      "Bash(ls app/dashboard/agent/*.tsx)",
+      "Bash(find app/dashboard/agent -type f)",
+      "Read(//c//**)",
+      "Bash(node seed-agent.js)",
+      "Bash(ls node_modules/dotenv)",
+      "Bash(ls -la .env*)",
+      "Bash(node --env-file=.env.local seed-agent.js)"
     ],
     "additionalDirectories": [
-      "d:\\01. RBS-HOMES Backup\\01. RBS-HOMES\\app\\api\\pms"
+      "d:\\01. RBS-HOMES Backup\\01. RBS-HOMES\\app\\api\\pms",
+      "d:\\01. RBS-HOMES Backup\\02. ADMIN-RBS-HOMES\\prisma",
+      "d:\\01. RBS-HOMES Backup\\02. ADMIN-RBS-HOMES\\app\\(route)\\units"
     ]
   }
 }
