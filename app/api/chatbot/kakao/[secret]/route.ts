@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { handleMessage } from "@/lib/chatbot/handle-message";
 
+export const maxDuration = 60;
+
 // 카카오 listCard / simpleText outputs 생성 (동기·비동기 두 경로 공용)
 function buildKakaoOutputs(replyText: string, units: any[]): any[] {
   const makeItems = (list: any[]) =>

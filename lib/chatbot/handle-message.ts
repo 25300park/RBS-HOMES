@@ -28,7 +28,20 @@ const SYSTEM_PROMPT =
   "Choose from: budget (maximum rent or price), preferred building or development name, floor preference or view, preferred move-in date. " +
   "Do NOT mention, summarize, or list any specific property in this case — not even one example.\n" +
   "3. If the count is 5 or fewer: present them as a short list.\n" +
-  "4. Exception: if the user's message explicitly says '다 보여줘', 'show all', or 'just show me anything', skip step 2 and list the top 5.";
+  "4. Exception: if the user's message explicitly says '다 보여줘', 'show all', or 'just show me anything', skip step 2 and list the top 5.\n\n" +
+  "RULE — always re-fetch for follow-up questions:\n" +
+  "When the user asks a follow-up or refinement question about specific listings (e.g. narrowing by bedroom count, budget, or a specific building), " +
+  "you MUST call search_units again with the updated criteria — even if you already mentioned a similar property earlier in this conversation. " +
+  "Never answer specific listing details (price, size, availability) from memory of earlier turns; always fetch fresh data via the tool.\n\n" +
+  "RULE — 0-result retry before giving up:\n" +
+  "When search_units returns 0 results and you used the 'keyword' parameter, do NOT immediately tell the user nothing was found. " +
+  "Instead, retry with a broader keyword before giving up:\n" +
+  "1. First retry: drop trailing numbers or unit-type words from keyword (e.g. 'Verve 1' → 'Verve').\n" +
+  "2. If still 0 results, retry with just the most distinctive word (the proper noun / brand name), " +
+  "dropping generic words like 'tower', 'residences', 'building', numbers.\n" +
+  "3. If a retry succeeds, mention to the user that you searched more broadly " +
+  "(e.g. '정확히 일치하는 이름은 없었지만, Verve 관련 매물을 찾아봤어요') so they know it is not an exact name match.\n" +
+  "4. Only after all retries fail, tell the user no listings were found and suggest they contact maymrhomes082023@gmail.com.";
 
 const SEARCH_UNITS_TOOL = {
   name: "search_units",
@@ -99,6 +112,8 @@ export interface HandleMessageResult {
   rateLimited: boolean;
 }
 
+const MAX_TOOL_ROUNDS = 5;
+
 export async function handleMessage({
   sessionId,
   message,
@@ -121,51 +136,55 @@ export async function handleMessage({
   }
 
   const history = await getConversationHistory(conversation.id);
-
   const messages: any[] = [...history, { role: "user", content: message }];
-
-  const firstData = await callAnthropic(messages);
 
   let replyText = "";
   let units: any[] = [];
+  let round = 0;
 
-  const toolUseBlock = firstData.content?.find(
-    (block: any) => block.type === "tool_use" && block.name === "search_units"
-  );
+  // 최대 MAX_TOOL_ROUNDS 회 tool_use 왕복 허용 (0건 재시도 등)
+  while (round < MAX_TOOL_ROUNDS) {
+    const data = await callAnthropic(messages);
+    round++;
 
-  if (toolUseBlock) {
-    units = await searchUnitsForChat(toolUseBlock.input);
-
-    const messagesWithResult: any[] = [
-      ...messages,
-      { role: "assistant", content: firstData.content },
-      {
-        role: "user",
-        content: [
-          {
-            type: "tool_result",
-            tool_use_id: toolUseBlock.id,
-            content: JSON.stringify(units),
-          },
-        ],
-      },
-    ];
-
-    const secondData = await callAnthropic(messagesWithResult);
-    const textBlock = secondData.content?.find(
-      (block: any) => block.type === "text"
+    const toolUseBlock = data.content?.find(
+      (block: any) => block.type === "tool_use" && block.name === "search_units"
     );
-    replyText = textBlock?.text ?? "";
-  } else {
-    const textBlock = firstData.content?.find(
-      (block: any) => block.type === "text"
-    );
-    replyText = textBlock?.text ?? "";
+
+    if (!toolUseBlock) {
+      // tool_use 없음 — 최종 텍스트 응답
+      const textBlock = data.content?.find((block: any) => block.type === "text");
+      replyText = textBlock?.text ?? "";
+      break;
+    }
+
+    // tool_use 실행 후 결과를 메시지 체인에 추가하고 루프 계속
+    const searchResult = await searchUnitsForChat(toolUseBlock.input);
+    // 마지막 검색 결과를 units로 유지 (listCard 렌더 기준)
+    units = searchResult;
+
+    messages.push({ role: "assistant", content: data.content });
+    messages.push({
+      role: "user",
+      content: [
+        {
+          type: "tool_result",
+          tool_use_id: toolUseBlock.id,
+          content: JSON.stringify(searchResult),
+        },
+      ],
+    });
   }
+
+  // replyText에서 AI가 실제로 언급한 /properties/... URL만 추출해 카드와 일치시킴
+  const mentionedUrls: string[] = replyText.match(/\/properties\/[^)\s"]+/g) ?? [];
+  const finalUnits = mentionedUrls.length > 0
+    ? units.filter((u) => mentionedUrls.includes(u.url))
+    : [];
 
   await saveMessages(conversation.id, message, replyText).catch((err) => {
     console.error("Failed to save chat messages:", err);
   });
 
-  return { replyText, units, rateLimited: false };
+  return { replyText, units: finalUnits, rateLimited: false };
 }
