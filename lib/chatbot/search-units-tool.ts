@@ -1,5 +1,6 @@
 import { getFilteredUnits } from "@/lib/units/get-filtered-units";
 import { generatePropertySlug } from "@/lib/utils";
+import prisma from "@/lib/prisma";
 
 export async function searchUnitsForChat(params: {
   area?: string;
@@ -32,6 +33,20 @@ export async function searchUnitsForChat(params: {
 
   try {
     const { units } = await getFilteredUnits(1, 8, filters, undefined);
+
+    if (units.length === 0) {
+      prisma.searchMissLog
+        .create({
+          data: {
+            keyword: params.keyword ?? null,
+            area: params.area ?? null,
+            sellType: params.sellType ?? null,
+            type: params.type ?? null,
+          },
+        })
+        .catch(() => {});
+    }
+
     return units.map((u) => ({
       id: u.id,
       title: u.title,

@@ -1024,3 +1024,19 @@ model ContractUpload {
   @@index([contractDraftId])
   @@map("contract_upload")
 }
+
+// ═══════════════════════════════════════════════════════
+// Analytics
+// ═══════════════════════════════════════════════════════
+
+model SearchMissLog {
+  id        Int      @id @default(autoincrement())
+  keyword   String?  @db.VarChar(200)
+  area      String?  @db.VarChar(200)
+  sellType  String?  @db.VarChar(20)
+  type      String?  @db.VarChar(20)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("searchmisslog")
+}
