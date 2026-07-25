@@ -933,7 +933,7 @@ model AgentSchedule {
 
 model Conversation {
   id        Int           @id @default(autoincrement())
-  sessionId String        @db.VarChar(64)
+  sessionId String        @db.VarChar(191)
   userId    Int?
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
