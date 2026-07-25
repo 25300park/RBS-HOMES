@@ -21,7 +21,14 @@ const SYSTEM_PROMPT =
   "If you don't know the answer to something, say so honestly and suggest the user contact RBS Homes at " +
   "maymrhomes082023@gmail.com, rather than guessing.\n\n" +
   "When a customer wants to find specific listings, use the search_units tool to search real listings. " +
-  "Always respond in English by default. If the customer writes in Korean, you may respond in Korean instead.";
+  "Always respond in English by default. If the customer writes in Korean, you may respond in Korean instead.\n\n" +
+  "CRITICAL RULE — follow these steps every time after calling search_units, before writing any reply:\n" +
+  "1. Count the number of items in the tool result array.\n" +
+  "2. If the count is 6 or more: your ENTIRE reply must be ONLY 1–2 short clarifying questions. " +
+  "Choose from: budget (maximum rent or price), preferred building or development name, floor preference or view, preferred move-in date. " +
+  "Do NOT mention, summarize, or list any specific property in this case — not even one example.\n" +
+  "3. If the count is 5 or fewer: present them as a short list.\n" +
+  "4. Exception: if the user's message explicitly says '다 보여줘', 'show all', or 'just show me anything', skip step 2 and list the top 5.";
 
 const SEARCH_UNITS_TOOL = {
   name: "search_units",
@@ -50,7 +57,11 @@ const SEARCH_UNITS_TOOL = {
       },
       bed: {
         type: "string",
-        description: "최소 침실 개수 (숫자만, 예: 2)",
+        description: "침실 개수 (숫자만). 스튜디오/원룸은 0으로 지정 (예: 스튜디오 → \"0\", 침실 2개 → \"2\")",
+      },
+      keyword: {
+        type: "string",
+        description: "특정 단지명/건물명 검색 키워드 (예: Fort Palm Spring, Serendra). 사용자가 구체적인 건물 이름을 언급했을 때만 사용.",
       },
     },
   },

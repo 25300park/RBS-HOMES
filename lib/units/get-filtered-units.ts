@@ -22,6 +22,7 @@ export interface FilterParams {
   furniture?: string;
   pet?: string;
   search?: string;
+  keyword?: string;
   amenities?: string;
   sort?: string;
   status?: string;
@@ -138,9 +139,11 @@ export async function getFilteredUnits(
     type: type ? { equals: type } : undefined,
     sellType:
       activeTypesArray.length > 0 ? { in: activeTypesArray } : undefined,
-    bed: bed ? { gte: bed } : undefined,
-    bath: bath ? { gte: bath } : undefined,
-    parking: parking ? { gte: parking } : undefined,
+    bed: bed !== undefined
+      ? (bed === 0 ? { equals: 0 } : { gte: bed })
+      : undefined,
+    bath: bath !== undefined ? { gte: bath } : undefined,
+    parking: parking !== undefined ? { gte: parking } : undefined,
     address2: city ? { equals: city } : undefined,
     area:
       areaMin || areaMax
@@ -151,6 +154,7 @@ export async function getFilteredUnits(
     ...getAmenityFilter(amenities),
     ...getPriceFilter(priceMin, priceMax),
     ...getSearchFilter(params.search),
+    ...(params.keyword ? { title: { contains: params.keyword } } : {}),
   };
 
   const [units, totalUnits] = await prisma.$transaction([

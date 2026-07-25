@@ -7,6 +7,7 @@ export async function searchUnitsForChat(params: {
   sellType?: string;
   priceMax?: string;
   bed?: string;
+  keyword?: string;
 }) {
   const filters = {
     type: params.type ?? "none",
@@ -23,13 +24,14 @@ export async function searchUnitsForChat(params: {
     furniture: "none",
     pet: "none",
     search: params.area ?? "",
+    keyword: params.keyword,
     amenities: "",
     sort: "latest",
     status: "0,3",
   };
 
   try {
-    const { units } = await getFilteredUnits(1, 5, filters, undefined);
+    const { units } = await getFilteredUnits(1, 8, filters, undefined);
     return units.map((u) => ({
       id: u.id,
       title: u.title,
