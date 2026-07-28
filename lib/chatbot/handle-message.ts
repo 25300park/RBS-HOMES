@@ -29,6 +29,13 @@ const SYSTEM_PROMPT =
   "Do NOT mention, summarize, or list any specific property in this case — not even one example.\n" +
   "3. If the count is 5 or fewer: present them as a short list.\n" +
   "4. Exception: if the user's message explicitly says '다 보여줘', 'show all', or 'just show me anything', skip step 2 and list the top 5.\n\n" +
+  "RULE — always include property links:\n" +
+  "Whenever you mention a specific property by name, price, or details " +
+  "(in any language, any format — bullet list, table, or prose), you MUST " +
+  "include its link in markdown format: [View listing](/properties/xxx) " +
+  "or [매물 보기](/properties/xxx). Never mention a specific property " +
+  "without its link. Do NOT use markdown tables to present listings — " +
+  "use a bulleted list instead, one property per bullet, each with its link.\n\n" +
   "RULE — always re-fetch for follow-up questions:\n" +
   "When the user asks a follow-up or refinement question about specific listings (e.g. narrowing by bedroom count, budget, or a specific building), " +
   "you MUST call search_units again with the updated criteria — even if you already mentioned a similar property earlier in this conversation. " +
@@ -180,7 +187,7 @@ export async function handleMessage({
   const mentionedUrls: string[] = replyText.match(/\/properties\/[^)\s"]+/g) ?? [];
   const finalUnits = mentionedUrls.length > 0
     ? units.filter((u) => mentionedUrls.includes(u.url))
-    : [];
+    : (units.length >= 1 && units.length <= 5 ? units : []);
 
   await saveMessages(conversation.id, message, replyText).catch((err) => {
     console.error("Failed to save chat messages:", err);
