@@ -28,6 +28,7 @@ model User {
   /// 2:  에이전트 (Agent)
   /// 3:  브로커 (Broker)
   /// 4:  오너 (Owner)
+  /// 5:  세입자 (Tenant)
   /// 20: 프리세일 에이전트 (Presale Agent)
   /// 30: 프리세일 브로커 (Presale Broker)
   /// 40: 프리세일 오너 (Presale Owner)
