@@ -57,6 +57,7 @@ export async function searchUnitsForChat(params: {
       type: u.type,
       sellType: u.sellType,
       url: `/properties/${generatePropertySlug(u)}`,
+      thumbnailUrl: u.images?.[0] ?? undefined,
     }));
   } catch {
     return [];

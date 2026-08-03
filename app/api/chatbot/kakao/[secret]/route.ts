@@ -4,6 +4,14 @@ import { handleMessage } from "@/lib/chatbot/handle-message";
 
 export const maxDuration = 60;
 
+const QUICK_REPLIES = [
+  { label: "BGC 매물", action: "message", messageText: "BGC 매물 보여줘" },
+  { label: "Makati 매물", action: "message", messageText: "Makati 매물 보여줘" },
+  { label: "Ortigas 매물", action: "message", messageText: "Ortigas 매물 보여줘" },
+  { label: "예산 5만 이하", action: "message", messageText: "예산 5만 페소 이하 매물" },
+  { label: "스튜디오만", action: "message", messageText: "스튜디오 매물만 보여줘" },
+];
+
 // 카카오 listCard / simpleText outputs 생성 (동기·비동기 두 경로 공용)
 function buildKakaoOutputs(replyText: string, units: any[]): any[] {
   const makeItems = (list: any[]) =>
@@ -14,11 +22,13 @@ function buildKakaoOutputs(replyText: string, units: any[]): any[] {
         u.area ? `${u.area}㎡` : null,
       ].filter(Boolean);
 
-      return {
+      const item: Record<string, any> = {
         title: u.title,
         description: parts.join(" · ") || u.type,
         link: { web: `https://rbs-homes.com${u.url}` },
       };
+      if (u.thumbnailUrl) item.imageUrl = u.thumbnailUrl;
+      return item;
     });
 
   const moreButton = [
@@ -96,6 +106,7 @@ export async function POST(
     return NextResponse.json({
       version: "2.0",
       template: { outputs: buildKakaoOutputs(replyText, units) },
+      quickReplies: QUICK_REPLIES,
     });
   } catch (err) {
     console.error("Kakao chatbot error:", err);
@@ -106,6 +117,7 @@ export async function POST(
           { simpleText: { text: "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요." } },
         ],
       },
+      quickReplies: QUICK_REPLIES,
     });
   }
 }
@@ -134,6 +146,7 @@ async function processInBackground(
       body: JSON.stringify({
         version: "2.0",
         template: { outputs },
+        quickReplies: QUICK_REPLIES,
       }),
     });
   } catch (err) {
