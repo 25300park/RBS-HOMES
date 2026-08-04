@@ -5,7 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { Heart, CalendarDays, MessageSquare, ArrowRight } from "lucide-react";
+import { Heart, Calendar, MessageSquare } from "lucide-react";
+import LogoutButton from "./components/logout-button";
+import BottomNav from "./components/bottom-nav";
 
 export default async function BuyerDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
@@ -28,80 +30,88 @@ export default async function BuyerDashboardPage() {
   ]);
 
   return (
-    <div className="max-w-[1140px] mx-auto px-4 py-10 space-y-10">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          안녕하세요, {session.user.name ?? "회원"}님
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">나의 활동 현황을 확인하세요.</p>
-      </div>
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+      <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
-      {/* 즐겨찾기 매물 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-orange-500" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">즐겨찾기 매물</h2>
+        {/* Welcome card */}
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
+              Hello, {session.user.name ?? "Guest"}
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+              Track your saved properties, scheduled visits, and inquiries.
+            </p>
           </div>
-          <Link
-            href="/account/unit/favorites"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            전체 보기 <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
-          즐겨찾기 {favorites.length}건
-        </div>
-      </section>
-
-      {/* 방문 일정 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <CalendarDays className="w-5 h-5 text-blue-500" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">예약된 방문 일정</h2>
+          <div className="flex items-center justify-between sm:justify-end space-x-2">
+            <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
+              Buyer Level 1
+            </span>
+            <LogoutButton />
           </div>
-          <Link
-            href="/account/schedule"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
-          예약된 방문 일정 {scheduleCount}건
-        </div>
-      </section>
+        {/* 3-col section grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      {/* 문의 내역 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-purple-500" />
+          {/* Saved properties */}
+          <section className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+            <div className="flex items-center space-x-2 border-b border-zinc-100 pb-3">
+              <Heart className="w-4 h-4 text-[#0E5246]" />
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Saved</span>
             </div>
-            <h2 className="text-lg font-bold text-gray-800">내 문의 내역</h2>
-          </div>
-          <Link
-            href="/dashboard/buyer/inquiries"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+              <span className="text-2xl sm:text-3xl font-black text-zinc-900">{favorites.length}</span>
+              <p className="text-xs text-zinc-500 mt-1">Saved properties</p>
+            </div>
+            <Link
+              href="/account/unit/favorites"
+              className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center shadow-2xs transition-all"
+            >
+              View All →
+            </Link>
+          </section>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
-          문의 내역 {contacts.length}건
+          {/* Scheduled visits */}
+          <section className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+            <div className="flex items-center space-x-2 border-b border-zinc-100 pb-3">
+              <Calendar className="w-4 h-4 text-[#0E5246]" />
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Visits</span>
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+              <span className="text-2xl sm:text-3xl font-black text-[#0E5246]">{scheduleCount}</span>
+              <p className="text-xs text-zinc-500 mt-1">Confirmed visits (status=2)</p>
+            </div>
+            <Link
+              href="/account/schedule"
+              className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center shadow-2xs transition-all"
+            >
+              View All →
+            </Link>
+          </section>
+
+          {/* Inquiries */}
+          <section className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+            <div className="flex items-center space-x-2 border-b border-zinc-100 pb-3">
+              <MessageSquare className="w-4 h-4 text-[#0E5246]" />
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Inquiries</span>
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+              <span className="text-2xl sm:text-3xl font-black text-zinc-900">{contacts.length}</span>
+              <p className="text-xs text-zinc-500 mt-1">Submitted inquiries</p>
+            </div>
+            <Link
+              href="/dashboard/buyer/inquiries"
+              className="w-full bg-[#0E5246] hover:bg-[#0B4339] text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center shadow-2xs transition-all"
+            >
+              View Details →
+            </Link>
+          </section>
+
         </div>
-      </section>
+      </main>
+
+      <BottomNav />
     </div>
   );
 }
-

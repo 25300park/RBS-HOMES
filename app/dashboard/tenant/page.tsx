@@ -6,11 +6,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import {
-  Wallet,
-  Wrench,
-  MessageSquare,
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   Clock,
   XCircle,
@@ -22,13 +18,13 @@ import BottomNav from "./components/bottom-nav";
 import LogoutButton from "./components/logout-button";
 
 const careStatusLabel: Record<string, { text: string; cls: string }> = {
-  PENDING: { text: "Requested", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
-  PENDING_OWNER_APPROVAL: { text: "Awaiting Owner Approval", cls: "bg-orange-500/15 text-orange-400" },
-  SCHEDULED: { text: "Scheduled", cls: "bg-[#3B82F6]/15 text-[#3B82F6]" },
-  IN_PROGRESS: { text: "In Progress", cls: "bg-purple-500/15 text-purple-400" },
-  AWAITING_TENANT_CONFIRMATION: { text: "Please Confirm", cls: "bg-[#10B981]/15 text-[#10B981] animate-pulse" },
-  COMPLETED: { text: "Completed", cls: "bg-[#334155] text-[#94A3B8]" },
-  CANCELLED: { text: "Cancelled", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
+  PENDING: { text: "Requested", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
+  PENDING_OWNER_APPROVAL: { text: "Awaiting Owner Approval", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
+  SCHEDULED: { text: "Scheduled", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
+  IN_PROGRESS: { text: "In Progress", cls: "bg-[#0E5246]/15 text-[#0B4339]" },
+  AWAITING_TENANT_CONFIRMATION: { text: "Please Confirm", cls: "bg-amber-100 text-amber-700 animate-pulse" },
+  COMPLETED: { text: "Completed", cls: "bg-zinc-100 text-zinc-500" },
+  CANCELLED: { text: "Cancelled", cls: "bg-red-100 text-red-600" },
 };
 
 const careServiceTypeLabel: Record<string, string> = {
@@ -51,7 +47,6 @@ export default async function TenantDashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  // Current active (or expiring soon) lease
   const activeLease = await prisma.leaseContract.findFirst({
     where: {
       tenantId: userId,
@@ -66,13 +61,11 @@ export default async function TenantDashboardPage() {
 
   if (!activeLease) {
     return (
-      <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC]">
-        <div className="max-w-[640px] mx-auto px-4 py-10 pb-24">
-          <Header userName={session.user.name} />
-          <div className="mt-6">
-            <EmptyState message="You don't have an active lease yet. Please contact us." />
-          </div>
-        </div>
+      <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+        <main className="max-w-[1140px] mx-auto px-4 py-10 space-y-6">
+          <WelcomeCard userName={session.user.name} />
+          <EmptyState message="You don't have an active lease yet. Please contact us." />
+        </main>
         <BottomNav communityHref="/dashboard/tenant#community" />
       </div>
     );
@@ -119,19 +112,19 @@ export default async function TenantDashboardPage() {
     : "/dashboard/tenant#community";
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC]">
-      <div className="max-w-[640px] mx-auto px-4 py-6 pb-24 space-y-6">
-        <Header userName={session.user.name} />
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+      <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
+        <WelcomeCard userName={session.user.name} />
 
         {/* Lease expiring banner */}
         {isExpiringSoon && (
-          <div className="flex items-start gap-3 bg-[#F59E0B]/10 border border-[#F59E0B]/40 rounded-xl p-4">
-            <AlertTriangle className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-0.5" />
+          <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 sm:p-5 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-[#F59E0B] text-sm">
+              <p className="font-semibold text-zinc-900 text-sm">
                 Your lease is expiring soon. Contact us.
               </p>
-              <p className="text-xs text-[#94A3B8] mt-0.5">
+              <p className="text-xs text-zinc-500 mt-0.5">
                 Lease end date: {new Date(activeLease.endDate).toLocaleDateString("en-US")}
               </p>
             </div>
@@ -139,29 +132,31 @@ export default async function TenantDashboardPage() {
         )}
 
         {/* Lease summary */}
-        <section>
-          <SectionTitle>Lease Summary</SectionTitle>
-          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
+        <section id="lease" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="border-b border-zinc-100 pb-3">
+            <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Lease Summary</span>
+            <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Active Lease</h2>
+          </div>
+          <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-semibold text-[#F8FAFC] truncate">{activeLease.unit.title}</p>
-                <p className="text-xs text-[#94A3B8] mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
+                <p className="font-semibold text-zinc-900 truncate">{activeLease.unit.title}</p>
+                <p className="text-xs text-zinc-500 mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
               </div>
               <LeaseStatusBadge status={activeLease.status} />
             </div>
-
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <p className="text-xs text-[#94A3B8] mb-1">Lease Period</p>
-                <p className="text-sm font-medium text-[#F8FAFC]">
+                <p className="text-xs text-zinc-500 mb-1">Lease Period</p>
+                <p className="text-sm font-medium text-zinc-900">
                   {new Date(activeLease.startDate).toLocaleDateString("en-US")}
                   {" – "}
                   {new Date(activeLease.endDate).toLocaleDateString("en-US")}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-[#94A3B8] mb-1">Monthly Rent</p>
-                <p className="text-sm font-bold text-[#3B82F6]">
+                <p className="text-xs text-zinc-500 mb-1">Monthly Rent</p>
+                <p className="text-sm font-bold text-[#0E5246]">
                   ₱ {Number(activeLease.monthlyRent).toLocaleString()}
                 </p>
               </div>
@@ -170,8 +165,19 @@ export default async function TenantDashboardPage() {
         </section>
 
         {/* This month payment */}
-        <section id="payments">
-          <SectionTitle>{`This Month's Payment`}</SectionTitle>
+        <section id="payments" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Payments</span>
+              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">{`This Month's Payment`}</h2>
+            </div>
+            <Link
+              href="/dashboard/tenant/payments"
+              className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
+            >
+              View All →
+            </Link>
+          </div>
           {!thisMonthPayment ? (
             <EmptyState message="No payment scheduled for this month." />
           ) : (
@@ -179,47 +185,33 @@ export default async function TenantDashboardPage() {
           )}
         </section>
 
-        {/* Payment history summary */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <SectionTitle noMargin>Payment History</SectionTitle>
-            <Link
-              href="/dashboard/tenant/payments"
-              className="flex items-center gap-1 text-sm text-[#3B82F6] hover:text-[#3B82F6]/80 font-medium transition-colors"
-            >
-              View All <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 text-sm text-[#94A3B8]">
-            View your full payment history.
-          </div>
-        </section>
-
         {/* Care service */}
-        <section id="care">
-          <div className="flex items-center justify-between mb-3">
-            <SectionTitle noMargin>Care Service</SectionTitle>
+        <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Care Service</span>
+              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Maintenance Requests</h2>
+            </div>
             <Link
               href="/dashboard/tenant/care"
-              className="flex items-center justify-center gap-1.5 min-h-[44px] px-4 bg-[#3B82F6] hover:bg-[#3B82F6]/90 text-white rounded-lg text-sm font-semibold transition-colors"
+              className="bg-[#0E5246] hover:bg-[#0B4339] text-white font-extrabold px-4 py-2 rounded-lg text-xs shadow-2xs transition-all"
             >
-              Request Care Service
+              + Request
             </Link>
           </div>
-
           {careRequests.length === 0 ? (
             <EmptyState message="No active care requests." />
           ) : (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-xl divide-y divide-[#334155] overflow-hidden">
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
               {careRequests.map((c) => {
-                const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-[#334155] text-[#94A3B8]" };
+                const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-zinc-100 text-zinc-500" };
                 return (
                   <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3">
                     <div className="min-w-0">
-                      <p className="font-medium text-sm text-[#F8FAFC]">
+                      <p className="font-medium text-sm text-zinc-900">
                         {careServiceTypeLabel[c.serviceType] ?? c.serviceType}
                       </p>
-                      <p className="text-xs text-[#94A3B8] mt-0.5">
+                      <p className="text-xs text-zinc-500 mt-0.5">
                         Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
                       </p>
                     </div>
@@ -239,38 +231,47 @@ export default async function TenantDashboardPage() {
         </section>
 
         {/* Community board */}
-        <section id="community">
-          <div className="flex items-center justify-between mb-3">
-            <SectionTitle noMargin>Community Board</SectionTitle>
+        <section id="community" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Community</span>
+              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Community Board</h2>
+            </div>
             <Link
               href={communityHref}
-              className="flex items-center gap-1 text-sm text-[#3B82F6] hover:text-[#3B82F6]/80 font-medium transition-colors"
+              className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
             >
-              View All <ArrowRight className="w-4 h-4" />
+              View All →
             </Link>
           </div>
-
-          <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 text-sm text-[#94A3B8]">
+          <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-sm text-zinc-500">
             {communityPosts.length === 0
               ? "No posts yet."
-              : `게시글 ${communityPosts.length}건`}
+              : `${communityPosts.length} posts`}
           </div>
         </section>
-      </div>
+      </main>
 
       <BottomNav communityHref={communityHref} />
     </div>
   );
 }
 
-// ── Header ────────────────────────────────────────────────
-function Header({ userName }: { userName?: string | null }) {
+// ── Welcome card ────────────────────────────────────────────
+function WelcomeCard({ userName }: { userName?: string | null }) {
   return (
-    <div className="flex items-center justify-between">
-      <h1 className="text-xl font-bold text-[#F8FAFC]">My Dashboard</h1>
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-[#F8FAFC] font-medium truncate max-w-[120px]">
-          {userName ?? "Tenant"}
+    <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
+          Hello, {userName ?? "Tenant"}
+        </h1>
+        <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+          Manage your active lease and care requests.
+        </p>
+      </div>
+      <div className="flex items-center justify-between sm:justify-end space-x-2">
+        <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
+          Tenant Level 5
         </span>
         <LogoutButton />
       </div>
@@ -278,24 +279,15 @@ function Header({ userName }: { userName?: string | null }) {
   );
 }
 
-// ── Section title ─────────────────────────────────────────
-function SectionTitle({ children, noMargin }: { children: React.ReactNode; noMargin?: boolean }) {
-  return (
-    <h2 className={`text-sm font-bold text-[#F8FAFC] uppercase tracking-wide ${noMargin ? "" : "mb-3"}`}>
-      {children}
-    </h2>
-  );
-}
-
 // ── Lease status badge ────────────────────────────────────
 function LeaseStatusBadge({ status }: { status: ContractStatus }) {
   const map: Record<string, { text: string; cls: string }> = {
-    ACTIVE: { text: "Active", cls: "bg-[#10B981]/15 text-[#10B981]" },
-    EXPIRING_SOON: { text: "Expiring Soon", cls: "bg-[#F59E0B]/15 text-[#F59E0B]" },
-    EXPIRED: { text: "Expired", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
-    TERMINATED: { text: "Terminated", cls: "bg-[#EF4444]/15 text-[#EF4444]" },
+    ACTIVE: { text: "Active", cls: "bg-emerald-100 text-emerald-700" },
+    EXPIRING_SOON: { text: "Expiring Soon", cls: "bg-amber-100 text-amber-700" },
+    EXPIRED: { text: "Expired", cls: "bg-red-100 text-red-600" },
+    TERMINATED: { text: "Terminated", cls: "bg-red-100 text-red-600" },
   };
-  const cfg = map[status] ?? { text: status, cls: "bg-[#334155] text-[#94A3B8]" };
+  const cfg = map[status] ?? { text: status, cls: "bg-zinc-100 text-zinc-500" };
   return (
     <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 ${cfg.cls}`}>
       {cfg.text}
@@ -303,7 +295,7 @@ function LeaseStatusBadge({ status }: { status: ContractStatus }) {
   );
 }
 
-// ── This month payment card (status-based UI) ────────────
+// ── This month payment card ──────────────────────────────
 function ThisMonthPaymentCard({ payment }: { payment: any }) {
   const due = new Date(payment.dueDate).toLocaleDateString("en-US", {
     year: "numeric",
@@ -313,13 +305,11 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   if (payment.status === "PAID") {
     return (
-      <div className="flex items-center gap-3 bg-[#10B981]/10 border border-[#10B981]/40 rounded-xl p-4">
-        <CheckCircle2 className="w-6 h-6 text-[#10B981] flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+        <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
         <div>
-          <p className="font-semibold text-[#10B981]">Payment Confirmed ✓</p>
-          <p className="text-sm text-[#F8FAFC] mt-0.5">
-            {due} · {amount}
-          </p>
+          <p className="font-semibold text-emerald-700">Payment Confirmed ✓</p>
+          <p className="text-sm text-zinc-600 mt-0.5">{due} · {amount}</p>
         </div>
       </div>
     );
@@ -327,13 +317,11 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   if (payment.status === "AWAITING_APPROVAL") {
     return (
-      <div className="flex items-center gap-3 bg-[#3B82F6]/10 border border-[#3B82F6]/40 rounded-xl p-4">
-        <Clock className="w-6 h-6 text-[#3B82F6] flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <Clock className="w-6 h-6 text-blue-600 flex-shrink-0" />
         <div>
-          <p className="font-semibold text-[#3B82F6]">Receipt Submitted - Pending Approval</p>
-          <p className="text-sm text-[#94A3B8] mt-0.5">
-            {due} · {amount}
-          </p>
+          <p className="font-semibold text-blue-700">Receipt Submitted - Pending Approval</p>
+          <p className="text-sm text-zinc-500 mt-0.5">{due} · {amount}</p>
         </div>
       </div>
     );
@@ -341,13 +329,11 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   if (payment.status === "OVERDUE") {
     return (
-      <div className="flex items-center gap-3 bg-[#EF4444]/10 border border-[#EF4444]/50 rounded-xl p-4">
-        <XCircle className="w-6 h-6 text-[#EF4444] flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
+        <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-[#EF4444]">OVERDUE - Please contact us immediately</p>
-          <p className="text-sm text-[#F8FAFC] mt-0.5">
-            {due} · {amount}
-          </p>
+          <p className="font-bold text-red-700">OVERDUE - Please contact us immediately</p>
+          <p className="text-sm text-zinc-900 mt-0.5">{due} · {amount}</p>
         </div>
         <ReceiptUploadButton paymentId={payment.id} />
       </div>
@@ -356,12 +342,10 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 
   // PENDING
   return (
-    <div className="flex items-center justify-between gap-4 bg-[#F59E0B]/10 border border-[#F59E0B]/40 rounded-xl p-4">
+    <div className="flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
       <div>
-        <p className="font-semibold text-[#F59E0B]">Payment Due</p>
-        <p className="text-sm text-[#F8FAFC] mt-0.5">
-          {due} · {amount}
-        </p>
+        <p className="font-semibold text-amber-700">Payment Due</p>
+        <p className="text-sm text-zinc-900 mt-0.5">{due} · {amount}</p>
       </div>
       <ReceiptUploadButton paymentId={payment.id} />
     </div>
@@ -371,7 +355,7 @@ function ThisMonthPaymentCard({ payment }: { payment: any }) {
 // ── Empty state ────────────────────────────────────────────
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex items-center justify-center h-20 border border-dashed border-[#334155] rounded-xl text-sm text-[#94A3B8]">
+    <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-6 text-center text-sm text-zinc-500">
       {message}
     </div>
   );

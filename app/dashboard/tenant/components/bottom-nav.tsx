@@ -20,16 +20,19 @@ export default function BottomNav({ communityHref }: BottomNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-[#1E293B] border-t border-[#334155]">
+    <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-white/95 backdrop-blur-md border-t border-zinc-200 py-2.5 px-2 shadow-xl z-40 flex justify-between items-center">
       {items.map(({ key, label, href, icon: Icon }) => {
         const path = href.split("?")[0].split("#")[0];
-        const isActive = key === "home" ? pathname === "/dashboard/tenant" : pathname.startsWith(path) && path !== "/dashboard/tenant";
+        const isActive =
+          key === "home"
+            ? pathname === "/dashboard/tenant"
+            : pathname.startsWith(path) && path !== "/dashboard/tenant";
         return (
           <Link
             key={key}
             href={href}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] py-2 text-xs font-medium transition-colors ${
-              isActive ? "text-[#3B82F6]" : "text-[#94A3B8]"
+            className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] py-2 text-[10px] font-bold transition-colors ${
+              isActive ? "text-[#0E5246]" : "text-zinc-600 hover:text-zinc-900"
             }`}
           >
             <Icon className="w-5 h-5" />

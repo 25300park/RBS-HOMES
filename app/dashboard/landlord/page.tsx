@@ -5,14 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getLandlordLeaseData } from "@/lib/landlord/get-landlord-leases";
-import { Building2, Banknote, Wrench, AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, Clock, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import { PaymentStatus } from "@prisma/client";
-const paymentStatusConfig: Record<PaymentStatus, { text: string; cls: string }> = {
-  PENDING: { text: "Pending", cls: "bg-gray-100 text-gray-600" },
-  AWAITING_APPROVAL: { text: "Awaiting Approval", cls: "bg-orange-100 text-orange-600" },
-  PAID: { text: "Paid", cls: "bg-green-100 text-green-700" },
-  OVERDUE: { text: "Overdue", cls: "bg-red-100 text-red-600" },
-};
+import LogoutButton from "./components/logout-button";
+import BottomNav from "./components/bottom-nav";
 
 export default async function LandlordDashboardPage() {
   const session: any = await getServerSession(authOptions as any);
@@ -23,109 +19,168 @@ export default async function LandlordDashboardPage() {
   const { leases, expiringLeases, allCareRequests, paymentSummary } =
     await getLandlordLeaseData(userId);
 
+  const p = (s: PaymentStatus) => paymentSummary[s] ?? 0;
+
   return (
-    <div className="max-w-[1140px] mx-auto px-4 py-10 space-y-10">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          Hello, {session.user.name ?? "Landlord"}
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">Check your units and lease status.</p>
-      </div>
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+      <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
-      {/* 만료 60일 이내 경고 배너 */}
-      {expiringLeases.length > 0 && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        {/* Welcome card */}
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-amber-700 text-sm">
-              Lease Expiring Soon — {expiringLeases.length}
+            <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
+              Hello, {session.user.name ?? "Landlord"}
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+              Check your active units, rental payments, and care requests.
             </p>
-            <ul className="mt-1 space-y-0.5">
-              {expiringLeases.map((l) => (
-                <li key={l.id} className="text-xs text-amber-600">
-                  {l.unit.title} · Expires:{" "}
-                  {new Date(l.endDate).toLocaleDateString("en-US")} (within 60 days)
-                </li>
-              ))}
-            </ul>
+          </div>
+          <div className="flex items-center justify-between sm:justify-end space-x-2">
+            <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
+              Landlord Level 4
+            </span>
+            <LogoutButton />
           </div>
         </div>
-      )}
 
-      {/* 납부 현황 요약 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <Banknote className="w-5 h-5 text-green-600" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-800">This Month Payment Status</h2>
-          </div>
-          <Link
-            href="/dashboard/landlord/payments"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
+        {/* Mobile filter tabs (anchor links) */}
+        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:hidden">
+          {[
+            { label: "Overview", href: "#payments" },
+            { label: "Payments", href: "#payments" },
+            { label: "Leases", href: "#leases" },
+            { label: "Care Service", href: "#care" },
+          ].map(({ label, href }) => (
+            <a
+              key={label}
+              href={href}
+              className="px-3.5 py-1.5 rounded-md whitespace-nowrap bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100 transition-all"
+            >
+              {label}
+            </a>
+          ))}
         </div>
-        <div className="grid grid-cols-4 md:grid-cols-2 gap-3">
-          {(["PENDING", "AWAITING_APPROVAL", "PAID", "OVERDUE"] as PaymentStatus[]).map((s) => {
-            const cfg = paymentStatusConfig[s];
-            return (
-              <div key={s} className="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-                <p className="text-xs text-gray-500">{cfg.text}</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">{paymentSummary[s] ?? 0}</p>
+
+        {/* Expiring leases banner */}
+        {expiringLeases.length > 0 && (
+          <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 sm:p-5 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-zinc-900 text-sm">
+                Lease Expiring Soon — {expiringLeases.length} unit{expiringLeases.length > 1 ? "s" : ""}
+              </p>
+              <ul className="mt-1 space-y-0.5">
+                {expiringLeases.map((l) => (
+                  <li key={l.id} className="text-xs text-zinc-600">
+                    {l.unit.title} · Expires:{" "}
+                    {new Date(l.endDate).toLocaleDateString("en-US")} (within 60 days)
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Payment summary */}
+        <section id="payments" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Payments</span>
+              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">This Month Payment Status</h2>
+            </div>
+            <Link
+              href="/dashboard/landlord/payments"
+              className="text-xs font-bold text-[#0E5246] hover:underline shrink-0"
+            >
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-zinc-500 font-medium block">Pending</span>
+                <span className="text-xl font-black text-zinc-800 mt-1 block">{p(PaymentStatus.PENDING)}</span>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 활성 계약 목록 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-orange-500" />
+              <Clock className="w-7 h-7 text-zinc-400 opacity-60" />
             </div>
-            <h2 className="text-lg font-bold text-gray-800">Active Leases</h2>
-          </div>
-          <Link
-            href="/dashboard/landlord/leases"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-          <p className="text-xs text-gray-500">Active Leases</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">{leases.length}</p>
-        </div>
-      </section>
-
-      {/* 케어 서비스 요약 */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Wrench className="w-5 h-5 text-purple-500" />
+            <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-zinc-600 font-medium block">Awaiting</span>
+                <span className="text-xl font-black text-amber-700 mt-1 block">{p(PaymentStatus.AWAITING_APPROVAL)}</span>
+              </div>
+              <AlertCircle className="w-7 h-7 text-amber-500 opacity-80" />
             </div>
-            <h2 className="text-lg font-bold text-gray-800">Care Service Status</h2>
+            <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-zinc-600 font-medium block">Paid</span>
+                <span className="text-xl font-black text-[#0E5246] mt-1 block">{p(PaymentStatus.PAID)}</span>
+              </div>
+              <CheckCircle2 className="w-7 h-7 text-[#0E5246] opacity-80" />
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-zinc-600 font-medium block">Overdue</span>
+                <span className="text-xl font-black text-rose-700 mt-1 block">{p(PaymentStatus.OVERDUE)}</span>
+              </div>
+              <XCircle className="w-7 h-7 text-rose-500 opacity-80" />
+            </div>
           </div>
-          <Link
-            href="/dashboard/tenant/care"
-            className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
-          >
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
+        </section>
+
+        {/* Active leases + Care 2-col grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <section id="leases" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <div>
+                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Leases</span>
+                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Active Leases</h2>
+              </div>
+              <Link
+                href="/dashboard/landlord/leases"
+                className="text-xs font-bold text-[#0E5246] hover:underline shrink-0"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 sm:p-5 flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-lg bg-[#0E5246] text-white flex items-center justify-center font-black text-xl shrink-0">
+                {leases.length}
+              </div>
+              <div>
+                <h3 className="font-bold text-zinc-900 text-sm">Active Leases: {leases.length}</h3>
+                <p className="text-xs text-zinc-500">Currently generating monthly rental revenue.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <div>
+                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Care Service</span>
+                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Unit Maintenance</h2>
+              </div>
+              <Link
+                href="/dashboard/tenant/care"
+                className="text-xs font-bold text-[#0E5246] hover:underline shrink-0"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 sm:p-5 flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-black text-xl shrink-0">
+                {allCareRequests.length}
+              </div>
+              <div>
+                <h3 className="font-bold text-zinc-900 text-sm">Active Requests: {allCareRequests.length}</h3>
+                <p className="text-xs text-zinc-500">Maintenance & repair requests requiring your attention.</p>
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
-          <p className="text-xs text-gray-500">Active Requests</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">{allCareRequests.length}</p>
-        </div>
-      </section>
+      </main>
+
+      <BottomNav />
     </div>
   );
 }
