@@ -44,7 +44,7 @@ export default async function AgentDashboardPage() {
       <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
         {/* Welcome card */}
-        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-row items-center md:flex-col justify-between gap-4">
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-row md:flex-col items-center justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
               Hello, {session.user.name ?? "Agent"}
@@ -53,7 +53,7 @@ export default async function AgentDashboardPage() {
               Manage your property listings, tour schedules, and client pipeline.
             </p>
           </div>
-          <div className="flex items-center justify-end md:justify-between space-x-2">
+          <div className="flex items-center justify-between md:justify-end space-x-2">
             <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
               Agent Level 2
             </span>
@@ -62,7 +62,7 @@ export default async function AgentDashboardPage() {
         </div>
 
         {/* Mobile filter tabs */}
-        <div className="hidden items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:flex">
+        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:hidden">
           {[
             { label: "Overview", href: "#action-items" },
             { label: "Action Items", href: "#action-items" },
@@ -159,7 +159,7 @@ export default async function AgentDashboardPage() {
               Register New Listing
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 md:grid-cols-2 gap-3">
             <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
               <div>
                 <span className="text-xs text-zinc-500 font-medium block">Total</span>
@@ -198,7 +198,7 @@ export default async function AgentDashboardPage() {
         </section>
 
         {/* Section 3 & 4: Tour Requests + Schedule (2-col) */}
-        <div id="pipeline" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="pipeline" className="grid grid-cols-2 md:grid-cols-1 gap-6">
           <section className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>

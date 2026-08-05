@@ -44,7 +44,7 @@ export default async function LandlordDashboardPage() {
         </div>
 
         {/* Mobile filter tabs (anchor links) */}
-        <div className="hidden items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:flex">
+        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:hidden">
           {[
             { label: "Overview", href: "#payments" },
             { label: "Payments", href: "#payments" },
@@ -95,7 +95,7 @@ export default async function LandlordDashboardPage() {
               View All →
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 md:grid-cols-2 gap-3">
             <div className="bg-zinc-50 border border-zinc-200 p-3.5 rounded-lg flex items-center justify-between">
               <div>
                 <span className="text-xs text-zinc-500 font-medium block">Pending</span>
@@ -128,7 +128,7 @@ export default async function LandlordDashboardPage() {
         </section>
 
         {/* Active leases + Care 2-col grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
           <section id="leases" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>

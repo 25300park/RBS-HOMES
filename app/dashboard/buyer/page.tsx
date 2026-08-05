@@ -52,7 +52,7 @@ export default async function BuyerDashboardPage() {
         </div>
 
         {/* 3-col section grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 md:grid-cols-1 gap-6">
 
           {/* Saved properties */}
           <section className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 flex flex-col justify-between space-y-4">

@@ -132,7 +132,7 @@ export default async function TenantDashboardPage() {
         )}
 
         {/* Row 1: Lease + Payments */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
           {/* Lease summary */}
           <section id="lease" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
             <div className="border-b border-zinc-100 pb-3">
@@ -189,7 +189,7 @@ export default async function TenantDashboardPage() {
         </div>
 
         {/* Row 2: Care + Community */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
           {/* Care service */}
           <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
