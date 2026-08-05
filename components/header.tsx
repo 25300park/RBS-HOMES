@@ -78,10 +78,10 @@ const Header = () => {
               <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-7 w-auto" />
             </Link>
 
-            <div className="hidden md:block w-px h-5 bg-zinc-200 mx-1" />
+            <div className="block md:hidden w-px h-5 bg-zinc-200 mx-1" />
 
             {/* 2. Nav — desktop only */}
-            <nav className="hidden md:flex items-center flex-1">
+            <nav className="flex md:hidden items-center flex-1">
               {navItems.map(({ label, href }) => {
                 const active = navActive(label);
                 return (
@@ -103,26 +103,26 @@ const Header = () => {
             </nav>
 
             {/* 3. Search pill — desktop only */}
-            <div className="hidden md:flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 rounded-full px-4 py-2 w-52 lg:w-64 cursor-pointer transition-colors shrink-0">
+            <div className="flex md:hidden items-center gap-2 bg-zinc-100 hover:bg-zinc-200 rounded-full px-4 py-2 w-52 lg:w-64 cursor-pointer transition-colors shrink-0">
               <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span className="text-sm text-zinc-400 select-none">Search property...</span>
             </div>
 
-            {/* Mobile spacer */}
-            <div className="flex-1 md:hidden" />
+            {/* Mobile spacer — hidden on desktop, grows on mobile */}
+            <div className="hidden md:flex md:flex-1" />
 
             {/* 4. Icons + Login/Profile */}
             <div className="flex items-center gap-1.5 shrink-0">
               <Link
                 href="/account/unit/favorites"
-                className="hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+                className="flex md:hidden p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
                 aria-label="Bookmarks"
               >
                 <Bookmark className="w-5 h-5" />
               </Link>
 
               <button
-                className="relative hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+                className="relative flex md:hidden p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
                 aria-label="Notifications"
               >
                 <Bell className="w-5 h-5" />
