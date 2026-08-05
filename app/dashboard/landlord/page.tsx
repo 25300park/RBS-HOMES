@@ -22,7 +22,7 @@ export default async function LandlordDashboardPage() {
   const p = (s: PaymentStatus) => paymentSummary[s] ?? 0;
 
   return (
-    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-20 md:pb-28">
       <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
         {/* Welcome card */}
@@ -44,7 +44,7 @@ export default async function LandlordDashboardPage() {
         </div>
 
         {/* Mobile filter tabs (anchor links) */}
-        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:hidden">
+        <div className="hidden items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:flex">
           {[
             { label: "Overview", href: "#payments" },
             { label: "Payments", href: "#payments" },

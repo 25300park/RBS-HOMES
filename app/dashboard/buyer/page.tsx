@@ -30,7 +30,7 @@ export default async function BuyerDashboardPage() {
   ]);
 
   return (
-    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-20 md:pb-28">
       <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
         {/* Welcome card */}

@@ -40,11 +40,11 @@ export default async function AgentDashboardPage() {
   };
 
   return (
-    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-28 md:pb-20">
+    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-20 md:pb-28">
       <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
 
         {/* Welcome card */}
-        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-row items-center md:flex-col justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
               Hello, {session.user.name ?? "Agent"}
@@ -53,7 +53,7 @@ export default async function AgentDashboardPage() {
               Manage your property listings, tour schedules, and client pipeline.
             </p>
           </div>
-          <div className="flex items-center justify-between md:justify-end space-x-2">
+          <div className="flex items-center justify-end md:justify-between space-x-2">
             <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
               Agent Level 2
             </span>
@@ -62,7 +62,7 @@ export default async function AgentDashboardPage() {
         </div>
 
         {/* Mobile filter tabs */}
-        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:hidden">
+        <div className="hidden items-center space-x-1 overflow-x-auto no-scrollbar pb-1 text-xs font-bold md:flex">
           {[
             { label: "Overview", href: "#action-items" },
             { label: "Action Items", href: "#action-items" },
