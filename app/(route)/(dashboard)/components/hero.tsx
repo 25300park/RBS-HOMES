@@ -6,7 +6,6 @@ import { Home, Building, TrendingUp, ArrowRight, List, MapPin, Search, X } from 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import MainSearchBar from "@/components/ui/main-search-bar";
 
 interface SearchHistory {
   term: string;
@@ -359,25 +358,6 @@ const HeroSection = () => {
       </div>
 
       <div className="heading-home-section-mobile">
-          <div className="max-w-6xl mx-auto p-3 border-b border-gray-200">
-              <div className="flex">
-                <div className="size-14 grow">
-                  <Image
-                    src="/assets/images/rbs-logo.png"
-                    alt="logo"
-                    width={168}
-                    height={40}
-                    className="w-42 h-auto float-left mt-1"
-                  />
-                </div>
-                <div className="size-14 grow">
-                  <div className="w-fit float-right mt-2">
-                    <MainSearchBar isMobile />
-                  </div>
-                </div>
-              </div>
-          </div>
-
           <div className="max-w-6xl mx-auto p-3">
               <div className="grid grid-flow-col grid-rows-3 gap-3">  
                 <div className="row-span-2 p-12 h-auto px-5 border border-gray-200 rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
