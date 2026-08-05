@@ -66,7 +66,7 @@ export default async function TenantDashboardPage() {
           <WelcomeCard userName={session.user.name} />
           <EmptyState message="You don't have an active lease yet. Please contact us." />
         </main>
-        <BottomNav communityHref="/dashboard/tenant#community" />
+        <BottomNav />
       </div>
     );
   }
@@ -131,128 +131,134 @@ export default async function TenantDashboardPage() {
           </div>
         )}
 
-        {/* Lease summary */}
-        <section id="lease" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="border-b border-zinc-100 pb-3">
-            <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Lease Summary</span>
-            <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Active Lease</h2>
-          </div>
-          <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-semibold text-zinc-900 truncate">{activeLease.unit.title}</p>
-                <p className="text-xs text-zinc-500 mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
-              </div>
-              <LeaseStatusBadge status={activeLease.status} />
+        {/* Row 1: Lease + Payments */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Lease summary */}
+          <section id="lease" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+            <div className="border-b border-zinc-100 pb-3">
+              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Lease Summary</span>
+              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Active Lease</h2>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-zinc-900 truncate">{activeLease.unit.title}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
+                </div>
+                <LeaseStatusBadge status={activeLease.status} />
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <p className="text-xs text-zinc-500 mb-1">Lease Period</p>
+                  <p className="text-sm font-medium text-zinc-900">
+                    {new Date(activeLease.startDate).toLocaleDateString("en-US")}
+                    {" – "}
+                    {new Date(activeLease.endDate).toLocaleDateString("en-US")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500 mb-1">Monthly Rent</p>
+                  <p className="text-sm font-bold text-[#0E5246]">
+                    ₱ {Number(activeLease.monthlyRent).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* This month payment */}
+          <section id="payments" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>
-                <p className="text-xs text-zinc-500 mb-1">Lease Period</p>
-                <p className="text-sm font-medium text-zinc-900">
-                  {new Date(activeLease.startDate).toLocaleDateString("en-US")}
-                  {" – "}
-                  {new Date(activeLease.endDate).toLocaleDateString("en-US")}
-                </p>
+                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Payments</span>
+                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">{`This Month's Payment`}</h2>
               </div>
+              <Link
+                href="/dashboard/tenant/payments"
+                className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
+              >
+                View All →
+              </Link>
+            </div>
+            {!thisMonthPayment ? (
+              <EmptyState message="No payment scheduled for this month." />
+            ) : (
+              <ThisMonthPaymentCard payment={thisMonthPayment} />
+            )}
+          </section>
+        </div>
+
+        {/* Row 2: Care + Community */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Care service */}
+          <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div>
-                <p className="text-xs text-zinc-500 mb-1">Monthly Rent</p>
-                <p className="text-sm font-bold text-[#0E5246]">
-                  ₱ {Number(activeLease.monthlyRent).toLocaleString()}
-                </p>
+                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Care Service</span>
+                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Maintenance Requests</h2>
               </div>
+              <Link
+                href="/dashboard/tenant/care"
+                className="bg-[#0E5246] hover:bg-[#0B4339] text-white font-extrabold px-4 py-2 rounded-lg text-xs shadow-2xs transition-all"
+              >
+                + Request
+              </Link>
             </div>
-          </div>
-        </section>
-
-        {/* This month payment */}
-        <section id="payments" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-            <div>
-              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Payments</span>
-              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">{`This Month's Payment`}</h2>
-            </div>
-            <Link
-              href="/dashboard/tenant/payments"
-              className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
-            >
-              View All →
-            </Link>
-          </div>
-          {!thisMonthPayment ? (
-            <EmptyState message="No payment scheduled for this month." />
-          ) : (
-            <ThisMonthPaymentCard payment={thisMonthPayment} />
-          )}
-        </section>
-
-        {/* Care service */}
-        <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-            <div>
-              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Care Service</span>
-              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Maintenance Requests</h2>
-            </div>
-            <Link
-              href="/dashboard/tenant/care"
-              className="bg-[#0E5246] hover:bg-[#0B4339] text-white font-extrabold px-4 py-2 rounded-lg text-xs shadow-2xs transition-all"
-            >
-              + Request
-            </Link>
-          </div>
-          {careRequests.length === 0 ? (
-            <EmptyState message="No active care requests." />
-          ) : (
-            <div className="bg-zinc-50 border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
-              {careRequests.map((c) => {
-                const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-zinc-100 text-zinc-500" };
-                return (
-                  <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm text-zinc-900">
-                        {careServiceTypeLabel[c.serviceType] ?? c.serviceType}
-                      </p>
-                      <p className="text-xs text-zinc-500 mt-0.5">
-                        Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
-                      </p>
+            {careRequests.length === 0 ? (
+              <EmptyState message="No active care requests." />
+            ) : (
+              <div className="bg-zinc-50 border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
+                {careRequests.map((c) => {
+                  const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-zinc-100 text-zinc-500" };
+                  return (
+                    <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm text-zinc-900">
+                          {careServiceTypeLabel[c.serviceType] ?? c.serviceType}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-0.5">
+                          Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
+                          {cfg.text}
+                        </span>
+                        {c.status === "AWAITING_TENANT_CONFIRMATION" && (
+                          <ConfirmCareCompletionButton careId={c.id} />
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
-                        {cfg.text}
-                      </span>
-                      {c.status === "AWAITING_TENANT_CONFIRMATION" && (
-                        <ConfirmCareCompletionButton careId={c.id} />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                  );
+                })}
+              </div>
+            )}
+          </section>
 
-        {/* Community board */}
-        <section id="community" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-            <div>
-              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Community</span>
-              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Community Board</h2>
+          {/* Community board */}
+          <section id="community" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <div>
+                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Community</span>
+                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Community Board</h2>
+              </div>
+              <Link
+                href={communityHref}
+                className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
+              >
+                View All →
+              </Link>
             </div>
-            <Link
-              href={communityHref}
-              className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
-            >
-              View All →
-            </Link>
-          </div>
-          <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-sm text-zinc-500">
-            {communityPosts.length === 0
-              ? "No posts yet."
-              : `${communityPosts.length} posts`}
-          </div>
-        </section>
+            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-sm text-zinc-500">
+              {communityPosts.length === 0
+                ? "No posts yet."
+                : `${communityPosts.length} posts`}
+            </div>
+          </section>
+        </div>
       </main>
 
-      <BottomNav communityHref={communityHref} />
+      <BottomNav />
     </div>
   );
 }

@@ -4,354 +4,179 @@ import Link from "next/link";
 import { useModalStore } from "@/store/use-modal-store";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
-import { IoMapOutline, IoListOutline } from "react-icons/io5";
 import MainSearchBar from "./ui/main-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
 import MainFilterGroup from "./ui/main-filter-group";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import HeaderGuestProfile from "./ui/header-guest-profile";
-import FilterButton from "@/components/ui/filter-btn";
-import { Home, Building, TrendingUp, ArrowRight, List, MapPin, Search, X } from 'lucide-react';
+import { ChevronDown, Bookmark, Bell, User, Search } from "lucide-react";
 
-const MobileHeader = ({ pathName }: { pathName: string }) => {
-  if (!["/list", "/map"].includes(pathName)) {
-    return null;
-  }
-
-  return (
-      <header>
-        {/*
-        <nav className="h-20 hidden md:flex fixed top-0 bg-white p-3 w-full items-center justify-between">
-          <div>
-            <MainFilterGroup />
-          </div>
-          <MainSearchBar isMobile />
-        </nav>
-        */}
-        
-        <div className="max-w-6xl mx-auto p-3 border-b border-gray-200">
-            <div className="flex">
-                  <div className="size-14 grow">
-                    <Link className="mr-16" href="/">
-                      <img src="/assets/images/rbs-logo.png" alt="logo" className="mt-1" />
-                    </Link>
-                  </div>
-                  
-                  <div className="size-14 grow">
-                    <div className="w-fit float-right mt-2">
-                      <MainSearchBar isMobile />
-                    </div>
-                  </div>
-                  <span className="hidden md:block fixed top-[90px] left-2 z-40">
-                    <FilterButton />
-                  </span>
-            </div>
-        </div>
-      </header>
-  );
-};
-
-const DesktopHeader = ({
-  navbarScrolled,
-  setNavbarScrolled,
-  session,
-  pathName,
-  openModal,
-}: any) => {
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-
-  const handleExpandChange = (expanded: boolean) => {
-    setIsSearchExpanded(expanded);
-    if (expanded) {
-      setNavbarScrolled(false);
-    } else {
-      // 검색창이 닫힐 때 현재 스크롤 위치에 따라 navbarScrolled 상태 결정
-      setNavbarScrolled(window.scrollY > 50);
-    }
-  };
-
-  const handleOverlayClick = () => {
-    setIsSearchExpanded(false);
-    // 오버레이 클릭 시 현재 스크롤 위치에 따라 navbarScrolled 상태 결정
-    setNavbarScrolled(window.scrollY > 50);
-  };
-
-  const categories = [
-    {
-      id: 'rent',
-      title: 'Rent',
-      description: 'Find your perfect rental',
-      details: 'From studios to family homes',
-      icon: <Home className="w-6 h-6 text-orange-500" />,
-      link: '/map?activeTypes=rent',
-      badge: "Hot"
-    },
-    {
-      id: 'buy',
-      title: 'Buy',
-      description: 'Discover properties for sale',
-      details: 'Investment & residential options',
-      icon: <Building className="w-6 h-6 text-orange-500" />,
-      link: '/map?activeTypes=sale'
-    },
-    {
-      id: 'presale',
-      title: 'Pre-Sale',
-      description: 'New development projects',
-      details: 'Latest pre-construction units',
-      icon: <TrendingUp className="w-6 h-6 text-orange-500" />,
-      link: '/map?activeTypes=preSale',
-      badge: 'New'
-    }
-  ];
-
-  return (
-    <>
-    <div className="customize-menu-desktop">
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-gray-200 md:hidden ${
-          navbarScrolled ? "h-20 bg-white" : "h-44 bg-white"
-        } w-full flex flex-col items-center`}
-      >
-        {/* 지도버튼 */}
-        {pathName === "/list" && (
-          <div
-            className={`${
-              navbarScrolled ? "fixed" : "hidden"
-            } bottom-10 mx-auto bg-white py-2 px-4 rounded-full border-4 border-orange-500 hover:text-white hover:bg-orange-500`}
-          >
-            <Link
-              href="/map"
-              className={`flex items-center  gap-2 
-              }`}
-            >
-              {/* <IoMapOutline className="text-xl" /> */}
-              <img src="/assets/icons/map.gif" alt="map" className="w-9" />
-              <p>View on map</p>
-            </Link>
-          </div>
-        )}
-
-        <div className="flex w-full items-center justify-between h-20 px-12">
-          <div className="flex items-center">
-            <Link className="mr-16" href="/">
-              <img src="/assets/images/rbs-logo.png" alt="logo" />
-            </Link>
-          </div>
-
-          {(pathName !== "/" || (pathName === "/list" && !navbarScrolled)) && (
-            <div className="flex items-center gap-8">
-              <Link
-                href="/list"
-                className={`hover:border-gray-200 border-b flex items-center gap-2 ${
-                  pathName === "/list"
-                    ? "text-black border-gray-200"
-                    : "text-gray-400 border-transparent"
-                }`}
-              >
-                <IoListOutline className="text-xl" />
-                <p>View as list</p>
-              </Link>
-              <Link
-                href="/map"
-                className={`flex items-center hover:border-gray-200 border-b gap-2 ${
-                  pathName.startsWith("/map")
-                    ? "text-black border-gray-200"
-                    : "text-gray-400 border-transparent"
-                }`}
-              >
-                {/* <IoMapOutline className="text-xl" /> */}
-                <img src="/assets/icons/map.gif" alt="map" className="w-9" />
-                <p>View on map</p>
-              </Link>
-            </div>
-          )}
-          <div className="flex items-center space-x-4 w-fit gap-2 justify-end">
-            <div
-              className="text-sm  py-2 px-4 rounded-2xl hover:bg-orange-300 cursor-pointer"
-              onClick={() => openModal("contact")}
-            >
-              Contact us
-            </div>
-            {session === null ? (
-              <HeaderGuestProfile />
-            ) : (
-              <HeaderUserProfile session={session} />
-            )}
-          </div>
-        </div>
-        <div className="relative w-full flex justify-center">
-          {pathName === "/list" && (
-            <MainSearchBar
-              navbarScrolled={navbarScrolled}
-              onExpandChange={handleExpandChange}
-            />
-          )}
-        </div>
-      </nav>
-
-      {/* 검색창 활성화 시 나타나는 오버레이 */}
-      {isSearchExpanded && (
-        <div
-          onClick={handleOverlayClick}
-          className="fixed inset-0 bg-black/30 transition-opacity duration-300 z-40"
-        />
-      )}
-    </div>
-
-    <div className="customize-menu-mobile">
-          <div className="max-w-6xl mx-auto p-3">
-              <div className="flex">
-                
-                <div className="size-14 grow">
-                  
-                </div>
-                <div className="size-14 grow">
-                  <div className="w-fit float-right">
-                    <MainSearchBar isMobile />
-                  </div>
-                </div>
-
-              </div>
-          </div>
-
-          <div className="max-w-6xl mx-auto p-3">
-              <div className="grid grid-flow-col grid-rows-3 gap-1">
-                
-                <div className="row-span-2 p-12 h-auto px-12 border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
-                  <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
-                  <a href="https://rbs-homes.com/map?activeTypes=rent" target="_self">
-                    <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow mx-auto">
-                        <Home className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 text-center">
-                      Rent
-                    </h3>
-                  </a>
-                </div>
-                
-                <div className="col-span-2 row-start-1 p-4 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
-                  <a href="https://rbs-homes.com/map?activeTypes=sale" target="_self">
-                    <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left stroke-2">
-                      <Building className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 float-left p-3">
-                        Buy
-                    </h3>
-                  </a>
-                </div>
-                
-                <div className="col-span-2 row-span-1 row-start-2 p-4 h-auto border border-gray-200  rounded-xl bg-white transition-all duration-300 cursor-pointer group relative">
-                  <span className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">New</span>
-                  <a href="https://rbs-homes.com/map?activeTypes=preSale" target="_self">
-                    <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow float-left">
-                      <TrendingUp className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 float-left p-3">
-                      Pre-Sale
-                    </h3>
-                  </a>
-                </div>
-                
-              </div>
-          </div>
-
-    </div>
-
-    </>
-  );
-};
+const navItems = [
+  { label: "Buy",      href: "/map?activeTypes=sale" },
+  { label: "Rent",     href: "/list" },
+  { label: "Pre-sale", href: "/map?activeTypes=preSale" },
+  { label: "Sell",     href: "#" },
+  { label: "Rent Out", href: "#" },
+];
 
 const Header = () => {
   const { data: session, status } = useSession();
   const { openModal } = useModalStore();
-  const pathName = usePathname();
-  const [navbarScrolled, setNavbarScrolled] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
+  const isLandingPage = pathname === "/";
+
+  useEffect(() => { setMounted(true); }, []);
+
+  // 랜딩페이지 전용 스크롤 리스너 (임계값 50px — 기존 로직 그대로)
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!isLandingPage) return;
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // 초기값 동기화
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isLandingPage]);
 
-  useEffect(() => {
-    if (pathName === "/list") {
-      const handleScroll = () => {
-        setNavbarScrolled(window.scrollY > 50);
-      };
+  const isListPage = pathname === "/list";
+  const isMapPage = pathname.startsWith("/map");
+  const showFilters = isListPage || isMapPage;
 
-      window.addEventListener("scroll", handleScroll);
-      setNavbarScrolled(window.scrollY > 50);
-
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-      };
-    } else {
-      setNavbarScrolled(true);
-    }
-  }, [pathName]);
+  const navActive = (label: string) => {
+    if (label === "Rent") return isListPage;
+    if (label === "Buy") return isMapPage && pathname.includes("sale");
+    if (label === "Pre-sale") return isMapPage && pathname.includes("preSale");
+    return false;
+  };
 
   if (!mounted || status === "loading") {
-    return <HeaderSkeleton pathname={pathName} />;
-  }
-
-  if (isMobile) {
-    return <MobileHeader pathName={pathName} />;
+    return (
+      <>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-100 py-3">
+          <div className="max-w-[1280px] mx-auto px-4">
+            <div className="h-11 bg-white border border-zinc-200 rounded-2xl shadow-sm animate-pulse" />
+          </div>
+        </div>
+        <div className={isLandingPage ? "h-[88px]" : "h-[68px]"} />
+      </>
+    );
   }
 
   return (
-    <header className="w-full">
-      <DesktopHeader
-        navbarScrolled={navbarScrolled}
-        setNavbarScrolled={setNavbarScrolled}
-        session={session}
-        pathName={pathName}
-        openModal={openModal}
-      />
-      <div className={`${pathName === "/list" ? "h-44" : "h-20"} relative z-30`} />
-      <div
-        className={`${
-          navbarScrolled
-            ? "fixed w-full bg-white top-20 z-30 transition-all duration-300"
-            : "w-full bg-white"
-        }`}
-      >
-        {(pathName === "/list" || pathName.includes("map")) && (
-          <div className="flex w-full md:flex-col pt-4 px-20 3xl:px-12 xs:px-4 border-b md:p-4 md:gap-4">
+    <>
+      {/* Fixed pill header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-100 transition-all duration-300">
+        <div className={`max-w-[1280px] mx-auto px-4 transition-all duration-300 ${
+          isLandingPage && !scrolled ? "py-5" : "py-3"
+        }`}>
+          <div className="flex items-center gap-3 bg-white border border-zinc-200 rounded-2xl px-5 py-2.5 shadow-sm">
+
+            {/* 1. Logo */}
+            <Link href="/" className="shrink-0">
+              <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-7 w-auto" />
+            </Link>
+
+            <div className="hidden md:block w-px h-5 bg-zinc-200 mx-1" />
+
+            {/* 2. Nav — desktop only */}
+            <nav className="hidden md:flex items-center flex-1">
+              {navItems.map(({ label, href }) => {
+                const active = navActive(label);
+                return (
+                  <Link
+                    key={label}
+                    href={href}
+                    className={`relative flex items-center gap-0.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                      active ? "text-[#0E5246]" : "text-zinc-600 hover:text-zinc-900"
+                    }`}
+                  >
+                    {label}
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                    {active && (
+                      <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#0E5246] rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* 3. Search pill — desktop only */}
+            <div className="hidden md:flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 rounded-full px-4 py-2 w-52 lg:w-64 cursor-pointer transition-colors shrink-0">
+              <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <span className="text-sm text-zinc-400 select-none">Search property...</span>
+            </div>
+
+            {/* Mobile spacer */}
+            <div className="flex-1 md:hidden" />
+
+            {/* 4. Icons + Login/Profile */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Link
+                href="/account/unit/favorites"
+                className="hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+                aria-label="Bookmarks"
+              >
+                <Bookmark className="w-5 h-5" />
+              </Link>
+
+              <button
+                className="relative hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
+              </button>
+
+              {session ? (
+                <HeaderUserProfile session={session} />
+              ) : (
+                <button
+                  onClick={() => openModal("login")}
+                  className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Login
+                </button>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer — 88px(랜딩 스크롤 전) / 68px(그 외 또는 스크롤 후) */}
+      <div className={`transition-all duration-300 ${
+        isLandingPage && !scrolled ? "h-[88px]" : "h-[68px]"
+      }`} />
+
+      {/* Overlay when search expands on /list */}
+      {searchExpanded && (
+        <div
+          onClick={() => setSearchExpanded(false)}
+          className="fixed inset-0 bg-black/30 z-40"
+        />
+      )}
+
+      {/* Search bar — list page only */}
+      {isListPage && (
+        <div className="relative z-30 w-full bg-white border-b border-zinc-100">
+          <MainSearchBar onExpandChange={setSearchExpanded} />
+        </div>
+      )}
+
+      {/* Filter / Amenity bar — list and map pages */}
+      {showFilters && (
+        <div className="relative z-20 w-full bg-white border-b border-zinc-100">
+          <div className="flex flex-col md:flex-row w-full pt-4 px-6 md:px-20 gap-4 pb-2">
             <MainFilterGroup />
             <MainAmenityList />
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </>
   );
 };
-
-const HeaderSkeleton = ({ pathname }: { pathname: string }) => (
-  <>
-    <div className="w-full fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-md">
-      <div className="flex justify-between items-center h-20 px-12">
-        <div className="flex items-center">
-          <Link href="/">
-            <img
-              src="/assets/images/rbs-logo.png"
-              alt="logo"
-              className="w-24 h-auto"
-            />
-          </Link>
-        </div>
-        <div className="flex items-center space-x-4 w-[250px] justify-end">
-          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse" />
-          <span className="text-[#717171] mx-2">|</span>
-          <div className="w-20 h-8 bg-gray-200 rounded-md animate-pulse" />
-        </div>
-      </div>
-    </div>
-    <div className={pathname === "/list" ? "mt-44 md:mt-32" : "mt-20 md:mt-32"} />
-  </>
-);
 
 export default Header;
