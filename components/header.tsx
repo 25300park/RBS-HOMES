@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
 import MainSearchBar from "./ui/main-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
-import MainFilterGroup from "./ui/main-filter-group";
 import { ChevronDown, Bookmark, Bell, User, Search } from "lucide-react";
 
 const navItems = [
@@ -170,7 +169,6 @@ const Header = () => {
       {showFilters && (
         <div className="relative z-20 w-full bg-white border-b border-zinc-100">
           <div className="flex flex-col md:flex-row w-full pt-4 px-6 md:px-20 gap-4 pb-2">
-            <MainFilterGroup />
             <MainAmenityList />
           </div>
         </div>

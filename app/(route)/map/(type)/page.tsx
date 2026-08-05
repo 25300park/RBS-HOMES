@@ -6,6 +6,7 @@ import MobileMapSideBar from "@/app/(route)/map/components/mobile-map-side-bar";
 import SideBarWrap from "../components/side-bar-wrap";
 import Loading from './loading';
 import FilterButton from "@/components/ui/filter-btn";
+import MobileTypeSwitcher from "@/components/ui/mobile-type-switcher";
 
 export interface MapHomeProps {
   searchParams: any;
@@ -40,6 +41,14 @@ const MapHome = async ({ searchParams, params }: MapHomeProps) => {
 
   return (
     <div>
+      {/* 거래유형 전환 바 — 모바일 전용 (hidden md:flex) */}
+      <Suspense fallback={null}>
+        <MobileTypeSwitcher
+          paramKey="activeTypes"
+          values={{ rent: "rent", sale: "sale", preSale: "preSale" }}
+        />
+      </Suspense>
+
       <div className="flex h-[calc(100vh-10rem)] md:h-screen relative md:static top-20">
         
         <Suspense fallback={<Loading />}>

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Loading  from "./loading";
 import FilterButton from '@/components/ui/filter-list-btn';
+import MobileTypeSwitcher from "@/components/ui/mobile-type-switcher";
 
 export default async function DashBoard({
   searchParams,
@@ -27,6 +28,13 @@ export default async function DashBoard({
 
   return (
       <main>
+        {/* 거래유형 전환 바 — 모바일 전용 (hidden md:flex) */}
+        <Suspense fallback={null}>
+          <MobileTypeSwitcher
+            paramKey="activeTypes"
+            values={{ rent: "rent", sale: "sale", preSale: "preSale" }}
+          />
+        </Suspense>
         <BannerGroup />
         <Suspense fallback={<Loading />}>
           <div className="mt-2">
