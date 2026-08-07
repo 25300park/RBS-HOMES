@@ -92,7 +92,7 @@ export default function ChatWidget() {
     <>
       {/* Chat window */}
       {isOpen && (
-        <div className="chatbot-window fixed right-5 bottom-32 md:bottom-20 z-50 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
+        <div className="chatbot-window fixed right-5 bottom-32 z-50 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-orange-500 text-white">
             <span className="font-semibold text-sm">RBS HOMES Assistant</span>
@@ -188,7 +188,7 @@ export default function ChatWidget() {
       {/* Floating toggle button */}
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="chatbot-toggle fixed right-5 bottom-20 md:bottom-5 z-50 w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors animate-fade-in"
+        className="chatbot-toggle fixed right-5 bottom-20 z-50 w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors animate-fade-in"
         aria-label="Open chat"
       >
         {isOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}

@@ -121,7 +121,7 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className="flex items-center px-10 md:px-4 md:pt-0 relative w-[84%] md:hidden 4xl:w-[80%] 2xl:w-[70%] xl:w-[65%] md:w-full">
+    <div className="flex items-center px-10 md:px-4 md:pt-0 relative w-full md:hidden">
       {showLeftArrow && (
         <button
           onClick={() => handleScroll("left")}

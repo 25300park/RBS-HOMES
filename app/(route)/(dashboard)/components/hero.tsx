@@ -1,71 +1,12 @@
 'use client'
 
 import React, { useState } from 'react';
-import { List, MapPin, Search, ArrowRight } from 'lucide-react';
+import { List, MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import AiSearchBox from '@/components/ui/ai-search-box';
 
-const EXAMPLE_CHIPS = [
-  "BGC studio for rent",
-  "Serendra 2-bedroom for rent",
-  "Makati property under ₱5M",
-  "Makati studio under ₱30k",
-];
-
-// ─── AI Search Box (외부 컴포넌트로 분리 — 부모 리렌더 시 remount 방지) ───
-interface AiSearchBoxProps {
-  query: string;
-  isSearching: boolean;
-  onQueryChange: (q: string) => void;
-  onSearch: (q: string) => void;
-}
-
-const AiSearchBox = ({ query, isSearching, onQueryChange, onSearch }: AiSearchBoxProps) => (
-  <div>
-    <div className="relative bg-white rounded-2xl shadow-lg border">
-      <div className="flex items-center">
-        {isSearching ? (
-          <div className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-orange-400/40 border-t-orange-500 rounded-full animate-spin pointer-events-none" />
-        ) : (
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-        )}
-        <input
-          type="text"
-          placeholder="e.g. BGC 2-bedroom for rent, budget under ₱50k"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch(query)}
-          disabled={isSearching}
-          className="w-full pl-14 pr-28 py-4 text-base border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 bg-transparent disabled:opacity-60"
-        />
-        <button
-          onClick={() => onSearch(query)}
-          disabled={isSearching}
-          className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-full transition-all"
-        >
-          <Search className="w-4 h-4" />
-          AI 검색
-        </button>
-      </div>
-    </div>
-
-    {/* 예시 검색어 칩 */}
-    <div className="flex flex-wrap gap-2 mt-3">
-      {EXAMPLE_CHIPS.map((chip) => (
-        <button
-          key={chip}
-          onClick={() => { onQueryChange(chip); onSearch(chip); }}
-          disabled={isSearching}
-          className="text-xs bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:border-orange-400 hover:text-orange-600 transition-colors disabled:opacity-50"
-        >
-          {chip}
-        </button>
-      ))}
-    </div>
-  </div>
-);
-
-// ─── View as List / View on Map 공유 버튼 (링크) ───
+// ─── View as List / View on Map 버튼 ───
 const ViewButtons = () => (
   <>
     <Link
@@ -127,6 +68,7 @@ const HeroSection = () => {
         body: JSON.stringify({ query: q }),
       });
       const { redirectUrl } = await res.json();
+      // 랜딩 → /list 이동 (히스토리 추가)
       router.push(redirectUrl ?? "/list");
     } catch {
       router.push("/list");
@@ -141,7 +83,6 @@ const HeroSection = () => {
       <div className="heading-home-section-desktop">
         <div className="bg-gray-50 py-8 px-4">
           <div className="max-w-6xl mx-auto">
-            {/* AI 검색창 */}
             <div className="mb-8 max-w-2xl mx-auto">
               <AiSearchBox
                 query={aiQuery}
@@ -150,8 +91,6 @@ const HeroSection = () => {
                 onSearch={handleAiSearch}
               />
             </div>
-
-            {/* View as List / View on Map */}
             <div className="grid gap-4 grid-cols-2 max-w-2xl mx-auto">
               <ViewButtons />
             </div>
@@ -162,7 +101,6 @@ const HeroSection = () => {
       {/* ─── Mobile ─── */}
       <div className="heading-home-section-mobile">
         <div className="max-w-6xl mx-auto p-3">
-          {/* AI 검색창 */}
           <div className="mb-4">
             <AiSearchBox
               query={aiQuery}
@@ -171,8 +109,6 @@ const HeroSection = () => {
               onSearch={handleAiSearch}
             />
           </div>
-
-          {/* View as List / View on Map */}
           <div className="grid gap-3">
             <ViewButtons />
           </div>

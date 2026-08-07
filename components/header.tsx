@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
-import MainSearchBar from "./ui/main-search-bar";
 import MainAmenityList from "./ui/main-amenity-list";
+import AiSearchBox from "./ui/ai-search-box";
 import { ChevronDown, Bookmark, Bell, User, Search } from "lucide-react";
 
 const navItems = [
@@ -23,8 +23,10 @@ const Header = () => {
   const { openModal } = useModalStore();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const [searchExpanded, setSearchExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // AI 검색 상태 (/list 전용)
+  const [aiQuery, setAiQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const isLandingPage = pathname === "/";
 
@@ -38,6 +40,27 @@ const Header = () => {
     onScroll(); // 초기값 동기화
     return () => window.removeEventListener("scroll", onScroll);
   }, [isLandingPage]);
+
+  // /list 페이지 AI 검색 핸들러 — router.replace로 기존 필터 전부 초기화 후 AI 결과 적용
+  const handleAiSearchOnList = async (query: string) => {
+    const q = query.trim();
+    if (!q || isSearching) return;
+    setIsSearching(true);
+    try {
+      const res = await fetch("/api/ai-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q }),
+      });
+      const { redirectUrl } = await res.json();
+      // replace: 이미 /list에 있으므로 히스토리 스택 불필요
+      router.replace(redirectUrl ?? "/list");
+    } catch {
+      router.replace("/list");
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const isListPage = pathname === "/list";
   const isMapPage = pathname.startsWith("/map");
@@ -150,18 +173,17 @@ const Header = () => {
         isLandingPage && !scrolled ? "h-[88px]" : "h-[68px]"
       }`} />
 
-      {/* Overlay when search expands on /list */}
-      {searchExpanded && (
-        <div
-          onClick={() => setSearchExpanded(false)}
-          className="fixed inset-0 bg-black/30 z-40"
-        />
-      )}
-
-      {/* Search bar — list page only */}
+      {/* AI 검색창 — list 페이지 전용 */}
       {isListPage && (
-        <div className="relative z-30 w-full bg-white border-b border-zinc-100">
-          <MainSearchBar onExpandChange={setSearchExpanded} />
+        <div className="relative z-30 w-full bg-white border-b border-zinc-100 px-4 py-3">
+          <div className="max-w-2xl mx-auto">
+            <AiSearchBox
+              query={aiQuery}
+              isSearching={isSearching}
+              onQueryChange={setAiQuery}
+              onSearch={handleAiSearchOnList}
+            />
+          </div>
         </div>
       )}
 
