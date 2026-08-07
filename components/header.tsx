@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useModalStore } from "@/store/use-modal-store";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import HeaderUserProfile from "./ui/header-user-profile";
 import MainAmenityList from "./ui/main-amenity-list";
 import AiSearchBox from "./ui/ai-search-box";
@@ -21,6 +21,7 @@ const navItems = [
 const Header = () => {
   const { data: session, status } = useSession();
   const { openModal } = useModalStore();
+  const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
