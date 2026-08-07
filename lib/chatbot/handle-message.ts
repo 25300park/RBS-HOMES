@@ -5,6 +5,7 @@ import {
 } from "@/lib/chatbot/conversation";
 import { searchUnitsForChat } from "@/lib/chatbot/search-units-tool";
 import { checkRateLimit } from "@/lib/chatbot/rate-limit";
+import { SEARCH_UNITS_TOOL } from "@/lib/ai-search/search-units-schema";
 
 const SYSTEM_PROMPT =
   "You are a friendly AI assistant for RBS HOMES, a real estate platform in Metro Manila, Philippines. " +
@@ -50,42 +51,6 @@ const SYSTEM_PROMPT =
   "(e.g. '정확히 일치하는 이름은 없었지만, Verve 관련 매물을 찾아봤어요') so they know it is not an exact name match.\n" +
   "4. Only after all retries fail, tell the user no listings were found and suggest they contact maymrhomes082023@gmail.com.";
 
-const SEARCH_UNITS_TOOL = {
-  name: "search_units",
-  description:
-    "RBS HOMES 플랫폼에서 조건에 맞는 매물을 검색합니다. 고객이 특정 지역, 유형, 가격대의 매물을 원할 때 사용하세요.",
-  input_schema: {
-    type: "object",
-    properties: {
-      area: {
-        type: "string",
-        description: "검색할 지역명 또는 키워드 (예: BGC, Makati, Ortigas)",
-      },
-      type: {
-        type: "string",
-        enum: ["condo", "village", "apartment", "land", "etc"],
-        description: "매물 유형",
-      },
-      sellType: {
-        type: "string",
-        enum: ["rent", "sale"],
-        description: "거래 유형: rent(임대) 또는 sale(매매)",
-      },
-      priceMax: {
-        type: "string",
-        description: "최대 가격 (숫자만, 예: 50000)",
-      },
-      bed: {
-        type: "string",
-        description: "침실 개수 (숫자만). 스튜디오/원룸은 0으로 지정 (예: 스튜디오 → \"0\", 침실 2개 → \"2\")",
-      },
-      keyword: {
-        type: "string",
-        description: "특정 단지명/건물명 검색 키워드 (예: Fort Palm Spring, Serendra). 사용자가 구체적인 건물 이름을 언급했을 때만 사용.",
-      },
-    },
-  },
-};
 
 async function callAnthropic(messages: any[]) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
