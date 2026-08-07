@@ -31,6 +31,7 @@ export async function GET(req: Request) {
       furniture: searchParams.get("furniture") || "none",
       pet: searchParams.get("pet") || "none",
       search: searchParams.get("search") || "",
+      keyword: searchParams.get("keyword") || "",
       amenities: searchParams.get("amenities") || "",
       sort: searchParams.get("sort") || "latest",
       status: searchParams.get("status") || DEFAULT_STATUS.join(","),
