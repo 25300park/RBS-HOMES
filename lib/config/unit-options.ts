@@ -1,8 +1,8 @@
 import { BsBuildingsFill } from "react-icons/bs";
-import { FaHome, FaBuilding, FaWarehouse, FaHotel } from "react-icons/fa";
+import { FaBuilding, FaWarehouse } from "react-icons/fa";
 import { PiIslandFill } from "react-icons/pi";
-import { MdHolidayVillage } from "react-icons/md";
 import { AiFillMessage } from "react-icons/ai";
+import { MdStorefront, MdApartment, MdBusiness } from "react-icons/md";
 export interface typeOptionType {
   label: string;
   value: string;
@@ -75,12 +75,14 @@ export const sellTypeOption = [
   //{ label: "Pre Sale", value: "presale", permisson: false },
 ];
 export const typeOption: typeOptionType[] = [
-  { label: "Any", value: "none", icon: BsBuildingsFill },
-  { label: "Condo", value: "condo", icon: BsBuildingsFill },
-  { label: "village", value: "village", icon: MdHolidayVillage },
-  { label: "Apartment", value: "apartment", icon: FaBuilding },
-  { label: "Land", value: "land", icon: PiIslandFill },
-  { label: "etc.,", value: "etc", icon: AiFillMessage  },
+  { label: "Any",        value: "none",       icon: BsBuildingsFill },
+  { label: "Condo",      value: "condo",      icon: BsBuildingsFill },
+  { label: "Office",     value: "office",     icon: MdBusiness      },
+  { label: "Commercial", value: "commercial", icon: MdStorefront    },
+  { label: "Warehouse",  value: "warehouse",  icon: FaWarehouse     },
+  { label: "Lot",        value: "lot",        icon: PiIslandFill    },
+  { label: "Building",   value: "building",   icon: MdApartment     },
+  { label: "Etc.",       value: "etc",        icon: AiFillMessage   },
 ];
 
 export const unitStatusOptions = [

@@ -9,7 +9,7 @@ import { SEARCH_UNITS_TOOL } from "@/lib/ai-search/search-units-schema";
 
 const SYSTEM_PROMPT =
   "You are a friendly AI assistant for RBS HOMES, a real estate platform in Metro Manila, Philippines. " +
-  "RBS HOMES is currently condo-focused, with other property types (village, apartment, land, etc.) coming later. " +
+  "RBS HOMES lists condos, offices, commercial spaces, warehouses, lots, and buildings. " +
   "Users can:\n" +
   "- Rent: browse listings, request a property tour, sign a lease once approved.\n" +
   "- Buy: browse listings for sale, contact agents for inquiries.\n" +

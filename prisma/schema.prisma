@@ -316,6 +316,22 @@ model Unit {
   /// 첨부 파일들 (프리세일용 - JSON 배열, PDF, DOC 등)
   attachments        Json?
 
+  // ── 매물유형별 확장 필드 (2026-08-09) ─────────────────────
+  /// 건물 총 층수 — Building 필수, Office 선택
+  totalFloors       Int?
+  /// 준공 상태 — Office/Commercial 필수 (bare_shell | fitted | furnished)
+  completionStatus  String?  @db.VarChar(50)
+  /// 층고 (미터) — Warehouse 필수, Office 선택
+  ceilingHeight     Float?
+  /// 도로 접면 길이 (미터) — Commercial/Lot 필수
+  roadFrontageM     Float?
+  /// 유동인구 설명 — Commercial 필수 (자유 텍스트)
+  footTraffic       String?  @db.VarChar(500)
+  /// 현재 임차인 현황 — Building 필수 (자유 텍스트)
+  existingTenants   String?  @db.VarChar(500)
+  /// 용도지역 — Lot 필수 (residential | commercial | mixed | industrial)
+  zoningType        String?  @db.VarChar(50)
+
   // ── PMS 확장 ───────────────────────────────────────────
   condoId        Int?
   condo          CondoMaster?    @relation(fields: [condoId], references: [id], onDelete: SetNull)

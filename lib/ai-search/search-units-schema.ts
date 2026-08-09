@@ -17,7 +17,7 @@ export const SEARCH_UNITS_TOOL = {
       },
       type: {
         type: "string",
-        enum: ["condo", "village", "apartment", "land", "etc"],
+        enum: ["condo", "office", "commercial", "warehouse", "lot", "building", "etc"],
         description: "매물 유형",
       },
       sellType: {
