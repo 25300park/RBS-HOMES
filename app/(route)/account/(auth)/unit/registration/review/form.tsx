@@ -197,46 +197,129 @@ const ReviewForm = () => {
             )}
 
             {/* Property Details */}
-            {stepTwoData && (
-              <div className="bg-white ">
-                <div className="p-6 md:p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Property Details</h3>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleEditStep("two")}
-                      className="text-sm"
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <PropertyInfo label="Area" value={`${stepTwoData.area} m²`} />
-                    <PropertyInfo label="Bedrooms" value={stepTwoData.bed} />
-                    <PropertyInfo label="Bathrooms" value={stepTwoData.bath} />
-                    <PropertyInfo label="Parking Spaces" value={stepTwoData.parking} />
-                    <PropertyInfo label="Floor" value={stepTwoData.floor} />
-                    <PropertyInfo label="Furniture Status" value={stepTwoData.furniture} />
-                    <PropertyInfo label="Pet Policy" value={stepTwoData.petPolicy} />
-                    {stepTwoData.amenity && stepTwoData.amenity.length > 0 && (
-                      <div className="mt-4">
-                        <div className="text-sm text-gray-600 mb-2">Amenities</div>
-                        <div className="flex flex-wrap gap-2">
-                          {stepTwoData.amenity.map((amenity: string, index: number) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-sm"
-                            >
-                              {amenity}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+            {stepTwoData && (() => {
+              const unitType = stepOneData?.unitType ?? "condo";
+              const isCondo  = unitType === "condo" || unitType === "etc";
+              const fmt      = (v: string) => v.replace(/_/g, " ");
+              return (
+                <div className="bg-white ">
+                  <div className="p-6 md:p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Property Details</h3>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleEditStep("two")}
+                        className="text-sm"
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+
+                      {/* ── 공통 필드 ── */}
+                      <PropertyInfo label="Area" value={`${stepTwoData.area} m²`} />
+                      <PropertyInfo label="Parking Spaces" value={stepTwoData.parking} />
+                      {stepTwoData.outstandingPayment && (
+                        <PropertyInfo label="Commission" value={stepTwoData.outstandingPayment} />
+                      )}
+
+                      {/* ── Condo 전용 ── */}
+                      {isCondo && (
+                        <>
+                          <PropertyInfo label="Bedrooms"       value={stepTwoData.bed}       />
+                          <PropertyInfo label="Bathrooms"      value={stepTwoData.bath}      />
+                          <PropertyInfo label="Floor"          value={stepTwoData.floor}         />
+                          <PropertyInfo label="Furniture Status" value={stepTwoData.furniture} />
+                          <PropertyInfo label="Pet Policy"    value={stepTwoData.petPolicy}  />
+                          {stepTwoData.amenity && stepTwoData.amenity.length > 0 && (
+                            <div className="mt-4">
+                              <div className="text-sm text-gray-600 mb-2">Amenities</div>
+                              <div className="flex flex-wrap gap-2">
+                                {stepTwoData.amenity.map((amenity: string, index: number) => (
+                                  <span
+                                    key={index}
+                                    className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-sm"
+                                  >
+                                    {amenity}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* ── Office ── */}
+                      {unitType === "office" && (
+                        <>
+                          {stepTwoData.completionStatus && (
+                            <PropertyInfo label="Completion Status" value={fmt(stepTwoData.completionStatus)} />
+                          )}
+                          {stepTwoData.totalFloors && (
+                            <PropertyInfo label="Total Floors"   value={stepTwoData.totalFloors}            />
+                          )}
+                          {stepTwoData.ceilingHeight && (
+                            <PropertyInfo label="Ceiling Height" value={`${stepTwoData.ceilingHeight} m`}   />
+                          )}
+                          {stepTwoData.furniture && (
+                            <PropertyInfo label="Furnishing"     value={stepTwoData.furniture}               />
+                          )}
+                        </>
+                      )}
+
+                      {/* ── Commercial ── */}
+                      {unitType === "commercial" && (
+                        <>
+                          {stepTwoData.completionStatus && (
+                            <PropertyInfo label="Completion Status" value={fmt(stepTwoData.completionStatus)} />
+                          )}
+                          {stepTwoData.roadFrontageM && (
+                            <PropertyInfo label="Road Frontage" value={`${stepTwoData.roadFrontageM} m`}     />
+                          )}
+                          {stepTwoData.footTraffic && (
+                            <PropertyInfo label="Foot Traffic"  value={stepTwoData.footTraffic}               />
+                          )}
+                        </>
+                      )}
+
+                      {/* ── Warehouse ── */}
+                      {unitType === "warehouse" && (
+                        <>
+                          {stepTwoData.ceilingHeight && (
+                            <PropertyInfo label="Clear Height" value={`${stepTwoData.ceilingHeight} m`} />
+                          )}
+                        </>
+                      )}
+
+                      {/* ── Lot ── */}
+                      {unitType === "lot" && (
+                        <>
+                          {stepTwoData.zoningType && (
+                            <PropertyInfo label="Zoning Type"   value={fmt(stepTwoData.zoningType)}          />
+                          )}
+                          {stepTwoData.roadFrontageM && (
+                            <PropertyInfo label="Road Frontage" value={`${stepTwoData.roadFrontageM} m`}     />
+                          )}
+                        </>
+                      )}
+
+                      {/* ── Building ── */}
+                      {unitType === "building" && (
+                        <>
+                          {stepTwoData.totalFloors && (
+                            <PropertyInfo label="Total Floors"     value={stepTwoData.totalFloors}       />
+                          )}
+                          {stepTwoData.existingTenants && (
+                            <PropertyInfo label="Existing Tenants" value={stepTwoData.existingTenants}   />
+                          )}
+                        </>
+                      )}
+
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* 프리세일 권한 경고 (필요시 표시) */}

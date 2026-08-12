@@ -1,5 +1,5 @@
 import { BsBuildingsFill } from "react-icons/bs";
-import { FaBuilding, FaWarehouse } from "react-icons/fa";
+import { FaWarehouse } from "react-icons/fa";
 import { PiIslandFill } from "react-icons/pi";
 import { AiFillMessage } from "react-icons/ai";
 import { MdStorefront, MdApartment, MdBusiness } from "react-icons/md";
@@ -83,6 +83,21 @@ export const typeOption: typeOptionType[] = [
   { label: "Lot",        value: "lot",        icon: PiIslandFill    },
   { label: "Building",   value: "building",   icon: MdApartment     },
   { label: "Etc.",       value: "etc",        icon: AiFillMessage   },
+];
+
+/** Office / Commercial 공통 — 준공 상태 */
+export const COMPLETION_STATUS_OPTIONS = [
+  { label: "Bare Shell",  value: "bare_shell" },
+  { label: "Fitted",      value: "fitted"     },
+  { label: "Furnished",   value: "furnished"  },
+];
+
+/** Lot 전용 — 용도지역 */
+export const ZONING_TYPE_OPTIONS = [
+  { label: "Residential", value: "residential" },
+  { label: "Commercial",  value: "commercial"  },
+  { label: "Mixed Use",   value: "mixed"       },
+  { label: "Industrial",  value: "industrial"  },
 ];
 
 export const unitStatusOptions = [
