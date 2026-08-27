@@ -84,8 +84,10 @@ const authOptions: AuthOptions = {
           });
         }
 
+        console.log("[AUTH DEBUG] signIn - dbUser.id:", dbUser.id, typeof dbUser.id);
         // Google의 profile.sub(문자열)가 아니라 우리 DB의 실제 User.id로 교체
         user.id = dbUser.id;
+        console.log("[AUTH DEBUG] signIn - user.id after assign:", user.id, typeof user.id);
         (user as any).level = dbUser.level;
         (user as any).phone = dbUser.phone;
         (user as any).status = dbUser.status;
@@ -115,7 +117,9 @@ const authOptions: AuthOptions = {
         token.license = license;
       }
       if (user) {
+        console.log("[AUTH DEBUG] jwt - received user:", JSON.stringify(user));
         token.id = user.id as number;
+        console.log("[AUTH DEBUG] jwt - token.id after assign:", token.id);
         token.email = user.email as string;
         token.level = (user as any).level as number;
         token.phone = (user as any).phone as string;
