@@ -39,7 +39,7 @@ export default function BuildingFields({ formData, onChange }: BuildingFieldsPro
           className="border border-zinc-300 rounded-lg px-4 py-2 text-sm outline-none focus:border-orange-400 resize-none"
         />
         <p className="text-xs text-zinc-400">
-          Describe current tenant occupancy or state "Fully vacant" if empty.
+          Describe current tenant occupancy or state &quot;Fully vacant&quot; if empty.
         </p>
       </div>
     </div>
