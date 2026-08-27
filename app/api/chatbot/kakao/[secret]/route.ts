@@ -12,19 +12,22 @@ const QUICK_REPLIES = [
   { label: "스튜디오만", action: "message", messageText: "스튜디오 매물만 보여줘" },
 ];
 
-// 카카오 listCard / simpleText outputs 생성 (동기·비동기 두 경로 공용)
+// 카카오 feedCard / listCard / simpleText outputs 생성 (동기·비동기 두 경로 공용)
 function buildKakaoOutputs(replyText: string, units: any[]): any[] {
+  const makeDescription = (u: any) => {
+    const parts = [
+      u.price ? `₱ ${Number(u.price).toLocaleString()}` : null,
+      u.bed != null ? `${u.bed}BR` : null,
+      u.area ? `${u.area}㎡` : null,
+    ].filter(Boolean);
+    return parts.join(" · ") || u.type;
+  };
+
   const makeItems = (list: any[]) =>
     list.map((u) => {
-      const parts = [
-        u.price ? `₱ ${Number(u.price).toLocaleString()}` : null,
-        u.bed != null ? `${u.bed}BR` : null,
-        u.area ? `${u.area}㎡` : null,
-      ].filter(Boolean);
-
       const item: Record<string, any> = {
         title: u.title,
-        description: parts.join(" · ") || u.type,
+        description: makeDescription(u),
         link: { web: `https://rbs-homes.com${u.url}` },
       };
       if (u.thumbnailUrl) item.imageUrl = u.thumbnailUrl;
@@ -39,7 +42,35 @@ function buildKakaoOutputs(replyText: string, units: any[]): any[] {
     },
   ];
 
-  if (units.length >= 1 && units.length <= 5) {
+  if (units.length === 1) {
+    const u = units[0];
+    const item: Record<string, any> = {
+      profile: {
+        title: "RBS Homes",
+        imageUrl: "https://rbs-homes.com/assets/images/rbs-logo.png",
+      },
+      title: u.title,
+      description: makeDescription(u),
+    };
+    if (u.thumbnailUrl) item.thumbnail = { imageUrl: u.thumbnailUrl };
+
+    return [
+      {
+        feedCard: {
+          item,
+          buttons: [
+            {
+              label: "RBS-HOMES",
+              action: "webLink",
+              webLinkUrl: `https://rbs-homes.com${u.url}`,
+            },
+          ],
+        },
+      },
+    ];
+  }
+
+  if (units.length >= 2 && units.length <= 5) {
     return [
       {
         listCard: {
