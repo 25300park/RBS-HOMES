@@ -63,6 +63,36 @@ const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        if (!user.email) {
+          return false;
+        }
+
+        let dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!dbUser) {
+          dbUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              level: 1,
+            },
+          });
+        }
+
+        // Google의 profile.sub(문자열)가 아니라 우리 DB의 실제 User.id로 교체
+        user.id = dbUser.id;
+        (user as any).level = dbUser.level;
+        (user as any).phone = dbUser.phone;
+        (user as any).status = dbUser.status;
+        (user as any).license = dbUser.license;
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (session?.user) {
         session.user.id = token.id as number;
