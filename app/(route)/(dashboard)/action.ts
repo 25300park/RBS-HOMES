@@ -25,7 +25,7 @@ export async function getFeaturedUnits() {
     const featuredUnits = featuredData.length > 0 ? await prisma.unit.findMany({
       where: {
         id: {
-          in: featuredData.map(f => f.unitId)
+          in: featuredData.map((f: { unitId: number }) => f.unitId)
         }
       },
       include: {
