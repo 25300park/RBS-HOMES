@@ -33,11 +33,11 @@ export async function getFeaturedUnits() {
       }
     }) : [];
 
-    return featuredUnits.map(unit => ({
+    return featuredUnits.map((unit: any) => ({
       ...unit,
       price: unit.price?.toNumber(),
       outstandingPayment: unit.outstandingPayment?.toNumber(),
-      featured: featuredData.find(f => f.unitId === unit.id)
+      featured: featuredData.find((f: { unitId: number }) => f.unitId === unit.id)
     }));
 
   } catch (error) {
