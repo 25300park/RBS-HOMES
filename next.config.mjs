@@ -28,14 +28,13 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:5180', 'localhost:3000', '127.0.0.1:5180', '127.0.0.1:3000'],
+    },
+  },
   async redirects() {
-    return [
-      {
-        source: '/unit/detail/:id',
-        destination: '/properties/id:id',
-        permanent: true,
-      },
-    ]
+    return []
   },
 };
 
