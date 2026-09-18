@@ -26,10 +26,11 @@ export default function BuildingFields({ formData, onChange }: BuildingFieldsPro
         />
       </div>
 
-      {/* Existing Tenants — required */}
+      {/* Existing Tenants — optional */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-semibold text-zinc-700">
-          Existing Tenants <span className="text-red-500">*</span>
+          Existing Tenants{" "}
+          <span className="text-xs font-normal text-zinc-400">(optional)</span>
         </label>
         <textarea
           rows={3}

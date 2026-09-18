@@ -30,10 +30,11 @@ export default function CommercialFields({ formData, onChange }: CommercialField
         />
       </div>
 
-      {/* Road Frontage — required */}
+      {/* Road Frontage — optional */}
       <div className="flex flex-col gap-2">
         <label className="block text-xs font-medium text-zinc-500 mb-1">
-          Road Frontage (m) <span className="text-red-500">*</span>
+          Road Frontage (m){" "}
+          <span className="text-xs font-normal text-zinc-400">(optional)</span>
         </label>
         <input
           type="number"
@@ -46,10 +47,11 @@ export default function CommercialFields({ formData, onChange }: CommercialField
         />
       </div>
 
-      {/* Foot Traffic — required */}
+      {/* Foot Traffic — optional */}
       <div className="flex flex-col gap-2">
         <label className="block text-xs font-medium text-zinc-500 mb-1">
-          Foot Traffic Description <span className="text-red-500">*</span>
+          Foot Traffic Description{" "}
+          <span className="text-xs font-normal text-zinc-400">(optional)</span>
         </label>
         <textarea
           rows={3}

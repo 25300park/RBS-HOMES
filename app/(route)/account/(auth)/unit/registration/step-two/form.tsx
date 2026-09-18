@@ -24,13 +24,13 @@ import WarehouseFields from "./components/warehouse-fields";
 import LotFields from "./components/lot-fields";
 import BuildingFields from "./components/building-fields";
 
-/** 타입별 필수 입력 필드 (etc: 빈 배열 → area 공통 체크만 통과하면 제출 가능) */
+/** 타입별 필수 입력 필드 (roadFrontageM, footTraffic, zoningType, existingTenants는 선택 항목) */
 const TYPE_REQUIRED: Record<string, string[]> = {
   office:     ["completionStatus"],
-  commercial: ["completionStatus", "roadFrontageM", "footTraffic"],
+  commercial: ["completionStatus"],
   warehouse:  ["ceilingHeight"],
-  lot:        ["roadFrontageM", "zoningType"],
-  building:   ["totalFloors", "existingTenants"],
+  lot:        [],
+  building:   ["totalFloors"],
   etc:        [],
 };
 
@@ -53,15 +53,15 @@ export default function StepTwoForm() {
   const [formData, setFormData] = useState({
     // ── 공통 ──
     area:             "",
-    parking:          "0",
+    parking:          "",
     outstandingPayment: "",
     // ── Condo 전용 ──
     floor:            "",
-    bed:              "0",
-    bath:             "1",
-    furniture:        "unfurnished",
-    interiored:       "Interiored",
-    petPolicy:        "Not allowed",
+    bed:              "",
+    bath:             "",
+    furniture:        "",
+    interiored:       "",
+    petPolicy:        "",
     yearCompletion:   "",
     amenity:          [] as string[],
     // ── 유형별 확장 필드 ──
@@ -108,16 +108,14 @@ export default function StepTwoForm() {
     // 1. Area: 모든 타입에서 필수
     if (!formData.area || parseInt(formData.area) < 1) {
       toast({
-        title: "Incomplete Step",
+        title: "Required Field Missing",
         variant: "destructive",
-        description: (
-          <p className="text-lg font-semibold">area - Area is required</p>
-        ),
+        description: "Please enter the floor area (sqm).",
       });
       return;
     }
 
-    const isCondo = unitType === "condo";  // etc는 비Condo 분기(area만 체크)로 처리
+    const isCondo = unitType === "condo";
 
     if (isCondo) {
       // 2. Condo: Zod 스키마 전체 검증 (기존 로직 유지)
@@ -131,228 +129,292 @@ export default function StepTwoForm() {
         outstandingPayment: parseFloat(formData.outstandingPayment || "0"),
       });
       if (!result.success) {
+        const issue = result.error.issues[0];
         toast({
-          title: "Incomplete Step",
+          title: "Required Field Missing",
           variant: "destructive",
-          description: (
-            <div>
-              {result.error.issues.map((issue, i) => (
-                <p key={i} className="text-lg font-semibold">
-                  {issue.path[0]} - {issue.message}
-                  <br />
-                </p>
-              ))}
-            </div>
-          ),
+          description: `${issue.path[0]} - ${issue.message}`,
         });
         return;
       }
     } else {
       // 3. 비Condo: 타입별 필수 필드 검증
-      const required = TYPE_REQUIRED[unitType] ?? [];
-      const missing  = required.filter((field) => {
-        const val = (formData as Record<string, unknown>)[field];
-        return !val || (typeof val === "string" && val.trim() === "");
-      });
-      if (missing.length > 0) {
-        toast({
-          title: "Incomplete Step",
-          variant: "destructive",
-          description: (
-            <div>
-              {missing.map((field, i) => (
-                <p key={i} className="text-lg font-semibold">
-                  {FIELD_LABELS[field] ?? field} - Required
-                  <br />
-                </p>
-              ))}
-            </div>
-          ),
-        });
-        return;
+      const reqFields = TYPE_REQUIRED[unitType] || [];
+      for (const field of reqFields) {
+        const val = (formData as any)[field];
+        if (!val || String(val).trim() === "") {
+          const label = FIELD_LABELS[field] || field;
+          toast({
+            title: "Required Field Missing",
+            variant: "destructive",
+            description: `Please fill in ${label}.`,
+          });
+          return;
+        }
       }
     }
 
+    const preparedData = {
+      ...formData,
+      area: formData.area.trim(),
+      floor: formData.floor.trim(),
+      bed: formData.bed,
+      bath: formData.bath,
+      parking: formData.parking,
+      furniture: formData.furniture,
+      interiored: formData.interiored,
+      petPolicy: formData.petPolicy,
+      yearCompletion: formData.yearCompletion.trim(),
+      outstandingPayment: formData.outstandingPayment.trim(),
+    };
+
     setIsSubmitting(true);
-    saveToLocalStorage("step2", formData);
+    saveToLocalStorage("step2", preparedData);
     setTimeout(() => {
       router.push("/account/unit/registration/step-three");
-    }, 1000);
+    }, 400);
   };
 
-  const isCondo = unitType === "condo";  // etc는 비Condo 분기 → 공통(Area/Parking/Commission)만 표시
+  const isCondo = unitType === "condo";
 
   return (
     <div
-      className={`p-6 md:p-4 mb-10 md:mb-0 bg-white md:shadow-none md:border-none ${
-        isLoading ? "border-none shadow-none" : "border"
-      } rounded-lg shadow-md max-w-[1140px] mx-auto`}
+      className={`p-6 sm:p-8 mb-10 bg-white ${
+        isLoading ? "border-none shadow-none" : "border border-zinc-200/80 shadow-sm"
+      } rounded-2xl max-w-4xl mx-auto`}
     >
       {isLoading ? (
-        <div className="flex justify-center w-full items-center h-[500px]">
+        <div className="flex justify-center w-full items-center h-[400px]">
           <Spinner />
         </div>
       ) : (
-        <section className="space-y-6 md:space-y-4">
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-6 md:gap-4">
+        <section className="space-y-6">
+          <div className="space-y-6">
 
             {/* ─────────────────────────────────────────────
-                Condo 전용: Bed / Bath / Parking (한 줄)
+                Condo Only: Bed / Bath / Parking
             ───────────────────────────────────────────── */}
             {isCondo && (
-              <div className="col-span-2 md:col-span-1 grid grid-cols-3 md:grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
                     Bedrooms
                   </label>
-                  <SelectionBox
-                    options={bedOption}
-                    selectedValue={formData.bed}
-                    onSelect={(v) => handleChange("bed", v)}
-                    className="w-full space-x-2"
-                    boxClassName="h-12 w-12 md:h-10 md:w-10"
-                    textClassName="text-xs"
-                  />
+                  <div className="grid grid-cols-7 gap-1 w-full">
+                    {bedOption.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("bed", opt.value)}
+                        className={`h-10 px-1 rounded-xl text-xs font-bold transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                          formData.bed === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="truncate">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
                     Bathrooms
                   </label>
-                  <SelectionBox
-                    options={bathOption}
-                    selectedValue={formData.bath}
-                    onSelect={(v) => handleChange("bath", v)}
-                    className="w-full space-x-2"
-                    boxClassName="h-12 w-12 md:h-10 md:w-10"
-                    textClassName="text-xs"
-                  />
+                  <div className="grid grid-cols-6 gap-1 w-full">
+                    {bathOption.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("bath", opt.value)}
+                        className={`h-10 px-1 rounded-xl text-xs font-bold transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                          formData.bath === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="truncate">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
                     Parking Spaces
                   </label>
-                  <SelectionBox
-                    options={parkingOption}
-                    selectedValue={formData.parking}
-                    onSelect={(v) => handleChange("parking", v)}
-                    className="w-full space-x-2"
-                    boxClassName="h-12 w-12 md:h-10 md:w-10"
-                    textClassName="text-xs"
-                  />
+                  <div className="grid grid-cols-6 gap-1 w-full">
+                    {parkingOption.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("parking", opt.value)}
+                        className={`h-10 px-1 rounded-xl text-xs font-bold transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                          formData.parking === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="truncate">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* ─────────────────────────────────────────────
-                비Condo 전용: Parking 단독
+                Non-Condo: Parking Only
             ───────────────────────────────────────────── */}
             {!isCondo && (
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-xs font-medium text-zinc-500 mb-1">
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 mb-2">
                   Parking Spaces
                 </label>
-                <SelectionBox
-                  options={parkingOption}
-                  selectedValue={formData.parking}
-                  onSelect={(v) => handleChange("parking", v)}
-                  className="w-full space-x-2"
-                  boxClassName="h-12 w-12 md:h-10 md:w-10"
-                  textClassName="text-xs"
-                />
+                <div className="grid grid-cols-6 gap-1.5 max-w-sm">
+                  {parkingOption.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => handleChange("parking", opt.value)}
+                      className={`h-10 px-1 rounded-xl text-xs font-bold transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                        formData.parking === opt.value
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                          : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                      }`}
+                      title={opt.label}
+                    >
+                      <span className="truncate">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
             {/* ─────────────────────────────────────────────
-                Condo 전용: Furniture & Pet Policy
+                Condo Only: Furniture / Pet / Interior
             ───────────────────────────────────────────── */}
             {isCondo && (
-              <div className="col-span-2 md:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
-                    Furniture Status
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2 border-t border-zinc-100">
+                {/* Furniture (5 cols) */}
+                <div className="lg:col-span-5">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
+                    Furniture
                   </label>
-                  <SelectionBox
-                    options={furnitureOptions.slice(1).reverse()}
-                    selectedValue={formData.furniture}
-                    onSelect={(v) => handleChange("furniture", v)}
-                    className="w-full md:space-x-2"
-                    boxClassName="h-12 md:h-10 w-full"
-                    textClassName="text-xs"
-                  />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
+                    {furnitureOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("furniture", opt.value)}
+                        className={`h-11 px-2 rounded-xl text-[11px] sm:text-xs font-bold tracking-tight transition-all border flex items-center justify-center text-center active:scale-95 ${
+                          formData.furniture === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="leading-tight">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
+
+                {/* Pet Policy (4 cols) */}
+                <div className="lg:col-span-4">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
                     Pet Policy
                   </label>
-                  <SelectionBox
-                    options={petPolicyOption.slice(1).reverse()}
-                    selectedValue={formData.petPolicy}
-                    onSelect={(v) => handleChange("petPolicy", v)}
-                    className="w-full md:space-x-2"
-                    boxClassName="h-12 md:h-10 w-full"
-                    textClassName="text-xs"
-                  />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full">
+                    {petPolicyOption.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("petPolicy", opt.value)}
+                        className={`h-11 px-2 rounded-xl text-[11px] sm:text-xs font-bold tracking-tight transition-all border flex items-center justify-center text-center active:scale-95 ${
+                          formData.petPolicy === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="leading-tight">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Interior (3 cols) */}
+                <div className="lg:col-span-3">
+                  <label className="block text-xs font-bold text-zinc-700 mb-2">
+                    Interior
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5 w-full">
+                    {interioredOption.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleChange("interiored", opt.value)}
+                        className={`h-11 px-2 rounded-xl text-[11px] sm:text-xs font-bold tracking-tight transition-all border flex items-center justify-center text-center active:scale-95 ${
+                          formData.interiored === opt.value
+                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                            : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                        }`}
+                        title={opt.label}
+                      >
+                        <span className="leading-tight">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* ─────────────────────────────────────────────
-                Condo 전용: Interior Condition
+                Common Numeric Inputs: Area, Floor, Year, Commission
             ───────────────────────────────────────────── */}
-            {isCondo && (
-              <div className="col-span-1 md:col-span-1">
-                <label className="block text-xs font-medium text-zinc-500 mb-1">
-                  Interior Condition
-                </label>
-                <SelectionBox
-                  options={interioredOption}
-                  selectedValue={formData.interiored}
-                  onSelect={(v) => handleChange("interiored", v)}
-                  className="w-full md:space-x-2"
-                  textClassName="text-xs"
-                  boxClassName="h-12 md:h-10 w-full"
-                />
-              </div>
-            )}
-
-            {/* ─────────────────────────────────────────────
-                공통: Area + Commission
-                Condo 추가: Floor, Year of Completion
-            ───────────────────────────────────────────── */}
-            <div className="col-span-2 md:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2 border-t border-zinc-100">
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">
-                  Area (m²) <span className="text-red-500">*</span>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                  Floor Area (sqm) <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  type="number"
+                  type="text"
                   name="area"
                   value={formData.area}
                   onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Area (m²)"
-                  className="w-full border border-gray-300 rounded-md"
+                  placeholder="e.g. 45"
+                  className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm font-semibold placeholder:text-zinc-400 placeholder:font-normal"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                 />
               </div>
 
               {isCondo && (
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
-                    Floor
+                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                    Floor Level <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="text"
                     name="floor"
                     value={formData.floor}
                     onChange={(e) => handleChange(e.target.name, e.target.value)}
-                    placeholder="Floor of building"
-                    className="w-full border border-gray-300 rounded-md"
+                    placeholder="e.g. 15"
+                    className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm placeholder:text-zinc-400"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                 </div>
               )}
 
               {isCondo && (
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                     Year of Completion
                   </label>
                   <Input
@@ -360,67 +422,65 @@ export default function StepTwoForm() {
                     name="yearCompletion"
                     value={formData.yearCompletion}
                     onChange={(e) => handleChange(e.target.name, e.target.value)}
-                    placeholder="Year of Completion"
-                    className="w-full border border-gray-300 rounded-md"
-                    min="1900"
-                    max={new Date().getFullYear()}
+                    placeholder="e.g. 2024"
+                    className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm placeholder:text-zinc-400"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">
-                  Commission
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
+                  Commission (₱)
                 </label>
                 <Input
                   type="text"
                   name="outstandingPayment"
                   value={formData.outstandingPayment}
                   onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Commission"
-                  className="w-full border border-gray-300 rounded-md text-right"
+                  placeholder="e.g. 45,000"
+                  className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm text-right font-semibold placeholder:text-zinc-400 placeholder:font-normal"
                 />
               </div>
             </div>
 
             {/* ─────────────────────────────────────────────
-                유형별 확장 필드 블록
+                Property-Type Specific Extended Fields
             ───────────────────────────────────────────── */}
             {unitType === "office" && (
-              <div className="col-span-2 md:col-span-1 border-t pt-6 md:pt-4">
-                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide mb-4">
+              <div className="border-t border-zinc-100 pt-6">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">
                   Office Details
                 </p>
                 <OfficeFields formData={formData} onChange={handleChange} />
               </div>
             )}
             {unitType === "commercial" && (
-              <div className="col-span-2 md:col-span-1 border-t pt-6 md:pt-4">
-                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide mb-4">
+              <div className="border-t border-zinc-100 pt-6">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">
                   Commercial Details
                 </p>
                 <CommercialFields formData={formData} onChange={handleChange} />
               </div>
             )}
             {unitType === "warehouse" && (
-              <div className="col-span-2 md:col-span-1 border-t pt-6 md:pt-4">
-                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide mb-4">
+              <div className="border-t border-zinc-100 pt-6">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">
                   Warehouse Details
                 </p>
                 <WarehouseFields formData={formData} onChange={handleChange} />
               </div>
             )}
             {unitType === "lot" && (
-              <div className="col-span-2 md:col-span-1 border-t pt-6 md:pt-4">
-                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide mb-4">
+              <div className="border-t border-zinc-100 pt-6">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">
                   Lot Details
                 </p>
                 <LotFields formData={formData} onChange={handleChange} />
               </div>
             )}
             {unitType === "building" && (
-              <div className="col-span-2 md:col-span-1 border-t pt-6 md:pt-4">
-                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide mb-4">
+              <div className="border-t border-zinc-100 pt-6">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">
                   Building Details
                 </p>
                 <BuildingFields formData={formData} onChange={handleChange} />
@@ -428,7 +488,7 @@ export default function StepTwoForm() {
             )}
 
             {/* ─────────────────────────────────────────────
-                Condo 전용: Amenities
+                Condo Only: Amenities
             ───────────────────────────────────────────── */}
             {isCondo && (
               <div className="col-span-2 md:col-span-1">
@@ -443,12 +503,21 @@ export default function StepTwoForm() {
             )}
           </div>
 
-          <div className="w-full flex justify-end pt-4">
-            <SubmitButton
-              isSubmitting={isSubmitting}
-              onClick={handleNext}
-              label="Save & Continue"
-            />
+          <div className="w-full flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-6 border-t border-zinc-100">
+            <button
+              type="button"
+              onClick={() => router.push("/account/unit/registration/step-one")}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-zinc-200 text-xs sm:text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-all text-center"
+            >
+              ← Back: Basic Info
+            </button>
+            <div className="w-full sm:w-auto">
+              <SubmitButton
+                isSubmitting={isSubmitting}
+                onClick={handleNext}
+                label="Next: Photos & Description →"
+              />
+            </div>
           </div>
         </section>
       )}
