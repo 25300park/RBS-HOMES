@@ -255,7 +255,7 @@ export default function PropertyUnitsTable({
       u.bed ?? "-",
       u.bath ?? "-",
       u.price ? Number(u.price).toLocaleString() : "-",
-      `"${(u.ownerName || "TES").replace(/"/g, '""')}"`,
+      `"${(u.ownerName || "—").replace(/"/g, '""')}"`,
       `"${(u.agent?.name || "Unassigned").replace(/"/g, '""')}"`,
       STATUS_CONFIG[u.status]?.label || u.status,
       new Date(u.lastUpdate || u.regdate || Date.now()).toISOString().split("T")[0],
@@ -665,7 +665,7 @@ export default function PropertyUnitsTable({
                         </td>
 
                         <td className="py-3.5 px-3 text-zinc-700 font-semibold truncate max-w-[100px]">
-                          {unit.ownerName || "TES"}
+                          {unit.ownerName || "—"}
                         </td>
 
                         <td className="py-3.5 px-3">
