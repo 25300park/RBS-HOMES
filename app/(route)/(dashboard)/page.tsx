@@ -42,7 +42,7 @@ export default async function HomelandPage() {
   ]);
 
   // 2. Transform DB units into HomelandProperty format
-  const initialProperties: HomelandProperty[] = units.map((u, idx) => {
+  const initialProperties: HomelandProperty[] = units.map((u: typeof units[number], idx: number) => {
     let imgUrl = FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length];
     if (u.images) {
       if (Array.isArray(u.images) && u.images.length > 0 && typeof u.images[0] === "string") {
