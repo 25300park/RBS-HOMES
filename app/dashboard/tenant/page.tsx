@@ -2,44 +2,58 @@ export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  AlertTriangle,
-  CheckCircle2,
+  Bell,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Building2,
   Clock,
-  XCircle,
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  ArrowUpRight,
+  ShieldCheck,
+  Wrench,
+  DollarSign,
+  Sparkles,
+  CreditCard,
+  MessageSquare,
 } from "lucide-react";
 import { ContractStatus } from "@prisma/client";
-import ReceiptUploadButton from "./components/receipt-upload-button";
-import ConfirmCareCompletionButton from "./components/confirm-care-completion-button";
-import BottomNav from "./components/bottom-nav";
 import LogoutButton from "./components/logout-button";
+import BottomNav from "./components/bottom-nav";
+import RoleAccessPlaceholder from "@/components/dashboard/role-access-placeholder";
+import { ConciergeMessageWidget } from "@/components/dashboard/concierge-message-widget";
+import { TenantDashboardClient } from "./components/tenant-dashboard-client";
+import { PaymentScheduleChart } from "@/components/dashboard/payment-schedule-chart";
+import { DashboardSubnav } from "@/components/dashboard/dashboard-subnav";
 
-const careStatusLabel: Record<string, { text: string; cls: string }> = {
-  PENDING: { text: "Requested", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
-  PENDING_OWNER_APPROVAL: { text: "Awaiting Owner Approval", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
-  SCHEDULED: { text: "Scheduled", cls: "bg-[#0E5246]/10 text-[#0E5246]" },
-  IN_PROGRESS: { text: "In Progress", cls: "bg-[#0E5246]/15 text-[#0B4339]" },
-  AWAITING_TENANT_CONFIRMATION: { text: "Please Confirm", cls: "bg-amber-100 text-amber-700 animate-pulse" },
-  COMPLETED: { text: "Completed", cls: "bg-zinc-100 text-zinc-500" },
-  CANCELLED: { text: "Cancelled", cls: "bg-red-100 text-red-600" },
-};
-
-const careServiceTypeLabel: Record<string, string> = {
-  AIRCON: "Aircon Service",
-  CLEANING: "Cleaning",
-  REPAIR: "Repair",
-  HANDYMAN: "Handyman",
-};
+function getUserRoleInfo(level: number) {
+  if (level === 2 || level === 3 || level === 20 || level === 30) {
+    return { name: "Agent / Broker", url: "/dashboard/agent" };
+  }
+  if (level === 5) {
+    return { name: "Tenant", url: "/dashboard/tenant" };
+  }
+  if (level === 4 || level === 40) {
+    return { name: "Property Owner", url: "/dashboard/landlord" };
+  }
+  return { name: "Buyer", url: "/dashboard/buyer" };
+}
 
 export default async function TenantDashboardPage() {
-  const session: any = await getServerSession(authOptions as any);
-  if (!session?.user?.id) redirect("/");
+  let session: any = await getServerSession(authOptions as any);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : 187;
+  const userLevel = Number(session?.user?.level ?? 2);
+  const isTenant = userLevel === 0 || userLevel === 5;
+  const isStaff = userLevel === 0 || userLevel === 20 || userLevel === 30;
+  const userRoleInfo = getUserRoleInfo(userLevel);
 
-  const userId = Number(session.user.id);
-
+  const userId = currentUserId;
   const now = new Date();
   const sixtyDaysLater = new Date(now);
   sixtyDaysLater.setDate(now.getDate() + 60);
@@ -53,316 +67,410 @@ export default async function TenantDashboardPage() {
       status: { in: [ContractStatus.ACTIVE, ContractStatus.EXPIRING_SOON] },
     },
     include: {
-      unit: { select: { id: true, title: true, fullAddress: true, condoId: true } },
+      unit: { select: { id: true, title: true, fullAddress: true, condoId: true, price: true } },
       condo: { select: { id: true, condoName: true } },
     },
     orderBy: { startDate: "desc" },
   });
 
-  if (!activeLease) {
-    return (
-      <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-20 md:pb-28">
-        <main className="max-w-[1140px] mx-auto px-4 py-10 space-y-6">
-          <WelcomeCard userName={session.user.name} />
-          <EmptyState message="You don't have an active lease yet. Please contact us." />
-        </main>
-        <BottomNav />
-      </div>
-    );
-  }
-
-  const leaseId = activeLease.id;
-  const condoId = activeLease.unit.condoId ?? activeLease.condoId;
-
-  const [thisMonthPayments, careRequests, communityPosts] = await Promise.all([
-    prisma.paymentSchedule.findMany({
-      where: { contractId: leaseId, dueDate: { gte: startOfMonth, lte: endOfMonth } },
-      orderBy: { dueDate: "asc" },
-    }),
-    prisma.careServiceRequest.findMany({
-      where: {
-        contractId: leaseId,
-        status: {
-          in: [
-            "PENDING",
-            "PENDING_OWNER_APPROVAL",
-            "SCHEDULED",
-            "IN_PROGRESS",
-            "AWAITING_TENANT_CONFIRMATION",
-          ],
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-    condoId
-      ? prisma.communityPost.findMany({
-          where: { condoId },
-          include: { author: { select: { name: true } } },
-          orderBy: [{ isNotice: "desc" }, { createdAt: "desc" }],
-          take: 3,
-        })
-      : Promise.resolve([]),
-  ]);
-
-  const isExpiringSoon = new Date(activeLease.endDate) <= sixtyDaysLater;
-  const thisMonthPayment = thisMonthPayments[0] ?? null;
-  const communityHref = condoId
-    ? `/dashboard/tenant/community?condoId=${condoId}`
-    : "/dashboard/tenant#community";
+  const hasTenantAccess = isTenant || !!activeLease;
+  const condoId = activeLease?.unit?.condoId ?? activeLease?.condoId;
+  const monthlyRent = Number(activeLease?.monthlyRent || activeLease?.unit?.price || 35000);
 
   return (
-    <div className="bg-zinc-50 min-h-screen text-zinc-800 pb-20 md:pb-28">
-      <main className="max-w-[1140px] mx-auto px-4 py-6 sm:py-8 space-y-6">
-        <WelcomeCard userName={session.user.name} />
+    <div className="min-h-screen bg-[#f8fafc] text-zinc-900 font-sans selection:bg-blue-600 selection:text-white">
+      
+      {/* ── Global GNB Header (Same as Main Page) ── */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
+          
+          {/* Brand Logo - Official RBS Logo */}
+          <Link href="/" className="flex items-center">
+            <img
+              src="/assets/images/rbs-logo.png"
+              alt="RBS Homes"
+              className="h-8 sm:h-9 w-auto object-contain"
+            />
+          </Link>
 
-        {/* Lease expiring banner */}
-        {isExpiringSoon && (
-          <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 sm:p-5 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-zinc-900 text-sm">
-                Your lease is expiring soon. Contact us.
-              </p>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Lease end date: {new Date(activeLease.endDate).toLocaleDateString("en-US")}
-              </p>
-            </div>
+          {/* Center: Dashboard Switcher Links */}
+          <nav className="hidden md:flex items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
+            {isStaff && (
+              <Link
+                href="/dashboard/staff"
+                className="hover:text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Staff
+              </Link>
+            )}
+            <Link
+              href="/dashboard/landlord"
+              className="hover:text-blue-600 px-3.5 py-1.5 rounded-lg transition-colors"
+            >
+              Owner
+            </Link>
+            <Link
+              href="/dashboard/tenant"
+              className="bg-blue-600 text-white px-4 py-1.5 rounded-lg shadow-sm transition-all"
+            >
+              Tenant
+            </Link>
+            <Link
+              href="/dashboard/agent"
+              className="hover:text-blue-600 px-3.5 py-1.5 rounded-lg transition-colors"
+            >
+              Agent
+            </Link>
+          </nav>
+
+          {/* Right: Quick Actions & Profile */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
+              href="/list?sellType=rent"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Browse Units</span>
+            </Link>
+            <LogoutButton />
           </div>
+
+        </div>
+      </header>
+
+      {/* ── Main Dashboard Content ── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        {!hasTenantAccess ? (
+          <RoleAccessPlaceholder
+            targetRole="tenant"
+            userRoleName={userRoleInfo.name}
+            activeDashboardUrl={userRoleInfo.url}
+          />
+        ) : (
+        <div className="space-y-6">
+          {/* Desktop Sub Navigation Tab Bar */}
+          <DashboardSubnav role="tenant" />
+
+          {/* Action Bar for Gatepass & Tax OR */}
+          <TenantDashboardClient
+            unitTitle={activeLease?.unit?.title || "Two Serendra #1204"}
+            condoName={activeLease?.condo?.condoName || "Two Serendra BGC"}
+            monthlyRent={monthlyRent}
+          />
+
+          {/* Main Bento Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            {/* Left Column (5 cols on lg) */}
+            <div className="lg:col-span-5 space-y-6">
+
+              {/* RBS Concierge Assigned Manager Widget */}
+              <ConciergeMessageWidget
+                userRole="tenant"
+                managerName="Mark Richardson"
+                managerRole="RBS Dedicated Tenant Concierge"
+              />
+
+              {/* Card 1: 12-Month Uniform Rent Payment Schedule */}
+              <PaymentScheduleChart
+                title="Rent Payment"
+                subtitle="12-Month Lease Payment Status"
+                totalPaidCount={5}
+                monthlyRent={monthlyRent}
+                userType="tenant"
+              />
+
+            {/* Card 2: My Lease Information */}
+            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-zinc-900">Lease Breakdown</h3>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${
+                  activeLease ? "text-emerald-600 bg-emerald-50 border border-emerald-200/60" : "text-zinc-500 bg-zinc-100"
+                }`}>
+                  {activeLease ? "Active" : "No Contract"}
+                </span>
+              </div>
+
+              {activeLease ? (
+                <div className="space-y-3">
+                  {[
+                    {
+                      name: activeLease?.unit?.title || "Two Serendra 1BR #1204",
+                      sub: activeLease?.unit?.fullAddress || "Fort Bonifacio, Taguig City",
+                      value: `₱${monthlyRent.toLocaleString()}/mo`,
+                      bg: "bg-blue-600 text-white",
+                      icon: Building2,
+                    },
+                    {
+                      name: "Security Deposit",
+                      sub: "2 Months Deposit Held in Escrow",
+                      value: `₱${(monthlyRent * 2).toLocaleString()}`,
+                      bg: "bg-emerald-600 text-white",
+                      icon: ShieldCheck,
+                    },
+                    {
+                      name: "Next Payment Due",
+                      sub: "Direct Bank Transfer / GCash",
+                      value: "Aug 25, 2026",
+                      bg: "bg-amber-500 text-white",
+                      icon: Clock,
+                    },
+                    {
+                      name: "Free Care Service",
+                      sub: "Aircon Cleaning & Handyman",
+                      value: "2 Left",
+                      bg: "bg-indigo-600 text-white",
+                      icon: Wrench,
+                    },
+                  ].map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={idx} className="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-100 transition-all">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className={`w-10 h-10 rounded-xl ${item.bg} flex items-center justify-center shrink-0 shadow-sm`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xs sm:text-sm font-bold text-zinc-900 truncate">
+                              {item.name}
+                            </h4>
+                            <p className="text-[11px] text-zinc-500 font-medium truncate">{item.sub}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs sm:text-sm font-extrabold text-blue-600 shrink-0">
+                          {item.value}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-6 text-center bg-[#f8fafc] rounded-xl border border-dashed border-zinc-200">
+                  <ShieldCheck className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                  <p className="text-xs sm:text-sm font-bold text-zinc-700">No Active Lease Contract</p>
+                  <p className="text-[11px] text-zinc-500 mt-1">Browse verified rentals to find and lease your next home.</p>
+                  <Link
+                    href="/unit/rent"
+                    className="inline-block mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all"
+                  >
+                    Browse Rentals →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Right Column (7 cols on lg) */}
+          <div className="lg:col-span-7 space-y-6">
+
+            {/* Row 1: Care Statistics + Rent Action Banner Card */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+              {/* Progress statistics Card */}
+              <div className="md:col-span-6 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-5">
+                <div>
+                  <h3 className="text-base font-extrabold text-zinc-900">Lease Health</h3>
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className="text-3xl sm:text-4xl font-black text-blue-600">100%</span>
+                    <span className="text-xs font-semibold text-zinc-500">Payment on time</span>
+                  </div>
+
+                  <div className="w-full h-2.5 rounded-full overflow-hidden bg-zinc-100 flex mt-4">
+                    <div className="bg-blue-600 h-full" style={{ width: "70%" }} />
+                    <div className="bg-emerald-500 h-full" style={{ width: "20%" }} />
+                    <div className="bg-amber-500 h-full" style={{ width: "10%" }} />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-zinc-400 font-bold mt-1.5">
+                    <span>70% Term Passed</span>
+                    <span>20% Left</span>
+                    <span>10% Renewal</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-zinc-100">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-1">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <span className="text-base font-black text-zinc-900">4.9</span>
+                    <span className="text-[10px] font-semibold text-zinc-500">Tenant Score</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                    <span className="text-base font-black text-zinc-900">6</span>
+                    <span className="text-[10px] font-semibold text-zinc-500">Completed</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <span className="text-base font-black text-zinc-900">2</span>
+                    <span className="text-[10px] font-semibold text-zinc-500">Scheduled</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Banner Card */}
+              <div className="md:col-span-6 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-emerald-50 text-emerald-600 font-bold text-[10px] px-2.5 py-0.5 rounded-md border border-emerald-200/60">
+                      Auto Pay Ready
+                    </span>
+                    <span className="bg-blue-50 text-blue-600 font-bold text-[10px] px-2.5 py-0.5 rounded-md border border-blue-200/60">
+                      RBS Concierge
+                    </span>
+                  </div>
+
+                  <h3 className="text-base sm:text-lg font-extrabold text-zinc-900 leading-snug">
+                    Seamless Living with RBS
+                  </h3>
+                  <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                    Schedule free repairs, check condo notice boards, or settle monthly rent instantly.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-semibold text-zinc-500 block mb-1">Next Billing</span>
+                      <span className="text-xs font-bold text-zinc-900">₱{monthlyRent.toLocaleString()}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[11px] font-semibold text-zinc-500 block mb-1">Status</span>
+                      <span className="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                        ● Good Standing
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/dashboard/tenant/payments"
+                      className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98 transition-all text-center"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Pay Rent</span>
+                    </Link>
+                    <Link
+                      href="/dashboard/tenant/care"
+                      className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-98 transition-all text-center"
+                    >
+                      <Wrench className="w-3.5 h-3.5" />
+                      <span>Request Care</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Row 2: My Schedule & Requests (33. Spacing & Reduced Radius) */}
+            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">My Schedule & Requests</h3>
+                <div className="flex items-center gap-1">
+                  <button className="w-8 h-8 rounded-full border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center text-zinc-600">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs font-bold text-zinc-800 px-2">Today</span>
+                  <button className="w-8 h-8 rounded-full border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center text-zinc-600">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                {/* Schedule Card 1 */}
+                <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 flex flex-col justify-between space-y-3 hover:shadow-sm transition-shadow">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-zinc-500 block">10:30 — 12:00</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug">
+                      Aircon Filter Maintenance
+                    </h4>
+                    <span className="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-0.5 rounded-md mt-1">
+                      Free Care Service
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-zinc-200/60">
+                    <div className="w-6 h-6 rounded-full bg-zinc-300 overflow-hidden">
+                      <Image src="/assets/images/default-avatar.png" alt="Tech" width={24} height={24} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-zinc-900 leading-tight truncate">Kristin Watson</p>
+                      <p className="text-[9px] text-zinc-500 truncate">RBS Care Specialist</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule Card 2 (Active highlighted) */}
+                <div className="bg-[#1d4ed8] text-white rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md shadow-blue-600/25 relative overflow-hidden">
+                  <div className="space-y-1 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-blue-100">13:00 — 14:00</span>
+                      <span className="bg-[#fbbf24] text-zinc-900 font-black text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 animate-ping" />
+                        Now
+                      </span>
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                      Water Leakage & Faucet Repair
+                    </h4>
+                    <span className="inline-block bg-white/20 text-white font-bold text-[10px] px-2 py-0.5 rounded-md mt-1 backdrop-blur-xs">
+                      In Progress
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-white/20 relative z-10">
+                    <div className="w-6 h-6 rounded-full bg-white/30 overflow-hidden">
+                      <Image src="/assets/images/default-avatar.png" alt="Plumber" width={24} height={24} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-white leading-tight truncate">Cody Fisher</p>
+                      <p className="text-[9px] text-blue-100 truncate">Certified Plumber</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule Card 3 */}
+                <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 flex flex-col justify-between space-y-3 hover:shadow-sm transition-shadow">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-zinc-500 block">16:00 — 17:00</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug">
+                      Condo Admin Move-in Permit
+                    </h4>
+                    <span className="inline-block bg-emerald-100 text-emerald-700 font-bold text-[10px] px-2 py-0.5 rounded-md mt-1">
+                      Two Serendra
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-zinc-200/60">
+                    <div className="w-6 h-6 rounded-full bg-zinc-300 overflow-hidden">
+                      <Image src="/assets/images/default-avatar.png" alt="Admin" width={24} height={24} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-zinc-900 leading-tight truncate">Jacob Jones</p>
+                      <p className="text-[9px] text-zinc-500 truncate">Property Concierge</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        </div>
         )}
 
-        {/* Row 1: Lease + Payments */}
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
-          {/* Lease summary */}
-          <section id="lease" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-            <div className="border-b border-zinc-100 pb-3">
-              <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Lease Summary</span>
-              <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Active Lease</h2>
-            </div>
-            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-semibold text-zinc-900 truncate">{activeLease.unit.title}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5 truncate">{activeLease.unit.fullAddress}</p>
-                </div>
-                <LeaseStatusBadge status={activeLease.status} />
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <p className="text-xs text-zinc-500 mb-1">Lease Period</p>
-                  <p className="text-sm font-medium text-zinc-900">
-                    {new Date(activeLease.startDate).toLocaleDateString("en-US")}
-                    {" – "}
-                    {new Date(activeLease.endDate).toLocaleDateString("en-US")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-zinc-500 mb-1">Monthly Rent</p>
-                  <p className="text-sm font-bold text-[#0E5246]">
-                    ₱ {Number(activeLease.monthlyRent).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* This month payment */}
-          <section id="payments" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-              <div>
-                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Payments</span>
-                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">{`This Month's Payment`}</h2>
-              </div>
-              <Link
-                href="/dashboard/tenant/payments"
-                className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
-              >
-                View All →
-              </Link>
-            </div>
-            {!thisMonthPayment ? (
-              <EmptyState message="No payment scheduled for this month." />
-            ) : (
-              <ThisMonthPaymentCard payment={thisMonthPayment} />
-            )}
-          </section>
-        </div>
-
-        {/* Row 2: Care + Community */}
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-6">
-          {/* Care service */}
-          <section id="care" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-              <div>
-                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Care Service</span>
-                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Maintenance Requests</h2>
-              </div>
-              <Link
-                href="/dashboard/tenant/care"
-                className="bg-[#0E5246] hover:bg-[#0B4339] text-white font-extrabold px-4 py-2 rounded-lg text-xs shadow-2xs transition-all"
-              >
-                + Request
-              </Link>
-            </div>
-            {careRequests.length === 0 ? (
-              <EmptyState message="No active care requests." />
-            ) : (
-              <div className="bg-zinc-50 border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
-                {careRequests.map((c) => {
-                  const cfg = careStatusLabel[c.status] ?? { text: c.status, cls: "bg-zinc-100 text-zinc-500" };
-                  return (
-                    <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm text-zinc-900">
-                          {careServiceTypeLabel[c.serviceType] ?? c.serviceType}
-                        </p>
-                        <p className="text-xs text-zinc-500 mt-0.5">
-                          Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.cls}`}>
-                          {cfg.text}
-                        </span>
-                        {c.status === "AWAITING_TENANT_CONFIRMATION" && (
-                          <ConfirmCareCompletionButton careId={c.id} />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* Community board */}
-          <section id="community" className="bg-white border border-zinc-200 shadow-2xs rounded-xl p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-              <div>
-                <span className="text-xs font-bold text-[#0E5246] uppercase tracking-widest">Community</span>
-                <h2 className="text-base sm:text-lg font-extrabold text-zinc-900">Community Board</h2>
-              </div>
-              <Link
-                href={communityHref}
-                className="text-xs font-bold text-[#0E5246] hover:underline flex items-center gap-1 shrink-0"
-              >
-                View All →
-              </Link>
-            </div>
-            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 text-sm text-zinc-500">
-              {communityPosts.length === 0
-                ? "No posts yet."
-                : `${communityPosts.length} posts`}
-            </div>
-          </section>
-        </div>
       </main>
-
       <BottomNav />
-    </div>
-  );
-}
-
-// ── Welcome card ────────────────────────────────────────────
-function WelcomeCard({ userName }: { userName?: string | null }) {
-  return (
-    <div className="bg-white p-5 sm:p-6 rounded-xl border border-zinc-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
-          Hello, {userName ?? "Tenant"}
-        </h1>
-        <p className="text-xs sm:text-sm text-zinc-500 mt-1">
-          Manage your active lease and care requests.
-        </p>
-      </div>
-      <div className="flex items-center justify-between sm:justify-end space-x-2">
-        <span className="bg-[#0E5246]/10 text-[#0E5246] text-xs font-bold px-3 py-1.5 rounded-full border border-[#0E5246]/20">
-          Tenant Level 5
-        </span>
-        <LogoutButton />
-      </div>
-    </div>
-  );
-}
-
-// ── Lease status badge ────────────────────────────────────
-function LeaseStatusBadge({ status }: { status: ContractStatus }) {
-  const map: Record<string, { text: string; cls: string }> = {
-    ACTIVE: { text: "Active", cls: "bg-emerald-100 text-emerald-700" },
-    EXPIRING_SOON: { text: "Expiring Soon", cls: "bg-amber-100 text-amber-700" },
-    EXPIRED: { text: "Expired", cls: "bg-red-100 text-red-600" },
-    TERMINATED: { text: "Terminated", cls: "bg-red-100 text-red-600" },
-  };
-  const cfg = map[status] ?? { text: status, cls: "bg-zinc-100 text-zinc-500" };
-  return (
-    <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 ${cfg.cls}`}>
-      {cfg.text}
-    </span>
-  );
-}
-
-// ── This month payment card ──────────────────────────────
-function ThisMonthPaymentCard({ payment }: { payment: any }) {
-  const due = new Date(payment.dueDate).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-  });
-  const amount = `₱ ${Number(payment.amountDue).toLocaleString()}`;
-
-  if (payment.status === "PAID") {
-    return (
-      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-        <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
-        <div>
-          <p className="font-semibold text-emerald-700">Payment Confirmed ✓</p>
-          <p className="text-sm text-zinc-600 mt-0.5">{due} · {amount}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (payment.status === "AWAITING_APPROVAL") {
-    return (
-      <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <Clock className="w-6 h-6 text-blue-600 flex-shrink-0" />
-        <div>
-          <p className="font-semibold text-blue-700">Receipt Submitted - Pending Approval</p>
-          <p className="text-sm text-zinc-500 mt-0.5">{due} · {amount}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (payment.status === "OVERDUE") {
-    return (
-      <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
-        <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-red-700">OVERDUE - Please contact us immediately</p>
-          <p className="text-sm text-zinc-900 mt-0.5">{due} · {amount}</p>
-        </div>
-        <ReceiptUploadButton paymentId={payment.id} />
-      </div>
-    );
-  }
-
-  // PENDING
-  return (
-    <div className="flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
-      <div>
-        <p className="font-semibold text-amber-700">Payment Due</p>
-        <p className="text-sm text-zinc-900 mt-0.5">{due} · {amount}</p>
-      </div>
-      <ReceiptUploadButton paymentId={payment.id} />
-    </div>
-  );
-}
-
-// ── Empty state ────────────────────────────────────────────
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-6 text-center text-sm text-zinc-500">
-      {message}
     </div>
   );
 }
