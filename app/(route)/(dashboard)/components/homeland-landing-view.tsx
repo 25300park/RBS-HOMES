@@ -572,8 +572,8 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
             </div>
           </div>
 
-          {/* 30. 2 Columns on Mobile, 4 Columns on Desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {/* 30. 4 Columns on Desktop, 2 Columns on Mobile */}
+          <div className="grid grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-5">
             {initialProperties.map((prop) => {
               const isFav = favoritedIds.has(prop.id);
               return (
