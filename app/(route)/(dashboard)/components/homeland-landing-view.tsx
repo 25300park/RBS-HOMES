@@ -200,7 +200,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
           </Link>
 
           {/* Nav Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-zinc-600">
+          <nav className="flex lg:hidden items-center gap-7 text-sm font-semibold text-zinc-600">
             <Link href="/" className="text-blue-600 relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600 after:rounded-full">
               Home
             </Link>
@@ -247,10 +247,20 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
       {/* ── 2. Hero Section (22. Adjusted padding and alignment to prevent overlapping with search console) ── */}
       <section className="relative pt-8 pb-20 lg:pt-10 lg:pb-24 overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-white border-b border-zinc-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-6">
-            
-            {/* 21. Left Content: Full-width Left/Right Justified Layout */}
-            <div className="lg:col-span-5 flex flex-col space-y-5 z-10 w-full">
+          <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-zinc-900/10 border-4 border-white min-h-[480px] sm:min-h-[520px] flex items-center mb-6">
+            {/* Background Hero Image */}
+            <Image
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+              alt="Modern Luxury RBS Home"
+              fill
+              priority
+              className="object-cover"
+            />
+            {/* Left-to-Right Dark Gradient Scrim for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none" />
+
+            {/* Overlaid Text Content */}
+            <div className="relative z-10 flex flex-col space-y-5 w-full max-w-xl px-6 sm:px-10 py-10">
               <div>
                 <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200/60 px-3.5 py-1.5 rounded-full mb-3">
                   <span className="text-amber-500 text-xs">✨</span>
@@ -259,12 +269,12 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[44px] xl:text-[46px] font-black text-zinc-950 tracking-tight leading-[1.12] w-full">
+                <h1 className="text-4xl sm:text-5xl lg:text-[44px] xl:text-[46px] font-black text-white tracking-tight leading-[1.12] w-full">
                   Find Your Dream <br />
-                  <span className="text-zinc-950">Home in BGC & Makati</span>
+                  <span className="text-white">Home in BGC & Makati</span>
                 </h1>
 
-                <p className="text-zinc-500 text-sm sm:text-base leading-relaxed font-medium mt-3 w-full text-justify">
+                <p className="text-zinc-200 text-sm sm:text-base leading-relaxed font-medium mt-3 w-full">
                   Explore premium condos, modern villas, and prime commercial spaces verified by RBS Homes.
                 </p>
               </div>
@@ -282,29 +292,13 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
 
                 <Link
                   href="/map"
-                  className="w-full bg-white hover:bg-zinc-50 text-zinc-800 border border-zinc-200 font-bold text-sm px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:border-blue-300 hover:text-blue-600 active:scale-98 text-center"
+                  className="w-full bg-white/90 hover:bg-white text-zinc-800 border border-white font-bold text-sm px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:text-blue-600 active:scale-98 text-center"
                 >
                   <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
                   <span className="truncate">View on Map</span>
                 </Link>
               </div>
             </div>
-
-            {/* Right Hero Image with Left-to-Right Fade Gradient */}
-            <div className="lg:col-span-7 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-zinc-900/10 border-4 border-white aspect-[4/3] w-full">
-                <Image
-                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-                  alt="Modern Luxury RBS Home"
-                  fill
-                  priority
-                  className="object-cover"
-                />
-                {/* Left-to-Right Soft Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-black/15 pointer-events-none" />
-              </div>
-            </div>
-
           </div>
 
           {/* ── Floating Unified Search Console (22. Clean separation with no overlap) ── */}
