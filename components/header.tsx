@@ -76,7 +76,7 @@ const Header = () => {
           </Link>
 
           {/* 2. Centered Navigation Box */}
-          <nav className="hidden md:flex items-center gap-1 bg-zinc-100/80 p-1.5 rounded-2xl border border-zinc-200/60 shadow-2xs">
+          <nav className="flex md:hidden items-center gap-1 bg-zinc-100/80 p-1.5 rounded-2xl border border-zinc-200/60 shadow-2xs">
             {[
               { label: "Home", href: "/" },
               { label: "For Rent", href: "/list?sellType=rent&activeTypes=rent" },
