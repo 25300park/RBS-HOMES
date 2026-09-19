@@ -42,7 +42,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-zinc-200/90 py-1.5 px-2 shadow-xl z-50 justify-around items-center">
+    <nav className="hidden md:flex fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-zinc-200/90 py-1.5 px-2 shadow-xl z-50 justify-around items-center">
       {items.map(({ key, label, href, icon: Icon, isActive }) => (
         <Link
           key={key}
