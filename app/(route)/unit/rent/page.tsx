@@ -1,16 +1,5 @@
-import ListSearchSection from "../components/list-search-section";
-import UnitList from "../components/unit-list";
+import { permanentRedirect } from "next/navigation";
 
-export interface RentHomeProps {}
-
-
-const RentHome = async ({}: RentHomeProps) => {
-  return (
-    <section className="max-w-[1140px] mx-auto">
-      <ListSearchSection />
-      <UnitList />
-    </section>
-  );
-};
-
-export default RentHome;
+export default function UnitRentRedirect() {
+  permanentRedirect("/list?sellType=rent&activeTypes=rent");
+}

@@ -204,10 +204,10 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
             <Link href="/" className="text-blue-600 relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600 after:rounded-full">
               Home
             </Link>
-            <Link href="/unit/rent" className="hover:text-blue-600 transition-colors">
+            <Link href="/list?sellType=rent&activeTypes=rent" className="hover:text-blue-600 transition-colors">
               For Rent
             </Link>
-            <Link href="/unit/buy" className="hover:text-blue-600 transition-colors">
+            <Link href="/list?sellType=sale&activeTypes=sale" className="hover:text-blue-600 transition-colors">
               For Sale
             </Link>
             <Link href="/dashboard/landlord" className="hover:text-blue-600 transition-colors">
