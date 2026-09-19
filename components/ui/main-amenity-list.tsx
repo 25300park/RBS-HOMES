@@ -121,27 +121,27 @@ const MainAmenityList = () => {
   };
 
   return (
-    <div className="flex items-center px-10 md:px-4 md:pt-0 relative w-full md:hidden">
+    <div className="flex items-center px-2 sm:px-6 relative w-full">
       {showLeftArrow && (
         <button
           onClick={() => handleScroll("left")}
-          className="absolute left-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl bottom-6 md:left-4"
+          className="absolute left-1 sm:left-2 z-10 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-zinc-100 transition-all border border-zinc-200 backdrop-blur-md bottom-3.5"
         >
-          <MdOutlineArrowBack className="text-xl" />
+          <MdOutlineArrowBack className="text-base text-zinc-700" />
         </button>
       )}
 
       <div className="relative w-full flex items-center">
         {showLeftArrow && (
-          <div className="absolute left-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-20 bg-gradient-to-r from-white to-transparent pointer-events-none" />
         )}
         {showRightArrow && (
-          <div className="absolute right-0 top-0 bottom-0 w-32 md:w-16 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-20 bg-gradient-to-l from-white to-transparent pointer-events-none" />
         )}
 
         <div
           ref={sliderRef}
-          className="flex gap-5 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar md:gap-2"
+          className="flex gap-2 sm:gap-3 overflow-x-auto whitespace-nowrap scroll-smooth no-scrollbar justify-center"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {amenitiesData.map((amenity, index) => {
@@ -153,13 +153,13 @@ const MainAmenityList = () => {
             return (
               <div
                 key={index}
-                className="flex flex-col justify-center items-center min-w-[100px] md:min-w-[85px] h-full cursor-pointer group"
+                className="flex flex-col justify-center items-center min-w-[68px] sm:min-w-[76px] h-full cursor-pointer group py-1"
                 onClick={() => handleAmenityClick(amenity.label)}
               >
                 <div
                   className={`relative ${
-                    isSelected ? "scale-150" : ""
-                  } w-6 h-6 transition-transform transform-gpu group-active:scale-90 duration-300`}
+                    isSelected ? "scale-125" : ""
+                  } w-[19px] h-[19px] transition-transform transform-gpu group-active:scale-90 duration-300`}
                 >
                   <Image
                     src={imageSrc}
@@ -167,7 +167,6 @@ const MainAmenityList = () => {
                     fill
                     className="object-contain"
                     onError={(e) => {
-                      // 활성화 이미지 로드 실패 시 기본 이미지로 대체
                       if (isSelected) {
                         (e.target as HTMLImageElement).src = amenity.imagePath;
                       }
@@ -175,10 +174,10 @@ const MainAmenityList = () => {
                   />
                 </div>
                 <span
-                  className={`text-xs w-fit pb-3 text-center pt-2 border-b-2 ${
+                  className={`text-[10px] sm:text-[11px] font-bold w-fit pb-1.5 text-center pt-1.5 border-b-2 transition-all ${
                     isSelected
-                      ? "border-black"
-                      : "border-transparent group-hover:border-gray-200"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-zinc-600 group-hover:border-zinc-300"
                   }`}
                 >
                   {amenity.label}
@@ -192,9 +191,9 @@ const MainAmenityList = () => {
       {showRightArrow && (
         <button
           onClick={() => handleScroll("right")}
-          className="absolute right-12 z-10 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all border backdrop-blur-3xl bottom-6 md:right-4"
+          className="absolute right-1 sm:right-2 z-10 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-zinc-100 transition-all border border-zinc-200 backdrop-blur-md bottom-3.5"
         >
-          <MdOutlineArrowForward className="text-xl" />
+          <MdOutlineArrowForward className="text-base text-zinc-700" />
         </button>
       )}
     </div>

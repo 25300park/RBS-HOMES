@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ListCard from "@/components/ui/list-card";
-import AdCard from "./ad-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import useHandleUnitClick from "@/hooks/use-handle-unit-click";
@@ -34,13 +33,6 @@ interface FetchResponse {
   total: number;
 }
 
-// 데스크탑과 모바일 화면에서 각각 다른 설정을 위한 상수
-const DESKTOP_COLUMNS = 6; // 데스크탑에서의 열 개수
-const AD_FREQUENCY = {
-  DESKTOP: 12, // 데스크탑에서 광고 표시 간격 (2행 마다 행의 시작에 배치: 6*2)
-  MOBILE: 3 // 모바일에서 광고 표시 간격 (3개 아이템마다 배치)
-};
-
 const MainList: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,27 +45,11 @@ const MainList: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const handleUnitClick = useHandleUnitClick();
-  const LIMIT = isMobile ? 12 : 46;
+  const LIMIT = 48;
   
   // searchParams 변경 감지를 위한 ref
   const prevSearchParamsRef = useRef<string>("");
   const isInitialLoadRef = useRef<boolean>(true);
-
-  // 광고 정보
-  const ads = [
-    { 
-      id: 'ad1', 
-      desktopImageUrl: '/assets/images/ad_desk0.png', 
-      mobileImageUrl: '/assets/images/ad_mob0.png', 
-      link: 'https://example.com/ad1' 
-    },
-    { 
-      id: 'ad2', 
-      desktopImageUrl: '/assets/images/ad_desk1.png', 
-      mobileImageUrl: '/assets/images/ad_mob1.png', 
-      link: 'https://example.com/ad2' 
-    }
-  ];
 
   // 최상단으로 스크롤하는 함수
   const scrollToTop = useCallback(() => {
@@ -185,38 +161,6 @@ const MainList: React.FC = () => {
   // 첫 페이지에서만 featured units 포함
   const allUnits = currentPage === 1 ? [...featuredUnits, ...units] : units;
 
-  // 광고를 포함한 아이템 리스트 생성
-  const getItemsWithAds = useCallback(() => {
-    const result: any = [];
-    let adIndex = 0;
-    
-    allUnits.forEach((unit, index) => {
-      // 유닛 추가
-      result.push({
-        type: 'unit',
-        data: unit,
-        key: `unit-${unit.id}`
-      });
-      
-      // 광고 추가 로직 (데스크탑과 모바일에 따라 다르게 처리)
-      const frequency = isMobile ? AD_FREQUENCY.MOBILE : AD_FREQUENCY.DESKTOP;
-      
-      // 데스크탑에서는 두 행마다 행의 시작 부분에 광고 추가
-      // 모바일에서는 단순히 N개 아이템마다 광고 추가
-      if ((index + 1) % frequency === 0 && index > 0) {
-        const currentAd = ads[adIndex % ads.length];
-        result.push({
-          type: 'ad',
-          data: currentAd,
-          key: `ad-${currentAd.id}-${index}`
-        });
-        adIndex++;
-      }
-    });
-    
-    return result;
-  }, [allUnits, isMobile, ads]);
-
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -230,7 +174,7 @@ const MainList: React.FC = () => {
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
-            이전
+            Previous
           </button>
 
           <span className="text-sm text-gray-600">
@@ -322,81 +266,269 @@ const MainList: React.FC = () => {
     );
   };
 
-  const itemsWithAds = getItemsWithAds();
+  const items = allUnits;
+  const currentType = searchParams.get("type");
+  const currentSellType = searchParams.get("sellType") || searchParams.get("activeTypes") || "rent";
+  const isPreSale = currentSellType?.toLowerCase().includes("presale");
+
+  const TYPE_NAMES: Record<string, string> = {
+    condo: "Condominiums",
+    house: "House",
+    commercial: "Commercial Properties",
+    office: "Office Spaces",
+    warehouse: "Warehouses & Logistics",
+    building: "Commercial Buildings",
+    lot: "Lots & Land",
+  };
+
+  const isRent = currentSellType?.toLowerCase().includes("rent") || currentSellType?.toLowerCase().includes("lease");
+  const isSale = currentSellType?.toLowerCase() === "sale" || currentSellType?.toLowerCase() === "buy";
+
+  let filterHeading = "Properties For Rent";
+  let filterDescription = "Showing all verified properties available for long-term lease in the Philippines.";
+  let badgeLabel = "For Rent";
+
+  if (isPreSale) {
+    filterHeading = currentType 
+      ? `${TYPE_NAMES[currentType] || currentType} Pre-sale Projects` 
+      : "Pre-sale Projects";
+    filterDescription = "Showing verified off-plan developments and pre-sale properties for early investment.";
+    badgeLabel = "Pre-Sale";
+  } else if (isSale) {
+    filterHeading = currentType 
+      ? `${TYPE_NAMES[currentType] || currentType} For Sale` 
+      : "Properties For Sale";
+    filterDescription = currentType 
+      ? `Showing verified ${TYPE_NAMES[currentType]?.toLowerCase() || currentType} available for purchase and ownership.`
+      : "Showing all verified properties available for purchase and investment in the Philippines.";
+    badgeLabel = "For Sale";
+  } else if (isRent) {
+    filterHeading = currentType 
+      ? `${TYPE_NAMES[currentType] || currentType} For Rent` 
+      : "Properties For Rent";
+    filterDescription = currentType 
+      ? `Showing verified ${TYPE_NAMES[currentType]?.toLowerCase() || currentType} available for rent and lease.`
+      : "Showing all verified residential and commercial properties available for long-term rent.";
+    badgeLabel = "For Rent";
+  } else if (currentType) {
+    filterHeading = TYPE_NAMES[currentType] || `${currentType.toUpperCase()} Properties`;
+    filterDescription = `Showing all verified ${filterHeading.toLowerCase()} available for rent or purchase.`;
+    badgeLabel = "Category";
+  }
+
+  const handleSellTypeChange = (typeVal: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sellType", typeVal);
+    params.set("activeTypes", typeVal);
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
+
+  const PROPERTY_TYPES = [
+    { label: "All Types", key: "all", icon: "✨" },
+    { label: "Condominium", key: "condo", icon: "🏢" },
+    { label: "House", key: "house", icon: "🏡" },
+    { label: "Commercial", key: "commercial", icon: "🏪" },
+    { label: "Office", key: "office", icon: "💼" },
+    { label: "Warehouse", key: "warehouse", icon: "🏭" },
+    { label: "Lot & Land", key: "lot", icon: "🏗️" },
+  ];
+
+  const handlePropertyTypeChange = (typeKey: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (typeKey === "all") {
+      params.delete("type");
+    } else {
+      params.set("type", typeKey);
+    }
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
+
+  const hasSpecificFilter = Boolean(
+    currentType ||
+    isPreSale ||
+    isSale ||
+    searchParams.get("amenities") ||
+    searchParams.get("city") ||
+    searchParams.get("bed") ||
+    searchParams.get("bath") ||
+    searchParams.get("priceMin") ||
+    searchParams.get("priceMax")
+  );
 
   return (
-    <div className="min-h-screen p-4 px-20 3xl:px-12 xs:px-4">
+    <div className="min-h-screen p-4 px-4 sm:px-8 lg:px-16">
       {error && (
-        <div className="text-red-600 p-4 mb-4 bg-red-50 rounded-lg text-center">
+        <div className="text-red-600 p-4 mb-4 bg-red-50 rounded-lg text-center font-medium text-sm">
           {error}
         </div>
       )}
 
-      {/* 결과 개수 표시 */}
-      {total > 0 && !isLoading && (
-        <div className="mb-4 text-sm text-gray-600 w-full flex justify-end">
-          Total {total.toLocaleString()} results 
-          {totalPages > 1 && (
-            <span> - Page {currentPage} of {totalPages}</span>
-          )}
+      {/* Active Category / Transaction Header Banner (#64) */}
+      <div className="mb-4 sm:mb-5 p-4 sm:p-5 bg-gradient-to-r from-blue-50/90 to-slate-50 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
+              Listing Filter
+            </span>
+            <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              {badgeLabel}
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight mt-1">
+            {filterHeading}
+          </h1>
+          <p className="text-xs text-zinc-500 font-medium mt-0.5">
+            {filterDescription}
+          </p>
         </div>
-      )}
 
-      {/* 로딩 중일 때 스켈레톤 표시 */}
+        {hasSpecificFilter && (
+          <button
+            onClick={() => router.push("/list")}
+            className="self-start sm:self-auto bg-white hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900 border border-zinc-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs whitespace-nowrap"
+          >
+            Reset Filters
+          </button>
+        )}
+      </div>
+
+      {/* Property Type Quick Filter Bar (#66) */}
+      <div className="mb-5 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar select-none" style={{ scrollbarWidth: "none" }}>
+        {PROPERTY_TYPES.map((pt) => {
+          const isSelected = (!currentType && pt.key === "all") || (currentType?.toLowerCase() === pt.key.toLowerCase());
+          return (
+            <button
+              key={pt.key}
+              onClick={() => handlePropertyTypeChange(pt.key)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shrink-0 active:scale-95 ${
+                isSelected
+                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20 border border-blue-600"
+                  : "bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 border border-zinc-200/80 shadow-2xs"
+              }`}
+            >
+              <span>{pt.icon}</span>
+              <span>{pt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Unified 2-Column Control Bar (#60, #61) */}
+      <div className="mb-6 bg-white border border-zinc-200/80 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
+        
+        {/* Left Column: Transaction Type Tabs (Rent, Buy, Pre-sale) & Property Count */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Rent, Buy, Pre-sale Switcher */}
+          <div className="flex items-center gap-1 bg-zinc-100/90 p-1 rounded-xl border border-zinc-200/60">
+            {[
+              { label: "Rent", key: "rent" },
+              { label: "Buy", key: "sale" },
+              { label: "Pre-sale", key: "preSale" },
+            ]
+              .filter(({ key }) => {
+                // Show Pre-sale only when property type is condo (or when no specific non-condo type is selected)
+                if (key === "preSale") {
+                  return !currentType || currentType.toLowerCase() === "condo";
+                }
+                return true;
+              })
+              .map(({ label, key }) => {
+                const isSelected = 
+                  currentSellType?.toLowerCase() === key.toLowerCase() ||
+                  (key === "sale" && currentSellType?.toLowerCase() === "buy");
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleSellTypeChange(key)}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all ${
+                      isSelected
+                        ? "bg-blue-600 text-white shadow-2xs"
+                        : "text-zinc-600 hover:text-zinc-900 hover:bg-white/60"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* Result count */}
+          <span className="text-xs sm:text-sm font-bold text-zinc-500">
+            {isLoading ? (
+              "Loading properties..."
+            ) : (
+              <>
+                <strong className="text-zinc-900 font-extrabold">{total.toLocaleString()}</strong> properties
+                {totalPages > 1 && ` · Page ${currentPage}/${totalPages}`}
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* Right Column: View Mode Switcher (View as List vs View on Map) */}
+        <div className="flex items-center gap-1.5 self-end md:self-auto bg-zinc-100/90 p-1 rounded-xl border border-zinc-200/60 shrink-0">
+          <button
+            onClick={() => router.push("/list")}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-2xs border border-zinc-200/60"
+          >
+            <span className="w-2 h-2 rounded-full bg-blue-600" />
+            View as List
+          </button>
+          <button
+            onClick={() => {
+              const currentQuery = searchParams.toString();
+              router.push(currentQuery ? `/map?${currentQuery}` : "/map");
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-zinc-600 hover:text-zinc-900 hover:bg-white/60 transition-all"
+          >
+            🗺️ View on Map
+          </button>
+        </div>
+      </div>
+
+      {/* Grid: Desktop 4 cols, Mobile 2 cols (matches homepage Handpicked Properties grid) */}
       {isLoading ? (
-        <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-2 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
-          {Array.from({ length: LIMIT > 24 ? 24 : LIMIT }).map((_, index) => (
+        <div className="grid grid-cols-4 lg:grid-cols-2 gap-4 sm:gap-6 gap-y-8 sm:gap-y-10">
+          {Array.from({ length: 12 }).map((_, index) => (
             <Skeleton key={index} />
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-6 4xl:grid-cols-5 3xl:grid-cols-4 xs:grid-cols-2 2lg:grid-cols-3 tlg:grid-cols-2 gap-6 gap-y-10">
-            {itemsWithAds.map((item: any) => {
-              if (item.type === 'unit') {
-                const unit = item.data;
-                return (
-                  <ListCard
-                    unitId={unit.id}
-                    key={item.key}
-                    title={unit.title}
-                    price={unit.price}
-                    area={unit.area}
-                    location={unit.fullAddress}
-                    imageUrl={unit.images ? (Array.isArray(unit.images) ? unit.images[0] : JSON.parse(unit.images)[0]) : ""}
-                    postedDate={unit.postedDate}
-                    bed={unit.bed}
-                    bath={unit.bath}
-                    sellType={unit.sellType}
-                    isUrgent={unit.isUrgent}
-                    isFavorited={unit.isFavorited}
-                    featured={unit.featured}
-                    priority={itemsWithAds.indexOf(item) < 6}
-                    onClick={() => handleUnitClick(unit)}
-                  />
-                );
-              } else if (item.type === 'ad') {
-                const ad = item.data;
-                return (
-                  <AdCard
-                    key={item.key}
-                    desktopImageUrl={ad.desktopImageUrl}
-                    mobileImageUrl={ad.mobileImageUrl}
-                    link={ad.link}
-                  />
-                );
-              }
-              return null;
-            })}
+          <div className="grid grid-cols-4 lg:grid-cols-2 gap-4 sm:gap-6 gap-y-8 sm:gap-y-10">
+            {items.map((unit: any) => (
+              <ListCard
+                unitId={unit.id}
+                key={`unit-${unit.id}`}
+                title={unit.title}
+                price={unit.price}
+                area={unit.area}
+                location={unit.fullAddress}
+                imageUrl={unit.images ? (Array.isArray(unit.images) ? unit.images[0] : JSON.parse(unit.images)[0]) : ""}
+                postedDate={unit.postedDate}
+                bed={unit.bed}
+                bath={unit.bath}
+                sellType={unit.sellType}
+                isUrgent={unit.isUrgent}
+                isFavorited={unit.isFavorited}
+                featured={unit.featured}
+                priority={items.indexOf(unit) < 6}
+                onClick={() => handleUnitClick(unit)}
+              />
+            ))}
           </div>
 
           {/* 페이지네이션 */}
           {renderPagination()}
 
           {units.length === 0 && !error && (
-            <div className="min-h-screen flex flex-col items-center pt-20">
-              <BsDatabaseX className="w-24 h-24 text-gray-400 mb-4" />
-              <p className="text-xl text-gray-500">No units found</p>
+            <div className="min-h-[50vh] flex flex-col items-center justify-center py-20 text-center">
+              <BsDatabaseX className="w-16 h-16 text-zinc-300 mb-3" />
+              <h3 className="text-base font-extrabold text-zinc-700">No properties found</h3>
+              <p className="text-xs text-zinc-400 mt-1">Try resetting filters or searching another area</p>
             </div>
           )}
         </>
