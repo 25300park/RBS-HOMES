@@ -266,7 +266,7 @@ export default async function AgentDashboardPage() {
           </Link>
 
           {/* Center: Dashboard Switcher Links */}
-          <nav className="hidden md:flex items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
+          <nav className="flex md:hidden items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
             {(userLevel === 0 || userLevel === 20 || userLevel === 30) && (
               <Link
                 href="/dashboard/staff"
@@ -311,7 +311,7 @@ export default async function AgentDashboardPage() {
       </header>
 
       {/* ── Main Dashboard Content (Responsive for Desktop, Laptop, Notepad/Tablet, Mobile) ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-5 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 md:pb-24 space-y-5 sm:space-y-6">
         {!isAgent ? (
           <RoleAccessPlaceholder
             targetRole="agent"
@@ -321,7 +321,7 @@ export default async function AgentDashboardPage() {
         ) : (
         <>
         {/* Top Welcome & Summary Header Card */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 lg:p-7 shadow-sm border border-zinc-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl p-5 sm:p-6 lg:p-7 shadow-sm border border-zinc-200/80 flex flex-row items-center md:flex-col md:items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight">
@@ -353,11 +353,11 @@ export default async function AgentDashboardPage() {
           </div>
         </div>
 
-        {/* Responsive Bento Grid: 1 col on mobile, 1 col on tablet, 12 cols on laptop/desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+        {/* Responsive Bento Grid: 12 cols on desktop, 1 col on mobile/tablet */}
+        <div className="grid grid-cols-12 lg:grid-cols-1 gap-5 sm:gap-6 items-start">
 
-          {/* Left Column (5 cols on lg) */}
-          <div className="lg:col-span-5 space-y-5 sm:space-y-6">
+          {/* Left Column (5 cols on desktop) */}
+          <div className="col-span-5 lg:col-span-1 space-y-5 sm:space-y-6">
 
             {/* RBS Broker Support Desk Widget */}
             <ConciergeMessageWidget
@@ -465,8 +465,8 @@ export default async function AgentDashboardPage() {
 
           </div>
 
-          {/* Right Column: Upcoming Schedules & Timeline (7 cols on lg/xl/2xl) */}
-          <div className="lg:col-span-7 space-y-5 sm:space-y-6">
+          {/* Right Column: Upcoming Schedules & Timeline (7 cols on desktop) */}
+          <div className="col-span-7 lg:col-span-1 space-y-5 sm:space-y-6">
 
             {/* Card 3: Confirmed Visits & Inspections */}
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
@@ -524,8 +524,8 @@ export default async function AgentDashboardPage() {
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
               <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">Broker Quick Actions</h3>
               
-              {/* Responsive Grid: 1 col on mobile, 3 cols on tablet/laptop/desktop */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Responsive Grid: 3 cols on desktop, 1 col on mobile */}
+              <div className="grid grid-cols-3 sm:grid-cols-1 gap-3">
                 <Link
                   href="/account/unit/registration/step-one"
                   className="bg-[#f8fafc] border border-zinc-200/80 p-3.5 sm:p-4 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
