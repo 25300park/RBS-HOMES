@@ -58,7 +58,7 @@ export default async function BuyerDashboardPage() {
           </Link>
 
           {/* Center: Dashboard Switcher Links */}
-          <nav className="hidden md:flex items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
+          <nav className="flex md:hidden items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
             {isStaff && (
               <Link
                 href="/dashboard/staff"

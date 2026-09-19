@@ -94,7 +94,7 @@ export default async function TenantDashboardPage() {
           </Link>
 
           {/* Center: Dashboard Switcher Links */}
-          <nav className="hidden md:flex items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
+          <nav className="flex md:hidden items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
             {isStaff && (
               <Link
                 href="/dashboard/staff"
@@ -159,10 +159,10 @@ export default async function TenantDashboardPage() {
           />
 
           {/* Main Bento Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start">
 
             {/* Left Column (5 cols on lg) */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="col-span-5 lg:col-span-1 space-y-6">
 
               {/* RBS Concierge Assigned Manager Widget */}
               <ConciergeMessageWidget
@@ -262,7 +262,7 @@ export default async function TenantDashboardPage() {
           </div>
 
           {/* Right Column (7 cols on lg) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="col-span-7 lg:col-span-1 space-y-6">
 
             {/* Row 1: Care Statistics + Rent Action Banner Card */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
