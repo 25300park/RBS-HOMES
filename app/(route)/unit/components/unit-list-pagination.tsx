@@ -82,11 +82,11 @@ const UnitListPagination = () => {
 
   return (
     <div className="container mx-auto py-6 min-h-[calc(100vh-5rem)]">
-      {totalUnit} units found
+      <p className="text-sm text-zinc-500 mb-4">{totalUnit} units found</p>
       {isLoading ? (
         <div className="flex justify-center mt-6 items-center">
           <Spinner />
-          <span className="ml-2 text-blue-500">Loading units...</span>
+          <span className="ml-2 text-blue-500">Loading more units...</span>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-6">

@@ -52,8 +52,6 @@ const ListSearchSection = () => {
         <section className="pt-16">
           <FilterButton withSellType withType />
           <FilterResetButton />
-          <div>맵전환 버튼</div>
-          <div>전체 디자인 수정</div>
         </section>
       </div>
     </>

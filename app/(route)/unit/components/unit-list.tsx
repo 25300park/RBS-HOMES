@@ -108,7 +108,7 @@ const UnitList = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <p>Total Units: {totalUnit}</p>
+      <p className="text-sm text-zinc-500 mb-4">{totalUnit} units found</p>
       <div className="grid grid-cols-2 gap-6">
         {units.map((unit, index) => (
           <div

@@ -7,12 +7,8 @@ export interface BuyHomeProps {}
 const BuyHome = async ({}: BuyHomeProps) => {
   return (
     <section className="max-w-[1140px] mx-auto">
-  RENT 는 무한스크롤 버전, 여긴 페이지네이션 버전
-
       <ListSearchSection />
-      {/* <UnitList/> */}
       <UnitListPagination />
-
     </section>
   );
 };
