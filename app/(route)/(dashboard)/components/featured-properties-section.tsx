@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import ListCard from "@/components/ui/list-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import useHandleUnitClick from "@/hooks/use-handle-unit-click";
+import { parseImages } from "@/lib/utils";
 import { 
   MapPin, 
   Clock, 
@@ -160,7 +161,7 @@ const FeaturedPropertiesSection = ({
             price={unit.price}
             area={unit.area}
             location={unit.fullAddress}
-            imageUrl={unit.images ? (Array.isArray(unit.images) ? unit.images[0] : JSON.parse(unit.images)[0]) : ""}
+            imageUrl={parseImages(unit.images)[0] || ""}
             postedDate={unit.postedDate}
             bed={unit.bed}
             bath={unit.bath}

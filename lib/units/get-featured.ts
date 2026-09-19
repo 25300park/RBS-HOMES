@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { parseImages } from "@/lib/utils";
 
 const DEFAULT_STATUS = [0, 1, 3];
 
@@ -65,18 +66,7 @@ function createAreaFilter(keywords: string[]) {
 
 function transformUnits(units: any[]) {
   return units.map((unit) => {
-    let images: string[] = [];
-    if (unit.images) {
-      if (Array.isArray(unit.images)) {
-        images = unit.images as string[];
-      } else if (typeof unit.images === "string") {
-        try {
-          images = JSON.parse(unit.images);
-        } catch {
-          images = [];
-        }
-      }
-    }
+    const images = parseImages(unit.images);
     return {
       ...unit,
       images,

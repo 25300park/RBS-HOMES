@@ -8,6 +8,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import useHandleUnitClick from "@/hooks/use-handle-unit-click";
 import { BsDatabaseX } from "react-icons/bs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { parseImages } from "@/lib/utils";
 import { getFeaturedUnits } from "../action";
 
 interface Unit {
@@ -507,7 +508,7 @@ const MainList: React.FC = () => {
                 price={unit.price}
                 area={unit.area}
                 location={unit.fullAddress}
-                imageUrl={unit.images ? (Array.isArray(unit.images) ? unit.images[0] : JSON.parse(unit.images)[0]) : ""}
+                imageUrl={parseImages(unit.images)[0] || ""}
                 postedDate={unit.postedDate}
                 bed={unit.bed}
                 bath={unit.bath}

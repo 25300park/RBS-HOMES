@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { generatePropertySlug } from "@/lib/utils";
+import { generatePropertySlug, parseImages } from "@/lib/utils";
 import HomelandLandingView, { HomelandProperty } from "./components/homeland-landing-view";
 
 export const dynamic = "force-dynamic";
@@ -44,21 +44,13 @@ export default async function HomelandPage() {
   // 2. Transform DB units into HomelandProperty format
   const initialProperties: HomelandProperty[] = units.map((u: typeof units[number], idx: number) => {
     let imgUrl = FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length];
-    if (u.images) {
-      if (Array.isArray(u.images) && u.images.length > 0 && typeof u.images[0] === "string") {
-        imgUrl = u.images[0];
-      } else if (typeof u.images === "string") {
-        try {
-          const parsed = JSON.parse(u.images);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            imgUrl = parsed[0];
-          }
-        } catch {
-          if (u.images.startsWith("http")) {
-            imgUrl = u.images;
-          }
-        }
-      }
+    const parsedImages = parseImages(u.images);
+    if (parsedImages.length > 0 && typeof parsedImages[0] === "string") {
+      imgUrl = parsedImages[0];
+    } else if (typeof u.images === "string" && u.images.startsWith("http")) {
+      // parseImages가 JSON 파싱에 실패한 경우 — 원본 문자열이 이미
+      // (JSON이 아닌) 순수 URL 그 자체일 가능성을 대비한 기존 폴백 유지
+      imgUrl = u.images;
     }
 
     const isRent = u.sellType?.toLowerCase() === "rent" || !u.sellType;

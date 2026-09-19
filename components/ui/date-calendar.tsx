@@ -26,7 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { deleteSchedule, updateSchedule } from "@/app/(route)/account/action";
 import { ConfirmDialog } from "./confirm-dialog";
-import { generatePropertySlug } from "@/lib/utils";
+import { generatePropertySlug, parseImages } from "@/lib/utils";
 
 interface Schedule {
   id: number;
@@ -199,7 +199,7 @@ const ScheduleCard = ({
         >
           <div className="flex gap-3">
             <img
-              src={Array.isArray(unitDetail.data.images) ? unitDetail.data.images[0] : JSON.parse(unitDetail.data.images)[0]}
+              src={parseImages(unitDetail.data.images)[0]}
               alt="Unit"
               className="w-20 h-20 object-cover rounded-md"
             />

@@ -2,7 +2,7 @@
 import React from "react";
 import { FaPlay, FaDownload, FaFile, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Home, Bed, Bath } from "lucide-react";
-import { getRelativeTime } from "@/lib/utils";
+import { getRelativeTime, parseImages } from "@/lib/utils";
 import StickyBox from "./sticky-box";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -38,7 +38,7 @@ interface PreSalePropertyInfoProps {
 
 const PreSalePropertyInfo: React.FC<PreSalePropertyInfoProps> = ({ property }) => {
   // 기존 이미지 처리 (메인 이미지)
-  const images = property.images ? (Array.isArray(property.images) ? property.images : JSON.parse(property.images)) : [];
+  const images = parseImages(property.images);
   const mainImage = images[0];
 
   // 새로운 구조의 캐러셀 아이템 파싱

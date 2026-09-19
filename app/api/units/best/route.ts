@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { parseImages } from "@/lib/utils";
 
 // 湲곕낯 ?곹깭 (嫄곕옒 媛?ν븳 留ㅻЪ留?
 const DEFAULT_STATUS = [0, 1, 3];
@@ -205,15 +206,7 @@ export async function GET(req: Request) {
     // ?곗씠??蹂???⑥닔
     const transformUnits = (units: Unit[]) => {
       return units.map((unit) => {
-        // images null 안전 처리
-        let images: string[] = [];
-        if (unit.images) {
-          if (Array.isArray(unit.images)) {
-            images = unit.images as string[];
-          } else if (typeof unit.images === 'string') {
-            try { images = JSON.parse(unit.images); } catch { images = []; }
-          }
-        }
+        const images = parseImages(unit.images);
         return {
           ...unit,
           images,

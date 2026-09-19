@@ -17,6 +17,7 @@ import MoreBtn from "@/components/ui/more-btn";
 import InteractiveMap from "@/components/ui/interactive-map";
 import Image from "next/image";
 import PresaleMainImg from "./presale-main-img";
+import { parseImages } from "@/lib/utils";
 
 interface DetailWrapProps {
   property: any;
@@ -30,97 +31,94 @@ const DetailWrap: React.FC<DetailWrapProps> = ({ property, unitId }) => {
 
   // 프리세일일 경우 PreSalePropertyInfo만 렌더링
   if (isPreSale) {
-    const images = property.images ? (Array.isArray(property.images) ? property.images : JSON.parse(property.images)) : [];
+    const images = parseImages(property.images);
     const mainImage = images[0];
 
     return (
-      <div className="container mx-auto py-4 md:py-0">
-        <div className="flex-1 space-y-4 md:space-y-0">
-          {/* 타이틀과 버튼들 - 기존 위치 유지 */}
-          <div className="flex items-center justify-between w-full md:hidden">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {property.title}
-            </h2>
-            <div className="flex gap-4 text-sm items-center">
-              <div>
-                <ShareBtn withDetail />
-              </div>
-              <div>
-                <FavoriteButton
-                  unitId={property.id}
-                  initialIsFavorited={property.isFavorited}
-                  withDetail
-                />
-              </div>
-              <div>
-                <MoreBtn unitId={unitId} adminId={property.adminId}/>
-              </div>
-            </div>
+      <div className="w-full space-y-4 pt-1 sm:pt-4">
+        {/* Top Action Bar (Visible on all devices - Share, Save, More) */}
+        <div className="flex items-center justify-between w-full bg-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-none border-y border-zinc-200 border-x-0 shadow-none">
+          <h2 className="text-sm sm:text-base font-black text-zinc-900 truncate flex-1 pr-4">
+            {property.title}
+          </h2>
+          <div className="flex gap-2.5 sm:gap-3 items-center shrink-0">
+            <ShareBtn withDetail />
+            <FavoriteButton
+              unitId={property.id}
+              initialIsFavorited={property.isFavorited}
+              withDetail
+            />
+            <MoreBtn unitId={unitId} adminId={property.adminId}/>
           </div>
+        </div>
 
-          {/* 메인 이미지 - 크게, 라운디드 없이 */}
-          {mainImage && (
-            <div className="w-full">
-              <PresaleMainImg
-                isFavorited={property.isFavorited}
-                unitId={property.id}
-                mainImage={mainImage}
-              />
-            </div>
-          )}
+        {mainImage && (
+          <div className="w-full rounded-3xl overflow-hidden shadow-sm">
+            <PresaleMainImg
+              isFavorited={property.isFavorited}
+              unitId={property.id}
+              mainImage={mainImage}
+            />
+          </div>
+        )}
 
-          <PreSalePropertyInfo property={property} />
-                  <InteractiveMap
-          latitude={property.latitude}
-          longitude={property.longitude}
-        />
+        <PreSalePropertyInfo property={property} />
+        
+        <div className="bg-white rounded-3xl p-6 border border-zinc-200/80 shadow-sm space-y-3">
+          <h3 className="text-lg font-black text-zinc-900">Location & Vicinity</h3>
+          <InteractiveMap
+            latitude={property.latitude}
+            longitude={property.longitude}
+          />
         </div>
       </div>
     );
   }
 
-  // 일반 매물일 경우 기존 구조 그대로
+  // 일반 매물일 경우
   return (
-    <div className="container mx-auto py-4 md:py-0 ">
-      {/* Left Section - Property Info and Slider */}
-      <div className="flex-1 space-y-4 md:space-y-0">
-        <div className="flex items-center justify-between w-full md:hidden">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            {property.title}
-          </h2>
-          <div className="flex gap-4 text-sm items-center">
-            <div>
-              <ShareBtn withDetail />
-            </div>
-
-            <div>
-              <FavoriteButton
-                unitId={property.id}
-                initialIsFavorited={property.isFavorited}
-                withDetail
-              />
-            </div>
-            <div>
-                <MoreBtn unitId={unitId} adminId={property.adminId}/>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full ">
-          <GalleryConverter
-            images={Array.isArray(property.images) ? property.images : JSON.parse(property.images)}
-            isFavorited={property.isFavorited}
+    <div className="w-full space-y-4 pt-1 sm:pt-4">
+      {/* Top Action Bar (Visible on all devices - Share, Save, More) */}
+      <div className="flex items-center justify-between w-full bg-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-none border-y border-zinc-200 border-x-0 shadow-none">
+        <h2 className="text-sm sm:text-base font-black text-zinc-900 truncate flex-1 pr-4">
+          {property.title}
+        </h2>
+        <div className="flex gap-2.5 sm:gap-3 items-center shrink-0">
+          <ShareBtn withDetail />
+          <FavoriteButton
             unitId={property.id}
+            initialIsFavorited={property.isFavorited}
+            withDetail
           />
+          <MoreBtn unitId={unitId} adminId={property.adminId}/>
         </div>
+      </div>
 
-        <PropertyInfo property={property} />
+      {/* Main Image Gallery (#55 - r=6px) */}
+      <div className="w-full rounded-[6px] overflow-hidden shadow-none">
+        <GalleryConverter
+          images={parseImages(property.images)}
+          isFavorited={property.isFavorited}
+          unitId={property.id}
+        />
+      </div>
 
+      <PropertyInfo property={property} />
+
+      {/* Location Map Section (#49) */}
+      <div className="bg-white rounded-none p-6 sm:p-8 border-y border-zinc-200 border-x-0 shadow-none space-y-4">
+        <h3 className="text-lg font-black text-zinc-900">Location Map</h3>
         <InteractiveMap
           latitude={property.latitude}
           longitude={property.longitude}
         />
-        <AreaBannerSwiper unitCity={city} unitAddress={address} />
+      </div>
+
+      <AreaBannerSwiper unitCity={city} unitAddress={address} />
+
+      {/* Neighborhood & Nearby Places Section (#50) */}
+      <div className="bg-white rounded-none p-6 sm:p-8 border-y border-zinc-200 border-x-0 shadow-none space-y-4 border-t-0">
+        <h3 className="text-lg font-black text-zinc-900">Neighborhood & Nearby Places</h3>
         <NearbyPlaces
           latitude={property.latitude}
           longitude={property.longitude}

@@ -1,6 +1,6 @@
 ﻿import { MetadataRoute } from 'next'
 import prisma from '@/lib/prisma'
-import { generatePropertySlug } from "@/lib/utils";
+import { generatePropertySlug, parseImages } from "@/lib/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://rbs-homes.com'
@@ -64,9 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
 
     const unitUrls: MetadataRoute.Sitemap = units.map(unit => {
-      const images = Array.isArray(unit.images)
-        ? unit.images as string[]
-        : (unit.images ? JSON.parse(unit.images as string) as string[] : []);
+      const images = parseImages(unit.images);
 
       return {
         url: `${baseUrl}/properties/${generatePropertySlug(unit)}`,

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Decimal } from "@prisma/client/runtime/library";
+import { parseImages } from "@/lib/utils";
 
 const formatDecimal = (value: Decimal | null | undefined) => {
   if (!value) return "";
@@ -87,10 +88,7 @@ export async function getUnitById(unitId: string) {
       outstandingPayment: formatDecimal(unit.outstandingPayment),
       price: formatDecimal(unit.price),
       note: unit.note,
-      images:
-        typeof unit.images === "string"
-          ? (Array.isArray(unit.images) ? unit.images : JSON.parse(unit.images))
-          : unit.images || [],
+      images: parseImages(unit.images),
       latitude: unit.latitude,
       longitude: unit.longitude,
       status: unit.status ?? 0, // 기본값 0 (Ongoing)

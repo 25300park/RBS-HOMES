@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// unit.images가 DB에 실제 배열 또는 JSON 문자열로 이중 인코딩되어 섞여 있어
+// (약 18% 매물이 문자열 형태) 두 케이스 모두 안전하게 배열로 정규화한다.
+export function parseImages(images: unknown): string[] {
+  if (Array.isArray(images)) return images;
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export const saveToLocalStorage = (key: string, data: any) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem(key, JSON.stringify(data));

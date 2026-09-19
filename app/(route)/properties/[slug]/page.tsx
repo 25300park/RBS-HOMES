@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { getUnitDetail } from "@/app/(route)/unit/action";
 import DetailWrap from "@/app/(route)/unit/components/detail-wrap";
-import { generatePropertySlug, extractIdFromSlug } from "@/lib/utils";
+import { generatePropertySlug, extractIdFromSlug, parseImages } from "@/lib/utils";
 
 export interface UnitDetailProps {
   params: { slug: string };
@@ -141,9 +141,7 @@ export async function generateMetadata(
 
     const description = `${bed} bed, ${bath} bath ${type} ${sellType} in ${fullAddress}. ${formattedPrice}. Area: ${area}sqm`.trim()
 
-    const images = Array.isArray(unitDetail.images)
-      ? unitDetail.images
-      : []
+    const images = parseImages(unitDetail.images);
     const firstImageUrl: string = String(images[0] || '/assets/images/cities/BGC.png')
 
     const publishedTime = unitDetail?.regdate
@@ -212,7 +210,7 @@ function buildJsonLd(unitDetail: any, slug: string) {
     unitDetail?.address2
   ].filter((addr) => addr && addr.trim().length > 0).join(', ')
 
-  const images = Array.isArray(unitDetail.images) ? unitDetail.images : []
+  const images = parseImages(unitDetail.images)
   const firstImageUrl: string = String(images[0] || '/assets/images/cities/BGC.png')
 
   const publishedTime = unitDetail?.regdate

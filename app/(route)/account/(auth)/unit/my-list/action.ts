@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { parseImages } from "@/lib/utils";
 
 export const getUnitListByOwner = async (
   searchParams: Record<string, string>
@@ -104,7 +105,7 @@ export const getUnitListByOwner = async (
       : null,
     price: unit.price ? parseFloat(unit.price.toString()) : null,
     amenity: unit.amenity ?? [],
-    images: unit.images ? (Array.isArray(unit.images) ? unit.images : JSON.parse(unit.images)) : [],
+    images: parseImages(unit.images),
   }));
   return units;
 };

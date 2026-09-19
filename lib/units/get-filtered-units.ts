@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { parseImages } from "@/lib/utils";
 
 const DEFAULT_ACTIVE_TYPES = ["rent"];
 const DEFAULT_AMENITIES = ["Gym", "Pool", "24/7 Security", "Garden"];
@@ -190,18 +191,7 @@ export async function getFilteredUnits(
   }
 
   const transformedUnits = units.map((unit) => {
-    let images: string[] = [];
-    if (unit.images) {
-      if (Array.isArray(unit.images)) {
-        images = unit.images as string[];
-      } else if (typeof unit.images === "string") {
-        try {
-          images = JSON.parse(unit.images);
-        } catch {
-          images = [];
-        }
-      }
-    }
+    const images = parseImages(unit.images);
 
     return {
       ...unit,
