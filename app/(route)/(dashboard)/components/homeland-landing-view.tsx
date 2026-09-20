@@ -247,7 +247,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
       {/* ── 2. Hero Section (22. Adjusted padding and alignment to prevent overlapping with search console) ── */}
       <section className="relative pt-8 pb-20 lg:pt-10 lg:pb-24 overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-white border-b border-zinc-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-zinc-900/10 border-4 border-white min-h-[480px] sm:min-h-[520px] flex items-center mb-6">
+          <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-zinc-900/10 border-4 border-white min-h-[420px] sm:min-h-[360px] flex items-center mb-6">
             {/* Background Hero Image */}
             <Image
               src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
@@ -269,9 +269,8 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[44px] xl:text-[46px] font-black text-white tracking-tight leading-[1.12] w-full">
-                  Find Your Dream <br />
-                  <span className="text-white">Home in BGC & Makati</span>
+                <h1 className="text-4xl lg:text-3xl sm:text-2xl font-black text-white tracking-tight leading-[1.12] w-full">
+                  Find Your Dream <span className="text-white">Home in BGC & Makati</span>
                 </h1>
 
                 <p className="text-zinc-200 text-sm sm:text-base leading-relaxed font-medium mt-3 w-full">
