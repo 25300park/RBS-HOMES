@@ -254,14 +254,14 @@ export default async function AgentDashboardPage() {
       
       {/* ── Global GNB Header (Same as Main Page) ── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-18 sm:h-16 flex items-center justify-between">
           
           {/* Brand Logo - Official RBS Logo */}
           <Link href="/" className="flex items-center">
             <img
               src="/assets/images/rbs-logo.png"
               alt="RBS Homes"
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-9 sm:h-8 w-auto object-contain"
             />
           </Link>
 
@@ -296,10 +296,10 @@ export default async function AgentDashboardPage() {
           </nav>
 
           {/* Right: Quick Actions & Profile */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-3">
             <Link
               href="/account/unit/registration/step-one"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
             >
               <Plus className="w-4 h-4" />
               <span>+ Register Listing</span>
@@ -327,27 +327,27 @@ export default async function AgentDashboardPage() {
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight">
                 Hello, {displayName}
               </h1>
-              <span className="bg-blue-50 text-blue-700 text-[10px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-blue-200/60 shadow-2xs">
+              <span className="bg-blue-50 text-blue-700 text-xs sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-blue-200/60 shadow-2xs">
                 Verified Broker
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-500 font-medium mt-1">
+            <p className="text-sm sm:text-xs text-zinc-500 font-medium mt-1">
               Manage your active listings, client tour reservations, and sales pipeline in one place.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-2.5 shrink-0">
             <Link
               href="/dashboard/agent/units"
-              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all shadow-2xs"
+              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-sm sm:text-xs font-bold px-4 sm:px-3.5 py-2.5 sm:py-2 rounded-xl transition-all shadow-2xs"
             >
               My Units ({summary.total})
             </Link>
             <Link
               href="/dashboard/agent/tour-requests"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5 active:scale-95"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-xs font-bold px-4 sm:px-3.5 py-2.5 sm:py-2 rounded-xl shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5 active:scale-95"
             >
-              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Bell className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
               <span>Tours ({todoSummary.pendingTourCount})</span>
             </Link>
           </div>
@@ -367,11 +367,11 @@ export default async function AgentDashboardPage() {
             />
 
             {/* Card 1: Listing Pipeline Overview */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-5">
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-5">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider block">Portfolio Status</span>
-                  <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">Listings Breakdown</h3>
+                  <h3 className="text-lg sm:text-base font-extrabold text-zinc-900">Listings Breakdown</h3>
                 </div>
                 <Link href="/dashboard/agent/units" className="text-xs font-bold text-blue-600 hover:underline">
                   View all
@@ -379,51 +379,51 @@ export default async function AgentDashboardPage() {
               </div>
 
               {/* 2x2 Grid across mobile, tablet, laptop, desktop */}
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                <div className="bg-[#f8fafc] border border-zinc-200/80 p-3 sm:p-3.5 rounded-xl flex items-center justify-between">
+              <div className="grid grid-cols-2 gap-3 sm:gap-2.5">
+                <div className="bg-[#f8fafc] border border-zinc-200/80 p-3.5 sm:p-3 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] sm:text-xs text-zinc-500 font-semibold block">Total Units</span>
-                    <span className="text-xl sm:text-2xl font-black text-zinc-900 mt-0.5 block">{summary.total}</span>
+                    <span className="text-xs sm:text-[11px] text-zinc-500 font-semibold block">Total Units</span>
+                    <span className="text-2xl sm:text-xl font-black text-zinc-900 mt-0.5 block">{summary.total}</span>
                   </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-zinc-200/60 flex items-center justify-center shrink-0">
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-600" />
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-zinc-200/60 flex items-center justify-center shrink-0">
+                    <Building2 className="w-5 h-5 sm:w-4 sm:h-4 text-zinc-600" />
                   </div>
                 </div>
 
-                <div className="bg-blue-50/50 border border-blue-200/60 p-3 sm:p-3.5 rounded-xl flex items-center justify-between">
+                <div className="bg-blue-50/50 border border-blue-200/60 p-3.5 sm:p-3 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] sm:text-xs text-blue-600 font-semibold block">Active Online</span>
-                    <span className="text-xl sm:text-2xl font-black text-blue-600 mt-0.5 block">{summary.ongoing}</span>
+                    <span className="text-xs sm:text-[11px] text-blue-600 font-semibold block">Active Online</span>
+                    <span className="text-2xl sm:text-xl font-black text-blue-600 mt-0.5 block">{summary.ongoing}</span>
                   </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <Building2 className="w-5 h-5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
 
-                <div className="bg-emerald-50/50 border border-emerald-200/60 p-3 sm:p-3.5 rounded-xl flex items-center justify-between">
+                <div className="bg-emerald-50/50 border border-emerald-200/60 p-3.5 sm:p-3 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] sm:text-xs text-emerald-700 font-semibold block">Contracted</span>
-                    <span className="text-xl sm:text-2xl font-black text-emerald-700 mt-0.5 block">{summary.contracted}</span>
+                    <span className="text-xs sm:text-[11px] text-emerald-700 font-semibold block">Contracted</span>
+                    <span className="text-2xl sm:text-xl font-black text-emerald-700 mt-0.5 block">{summary.contracted}</span>
                   </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <Building2 className="w-5 h-5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
 
-                <div className="bg-amber-50/50 border border-amber-200/60 p-3 sm:p-3.5 rounded-xl flex items-center justify-between">
+                <div className="bg-amber-50/50 border border-amber-200/60 p-3.5 sm:p-3 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] sm:text-xs text-amber-700 font-semibold block">In Negotiation</span>
-                    <span className="text-xl sm:text-2xl font-black text-amber-700 mt-0.5 block">{summary.negotiation}</span>
+                    <span className="text-xs sm:text-[11px] text-amber-700 font-semibold block">In Negotiation</span>
+                    <span className="text-2xl sm:text-xl font-black text-amber-700 mt-0.5 block">{summary.negotiation}</span>
                   </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <Building2 className="w-5 h-5 sm:w-4 sm:h-4" />
                   </div>
                 </div>
               </div>
 
               <Link
                 href="/account/unit/registration/step-one"
-                className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98 transition-all"
+                className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm sm:text-xs py-3 sm:py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98 transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Property to Portfolio</span>
@@ -431,24 +431,24 @@ export default async function AgentDashboardPage() {
             </div>
 
             {/* Card 2: Pending Client Tours */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider block">Direct Action</span>
-                  <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">Tour Booking Queue</h3>
+                  <h3 className="text-lg sm:text-base font-extrabold text-zinc-900">Tour Booking Queue</h3>
                 </div>
                 <Link href="/dashboard/agent/tour-requests" className="text-xs font-bold text-blue-600 hover:underline">
                   Manage queue
                 </Link>
               </div>
 
-              <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
+              <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 sm:p-3.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-600 text-white font-black text-base sm:text-lg flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-blue-600 text-white font-black text-lg sm:text-base flex items-center justify-center shrink-0 shadow-sm">
                     {todoSummary.pendingTourCount}
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900">
+                    <h4 className="text-sm sm:text-xs font-bold text-zinc-900">
                       {todoSummary.pendingTourCount} Unconfirmed Tour Requests
                     </h4>
                     <p className="text-[11px] text-zinc-500 mt-0.5">Prospective buyers/tenants waiting for response.</p>
@@ -469,11 +469,11 @@ export default async function AgentDashboardPage() {
           <div className="col-span-7 lg:col-span-1 space-y-5 sm:space-y-6">
 
             {/* Card 3: Confirmed Visits & Inspections */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider block">Calendar</span>
-                  <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">Confirmed Visits & Inspections</h3>
+                  <h3 className="text-lg sm:text-base font-extrabold text-zinc-900">Confirmed Visits & Inspections</h3>
                 </div>
                 <Link href="/account/schedule" className="text-xs font-bold text-blue-600 hover:underline">
                   Full calendar
@@ -485,14 +485,14 @@ export default async function AgentDashboardPage() {
                   (todoSummary.upcomingSchedules as any[]).map((item, idx) => (
                     <div
                       key={item.id || idx}
-                      className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-zinc-300 transition-all"
+                      className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 sm:p-3.5 flex items-center justify-between gap-3 hover:border-zinc-300 transition-all"
                     >
-                      <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                          <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <div className="flex items-center gap-3.5 sm:gap-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                          <CalendarDays className="w-5 h-5 sm:w-4 sm:h-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-bold text-zinc-900 truncate">
+                          <h4 className="text-sm sm:text-xs font-bold text-zinc-900 truncate">
                             {item.title}
                           </h4>
                           <p className="text-[11px] text-zinc-500 font-medium mt-0.5">
@@ -511,9 +511,9 @@ export default async function AgentDashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-6 sm:p-8 text-center bg-[#f8fafc] rounded-xl border border-dashed border-zinc-200">
-                    <CalendarDays className="w-7 h-7 sm:w-8 sm:h-8 text-zinc-300 mx-auto mb-2" />
-                    <p className="text-xs sm:text-sm font-bold text-zinc-700">No Confirmed Tours Scheduled</p>
+                  <div className="p-8 sm:p-6 text-center bg-[#f8fafc] rounded-xl border border-dashed border-zinc-200">
+                    <CalendarDays className="w-8 h-8 sm:w-7 sm:h-7 text-zinc-300 mx-auto mb-2" />
+                    <p className="text-sm sm:text-xs font-bold text-zinc-700">No Confirmed Tours Scheduled</p>
                     <p className="text-[11px] text-zinc-500 mt-1">Tour bookings confirmed by clients will appear here.</p>
                   </div>
                 )}
@@ -521,33 +521,33 @@ export default async function AgentDashboardPage() {
             </div>
 
             {/* Card 4: Broker Quick Actions */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
-              <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">Broker Quick Actions</h3>
-              
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-4">
+              <h3 className="text-lg sm:text-base font-extrabold text-zinc-900">Broker Quick Actions</h3>
+
               {/* Responsive Grid: 3 cols on desktop, 1 col on mobile */}
               <div className="grid grid-cols-3 sm:grid-cols-1 gap-3">
                 <Link
                   href="/account/unit/registration/step-one"
-                  className="bg-[#f8fafc] border border-zinc-200/80 p-3.5 sm:p-4 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
+                  className="bg-[#f8fafc] border border-zinc-200/80 p-4 sm:p-3.5 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
                 >
-                  <span className="text-xs sm:text-sm font-bold text-zinc-900">Post New Condo</span>
-                  <span className="text-[10px] sm:text-[11px] text-zinc-500">Rent or Sale listing registration</span>
+                  <span className="text-sm sm:text-xs font-bold text-zinc-900">Post New Condo</span>
+                  <span className="text-[11px] sm:text-[10px] text-zinc-500">Rent or Sale listing registration</span>
                 </Link>
 
                 <Link
                   href="/dashboard/agent/tour-requests"
-                  className="bg-[#f8fafc] border border-zinc-200/80 p-3.5 sm:p-4 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
+                  className="bg-[#f8fafc] border border-zinc-200/80 p-4 sm:p-3.5 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
                 >
-                  <span className="text-xs sm:text-sm font-bold text-zinc-900">Client Tour Queue</span>
-                  <span className="text-[10px] sm:text-[11px] text-zinc-500">Confirm visit schedule</span>
+                  <span className="text-sm sm:text-xs font-bold text-zinc-900">Client Tour Queue</span>
+                  <span className="text-[11px] sm:text-[10px] text-zinc-500">Confirm visit schedule</span>
                 </Link>
 
                 <Link
                   href="/account/schedule"
-                  className="bg-[#f8fafc] border border-zinc-200/80 p-3.5 sm:p-4 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
+                  className="bg-[#f8fafc] border border-zinc-200/80 p-4 sm:p-3.5 rounded-xl hover:border-blue-300 hover:bg-blue-50/20 transition-all flex flex-col justify-between space-y-2 shadow-2xs"
                 >
-                  <span className="text-xs sm:text-sm font-bold text-zinc-900">Calendar Planner</span>
-                  <span className="text-[10px] sm:text-[11px] text-zinc-500">Daily visit timetable</span>
+                  <span className="text-sm sm:text-xs font-bold text-zinc-900">Calendar Planner</span>
+                  <span className="text-[11px] sm:text-[10px] text-zinc-500">Daily visit timetable</span>
                 </Link>
               </div>
             </div>
