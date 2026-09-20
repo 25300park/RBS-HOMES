@@ -532,10 +532,10 @@ export default function PropertyUnitsTable({
                             STATUS_CONFIG[unit.status]?.selectClass || "bg-zinc-100 border-zinc-200 text-zinc-700"
                           }`}
                         >
-                          <option value={0}>Active (진행중)</option>
-                          <option value={3}>Under Negotiation (협상중)</option>
-                          <option value={2}>Contracted (계약완료)</option>
-                          <option value={4}>Hidden (보류/숨김)</option>
+                          <option value={0}>Active</option>
+                          <option value={3}>Under Negotiation</option>
+                          <option value={2}>Contracted</option>
+                          <option value={4}>Hidden</option>
                         </select>
                       </div>
 
@@ -814,7 +814,7 @@ export default function PropertyUnitsTable({
                       : "bg-zinc-50 text-zinc-700 border-zinc-200"
                   }`}
                 >
-                  📄 Lease Contract Copy (계약서)
+                  📄 Lease Contract Copy
                 </button>
                 <button
                   type="button"
@@ -825,7 +825,7 @@ export default function PropertyUnitsTable({
                       : "bg-zinc-50 text-zinc-700 border-zinc-200"
                   }`}
                 >
-                  📝 LOI Document (구매의향서)
+                  📝 LOI Document (Letter of Intent)
                 </button>
               </div>
 
@@ -854,7 +854,7 @@ export default function PropertyUnitsTable({
 
               {docType === "contract" && (
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 mb-1">Lease Expiry Date (임대 계약 만료일)</label>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">Lease Expiry Date</label>
                   <input
                     type="date"
                     value={leaseExpiry}
