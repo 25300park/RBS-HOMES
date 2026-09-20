@@ -234,7 +234,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
 
             <Link
               href="/account"
-              className="hidden sm:flex bg-[#1e40af] hover:bg-blue-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2.5 rounded-xl shadow-md shadow-blue-900/10 items-center gap-2 transition-all active:scale-98"
+              className="hidden lg:flex bg-[#1e40af] hover:bg-blue-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2.5 rounded-xl shadow-md shadow-blue-900/10 items-center gap-2 transition-all active:scale-98"
             >
               <PhoneCall className="w-4 h-4" />
               <span>Get In Touch</span>
