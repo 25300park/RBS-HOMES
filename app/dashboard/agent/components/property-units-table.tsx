@@ -443,8 +443,8 @@ export default function PropertyUnitsTable({
             ))}
           </div>
 
-          {/* ── 1. Mobile Optimized Card List (< 768px: md:hidden) ── */}
-          <div className="block md:hidden space-y-3">
+          {/* ── 1. Mobile Optimized Card List (≤767px, this project's reverse breakpoint: hidden md:block) ── */}
+          <div className="hidden md:block space-y-3">
             {filteredUnits.length > 0 ? (
               filteredUnits.map((unit) => {
                 const isRent = unit.sellType?.toLowerCase() === "rent";
@@ -565,8 +565,8 @@ export default function PropertyUnitsTable({
             )}
           </div>
 
-          {/* ── 2. Desktop/Tablet Full Data Table (≥ 768px: hidden md:block) ── */}
-          <div className="hidden md:block overflow-x-auto rounded-xl border border-zinc-200/80">
+          {/* ── 2. Desktop/Tablet Full Data Table (>767px, reverse breakpoint: block md:hidden) ── */}
+          <div className="block md:hidden overflow-x-auto rounded-xl border border-zinc-200/80">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#f8fafc] border-b border-zinc-200/80 text-zinc-500 font-extrabold text-[11px] uppercase tracking-wider select-none">

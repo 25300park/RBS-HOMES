@@ -240,8 +240,8 @@ export default function TourRequestsClient({ initialTourRequests }: TourRequests
 
         </div>
 
-        {/* Desktop / Tablet Data Table (>= 768px) */}
-        <div className="hidden md:block overflow-x-auto">
+        {/* Desktop/Tablet Full Data Table (>767px, reverse breakpoint: block md:hidden) */}
+        <div className="block md:hidden overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-[#f8fafc] border-b border-zinc-200/80 text-zinc-500 font-extrabold text-[11px] uppercase tracking-wider select-none">
@@ -401,8 +401,8 @@ export default function TourRequestsClient({ initialTourRequests }: TourRequests
           </table>
         </div>
 
-        {/* Mobile Smart Card View (< 768px) */}
-        <div className="md:hidden divide-y divide-zinc-100">
+        {/* Mobile Optimized Card List (≤767px, this project's reverse breakpoint: hidden md:block) */}
+        <div className="hidden md:block divide-y divide-zinc-100">
           {filteredRequests.length > 0 ? (
             filteredRequests.map((req) => {
               const cfg = STATUS_CONFIG[req.status] || STATUS_CONFIG[0];
