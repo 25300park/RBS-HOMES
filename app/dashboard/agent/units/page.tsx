@@ -153,7 +153,7 @@ export default async function AgentUnitsManagementPage() {
       </header>
 
       {/* ── Main Full Page Table Section ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-24 md:pb-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 pb-12 md:pb-24">
         
         {/* Breadcrumbs & Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
