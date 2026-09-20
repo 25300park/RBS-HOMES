@@ -350,9 +350,9 @@ export default function PropertyUnitsTable({
         <div className="p-4 sm:p-6 space-y-5 animate-fade-in">
 
           {/* Filter Bar: Date Range + Search Bar */}
-          <div className="p-4 sm:p-5 border-b border-zinc-100 bg-white grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="p-4 sm:p-5 border-b border-zinc-100 bg-white grid grid-cols-12 md:grid-cols-1 gap-3 items-center">
             
-            <div className="md:col-span-5 flex items-center gap-2 bg-[#f8fafc] border border-zinc-200/90 rounded-xl px-3 py-2">
+            <div className="col-span-5 md:col-span-1 flex items-center gap-2 bg-[#f8fafc] border border-zinc-200/90 rounded-xl px-3 py-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
               <input
                 type="date"
@@ -380,7 +380,7 @@ export default function PropertyUnitsTable({
               )}
             </div>
 
-            <div className="md:col-span-7 flex items-center gap-2">
+            <div className="col-span-7 md:col-span-1 flex items-center gap-2">
               <div className="relative flex-1">
                 <input
                   type="text"

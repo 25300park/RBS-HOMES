@@ -98,7 +98,7 @@ export default function TourRequestsClient({ initialTourRequests }: TourRequests
     <div className="space-y-5 sm:space-y-6">
 
       {/* Top Stat Banner */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-4">
         
         <div 
           onClick={() => setActiveTab("all")}

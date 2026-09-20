@@ -224,10 +224,10 @@ export default function AgentSchedulePlannerClient({
 
       {/* ── MODE 1: MONTHLY CALENDAR VIEW ── */}
       {viewMode === "calendar" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
+        <div className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start">
+
           {/* Calendar Grid (8 Cols) */}
-          <div className="lg:col-span-8 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+          <div className="col-span-8 lg:col-span-1 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
             
             {/* Calendar Header with Prev / Next / Today */}
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
@@ -351,7 +351,7 @@ export default function AgentSchedulePlannerClient({
           </div>
 
           {/* Right Column: Selected Date Schedule Details + Quick Add Form (4 Cols) */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="col-span-4 lg:col-span-1 space-y-4">
             
             {/* Selected Date Summary Card */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200/80 space-y-3">
@@ -507,9 +507,9 @@ export default function AgentSchedulePlannerClient({
 
       {/* ── MODE 2: TIMELINE LIST VIEW ── */}
       {viewMode === "timeline" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+        <div className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start">
+
+          <div className="col-span-7 lg:col-span-1 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4 text-blue-600" />
@@ -562,7 +562,7 @@ export default function AgentSchedulePlannerClient({
           </div>
 
           {/* Form in Timeline View */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4 sticky top-24">
+          <div className="col-span-5 lg:col-span-1 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4 sticky top-24">
             <div className="flex items-center gap-2 pb-3 border-b border-zinc-100">
               <Plus className="w-4 h-4 text-blue-600" />
               <h3 className="text-base font-extrabold text-zinc-900">Add New Schedule</h3>
