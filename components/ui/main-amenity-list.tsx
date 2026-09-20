@@ -153,7 +153,7 @@ const MainAmenityList = () => {
             return (
               <div
                 key={index}
-                className="flex flex-col justify-center items-center min-w-[68px] sm:min-w-[76px] h-full cursor-pointer group py-1"
+                className="flex flex-col justify-center items-center min-w-[76px] sm:min-w-[68px] h-full cursor-pointer group py-1"
                 onClick={() => handleAmenityClick(amenity.label)}
               >
                 <div
@@ -174,7 +174,7 @@ const MainAmenityList = () => {
                   />
                 </div>
                 <span
-                  className={`text-[10px] sm:text-[11px] font-bold w-fit pb-1.5 text-center pt-1.5 border-b-2 transition-all ${
+                  className={`text-[11px] sm:text-[10px] font-bold w-fit pb-1.5 text-center pt-1.5 border-b-2 transition-all ${
                     isSelected
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-zinc-600 group-hover:border-zinc-300"

@@ -367,7 +367,7 @@ const MainList: React.FC = () => {
       )}
 
       {/* Active Category / Transaction Header Banner (#64) */}
-      <div className="mb-4 sm:mb-5 p-4 sm:p-5 bg-gradient-to-r from-blue-50/90 to-slate-50 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+      <div className="mb-4 sm:mb-5 p-5 sm:p-4 bg-gradient-to-r from-blue-50/90 to-slate-50 border border-blue-200/80 rounded-2xl flex flex-row items-center sm:flex-col justify-between gap-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
@@ -377,7 +377,7 @@ const MainList: React.FC = () => {
               {badgeLabel}
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-xl font-black text-zinc-900 tracking-tight mt-1">
             {filterHeading}
           </h1>
           <p className="text-xs text-zinc-500 font-medium mt-0.5">
@@ -417,7 +417,7 @@ const MainList: React.FC = () => {
       </div>
 
       {/* Unified 2-Column Control Bar (#60, #61) */}
-      <div className="mb-6 bg-white border border-zinc-200/80 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
+      <div className="mb-6 bg-white border border-zinc-200/80 rounded-2xl p-3 sm:p-4 flex flex-row items-center md:flex-col justify-between gap-4 shadow-2xs">
         
         {/* Left Column: Transaction Type Tabs (Rent, Buy, Pre-sale) & Property Count */}
         <div className="flex flex-wrap items-center gap-3">
@@ -457,7 +457,7 @@ const MainList: React.FC = () => {
           </div>
 
           {/* Result count */}
-          <span className="text-xs sm:text-sm font-bold text-zinc-500">
+          <span className="text-sm sm:text-xs font-bold text-zinc-500">
             {isLoading ? (
               "Loading properties..."
             ) : (
