@@ -628,17 +628,17 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                   </div>
 
                   {/* Specs Bar */}
-                  <div className="flex items-center justify-between text-zinc-500 text-[10px] sm:text-xs font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1">
-                    <div className="flex items-center gap-0.5 sm:gap-1">
-                      <BedDouble className="w-3 h-3 text-zinc-400" />
+                  <div className="flex flex-nowrap items-center justify-start gap-2 sm:gap-1.5 text-zinc-500 text-xs sm:text-[10px] font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
+                      <BedDouble className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
                       <span>{prop.beds} Beds</span>
                     </div>
-                    <div className="flex items-center gap-0.5 sm:gap-1">
-                      <Bath className="w-3 h-3 text-zinc-400" />
-                      <span>{prop.baths}</span>
+                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
+                      <Bath className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
+                      <span>{prop.baths} Bath</span>
                     </div>
-                    <div className="flex items-center gap-0.5 sm:gap-1">
-                      <Square className="w-3 h-3 text-zinc-400" />
+                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
+                      <Square className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
                       <span>{prop.area}</span>
                     </div>
                   </div>
