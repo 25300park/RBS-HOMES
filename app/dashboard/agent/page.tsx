@@ -311,7 +311,7 @@ export default async function AgentDashboardPage() {
       </header>
 
       {/* ── Main Dashboard Content (Responsive for Desktop, Laptop, Notepad/Tablet, Mobile) ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 md:pb-24 space-y-5 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-8 lg:px-6 sm:px-4 py-6 sm:py-8 pb-8 md:pb-24 space-y-5 sm:space-y-6">
         {!isAgent ? (
           <RoleAccessPlaceholder
             targetRole="agent"
@@ -321,10 +321,10 @@ export default async function AgentDashboardPage() {
         ) : (
         <>
         {/* Top Welcome & Summary Header Card */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 lg:p-7 shadow-sm border border-zinc-200/80 flex flex-row items-center md:flex-col md:items-start justify-between gap-4">
+        <div className="bg-white rounded-2xl p-7 lg:p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-row items-center md:flex-col md:items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 tracking-tight">
+              <h1 className="text-3xl lg:text-2xl sm:text-xl font-black text-zinc-900 tracking-tight">
                 Hello, {displayName}
               </h1>
               <span className="bg-blue-50 text-blue-700 text-xs sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-blue-200/60 shadow-2xs">
