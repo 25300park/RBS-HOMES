@@ -113,7 +113,7 @@ export default async function TourRequestsPage() {
           <div className="flex items-center gap-2.5 sm:gap-3">
             <Link
               href="/account/unit/registration/step-one"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/20"
+              className="flex md:hidden items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/20"
             >
               <span>+ Post Property</span>
             </Link>
