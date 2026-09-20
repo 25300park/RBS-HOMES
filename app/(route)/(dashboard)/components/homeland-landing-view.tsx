@@ -282,19 +282,19 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
               <div className="w-full grid grid-cols-2 gap-3.5 pt-1">
                 <Link
                   href="/list"
-                  className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm px-4 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all active:scale-98 text-center"
+                  className="w-full min-h-[44px] bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all active:scale-98 text-center"
                 >
                   <List className="w-4 h-4 shrink-0" />
-                  <span className="truncate">View as List</span>
-                  <ArrowRight className="w-4 h-4 shrink-0" />
+                  <span>View as List</span>
+                  <ArrowRight className="w-4 h-4 shrink-0 sm:hidden" />
                 </Link>
 
                 <Link
                   href="/map"
-                  className="w-full bg-white/90 hover:bg-white text-zinc-800 border border-white font-bold text-sm px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:text-blue-600 active:scale-98 text-center"
+                  className="w-full min-h-[44px] bg-white/90 hover:bg-white text-zinc-800 border border-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:text-blue-600 active:scale-98 text-center"
                 >
                   <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span className="truncate">View on Map</span>
+                  <span>View on Map</span>
                 </Link>
               </div>
             </div>
