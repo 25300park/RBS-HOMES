@@ -9,6 +9,7 @@ declare module "next-auth" {
       email: string;
       level: number;
       phone: string;
+      isSuperAdmin: boolean;
     } & DefaultSession["user"]
   }
 
@@ -17,6 +18,7 @@ declare module "next-auth" {
     email: string;
     level: number;
     phone: string;
+    isSuperAdmin: boolean;
   }
 }
 
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
     email: string;
     level: number;
     phone: string;
+    isSuperAdmin: boolean;
   }
 }

@@ -34,6 +34,8 @@ model User {
   /// 40: 프리세일 오너 (Presale Owner)
   /// 프리세일 권한: [0, 20, 30, 40]
   level Int @default(1)
+  /// 총괄매니저 여부 — true면 level=0 여부와 무관하게 전체 데이터 열람 + agent를 staff(level=0)로 승격 가능
+  isSuperAdmin Boolean @default(false)
   /// 이름
   name           String?   @db.VarChar(50)
   /// 페이스북 정보

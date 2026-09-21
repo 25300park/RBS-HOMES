@@ -29,6 +29,7 @@ import RoleAccessPlaceholder from "@/components/dashboard/role-access-placeholde
 import { DashboardSubnav } from "@/components/dashboard/dashboard-subnav";
 import PropertyUnitsTable from "@/app/dashboard/agent/components/property-units-table";
 import StaffPortfolioTable, { ManagedPortfolioItem } from "./components/staff-portfolio-table";
+import StaffManagement from "./components/staff-management";
 
 function getUserRoleInfo(level: number) {
   if (level === 0 || level === 20 || level === 30) {
@@ -51,18 +52,32 @@ export default async function StaffDashboardPage() {
   const userLevel = Number(session?.user?.level ?? 1);
   const currentUserId = session?.user?.id ? Number(session.user.id) : 177;
   const isStaff = userLevel === 0 || userLevel === 20 || userLevel === 30;
+  const isSuperAdmin = Boolean(session?.user?.isSuperAdmin);
   const userRoleInfo = getUserRoleInfo(userLevel);
 
   const staffName = session?.user?.name || "Grace (Senior Dedicated Manager)";
 
-  // 1. Fetch Units uploaded or managed by staff (Same as Agent)
+  const unitWhere = isSuperAdmin
+    ? {}
+    : {
+        OR: [
+          { agentId: currentUserId },
+          { adminId: currentUserId },
+        ],
+      };
+
+  // 총괄매니저 전용: Agent/Broker → Staff 승격 대상 목록
+  const promotionCandidates = isSuperAdmin
+    ? await prisma.user.findMany({
+        where: { level: { in: [2, 3] } },
+        select: { id: true, name: true, email: true, level: true },
+        orderBy: { name: "asc" },
+      })
+    : [];
+
+  // 1. Fetch Units uploaded or managed by staff (Same as Agent) — 총괄매니저는 전체 열람
   let unitsRaw = await prisma.unit.findMany({
-    where: {
-      OR: [
-        { agentId: currentUserId },
-        { adminId: currentUserId },
-      ],
-    },
+    where: unitWhere,
     select: {
       id: true,
       title: true,
@@ -403,6 +418,13 @@ export default async function StaffDashboardPage() {
 
           <StaffPortfolioTable items={managedPortfolioItems} />
         </section>
+
+        {/* ── SUPER ADMIN ONLY: Agent/Broker → Staff Promotion ── */}
+        {isSuperAdmin && (
+          <section className="space-y-3">
+            <StaffManagement candidates={promotionCandidates} />
+          </section>
+        )}
 
         {/* ── SECTION 2: 1st-Tier Action Queue & Coordinator Concierge ── */}
         <div id="action-queue" className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start scroll-mt-24">
