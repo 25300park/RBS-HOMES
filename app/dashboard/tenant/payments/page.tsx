@@ -120,7 +120,7 @@ export default async function TenantPaymentsPage() {
         </div>
 
         {/* 3 Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-1 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200/80 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-zinc-500 block mb-1">Total Rent Paid</span>

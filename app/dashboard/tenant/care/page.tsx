@@ -184,7 +184,7 @@ export default async function CareRequestPage() {
               Schedule aircon cleaning, plumbing inspections, electrical fixes, or emergency handyman visits for {activeLease?.unit?.title || "your rented condo"}.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-white/10 text-xs font-semibold">
+            <div className="grid grid-cols-3 sm:grid-cols-1 gap-3 pt-3 border-t border-white/10 text-xs font-semibold">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>RBS Verified Technicians</span>
