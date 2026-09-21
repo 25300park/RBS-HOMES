@@ -76,7 +76,7 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
       <div className="p-5 sm:p-6 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-base sm:text-lg font-black text-zinc-900">
+            <h3 className="text-lg sm:text-base font-black text-zinc-900">
               Managed Properties & Active Leases
             </h3>
             <span className="text-xs bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full">
@@ -131,12 +131,12 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
         <table className="w-full text-left text-xs text-zinc-600">
           <thead className="bg-zinc-50/80 text-[11px] font-extrabold uppercase text-zinc-400 tracking-wider border-b border-zinc-100">
             <tr>
-              <th className="py-3.5 px-4 sm:px-6">Property & Unit</th>
+              <th className="py-3.5 px-6 sm:px-4">Property & Unit</th>
               <th className="py-3.5 px-4">Resident (Tenant)</th>
               <th className="py-3.5 px-4">Owner (Landlord)</th>
               <th className="py-3.5 px-4">Rent & Dues Status</th>
               <th className="py-3.5 px-4">Care & Vault Docs</th>
-              <th className="py-3.5 px-4 sm:px-6 text-right">Quick Actions</th>
+              <th className="py-3.5 px-6 sm:px-4 text-right">Quick Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100 font-medium">
@@ -144,7 +144,7 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
               <tr key={item.id} className="hover:bg-blue-50/30 transition-colors group">
                 
                 {/* 1. Property Info */}
-                <td className="py-4 px-4 sm:px-6">
+                <td className="py-4 px-6 sm:px-4">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs font-extrabold">
                       <Building2 className="w-4 h-4" />
@@ -236,7 +236,7 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
                 </td>
 
                 {/* 6. Quick Action Buttons */}
-                <td className="py-4 px-4 sm:px-6 text-right">
+                <td className="py-4 px-6 sm:px-4 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <Link
                       href="/dashboard/contracts"

@@ -263,10 +263,10 @@ export default async function StaffDashboardPage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
         <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-8 sm:h-9 w-auto object-contain" />
+            <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-9 sm:h-8 w-auto object-contain" />
           </Link>
 
-          <nav className="hidden md:flex items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
+          <nav className="flex md:hidden items-center bg-zinc-100/80 p-1.5 rounded-xl border border-zinc-200/60 text-xs font-bold text-zinc-600">
             <Link href="/dashboard/staff" className="bg-blue-600 text-white px-3.5 py-1.5 rounded-lg shadow-sm">Staff</Link>
             <Link href="/dashboard/landlord" className="hover:text-blue-600 px-3.5 py-1.5 rounded-lg">Owner</Link>
             <Link href="/dashboard/tenant" className="hover:text-blue-600 px-3.5 py-1.5 rounded-lg">Tenant</Link>
@@ -287,7 +287,7 @@ export default async function StaffDashboardPage() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-8 lg:px-6 sm:px-4 py-8 space-y-8 pb-8 md:pb-24">
         {!isStaff ? (
           <RoleAccessPlaceholder
             targetRole="staff"
@@ -300,17 +300,17 @@ export default async function StaffDashboardPage() {
         <DashboardSubnav role="staff" />
 
         {/* Top Staff Master Operations Banner */}
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-8 sm:p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold px-3 py-1 rounded-full">
                 Mr. Homes Property Operations & Listing Management
               </span>
             </div>
-            <h1 className="text-xl sm:text-3xl font-black tracking-tight mt-2">
+            <h1 className="text-3xl sm:text-xl font-black tracking-tight mt-2">
               Welcome, {staffName}
             </h1>
-            <p className="text-xs sm:text-sm text-blue-200/90 mt-1 max-w-2xl">
+            <p className="text-sm sm:text-xs text-blue-200/90 mt-1 max-w-2xl">
               Comprehensive operational hub for multi-tenant lease oversight, maintenance dispatch, legal vault documentation, and direct property listing inventory.
             </p>
           </div>
@@ -318,14 +318,14 @@ export default async function StaffDashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <a
               href="#action-queue"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black px-4 py-2.5 rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm sm:text-xs font-black px-4 py-2.5 rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               <MessageSquare className="w-4 h-4 text-slate-950" />
               <span>Tenant Inquiries (3)</span>
             </a>
             <Link
               href="/dashboard/contracts"
-              className="bg-white/15 hover:bg-white/25 border border-white/30 hover:border-white/50 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 group"
+              className="bg-white/15 hover:bg-white/25 border border-white/30 hover:border-white/50 text-white text-sm sm:text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 group"
             >
               <FileText className="w-4 h-4 text-blue-300 group-hover:scale-110 transition-transform" />
               <span>Contracts Vault</span>
@@ -333,7 +333,7 @@ export default async function StaffDashboardPage() {
             </Link>
             <Link
               href="/account/unit/registration/step-one"
-              className="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center gap-1.5 active:scale-95"
+              className="bg-blue-600 hover:bg-blue-500 text-white text-sm sm:text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center gap-1.5 active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Post New Property</span>
@@ -342,7 +342,7 @@ export default async function StaffDashboardPage() {
         </div>
 
         {/* 4 Key Operations Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-4">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200/80 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-zinc-500 block mb-1">Managed Leases</span>
@@ -405,9 +405,9 @@ export default async function StaffDashboardPage() {
         </section>
 
         {/* ── SECTION 2: 1st-Tier Action Queue & Coordinator Concierge ── */}
-        <div id="action-queue" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start scroll-mt-24">
+        <div id="action-queue" className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start scroll-mt-24">
           {/* Left Column (7 cols): Active Action Queue */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="col-span-7 lg:col-span-1 space-y-6">
             <div className="bg-white rounded-3xl shadow-sm border border-zinc-200/80 p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -486,7 +486,7 @@ export default async function StaffDashboardPage() {
           </div>
 
           {/* Right Column (5 cols): Mr. Homes Dedicated Manager Desk */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="col-span-5 lg:col-span-1 space-y-6">
             <ConciergeMessageWidget
               userRole="agent"
               managerName={staffName}
