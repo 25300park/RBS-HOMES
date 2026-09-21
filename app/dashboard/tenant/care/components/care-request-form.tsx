@@ -91,6 +91,17 @@ export default function CareRequestForm({
         }),
       });
 
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        toast({
+          title: "Request Failed",
+          variant: "destructive",
+          description: errorData?.error || "Something went wrong. Please try again.",
+        });
+        setSubmitting(false);
+        return;
+      }
+
       toast({
         title: "Care Service Booked!",
         description: `Your ${selectedService} appointment is submitted to RBS Concierge.`,
