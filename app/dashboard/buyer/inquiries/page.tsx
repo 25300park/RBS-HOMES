@@ -8,9 +8,9 @@ import { ChevronLeft } from "lucide-react";
 import { getBuyerInquiries } from "@/lib/buyer/get-buyer-inquiries";
 
 const statusLabel: Record<number, { text: string; cls: string }> = {
-  0: { text: "접수", cls: "bg-gray-100 text-gray-600" },
-  1: { text: "처리 중", cls: "bg-orange-100 text-orange-600" },
-  2: { text: "완료", cls: "bg-green-100 text-green-600" },
+  0: { text: "Received", cls: "bg-gray-100 text-gray-600" },
+  1: { text: "In Progress", cls: "bg-orange-100 text-orange-600" },
+  2: { text: "Completed", cls: "bg-green-100 text-green-600" },
 };
 
 export default async function BuyerInquiriesPage() {
@@ -37,7 +37,7 @@ export default async function BuyerInquiriesPage() {
 
       {contacts.length === 0 ? (
         <div className="flex items-center justify-center h-24 border border-dashed border-gray-200 rounded-lg text-sm text-gray-400">
-          문의 내역이 없습니다.
+          No inquiries found.
         </div>
       ) : (
         <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -59,7 +59,7 @@ export default async function BuyerInquiriesPage() {
                 {c.response && (
                   <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700">
                     <p className="text-xs font-semibold text-gray-500 mb-1">
-                      답변
+                      Reply
                       {c.respondedAt && (
                         <span className="ml-2 font-normal">
                           · {new Date(c.respondedAt).toLocaleDateString("ko-KR")}

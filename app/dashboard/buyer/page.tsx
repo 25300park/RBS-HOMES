@@ -46,14 +46,14 @@ export default async function BuyerDashboardPage() {
       
       {/* ── Global GNB Header (Same as Main Page) ── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-18 sm:h-16 flex items-center justify-between">
           
           {/* Brand Logo - Official RBS Logo */}
           <Link href="/" className="flex items-center">
             <img
               src="/assets/images/rbs-logo.png"
               alt="RBS Homes"
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-9 sm:h-8 w-auto object-contain"
             />
           </Link>
 
@@ -94,10 +94,10 @@ export default async function BuyerDashboardPage() {
           </nav>
 
           {/* Right: Quick Actions & Profile */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-3">
             <Link
               href="/unit/buy"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
             >
               <Heart className="w-4 h-4" />
               <span>Explore Condos</span>
@@ -109,20 +109,20 @@ export default async function BuyerDashboardPage() {
       </header>
 
       {/* ── Main Dashboard Content ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 pb-8 md:pb-24">
 
         {/* Top Welcome Card */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">
+              <h1 className="text-2xl sm:text-xl font-black text-zinc-900 tracking-tight">
                 Hello, {session?.user?.name ?? "Buyer"}
               </h1>
-              <span className="bg-blue-50 text-blue-700 text-[10px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-md border border-blue-200/60">
+              <span className="bg-blue-50 text-blue-700 text-xs sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border border-blue-200/60">
                 Verified Buyer
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+            <p className="text-sm sm:text-xs text-zinc-500 mt-1">
               Track your saved properties, scheduled visits, and direct agent inquiries.
             </p>
           </div>
@@ -136,7 +136,7 @@ export default async function BuyerDashboardPage() {
         </div>
 
         {/* 4-col Responsive Section Grid with Concierge Desk */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-4 lg:grid-cols-2 md:grid-cols-1 gap-6">
 
           {/* RBS Dedicated Buyer Advisor Widget */}
           <ConciergeMessageWidget
@@ -146,7 +146,7 @@ export default async function BuyerDashboardPage() {
           />
 
           {/* Card 1: Saved Properties */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center">
@@ -158,7 +158,7 @@ export default async function BuyerDashboardPage() {
             </div>
 
             <div>
-              <span className="text-3xl sm:text-4xl font-black text-zinc-900">{favorites.length}</span>
+              <span className="text-4xl sm:text-3xl font-black text-zinc-900">{favorites.length}</span>
               <p className="text-xs text-zinc-500 font-medium mt-1">
                 {favorites.length > 0 ? "Properties bookmarked for comparison" : "No saved units yet"}
               </p>
@@ -173,7 +173,7 @@ export default async function BuyerDashboardPage() {
           </div>
 
           {/* Card 2: Scheduled Visits */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -185,7 +185,7 @@ export default async function BuyerDashboardPage() {
             </div>
 
             <div>
-              <span className="text-3xl sm:text-4xl font-black text-blue-600">{scheduleCount}</span>
+              <span className="text-4xl sm:text-3xl font-black text-blue-600">{scheduleCount}</span>
               <p className="text-xs text-zinc-500 font-medium mt-1">
                 {scheduleCount > 0 ? "Upcoming on-site property viewings" : "No scheduled visits yet"}
               </p>
@@ -200,7 +200,7 @@ export default async function BuyerDashboardPage() {
           </div>
 
           {/* Card 3: Direct Inquiries */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -212,7 +212,7 @@ export default async function BuyerDashboardPage() {
             </div>
 
             <div>
-              <span className="text-3xl sm:text-4xl font-black text-zinc-900">{contacts.length}</span>
+              <span className="text-4xl sm:text-3xl font-black text-zinc-900">{contacts.length}</span>
               <p className="text-xs text-zinc-500 font-medium mt-1">
                 {contacts.length > 0 ? "Active inquiries with verified brokers" : "No inquiry records found"}
               </p>
