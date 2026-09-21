@@ -74,14 +74,14 @@ export default async function LandlordDashboardPage() {
       
       {/* ── Global GNB Header (Same as Main Page) ── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-18 sm:h-16 flex items-center justify-between">
           
           {/* Brand Logo - Official RBS Logo */}
           <Link href="/" className="flex items-center">
             <img
               src="/assets/images/rbs-logo.png"
               alt="RBS Homes"
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-9 sm:h-8 w-auto object-contain"
             />
           </Link>
 
@@ -116,10 +116,10 @@ export default async function LandlordDashboardPage() {
           </nav>
 
           {/* Right: Quick Actions & Profile */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-3">
             <Link
               href="/account/unit/registration/step-one"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-98"
             >
               <Building2 className="w-4 h-4" />
               <span>+ Post Property</span>
@@ -131,7 +131,7 @@ export default async function LandlordDashboardPage() {
       </header>
 
       {/* ── Main Dashboard Content ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 pb-8 md:pb-24">
         {!hasOwnerAccess ? (
           <RoleAccessPlaceholder
             targetRole="owner"
@@ -145,7 +145,7 @@ export default async function LandlordDashboardPage() {
 
           {/* Overdue Payments Alert */}
           {totalOverdue > 0 && (
-            <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-5 sm:p-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
                   <Clock className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default async function LandlordDashboardPage() {
             />
 
             {/* Card 2: By Property Unit (28. Overflow fixed with min-w-0 & truncate) */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-extrabold text-zinc-900">By Property Unit</h3>
                 <Link href="/dashboard/landlord/leases" className="text-xs font-bold text-blue-600 hover:underline">
@@ -236,13 +236,13 @@ export default async function LandlordDashboardPage() {
                           <Icon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-bold text-zinc-900 truncate">
+                          <h4 className="text-sm sm:text-xs font-bold text-zinc-900 truncate">
                             {item.name}
                           </h4>
                           <p className="text-[11px] text-zinc-500 font-medium truncate">{item.sub}</p>
                         </div>
                       </div>
-                      <span className="text-xs sm:text-sm font-extrabold text-blue-600 shrink-0">
+                      <span className="text-sm sm:text-xs font-extrabold text-blue-600 shrink-0">
                         {item.price}
                       </span>
                     </div>
@@ -257,14 +257,14 @@ export default async function LandlordDashboardPage() {
           <div className="col-span-7 lg:col-span-1 space-y-6">
 
             {/* Row 1: Progress Statistics + Action Banner Card */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="grid grid-cols-12 md:grid-cols-1 gap-6">
 
               {/* Progress statistics Card */}
-              <div className="md:col-span-6 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-5">
+              <div className="col-span-6 md:col-span-1 bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-5">
                 <div>
                   <h3 className="text-base font-extrabold text-zinc-900">Lease Performance</h3>
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-3xl sm:text-4xl font-black text-blue-600">{occupancyRate}%</span>
+                    <span className="text-4xl sm:text-3xl font-black text-blue-600">{occupancyRate}%</span>
                     <span className="text-xs font-semibold text-zinc-500">Occupancy rate</span>
                   </div>
 
@@ -306,7 +306,7 @@ export default async function LandlordDashboardPage() {
               </div>
 
               {/* Action Banner Card */}
-              <div className="md:col-span-6 bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
+              <div className="col-span-6 md:col-span-1 bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 flex flex-col justify-between space-y-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="bg-emerald-50 text-emerald-600 font-bold text-[10px] px-2.5 py-0.5 rounded-md border border-emerald-200/60">
@@ -317,7 +317,7 @@ export default async function LandlordDashboardPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-extrabold text-zinc-900 leading-snug">
+                  <h3 className="text-lg sm:text-base font-extrabold text-zinc-900 leading-snug">
                     Property care made easy
                   </h3>
                   <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
@@ -347,7 +347,7 @@ export default async function LandlordDashboardPage() {
 
                   <Link
                     href="/dashboard/tenant/care"
-                    className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98 transition-all"
+                    className="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm sm:text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98 transition-all"
                   >
                     <span>Manage Care Requests</span>
                     <ArrowUpRight className="w-4 h-4" />
@@ -358,9 +358,9 @@ export default async function LandlordDashboardPage() {
             </div>
 
             {/* Row 2: My Schedule & Timeline (29. Ample padding and reduced border radius) */}
-            <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-zinc-200/80 space-y-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-5 shadow-sm border border-zinc-200/80 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg font-extrabold text-zinc-900">My Schedule & Leases</h3>
+                <h3 className="text-lg sm:text-base font-extrabold text-zinc-900">My Schedule & Leases</h3>
                 <div className="flex items-center gap-1">
                   <button className="w-8 h-8 rounded-full border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center text-zinc-600">
                     <ChevronLeft className="w-4 h-4" />
@@ -372,13 +372,13 @@ export default async function LandlordDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 md:grid-cols-1 gap-4">
                 
                 {/* Schedule Item 1 */}
                 <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 flex flex-col justify-between space-y-3 hover:shadow-sm transition-shadow">
                   <div className="space-y-1">
                     <span className="text-[11px] font-semibold text-zinc-500 block">10:30 — 12:00</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug">
+                    <h4 className="text-sm sm:text-xs font-bold text-zinc-900 leading-snug">
                       Aircon Deep Clean & Inspection
                     </h4>
                     <span className="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-0.5 rounded-md mt-1">
@@ -406,7 +406,7 @@ export default async function LandlordDashboardPage() {
                         Now
                       </span>
                     </div>
-                    <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                    <h4 className="text-sm sm:text-xs font-bold text-white leading-snug">
                       Rental Contract Renewal & Review
                     </h4>
                     <span className="inline-block bg-white/20 text-white font-bold text-[10px] px-2 py-0.5 rounded-md mt-1 backdrop-blur-xs">
@@ -428,7 +428,7 @@ export default async function LandlordDashboardPage() {
                 <div className="bg-[#f8fafc] border border-zinc-200/80 rounded-xl p-4 flex flex-col justify-between space-y-3 hover:shadow-sm transition-shadow">
                   <div className="space-y-1">
                     <span className="text-[11px] font-semibold text-zinc-500 block">16:00 — 17:00</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug">
+                    <h4 className="text-sm sm:text-xs font-bold text-zinc-900 leading-snug">
                       New Tenant Move-in Handover
                     </h4>
                     <span className="inline-block bg-emerald-100 text-emerald-700 font-bold text-[10px] px-2 py-0.5 rounded-md mt-1">

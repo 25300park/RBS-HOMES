@@ -16,14 +16,14 @@ export function LandlordCareApprovalCard({
 
   return (
     <>
-      <div className="bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200/80 rounded-2xl p-6 sm:p-5 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm">
               <AlertTriangle className="w-4 h-4" />
             </span>
             <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-zinc-900">
+              <h3 className="text-base sm:text-sm font-extrabold text-zinc-900">
                 Repair Cost Approvals
               </h3>
               <p className="text-[11px] text-amber-800 font-semibold">
@@ -43,10 +43,10 @@ export function LandlordCareApprovalCard({
           <div className="bg-white/90 backdrop-blur-xs border border-amber-200/80 rounded-xl p-3.5 space-y-2 text-xs">
             <div className="flex justify-between items-start">
               <div>
-                <span className="font-extrabold text-zinc-900 block text-xs sm:text-sm">Two Serendra #1204</span>
+                <span className="font-extrabold text-zinc-900 block text-sm sm:text-xs">Two Serendra #1204</span>
                 <span className="text-[11px] text-zinc-500 font-medium">Plumbing & Faucet Replacement (Sophia M.)</span>
               </div>
-              <span className="font-black text-blue-600 text-sm sm:text-base">₱6,500</span>
+              <span className="font-black text-blue-600 text-base sm:text-sm">₱6,500</span>
             </div>
 
             <p className="text-[11px] text-zinc-600 leading-relaxed bg-zinc-50 p-2 rounded-lg border border-zinc-200/60">
@@ -60,10 +60,10 @@ export function LandlordCareApprovalCard({
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 font-bold underline flex items-center gap-1"
               >
-                <span>📄 견적서 PDF (문서함)</span>
+                <span>📄 Quotation PDF (Document Vault)</span>
                 <span>↗</span>
               </a>
-              <span className="text-zinc-400">Sophia Martinez 제출</span>
+              <span className="text-zinc-400">Submitted by Sophia Martinez</span>
             </div>
 
             <button
