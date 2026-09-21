@@ -573,7 +573,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                 <div
                   key={prop.id}
                   onClick={() => router.push(`/properties/${prop.slug}`)}
-                  className="bg-white rounded-2xl p-2 sm:p-2.5 border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between"
+                  className="bg-white rounded-2xl p-2 sm:p-2.5 border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between overflow-hidden"
                 >
                   <div>
                     {/* Image & Badges */}
@@ -627,18 +627,18 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                   </div>
 
                   {/* Specs Bar */}
-                  <div className="flex flex-nowrap items-center justify-start gap-2 sm:gap-1.5 text-zinc-500 text-xs sm:text-[10px] font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1">
-                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
-                      <BedDouble className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
-                      <span>{prop.beds} Beds</span>
+                  <div className="flex flex-nowrap items-center justify-between gap-1 xs:gap-0.5 text-zinc-500 text-xs sm:text-[10px] font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1 overflow-hidden">
+                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
+                      <BedDouble className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
+                      <span className="truncate">{prop.beds} Beds</span>
                     </div>
-                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
-                      <Bath className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
-                      <span>{prop.baths} Bath</span>
+                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
+                      <Bath className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
+                      <span className="truncate">{prop.baths} Bath</span>
                     </div>
-                    <div className="flex items-center gap-0.5 sm:gap-1 whitespace-nowrap shrink-0">
-                      <Square className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 text-zinc-400 shrink-0" />
-                      <span>{prop.area}</span>
+                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
+                      <Square className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
+                      <span className="truncate">{prop.area}</span>
                     </div>
                   </div>
                 </div>
