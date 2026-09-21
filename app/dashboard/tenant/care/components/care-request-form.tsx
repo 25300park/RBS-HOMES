@@ -85,7 +85,12 @@ export default function CareRequestForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contractId,
-          serviceType: selectedService === "PLUMBING" ? "REPAIR" : selectedService,
+          serviceType:
+            selectedService === "PLUMBING"
+              ? "REPAIR"
+              : selectedService === "PEST_CONTROL"
+              ? "HANDYMAN"
+              : selectedService,
           preferredDate: `${preferredDate}T${preferredTime}:00Z`,
           description: description || undefined,
         }),
