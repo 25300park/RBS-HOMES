@@ -28,6 +28,8 @@ interface Props {
 
 type ActionMode = "approve_edit" | "request_revision" | "resubmit" | null;
 
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 export default function ContractDraftDetail({ draft, viewerRole }: Props) {
   const router = useRouter();
   const [actionMode, setActionMode] = useState<ActionMode>(null);
@@ -44,8 +46,51 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
+  // Tenant assignment state
+  const [tenantMode, setTenantMode] = useState<"search" | "new">("search");
+  const [tenantEmailQuery, setTenantEmailQuery] = useState("");
+  const [tenantSearchLoading, setTenantSearchLoading] = useState(false);
+  const [tenantSearchError, setTenantSearchError] = useState("");
+  const [tenantSearched, setTenantSearched] = useState(false);
+  const [foundTenant, setFoundTenant] = useState<{ id: number; email: string; name: string | null } | null>(null);
+  const [newTenantEmail, setNewTenantEmail] = useState("");
+  const [newTenantCreated, setNewTenantCreated] = useState<{ email: string; tempPassword: string } | null>(null);
+
+  const hasTenant =
+    (tenantMode === "search" && foundTenant !== null) ||
+    (tenantMode === "new" && newTenantEmail.trim() !== "" && isValidEmail(newTenantEmail.trim()));
+
   const canUpload =
-    uploadFile !== null && startDate !== "" && endDate !== "" && monthlyRent !== "";
+    uploadFile !== null && startDate !== "" && endDate !== "" && monthlyRent !== "" && hasTenant;
+
+  const handleTenantSearch = async () => {
+    const email = tenantEmailQuery.trim();
+    if (!email) return;
+
+    setTenantSearchLoading(true);
+    setTenantSearchError("");
+    setFoundTenant(null);
+    setTenantSearched(false);
+
+    try {
+      const res = await fetch(
+        `/api/contract-draft/${draft.id}/tenant-search?email=${encodeURIComponent(email)}`
+      );
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setTenantSearchError(data.error ?? "Search failed. Please try again.");
+        return;
+      }
+
+      setFoundTenant(data.user ?? null);
+      setTenantSearched(true);
+    } catch {
+      setTenantSearchError("Network error. Please try again.");
+    } finally {
+      setTenantSearchLoading(false);
+    }
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,16 +105,26 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
       fd.append("startDate", startDate);
       fd.append("endDate", endDate);
       fd.append("monthlyRent", monthlyRent);
+      if (tenantMode === "search" && foundTenant) {
+        fd.append("tenantId", String(foundTenant.id));
+      } else if (tenantMode === "new") {
+        fd.append("newTenantEmail", newTenantEmail.trim());
+      }
 
       const res = await fetch(`/api/contract-draft/${draft.id}/upload`, {
         method: "POST",
         body: fd,
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         setUploadError(data.error ?? "Upload failed. Please try again.");
         return;
+      }
+
+      if (data.newTenant) {
+        setNewTenantCreated(data.newTenant);
       }
 
       router.refresh();
@@ -141,6 +196,23 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
         </span>
       </div>
 
+      {/* 신규 Tenant 생성 성공 시 임시 비밀번호 안내 */}
+      {newTenantCreated && (
+        <div className="border-2 border-orange-400 bg-orange-50 rounded-xl p-4 space-y-1">
+          <p className="text-sm font-extrabold text-amber-700">
+            ⚠️ This password will not be shown again. Please copy it now before leaving this page.
+          </p>
+          <p className="text-sm font-bold text-orange-800 pt-1">Tenant account created</p>
+          <p className="text-sm text-orange-800">Email: {newTenantCreated.email}</p>
+          <p className="text-sm text-orange-800">
+            Temporary Password: <span className="font-mono font-bold">{newTenantCreated.tempPassword}</span>
+          </p>
+          <p className="text-xs text-orange-700 mt-1">
+            Please share these credentials with the tenant directly.
+          </p>
+        </div>
+      )}
+
       {/* Content */}
       <div className="border border-gray-200 rounded-xl p-4">
         <p className="text-sm font-medium text-gray-500 mb-2">Contract Content</p>
@@ -206,6 +278,96 @@ export default function ContractDraftDetail({ draft, viewerRole }: Props) {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
                 />
               </div>
+            </div>
+
+            {/* Tenant 지정 */}
+            <div className="border border-gray-200 rounded-lg p-3 space-y-3">
+              <p className="text-sm font-medium text-gray-700">Tenant</p>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTenantMode("search")}
+                  disabled={isUploading}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-colors disabled:opacity-50 ${
+                    tenantMode === "search"
+                      ? "bg-orange-500 border-orange-500 text-white"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  Find Existing Tenant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTenantMode("new")}
+                  disabled={isUploading}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-colors disabled:opacity-50 ${
+                    tenantMode === "new"
+                      ? "bg-orange-500 border-orange-500 text-white"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  Create New Tenant
+                </button>
+              </div>
+
+              {tenantMode === "search" ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={tenantEmailQuery}
+                      onChange={(e) => {
+                        setTenantEmailQuery(e.target.value);
+                        setFoundTenant(null);
+                        setTenantSearched(false);
+                      }}
+                      disabled={isUploading}
+                      placeholder="tenant@example.com"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleTenantSearch}
+                      disabled={isUploading || tenantSearchLoading || !tenantEmailQuery.trim()}
+                      className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    >
+                      {tenantSearchLoading ? "Searching…" : "Search"}
+                    </button>
+                  </div>
+
+                  {tenantSearchError && <p className="text-xs text-red-600">{tenantSearchError}</p>}
+
+                  {tenantSearched && !foundTenant && (
+                    <p className="text-xs text-gray-500">
+                      No account found for this email. Use &quot;Create New Tenant&quot; instead.
+                    </p>
+                  )}
+
+                  {foundTenant && (
+                    <div className="flex items-center justify-between px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                      <span className="text-sm text-green-800">
+                        {foundTenant.name ?? "(no name)"} — {foundTenant.email}
+                      </span>
+                      <span className="text-xs text-green-600 font-medium">Selected</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <input
+                    type="email"
+                    value={newTenantEmail}
+                    onChange={(e) => setNewTenantEmail(e.target.value)}
+                    disabled={isUploading}
+                    placeholder="new-tenant@example.com"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50"
+                  />
+                  {newTenantEmail.trim() !== "" && !isValidEmail(newTenantEmail.trim()) && (
+                    <p className="text-xs text-red-600">Please enter a valid email address</p>
+                  )}
+                </div>
+              )}
             </div>
 
             {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
