@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { stepOneSchema } from "@/types/schema";
 import { saveToLocalStorage, loadFromLocalStorage } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import AddressSearch from "../../../../components/address-search";
@@ -81,213 +80,183 @@ export default function StepOneForm() {
   };
 
   const handleNext = () => {
-    const result = stepOneSchema.safeParse({
-      ...formData,
-      price: parseFloat(formData.price.replace(/,/g, "")),
-    });
-
-    if (!result.success) {
+    if (!formData.title.trim()) {
       toast({
-        title: "Incomplete Step",
-        description: (
-          <div>
-            {result.error.issues.map((issue, index) => (
-              <p key={index} className="text-md text-red-500 font-semibold">
-                - {issue.message}
-                <br />
-              </p>
-            ))}
-          </div>
-        ),
+        title: "Required Field Missing",
+        description: "Please enter a title for the property.",
+        variant: "destructive",
       });
-    } else {
-      setIsSubmitting(true);
-      saveToLocalStorage("step1", formData);
-
-      setTimeout(() => {
-        router.push("/account/unit/registration/step-two");
-      }, 1000);
+      return;
     }
+    if (!formData.price.trim() || parseFloat(formData.price.replace(/,/g, "")) < 1) {
+      toast({
+        title: "Invalid Price",
+        description: "Price must be at least 1.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!formData.saleType) {
+      toast({
+        title: "Required Field Missing",
+        description: "Please select a sell type.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!formData.unitType) {
+      toast({
+        title: "Required Field Missing",
+        description: "Please select a property type.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const preparedData = {
+      ...formData,
+      title: formData.title.trim(),
+      price: formData.price.trim(),
+      location: formData.location || "Metro Manila, Philippines",
+      latitude: formData.latitude || 14.5547,
+      longitude: formData.longitude || 121.0244,
+      fullAddress: formData.location || "Metro Manila, Philippines",
+    };
+
+    setIsSubmitting(true);
+    saveToLocalStorage("step1", preparedData);
+
+    setTimeout(() => {
+      router.push("/account/unit/registration/step-two");
+    }, 400);
   };
 
   return (
     <div
-      className={`p-6 md:p-4 mb-10 md:mb-0 bg-white ${
-        isLoading ? "border-none shadow-none" : "border"
-      } rounded-lg shadow-md max-w-[1140px] mx-auto md:shadow-none md:border-none`}
+      className={`p-6 sm:p-8 mb-10 md:mb-0 bg-white ${
+        isLoading ? "border-none shadow-none" : "border border-zinc-200/80 shadow-sm"
+      } rounded-2xl max-w-4xl mx-auto`}
     >
       {isLoading ? (
         <div className="flex justify-center w-full items-center h-[500px]">
           <Spinner />
         </div>
       ) : (
-        <div>
+        <div className="space-y-6">
           {/* AI entry banner */}
-          <div className="flex items-center justify-between gap-4 mb-6 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              매물 설명을 붙여넣기만 하면 AI가 자동으로 채워드려요
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-5 py-3.5 bg-blue-50/80 border border-blue-200/80 rounded-xl">
+            <p className="text-xs sm:text-sm text-blue-800 font-semibold tracking-tight">
+              ✨ Paste your property description to let AI autofill details
             </p>
             <Link
               href="/account/unit/registration/ai-entry"
-              className="flex-shrink-0 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              className="shrink-0 text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap"
             >
-              AI로 빠르게 작성하기 →
+              Autofill with AI →
             </Link>
           </div>
 
-          <section className="grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-4">
+          <section className="space-y-5">
             {/* Title */}
-            <div className="col-span-2">
-              <label className="block text-xs mb-1 font-medium text-zinc-500">
-                Title (required)
+            <div>
+              <label className="block text-xs mb-1.5 font-bold text-zinc-700">
+                Title <span className="text-red-500">*</span>
               </label>
               <Input
                 type="text"
                 name="title"
                 value={formData.title || ""}
                 onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Enter a title for the unit"
-                className="w-full border border-gray-300 rounded-md"
+                placeholder="e.g. Modern 2BR Condo with Balcony in BGC"
+                className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm focus:border-blue-500 placeholder:text-zinc-400"
               />
             </div>
 
-            {/* Owner's Name */}
-            <div className="md:hidden block">
-              <label className="block text-xs mb-1 font-medium text-zinc-500">
-                Owner Name
-              </label>
-              <Input
-                type="text"
-                name="ownerName"
-                value={formData.ownerName || ""}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-                placeholder="Enter owner's name"
-                className="w-full border border-gray-300 rounded-md"
-              />
-            </div>
-
-            {/* Price and Sell Type Container */}
-            <div className="flex gap-4 w-full md:flex-col md:gap-0 md:col-span-2 relative">
+            {/* Price & Sell Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-start">
               {/* Price */}
-              <div className="w-full">
-                <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Price (required)
+              <div>
+                <label className="block text-xs mb-1.5 font-bold text-zinc-700">
+                  Price (₱) <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="text"
                   name="price"
                   value={formData.price || ""}
                   onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Enter price"
-                  className="w-full border border-gray-300 rounded-md text-right"
+                  placeholder="e.g. 45,000"
+                  className="w-full border border-zinc-200 rounded-xl h-11 px-3.5 text-sm text-right focus:border-blue-500 font-semibold placeholder:text-zinc-400 placeholder:font-normal"
                   inputMode="numeric"
                   pattern="[0-9]*"
                 />
               </div>
+
               {/* Sell Type */}
-              <div className="md:mt-4 ">
-                <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Sell Type
+              <div>
+                <label className="block text-xs mb-1.5 font-bold text-zinc-700">
+                  Sell Type <span className="text-red-500">*</span>
                 </label>
-                <SelectionBox
-                  options={sellTypeOption.slice(1)}
-                  selectedValue={formData.saleType}
-                  onSelect={handleSellTypeSelect} // 수정된 핸들러 사용
-                  className="w-full space-x-0 flex gap-2"
-                  boxClassName="h-11 md:text-sm md:w-full"
-                />
-                <p className="text-xs text-right absolute right-0 w-full mt-1 text-zinc-500">
-                  Your information will be entered on the [
-                  {formData.saleType === "rent"
-                    ? "RENT"
-                    : formData.saleType === "sale"
-                    ? "BUY"
-                    : "PRE SALE"}
-                  ] page.
-                </p>
+                <div className="grid grid-cols-3 gap-2 w-full">
+                  {sellTypeOption.slice(1).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => handleSellTypeSelect(opt.value)}
+                      className={`h-11 px-2 rounded-xl text-xs sm:text-sm font-bold tracking-tight transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                        formData.saleType === opt.value
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                          : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                      }`}
+                    >
+                      <span className="truncate">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Owner Contact and Property Type Container */}
-            <div className="flex col-span-2 gap-6 md:flex-col">
-              {/* Owner Contact Information */}
-              <div className="md:col-span-2 hidden md:block">
-                <label className="block text-xs mb-1 font-medium text-zinc-500">
-                  Owner Name
-                </label>
-                <Input
-                  type="text"
-                  name="ownerName"
-                  value={formData.ownerName || ""}
-                  onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  placeholder="Enter owner's name"
-                  className="w-full border border-gray-300 rounded-md"
-                />
+            {/* Property Type Selection */}
+            <div>
+              <label className="block text-xs mb-1.5 font-bold text-zinc-700">
+                Property Type <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
+                {typeOption.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handleChange("unitType", opt.value)}
+                    className={`h-11 px-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-tight transition-all border flex items-center justify-center text-center truncate active:scale-95 ${
+                      formData.unitType === opt.value
+                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                        : "border-zinc-200 hover:border-blue-300 bg-white text-zinc-700"
+                    }`}
+                  >
+                    <span className="truncate">{opt.label}</span>
+                  </button>
+                ))}
               </div>
-              <div className="w-full space-y-4">
-                <div>
-                  <label className="block text-xs mb-1 font-medium text-zinc-500">
-                    Owner Contact No.
-                  </label>
-                  <Input
-                    type="text"
-                    name="ownerMobile"
-                    value={formData.ownerMobile || ""}
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                    placeholder="Enter owner's contact number"
-                    className="w-full border border-gray-300 rounded-md"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs mb-1 font-medium text-zinc-500">
-                    Owner E-mail
-                  </label>
-                  <Input
-                    type="text"
-                    name="ownerEmail"
-                    value={formData.ownerEmail || ""}
-                    onChange={(e) =>
-                      handleChange(e.target.name, e.target.value)
-                    }
-                    placeholder="Enter owner's e-mail"
-                    className="w-full border border-gray-300 rounded-md"
-                  />
-                </div>
-              </div>
-              {/* Property Type */}
-              <div className="w-full h-full flex flex-col justify-end md:h-auto">
-                <label className="block text-xs font-medium text-gray-500 mb-1">
-                  Property Type
-                </label>
-                <SelectionBox
-                  options={typeOption.slice(1)}
-                  selectedValue={formData.unitType}
-                  onSelect={(value) => handleChange("unitType", value)}
-                  className="space-x-0 flex justify-between md:grid md:grid-cols-3 md:gap-4"
-                  boxClassName="md:text-sm  md:h-fit md:py-2 md:px-0"
-                />
-              </div>
+            </div>
+
+            {/* Location & Address Search */}
+            <div className="pt-2">
+              <label className="block text-xs mb-1.5 font-bold text-zinc-700">
+                Location & Address <span className="text-red-500">*</span>
+              </label>
+              <AddressSearch
+                formData={formData}
+                setFormData={setFormData}
+                className="w-full"
+              />
             </div>
           </section>
 
-          {/* Location */}
-          <div className="mt-12 md:mt-8">
-            <label className="block text-xs mb-1 font-medium text-zinc-500">
-              Location
-            </label>
-            <AddressSearch formData={formData} setFormData={setFormData} />
-          </div>
-
-          {/* Submit Button */}
-          <div className="w-full flex justify-end mt-4">
+          <div className="flex justify-end pt-6 border-t border-zinc-100">
             <SubmitButton
               isSubmitting={isSubmitting}
               onClick={handleNext}
-              label="Save & Continue"
+              label="Next: Property Details →"
+              disabled={isSubmitting}
             />
           </div>
         </div>

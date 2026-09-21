@@ -38,6 +38,14 @@ export async function registerUnit(data: any) {
       }
     }
     
+    const parsedPrice = parseFloat(String(data.price).replace(/,/g, ""));
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 1) {
+      return {
+        success: false,
+        message: "Price must be at least 1.",
+      };
+    }
+
     const transformedData = {
       adminId: session.user.id,
       // 에이전트가 등록한 경우 본인 id를 담당 에이전트로 자동 연결 (그 외에는 null → 이후 Admin이 배정)
@@ -63,7 +71,7 @@ export async function registerUnit(data: any) {
       amenity: data.amenity,                  // ← join(",") 제거
       yearCompletion: data.yearCompletion,
       outstandingPayment: parseFloat(data.outstandingPayment?.replace(/,/g, "") || "0"), 
-      price: parseFloat(data.price.replace(/,/g, "")), 
+      price: parsedPrice,
       note: data.note,
       images: JSON.stringify(data.images), 
       mapinfo: null,
