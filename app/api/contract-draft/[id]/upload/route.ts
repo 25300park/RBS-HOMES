@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { hash } from "bcrypt";
+import { generateTemporaryPassword } from "@/lib/utils";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -53,6 +55,8 @@ export async function POST(
   const startDate = formData.get("startDate") as string | null;
   const endDate = formData.get("endDate") as string | null;
   const monthlyRent = formData.get("monthlyRent") as string | null;
+  const tenantIdRaw = formData.get("tenantId") as string | null;
+  const newTenantEmail = formData.get("newTenantEmail") as string | null;
 
   if (!file || !startDate || !endDate || !monthlyRent) {
     return NextResponse.json(
@@ -66,6 +70,36 @@ export async function POST(
       { error: "PDF 파일만 업로드 가능합니다" },
       { status: 400 }
     );
+  }
+
+  // ── Tenant 지정: 기존 회원(tenantId) 또는 신규 생성(newTenantEmail) ──
+  let tenantId: number | null = tenantIdRaw ? Number(tenantIdRaw) : null;
+  let newTenantCredentials: { email: string; tempPassword: string } | null = null;
+
+  if (newTenantEmail) {
+    const email = newTenantEmail.trim();
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Email already exists, please select the existing account instead." },
+        { status: 409 }
+      );
+    }
+
+    const tempPassword = generateTemporaryPassword();
+    const hashedPassword = await hash(tempPassword, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        // level 미지정 → 스키마 기본값 1 적용 (signup과 동일)
+      },
+    });
+
+    tenantId = newUser.id;
+    newTenantCredentials = { email, tempPassword };
   }
 
   // R2 업로드
@@ -90,6 +124,7 @@ export async function POST(
       data: {
         unitId: draft.unitId,
         landlordId: draft.unit.adminId,
+        tenantId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         monthlyRent: monthlyRent,
@@ -120,7 +155,11 @@ export async function POST(
   ]);
 
   return NextResponse.json(
-    { leaseContractId: leaseContract.id, pdfUrl },
+    {
+      leaseContractId: leaseContract.id,
+      pdfUrl,
+      ...(newTenantCredentials ? { newTenant: newTenantCredentials } : {}),
+    },
     { status: 201 }
   );
 }
