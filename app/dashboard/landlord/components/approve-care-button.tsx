@@ -6,9 +6,21 @@ import { Loader2, Check } from "lucide-react";
 
 interface ApproveCareButtonProps {
   careId: number;
+  targetStatus?: string;
+  label?: string;
+  doneLabel?: string;
+  extraBody?: Record<string, unknown>;
+  onSuccess?: () => void;
 }
 
-export default function ApproveCareButton({ careId }: ApproveCareButtonProps) {
+export default function ApproveCareButton({
+  careId,
+  targetStatus = "SCHEDULED",
+  label = "Approve",
+  doneLabel = "Approved",
+  extraBody,
+  onSuccess,
+}: ApproveCareButtonProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [approved, setApproved] = useState(false);
@@ -22,11 +34,12 @@ export default function ApproveCareButton({ careId }: ApproveCareButtonProps) {
       const res = await fetch(`/api/pms/care/${careId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "SCHEDULED" }),
+        body: JSON.stringify({ status: targetStatus, ...extraBody }),
       });
-      if (!res.ok) throw new Error("Failed to approve care request.");
+      if (!res.ok) throw new Error("Failed to update care request.");
 
       setApproved(true);
+      onSuccess?.();
       router.refresh();
     } catch (err: any) {
       setError(err.message ?? "An error occurred.");
@@ -46,7 +59,7 @@ export default function ApproveCareButton({ careId }: ApproveCareButtonProps) {
         ) : approved ? (
           <Check className="w-3 h-3" />
         ) : null}
-        {approved ? "Approved" : "Approve"}
+        {approved ? doneLabel : label}
       </button>
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>

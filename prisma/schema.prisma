@@ -900,6 +900,8 @@ model CareServiceRequest {
   scheduledAt    DateTime?
   completedAt    DateTime?
   assignedTo     String?         @db.VarChar(100)
+  /// staff 내부 메모 (벤더 소싱 등) — 테넌트/오너에게 노출되지 않음
+  staffMemo      String?         @db.Text
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 

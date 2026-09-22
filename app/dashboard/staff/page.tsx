@@ -29,6 +29,7 @@ import { DashboardSubnav } from "@/components/dashboard/dashboard-subnav";
 import PropertyUnitsTable from "@/app/dashboard/agent/components/property-units-table";
 import StaffPortfolioTable, { ManagedPortfolioItem } from "./components/staff-portfolio-table";
 import StaffManagement from "./components/staff-management";
+import StaffEscalateCareForm from "./components/staff-escalate-care-form";
 
 function getUserRoleInfo(level: number) {
   if (level === 0 || level === 20 || level === 30) {
@@ -483,20 +484,17 @@ export default async function StaffDashboardPage() {
                       </p>
                     )}
 
-                    <div className="flex items-center justify-end gap-2 pt-1">
-                      <Link
-                        href="/dashboard/contracts"
-                        className="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:bg-white transition-colors"
-                      >
-                        View Quotation in Vault
-                      </Link>
-                      <button
-                        type="button"
-                        className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1"
-                      >
-                        <span>Forward to Owner for Authorization →</span>
-                      </button>
-                    </div>
+                    {req.status === "PENDING" ? (
+                      <div className="pt-1">
+                        <StaffEscalateCareForm careId={req.id} />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-end pt-1">
+                        <span className="text-[11px] text-zinc-400 font-medium">
+                          Awaiting owner approval — no action needed from staff
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))
               )}

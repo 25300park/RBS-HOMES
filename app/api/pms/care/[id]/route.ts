@@ -67,7 +67,8 @@ async function notifyCareStatusChange(
   });
 }
 
-// level 0: 전체 수정 / level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
+// level 0: 전체 수정 / level 20,30: PENDING → PENDING_OWNER_APPROVAL 에스컬레이션(status, staffMemo만)만 가능
+// level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 5: 본인 계약의 케어만, 취소 또는 완료 확인(AWAITING_TENANT_CONFIRMATION → COMPLETED)만 가능
 export async function PATCH(
   req: Request,
@@ -156,6 +157,29 @@ export async function PATCH(
       return NextResponse.json({ careRequest: updated });
     }
 
+    if (level === 20 || level === 30) {
+      // 스태프(프리세일 에이전트/브로커): PENDING → PENDING_OWNER_APPROVAL 에스컬레이션만 허용,
+      // level=0 catch-all과 달리 status/staffMemo 최소 필드만 수정 가능
+      if (existing.status !== "PENDING" || body.status !== "PENDING_OWNER_APPROVAL") {
+        return NextResponse.json(
+          { error: "Staff can only escalate a pending care request for owner approval" },
+          { status: 403 }
+        );
+      }
+
+      const updated = await prisma.careServiceRequest.update({
+        where: { id: careId },
+        data: {
+          status: "PENDING_OWNER_APPROVAL",
+          ...(body.staffMemo !== undefined && { staffMemo: body.staffMemo }),
+        },
+      });
+
+      await notifyCareStatusChange(existing, "PENDING_OWNER_APPROVAL", userId);
+
+      return NextResponse.json({ careRequest: updated });
+    }
+
     if (level !== 0) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -169,6 +193,7 @@ export async function PATCH(
       price,
       reportImageUrl,
       description,
+      staffMemo,
     } = body;
 
     const updated = await prisma.careServiceRequest.update({
@@ -181,6 +206,7 @@ export async function PATCH(
         ...(price !== undefined && { price: Number(price) }),
         ...(reportImageUrl !== undefined && { reportImageUrl }),
         ...(description !== undefined && { description }),
+        ...(staffMemo !== undefined && { staffMemo }),
       },
     });
 
