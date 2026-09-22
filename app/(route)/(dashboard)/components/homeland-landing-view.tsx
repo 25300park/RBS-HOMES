@@ -569,6 +569,8 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
           <div className="grid grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-5">
             {initialProperties.map((prop) => {
               const isFav = favoritedIds.has(prop.id);
+              const [areaValue, ...areaUnitParts] = prop.area.split(" ");
+              const areaUnit = areaUnitParts.join(" ");
               return (
                 <div
                   key={prop.id}
@@ -630,15 +632,24 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                   <div className="flex flex-nowrap items-center justify-between gap-1 xs:gap-0.5 text-zinc-500 text-xs sm:text-[10px] font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1 overflow-hidden">
                     <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
                       <BedDouble className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">{prop.beds} Beds</span>
+                      <span className="truncate">
+                        {prop.beds}
+                        <span className="not-sr-only xs:sr-only"> Beds</span>
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
                       <Bath className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">{prop.baths} Bath</span>
+                      <span className="truncate">
+                        {prop.baths}
+                        <span className="not-sr-only xs:sr-only"> Bath</span>
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
                       <Square className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">{prop.area}</span>
+                      <span className="truncate">
+                        {areaValue}
+                        <span className="not-sr-only xs:sr-only"> {areaUnit}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
