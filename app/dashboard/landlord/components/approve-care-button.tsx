@@ -11,6 +11,7 @@ interface ApproveCareButtonProps {
   doneLabel?: string;
   extraBody?: Record<string, unknown>;
   onSuccess?: () => void;
+  variant?: "primary" | "danger";
 }
 
 export default function ApproveCareButton({
@@ -20,6 +21,7 @@ export default function ApproveCareButton({
   doneLabel = "Approved",
   extraBody,
   onSuccess,
+  variant = "primary",
 }: ApproveCareButtonProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -61,7 +63,9 @@ export default function ApproveCareButton({
       <button
         onClick={handleClick}
         disabled={submitting || approved}
-        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white rounded-lg text-xs font-semibold transition-colors"
+        className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 disabled:opacity-60 text-white rounded-lg text-xs font-semibold transition-colors ${
+          variant === "danger" ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+        }`}
       >
         {submitting ? (
           <Loader2 className="w-3 h-3 animate-spin" />

@@ -908,6 +908,8 @@ model CareServiceRequest {
   approvedByUserId   Int?
   completionNote     String?     @db.Text
   completionProofUrl String?
+  /// staff 검토 코멘트(승인 시 선택) 또는 반려 사유(반려 시 필수) — 테넌트가 작성하는 completionNote와 구분
+  staffReviewNote    String?     @db.Text
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 

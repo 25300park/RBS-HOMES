@@ -229,7 +229,14 @@ export default async function CareRequestPage() {
                       </span>
                     </div>
                     {req.status === "AWAITING_TENANT_CONFIRMATION" && (
-                      <CareCompletionForm careId={req.id} />
+                      <>
+                        {req.staffReviewNote && (
+                          <p className="text-xs text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200/60 leading-relaxed">
+                            Rejection reason: {req.staffReviewNote}
+                          </p>
+                        )}
+                        <CareCompletionForm careId={req.id} />
+                      </>
                     )}
                   </div>
                 );

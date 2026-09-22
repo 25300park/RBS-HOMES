@@ -42,6 +42,16 @@ const careStatusNotifications: Record<
     title: "Tenant Submitted Completion Report",
     content: (unitTitle) => `Tenant reported work complete for ${unitTitle} — needs your review.`,
   },
+  "PENDING_STAFF_REVIEW->COMPLETED": {
+    recipient: "landlord",
+    title: "Care Service Completed",
+    content: (unitTitle) => `Care service for ${unitTitle} has been completed and verified.`,
+  },
+  "PENDING_STAFF_REVIEW->AWAITING_TENANT_CONFIRMATION": {
+    recipient: "tenant",
+    title: "Please Resubmit Completion Report",
+    content: (unitTitle) => `Staff requested more info for your ${unitTitle} completion report.`,
+  },
 };
 
 type CareRequestContext = {
@@ -186,12 +196,31 @@ async function tryApproveSchedule(
   return { ok: true as const, updated };
 }
 
-// staff 전용 작업 진행 전환(SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION)을
-// 경쟁 조건 없이 처리 — tryApproveSchedule과 동일한 updateMany 패턴
-async function tryStaffTransition(careId: number, fromStatus: CareStatus, toStatus: CareStatus) {
+// PENDING_STAFF_REVIEW → COMPLETED 승인 시, landlord 알림과 별개로 담당 에이전트에게도 항상 결과 통보
+// (OR 승인 게이트가 아니라 둘 다 항상 받아야 하는 결과 통보라 고정 매핑 테이블로 표현 불가)
+async function notifyAgentOnCompletion(existing: CareRequestContext, actorId: number) {
+  const agentId = existing.contract.unit.agentId;
+  if (!agentId || agentId === actorId) return;
+  await sendCareNotification(
+    [agentId],
+    "Care Service Completed",
+    `Care service for ${existing.contract.unit.title} has been completed and verified.`,
+    actorId
+  );
+}
+
+// staff 전용 작업 진행 전환(SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION,
+// PENDING_STAFF_REVIEW→COMPLETED/AWAITING_TENANT_CONFIRMATION)을 경쟁 조건 없이 처리
+// — tryApproveSchedule과 동일한 updateMany 패턴, extraData로 staffReviewNote/completedAt 등 추가 필드 지원
+async function tryStaffTransition(
+  careId: number,
+  fromStatus: CareStatus,
+  toStatus: CareStatus,
+  extraData: { staffReviewNote?: string; completedAt?: Date } = {}
+) {
   const result = await prisma.careServiceRequest.updateMany({
     where: { id: careId, status: fromStatus },
-    data: { status: toStatus },
+    data: { status: toStatus, ...extraData },
   });
 
   if (result.count === 0) {
@@ -211,7 +240,8 @@ async function tryStaffTransition(careId: number, fromStatus: CareStatus, toStat
 }
 
 // level 0: 전체 수정 (총괄매니저는 전체, 일반 staff는 본인 담당 매물만 — 진행 전환 2건에 한해 스코프 적용)
-// level 0,20,30: SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION (작업 시작/완료 처리)
+// level 0,20,30: SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION (작업 시작/완료 처리),
+//                PENDING_STAFF_REVIEW→COMPLETED/AWAITING_TENANT_CONFIRMATION (완료보고 최종 승인/반려)
 // level 20,30: PENDING → PENDING_OWNER_APPROVAL 에스컬레이션(status, staffMemo만)만 가능
 // level 2,3: 본인 담당 매물(unit.agentId)의 케어만, PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
@@ -270,6 +300,48 @@ export async function PATCH(
       }
 
       await notifyCareStatusChange(existing, body.status, userId);
+
+      return NextResponse.json({ careRequest: result.updated });
+    }
+
+    const isStaffReviewDecision =
+      existing.status === "PENDING_STAFF_REVIEW" &&
+      (body.status === "COMPLETED" || body.status === "AWAITING_TENANT_CONFIRMATION");
+
+    if (isStaffRole && isStaffReviewDecision) {
+      // staff(총괄매니저는 전체, 일반 staff는 본인 담당 unit.agentId/adminId만): 완료보고 최종 승인/반려
+      const isSuperAdmin = Boolean(session?.user?.isSuperAdmin);
+      if (!isSuperAdmin) {
+        const { agentId, adminId } = existing.contract.unit;
+        if (agentId !== userId && adminId !== userId) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+
+      const staffReviewNote =
+        typeof body.staffReviewNote === "string" ? body.staffReviewNote.trim() : "";
+
+      if (body.status === "AWAITING_TENANT_CONFIRMATION" && !staffReviewNote) {
+        return NextResponse.json(
+          { error: "staffReviewNote is required when rejecting a completion report" },
+          { status: 400 }
+        );
+      }
+
+      const extraData: { staffReviewNote?: string; completedAt?: Date } = {};
+      if (staffReviewNote) extraData.staffReviewNote = staffReviewNote;
+      if (body.status === "COMPLETED") extraData.completedAt = new Date();
+
+      const result = await tryStaffTransition(careId, existing.status, body.status, extraData);
+      if (!result.ok) {
+        return NextResponse.json(result.body, { status: result.status });
+      }
+
+      await notifyCareStatusChange(existing, body.status, userId);
+
+      if (body.status === "COMPLETED") {
+        await notifyAgentOnCompletion(existing, userId);
+      }
 
       return NextResponse.json({ careRequest: result.updated });
     }

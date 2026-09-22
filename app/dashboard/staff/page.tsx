@@ -30,6 +30,7 @@ import PropertyUnitsTable from "@/app/dashboard/agent/components/property-units-
 import StaffPortfolioTable, { ManagedPortfolioItem } from "./components/staff-portfolio-table";
 import StaffManagement from "./components/staff-management";
 import StaffEscalateCareForm from "./components/staff-escalate-care-form";
+import StaffReviewDecisionForm from "./components/staff-review-decision-form";
 import ApproveCareButton from "@/app/dashboard/landlord/components/approve-care-button";
 import { ACTIVE_CARE_STATUSES } from "@/lib/constants/care-status";
 
@@ -475,6 +476,10 @@ export default async function StaffDashboardPage() {
                           ? "Scheduled"
                           : req.status === "IN_PROGRESS"
                           ? "In Progress"
+                          : req.status === "AWAITING_TENANT_CONFIRMATION"
+                          ? "Awaiting Tenant"
+                          : req.status === "PENDING_STAFF_REVIEW"
+                          ? "Needs Review"
                           : "Awaiting Review"}
                       </span>
                     </div>
@@ -483,6 +488,31 @@ export default async function StaffDashboardPage() {
                       <p className="text-xs text-zinc-700 bg-white/90 p-2.5 rounded-xl border border-zinc-200/60 leading-relaxed">
                         {req.description}
                       </p>
+                    )}
+
+                    {req.status === "PENDING_STAFF_REVIEW" && (
+                      <div className="bg-white/90 p-2.5 rounded-xl border border-zinc-200/60 space-y-1.5">
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide">
+                          Tenant Completion Report
+                        </p>
+                        <p className="text-xs text-zinc-700 leading-relaxed">
+                          {req.completionNote}
+                        </p>
+                        {req.completionProofUrl && (
+                          <a
+                            href={req.completionProofUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block"
+                          >
+                            <img
+                              src={req.completionProofUrl}
+                              alt="Completion proof"
+                              className="h-16 w-16 object-cover rounded-lg border border-zinc-200"
+                            />
+                          </a>
+                        )}
+                      </div>
                     )}
 
                     {req.status === "PENDING" ? (
@@ -506,6 +536,16 @@ export default async function StaffDashboardPage() {
                           label="Mark Complete (Request Tenant Confirmation)"
                           doneLabel="Sent to Tenant"
                         />
+                      </div>
+                    ) : req.status === "PENDING_STAFF_REVIEW" ? (
+                      <div className="pt-1">
+                        <StaffReviewDecisionForm careId={req.id} />
+                      </div>
+                    ) : req.status === "AWAITING_TENANT_CONFIRMATION" ? (
+                      <div className="flex items-center justify-end pt-1">
+                        <span className="text-[11px] text-zinc-400 font-medium">
+                          Tenant confirmation / completion report pending — no action needed from staff
+                        </span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-end pt-1">
