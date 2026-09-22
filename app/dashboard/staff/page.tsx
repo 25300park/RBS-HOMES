@@ -30,6 +30,7 @@ import PropertyUnitsTable from "@/app/dashboard/agent/components/property-units-
 import StaffPortfolioTable, { ManagedPortfolioItem } from "./components/staff-portfolio-table";
 import StaffManagement from "./components/staff-management";
 import StaffEscalateCareForm from "./components/staff-escalate-care-form";
+import ApproveCareButton from "@/app/dashboard/landlord/components/approve-care-button";
 import { ACTIVE_CARE_STATUSES } from "@/lib/constants/care-status";
 
 function getUserRoleInfo(level: number) {
@@ -273,7 +274,7 @@ export default async function StaffDashboardPage() {
   // 4. SECTION 2 Action Queue — 실제 CareServiceRequest 조회로 대체 (Tax OR 카드는 대응 모델 없어 완전 삭제)
   const actionQueueRequests = await prisma.careServiceRequest.findMany({
     where: {
-      status: { in: ["PENDING", "PENDING_OWNER_APPROVAL"] },
+      status: { in: ["PENDING", "PENDING_OWNER_APPROVAL", "SCHEDULED", "IN_PROGRESS"] },
       ...careContractScope,
     },
     include: {
@@ -468,7 +469,13 @@ export default async function StaffDashboardPage() {
                         </div>
                       </div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 whitespace-nowrap">
-                        {req.status === "PENDING_OWNER_APPROVAL" ? "Awaiting Owner Auth" : "Awaiting Review"}
+                        {req.status === "PENDING_OWNER_APPROVAL"
+                          ? "Awaiting Owner Auth"
+                          : req.status === "SCHEDULED"
+                          ? "Scheduled"
+                          : req.status === "IN_PROGRESS"
+                          ? "In Progress"
+                          : "Awaiting Review"}
                       </span>
                     </div>
 
@@ -481,6 +488,24 @@ export default async function StaffDashboardPage() {
                     {req.status === "PENDING" ? (
                       <div className="pt-1">
                         <StaffEscalateCareForm careId={req.id} />
+                      </div>
+                    ) : req.status === "SCHEDULED" ? (
+                      <div className="flex items-center justify-end pt-1">
+                        <ApproveCareButton
+                          careId={req.id}
+                          targetStatus="IN_PROGRESS"
+                          label="Start Work"
+                          doneLabel="Started"
+                        />
+                      </div>
+                    ) : req.status === "IN_PROGRESS" ? (
+                      <div className="flex items-center justify-end pt-1">
+                        <ApproveCareButton
+                          careId={req.id}
+                          targetStatus="AWAITING_TENANT_CONFIRMATION"
+                          label="Mark Complete (Request Tenant Confirmation)"
+                          doneLabel="Sent to Tenant"
+                        />
                       </div>
                     ) : (
                       <div className="flex items-center justify-end pt-1">

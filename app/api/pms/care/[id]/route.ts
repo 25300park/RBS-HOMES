@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { CareStatus } from "@prisma/client";
 
 // 케어 서비스 상태 변경 시 관련자에게 알림 생성
 const careStatusNotifications: Record<
@@ -30,6 +31,11 @@ const careStatusNotifications: Record<
     title: "Care Service Completed",
     content: (unitTitle) =>
       `The care service for ${unitTitle} has been confirmed as completed by the tenant.`,
+  },
+  "SCHEDULED->IN_PROGRESS": {
+    recipient: "tenant",
+    title: "Work Has Started",
+    content: (unitTitle) => `Work on your care request for ${unitTitle} has started.`,
   },
 };
 
@@ -175,7 +181,33 @@ async function tryApproveSchedule(
   return { ok: true as const, updated };
 }
 
-// level 0: 전체 수정 / level 20,30: PENDING → PENDING_OWNER_APPROVAL 에스컬레이션(status, staffMemo만)만 가능
+// staff 전용 작업 진행 전환(SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION)을
+// 경쟁 조건 없이 처리 — tryApproveSchedule과 동일한 updateMany 패턴
+async function tryStaffTransition(careId: number, fromStatus: CareStatus, toStatus: CareStatus) {
+  const result = await prisma.careServiceRequest.updateMany({
+    where: { id: careId, status: fromStatus },
+    data: { status: toStatus },
+  });
+
+  if (result.count === 0) {
+    const current = await prisma.careServiceRequest.findUnique({
+      where: { id: careId },
+      select: { status: true },
+    });
+    return {
+      ok: false as const,
+      status: 409,
+      body: { error: "already_transitioned", currentStatus: current?.status ?? null },
+    };
+  }
+
+  const updated = await prisma.careServiceRequest.findUnique({ where: { id: careId } });
+  return { ok: true as const, updated };
+}
+
+// level 0: 전체 수정 (총괄매니저는 전체, 일반 staff는 본인 담당 매물만 — 진행 전환 2건에 한해 스코프 적용)
+// level 0,20,30: SCHEDULED→IN_PROGRESS, IN_PROGRESS→AWAITING_TENANT_CONFIRMATION (작업 시작/완료 처리)
+// level 20,30: PENDING → PENDING_OWNER_APPROVAL 에스컬레이션(status, staffMemo만)만 가능
 // level 2,3: 본인 담당 매물(unit.agentId)의 케어만, PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 5: 본인 계약의 케어만, 취소 또는 완료 확인(AWAITING_TENANT_CONFIRMATION → COMPLETED)만 가능
@@ -211,6 +243,31 @@ export async function PATCH(
     }
 
     const body = await req.json();
+
+    const isStaffRole = level === 0 || level === 20 || level === 30;
+    const isStaffProgressTransition =
+      (existing.status === "SCHEDULED" && body.status === "IN_PROGRESS") ||
+      (existing.status === "IN_PROGRESS" && body.status === "AWAITING_TENANT_CONFIRMATION");
+
+    if (isStaffRole && isStaffProgressTransition) {
+      // staff(총괄매니저는 전체, 일반 staff는 본인 담당 unit.agentId/adminId만): 작업 시작/완료 처리
+      const isSuperAdmin = Boolean(session?.user?.isSuperAdmin);
+      if (!isSuperAdmin) {
+        const { agentId, adminId } = existing.contract.unit;
+        if (agentId !== userId && adminId !== userId) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+
+      const result = await tryStaffTransition(careId, existing.status, body.status);
+      if (!result.ok) {
+        return NextResponse.json(result.body, { status: result.status });
+      }
+
+      await notifyCareStatusChange(existing, body.status, userId);
+
+      return NextResponse.json({ careRequest: result.updated });
+    }
 
     if (level === 5) {
       // 임차인: 본인 계약의 케어만
