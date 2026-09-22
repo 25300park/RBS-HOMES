@@ -74,7 +74,7 @@ export default async function LandlordDashboardPage() {
       
       {/* ── Global GNB Header (Same as Main Page) ── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-6 h-18 sm:h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-[72px] sm:h-16 flex items-center justify-between">
           
           {/* Brand Logo - Official RBS Logo */}
           <Link href="/" className="flex items-center">

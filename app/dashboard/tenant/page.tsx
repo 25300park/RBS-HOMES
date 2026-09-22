@@ -82,14 +82,14 @@ export default async function TenantDashboardPage() {
       
       {/* ── Global GNB Header (Same as Main Page) ── */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-18 flex items-center justify-between">
-          
+        <div className="max-w-7xl mx-auto px-6 h-[72px] sm:h-16 flex items-center justify-between">
+
           {/* Brand Logo - Official RBS Logo */}
           <Link href="/" className="flex items-center">
             <img
               src="/assets/images/rbs-logo.png"
               alt="RBS Homes"
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-9 sm:h-8 w-auto object-contain"
             />
           </Link>
 

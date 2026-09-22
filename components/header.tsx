@@ -68,11 +68,11 @@ const Header = () => {
     <>
       {/* Modern Global Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[72px] sm:h-16 flex items-center justify-between">
 
           {/* 1. Logo */}
           <Link href="/" className="flex items-center shrink-0">
-            <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-8 sm:h-9 w-auto object-contain" />
+            <img src="/assets/images/rbs-logo.png" alt="RBS Homes" className="h-9 sm:h-8 w-auto object-contain" />
           </Link>
 
           {/* 2. Centered Navigation Box */}
