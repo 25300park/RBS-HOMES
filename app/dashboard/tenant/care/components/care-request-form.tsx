@@ -73,6 +73,7 @@ export default function CareRequestForm({
   const [preferredTime, setPreferredTime] = useState("10:00");
   const [isUrgent, setIsUrgent] = useState(false);
   const [description, setDescription] = useState("");
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,6 +81,21 @@ export default function CareRequestForm({
     setSubmitting(true);
 
     try {
+      let reportImageUrl: string | null = null;
+
+      if (attachedFile) {
+        const formData = new FormData();
+        formData.append("file", attachedFile);
+        formData.append("contractId", String(contractId));
+        const uploadRes = await fetch("/api/image-upload/care-request", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) throw new Error("Failed to upload attached photo.");
+        const uploadData = await uploadRes.json();
+        reportImageUrl = uploadData.imageUrl;
+      }
+
       const res = await fetch("/api/pms/care", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,6 +109,8 @@ export default function CareRequestForm({
               : selectedService,
           preferredDate: `${preferredDate}T${preferredTime}:00Z`,
           description: description || undefined,
+          isUrgent,
+          ...(reportImageUrl ? { reportImageUrl } : {}),
         }),
       });
 
@@ -261,9 +279,16 @@ export default function CareRequestForm({
           </div>
 
           <label className="flex flex-col items-center justify-center p-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 cursor-pointer transition-colors text-center">
-            <span className="text-xs font-bold text-zinc-700">Click to upload quotation PDF or photo</span>
+            <span className="text-xs font-bold text-zinc-700">
+              {attachedFile ? attachedFile.name : "Click to upload quotation PDF or photo"}
+            </span>
             <span className="text-[10px] text-zinc-400 mt-0.5">Supports PDF, JPG, PNG up to 10MB (Uploaded documents will be archived in Legal Vault)</span>
-            <input type="file" className="hidden" accept=".pdf,image/*" />
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,image/*"
+              onChange={(e) => setAttachedFile(e.target.files?.[0] ?? null)}
+            />
           </label>
         </div>
       </div>

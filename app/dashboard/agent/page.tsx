@@ -592,12 +592,26 @@ export default async function AgentDashboardPage() {
                       <Wrench className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">
+                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm flex items-center gap-1.5">
                         {req.contract.unit.title} · {req.serviceType}
+                        {req.isUrgent && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-100 text-red-700 border border-red-300">
+                            🔴 Urgent
+                          </span>
+                        )}
                       </span>
                       <span className="text-[11px] text-zinc-500 font-medium">
                         Tenant: {req.contract.tenant?.name ?? "—"} · Estimated Cost: {req.price ? `₱${Number(req.price).toLocaleString()}` : "—"}
                       </span>
+                      {req.reportImageUrl && (
+                        <a href={req.reportImageUrl} target="_blank" rel="noopener noreferrer" className="block mt-1.5">
+                          <img
+                            src={req.reportImageUrl}
+                            alt="Issue photo"
+                            className="h-12 w-12 object-cover rounded-lg border border-zinc-200"
+                          />
+                        </a>
+                      )}
                     </div>
                   </div>
                   <ApproveCareButton

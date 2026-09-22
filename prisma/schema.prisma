@@ -910,6 +910,8 @@ model CareServiceRequest {
   completionProofUrl String?
   /// staff 검토 코멘트(승인 시 선택) 또는 반려 사유(반려 시 필수) — 테넌트가 작성하는 completionNote와 구분
   staffReviewNote    String?     @db.Text
+  /// 테넌트가 신청 시점에 표시하는 긴급 처리 요청 여부
+  isUrgent       Boolean         @default(false)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 

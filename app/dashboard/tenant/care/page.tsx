@@ -91,9 +91,25 @@ export default async function CareRequestPage() {
                 return (
                   <div key={c.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <span className="font-extrabold text-zinc-900 text-sm">{c.serviceType} · {c.contract.unit.title}</span>
+                      <span className="font-extrabold text-zinc-900 text-sm flex items-center gap-1.5">
+                        {c.serviceType} · {c.contract.unit.title}
+                        {c.isUrgent && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-100 text-red-700 border border-red-300">
+                            🔴 Urgent
+                          </span>
+                        )}
+                      </span>
                       <p className="text-xs text-zinc-500 mt-0.5">Preferred date: {new Date(c.preferredDate).toLocaleDateString("en-US")}</p>
                       {c.description && <p className="text-xs text-zinc-700 mt-1 bg-zinc-50 p-2 rounded-lg">{c.description}</p>}
+                      {c.reportImageUrl && (
+                        <a href={c.reportImageUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-2">
+                          <img
+                            src={c.reportImageUrl}
+                            alt="Issue photo"
+                            className="h-14 w-14 object-cover rounded-lg border border-zinc-200"
+                          />
+                        </a>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-[11px] px-2.5 py-1 rounded-md font-bold ${cfg.cls}`}>

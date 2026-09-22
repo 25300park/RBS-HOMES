@@ -12,28 +12,31 @@ const careServiceTypeLabel: Record<string, string> = {
   HANDYMAN: "Handyman",
 };
 
-// 신규 케어 요청 등록 시 오너/관리자에게 알림 전송
+// 신규 케어 요청 등록 시: Mr. Homes 소속 전담 매니저/직원 및 총괄 관리팀에게 1차 전달
 async function notifyNewCareRequest(
   serviceType: string,
   unitTitle: string,
   tenantName: string,
-  landlordId: number | null,
+  listingAgentId: number | null,
   senderId: number
 ) {
-  const admins = await prisma.user.findMany({
-    where: { level: 0 },
+  // 1. Mr. Homes 본사 총괄 관리자 및 소속 전담 매니저 (Level 0, Level 20/30)
+  const mrhomesStaff = await prisma.user.findMany({
+    where: { level: { in: [0, 20, 30] } },
     select: { id: true },
   });
 
   const recipientIds = new Set<number>();
-  if (landlordId) recipientIds.add(landlordId);
-  admins.forEach((a) => recipientIds.add(a.id));
+  mrhomesStaff.forEach((s) => recipientIds.add(s.id));
+  
+  // 2. 매물 등록 외부 에이전트(A agent) 참고 수신
+  if (listingAgentId) recipientIds.add(listingAgentId);
   recipientIds.delete(senderId);
 
-  const title = "New Care Service Request";
-  const content = `${tenantName} requested ${
+  const title = `[RBS Care Request] ${tenantName} - ${careServiceTypeLabel[serviceType] ?? serviceType}`;
+  const content = `[Mr. Homes Property Care Workflow]\nUnit: ${unitTitle}\nTenant: ${tenantName}\nService: ${
     careServiceTypeLabel[serviceType] ?? serviceType
-  } for ${unitTitle}.`;
+  }\n\n* Operational Guide: Mr. Homes assigned staff coordinates between Tenant, Listing Agent, and Property Owner before finalizing schedule.`;
 
   for (const recipientId of Array.from(recipientIds)) {
     const message = await prisma.message.create({
@@ -123,19 +126,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { contractId, serviceType, preferredDate, description } = body;
+    const { contractId, serviceType, preferredDate, description, isUrgent, reportImageUrl } = body;
 
     if (!contractId || !serviceType || !preferredDate) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // 본인 계약인지 검증
+    // 본인 계약인지 검증 및 담당 에이전트/브로커 조회
     const lease = await prisma.leaseContract.findUnique({
       where: { id: Number(contractId) },
       select: {
         tenantId: true,
         landlordId: true,
-        unit: { select: { title: true } },
+        createdById: true,
+        unit: { select: { title: true, agentId: true, adminId: true } },
       },
     });
 
@@ -149,14 +153,18 @@ export async function POST(req: Request) {
         serviceType,
         preferredDate: new Date(preferredDate),
         description: description ?? null,
+        isUrgent: Boolean(isUrgent),
+        reportImageUrl: reportImageUrl ?? null,
       },
     });
+
+    const assignedAgentId = lease.unit.agentId || lease.createdById || lease.unit.adminId || null;
 
     await notifyNewCareRequest(
       serviceType,
       lease.unit.title,
       session.user.name ?? "A tenant",
-      lease.landlordId,
+      assignedAgentId,
       userId
     );
 

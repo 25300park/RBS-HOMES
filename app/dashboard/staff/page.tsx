@@ -461,8 +461,13 @@ export default async function StaffDashboardPage() {
                           <Wrench className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">
+                          <span className="font-extrabold text-zinc-900 text-xs sm:text-sm flex items-center gap-1.5">
                             {req.contract.unit.title} · {req.serviceType}
+                            {req.isUrgent && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-100 text-red-700 border border-red-300">
+                                🔴 Urgent
+                              </span>
+                            )}
                           </span>
                           <span className="text-[11px] text-zinc-500 font-medium">
                             Tenant: {req.contract.tenant?.name ?? "—"} · Estimated Cost: {req.price ? `₱${Number(req.price).toLocaleString()}` : "—"}
@@ -488,6 +493,16 @@ export default async function StaffDashboardPage() {
                       <p className="text-xs text-zinc-700 bg-white/90 p-2.5 rounded-xl border border-zinc-200/60 leading-relaxed">
                         {req.description}
                       </p>
+                    )}
+
+                    {req.reportImageUrl && (
+                      <a href={req.reportImageUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                        <img
+                          src={req.reportImageUrl}
+                          alt="Issue photo"
+                          className="h-14 w-14 object-cover rounded-lg border border-zinc-200"
+                        />
+                      </a>
                     )}
 
                     {req.status === "PENDING_STAFF_REVIEW" && (
