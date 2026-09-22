@@ -455,7 +455,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
               <span className="text-[11px] font-extrabold text-blue-600 uppercase tracking-widest block mb-0.5">
                 CHOOSE BY PROPERTY TYPE
               </span>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-zinc-950 tracking-tight">
+              <h2 className="text-3xl lg:text-2xl sm:text-xl font-extrabold text-zinc-950 tracking-tight">
                 Find a Property That Fits <span className="text-blue-600">Your Lifestyle</span>
               </h2>
             </div>
@@ -501,7 +501,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                 <div
                   key={item.id}
                   onClick={() => router.push(item.url)}
-                  className="w-[240px] sm:w-[280px] lg:w-[calc(25%-15px)] shrink-0 snap-start group bg-white rounded-2xl p-2 border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all duration-300 cursor-pointer flex flex-col"
+                  className="w-[calc(25%-15px)] lg:w-[280px] sm:w-[240px] shrink-0 snap-start group bg-white rounded-2xl p-2 border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all duration-300 cursor-pointer flex flex-col"
                 >
                   <div className="relative h-36 sm:h-48 rounded-xl overflow-hidden bg-zinc-100 mb-3">
                     <Image
