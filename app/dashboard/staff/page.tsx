@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   Clock,
   ArrowUpRight,
-  MessageSquare,
   AlertTriangle,
   Plus,
   RefreshCw,
@@ -349,13 +348,6 @@ export default async function StaffDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <a
-              href="#action-queue"
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm sm:text-xs font-black px-4 py-2.5 rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
-            >
-              <MessageSquare className="w-4 h-4 text-slate-950" />
-              <span>Tenant Inquiries</span>
-            </a>
             <Link
               href="/dashboard/contracts"
               className="bg-white/15 hover:bg-white/25 border border-white/30 hover:border-white/50 text-white text-sm sm:text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 group"
@@ -445,7 +437,7 @@ export default async function StaffDashboardPage() {
         )}
 
         {/* ── SECTION 2: 1st-Tier Action Queue & Coordinator Concierge ── */}
-        <div id="action-queue" className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start scroll-mt-24">
+        <div className="grid grid-cols-12 lg:grid-cols-1 gap-6 items-start">
           {/* Left Column (7 cols): Active Action Queue */}
           <div className="col-span-7 lg:col-span-1 space-y-6">
             <div className="bg-white rounded-3xl shadow-sm border border-zinc-200/80 p-5 sm:p-6 space-y-4">
