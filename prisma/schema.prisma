@@ -783,6 +783,7 @@ enum CareStatus {
   SCHEDULED
   IN_PROGRESS
   AWAITING_TENANT_CONFIRMATION
+  PENDING_STAFF_REVIEW
   COMPLETED
   CANCELLED
 }
@@ -902,6 +903,11 @@ model CareServiceRequest {
   assignedTo     String?         @db.VarChar(100)
   /// staff 내부 메모 (벤더 소싱 등) — 테넌트/오너에게 노출되지 않음
   staffMemo      String?         @db.Text
+  /// 승인 주체 역할 — "LANDLORD" | "AGENT"
+  approvedByRole     String?
+  approvedByUserId   Int?
+  completionNote     String?     @db.Text
+  completionProofUrl String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
