@@ -32,8 +32,8 @@ export interface ManagedPortfolioItem {
   landlordName: string;
   landlordPhone: string;
   monthlyRent: number;
-  rentPaymentStatus: "PAID" | "PENDING" | "OVERDUE";
-  duesStatus: "PAID" | "PENDING" | "OVERDUE";
+  rentPaymentStatus: "PAID" | "PENDING" | "AWAITING_APPROVAL" | "OVERDUE" | "—";
+  duesStatus: "PAID" | "PENDING" | "OVERDUE" | "—";
   contractPeriod: string;
   activeCareCount: number;
   hasContractDoc: boolean;
@@ -196,7 +196,11 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] font-bold text-zinc-400">Rent:</span>
-                      {item.rentPaymentStatus === "PAID" ? (
+                      {item.rentPaymentStatus === "—" ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-400 text-[10px] font-extrabold">
+                          —
+                        </span>
+                      ) : item.rentPaymentStatus === "PAID" ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
                           <CheckCircle2 className="w-2.5 h-2.5" /> Paid
                         </span>
@@ -209,8 +213,8 @@ export default function StaffPortfolioTable({ items }: StaffPortfolioTableProps)
 
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] font-bold text-zinc-400">Dues:</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 text-[10px] font-bold">
-                        ✓ Settled (Billed)
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-400 text-[10px] font-bold">
+                        {item.duesStatus}
                       </span>
                     </div>
                   </div>

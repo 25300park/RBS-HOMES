@@ -66,6 +66,17 @@ export default async function StaffDashboardPage() {
         ],
       };
 
+  // 1번: leaseContract/careServiceRequest 쿼리용 스코프 — unitWhere를 관계 경유로 재사용
+  const leaseUnitScope = { unit: unitWhere };
+  const careContractScope = { contract: { unit: unitWhere } };
+  const ACTIVE_CARE_STATUSES = [
+    "PENDING",
+    "PENDING_OWNER_APPROVAL",
+    "SCHEDULED",
+    "IN_PROGRESS",
+    "AWAITING_TENANT_CONFIRMATION",
+  ] as const;
+
   // 총괄매니저 전용: Agent/Broker → Staff 승격 대상 목록
   const promotionCandidates = isSuperAdmin
     ? await prisma.user.findMany({
@@ -200,77 +211,84 @@ export default async function StaffDashboardPage() {
     })),
   }));
 
-  // 2. Multi-Tenant & Multi-Landlord Managed Portfolio Items
-  const managedPortfolioItems: ManagedPortfolioItem[] = [
-    {
-      id: "P-1204",
-      unitTitle: "Two Serendra #1204 (1BR)",
-      condoName: "Two Serendra BGC",
-      unitNumber: "#1204",
-      tenantName: "Sophia Martinez",
-      tenantPhone: "+63 917 555 1204",
-      landlordName: "Arthur Pendelton",
-      landlordPhone: "+63 917 888 1204",
-      monthlyRent: 45000,
-      rentPaymentStatus: "PAID",
-      duesStatus: "PAID",
-      contractPeriod: "2025.10 ~ 2026.10 (Year 1)",
-      activeCareCount: 1,
-      hasContractDoc: true,
-      hasLoiDoc: true,
+  // 2. Multi-Tenant & Multi-Landlord Managed Portfolio Items — 실제 LeaseContract 조회로 대체
+  const activeLeases = await prisma.leaseContract.findMany({
+    where: { status: "ACTIVE", ...leaseUnitScope },
+    include: {
+      unit: { include: { condo: true, loiDocuments: true } },
+      tenant: true,
+      landlord: true,
+      careRequests: true,
+      paymentSchedules: true,
+      contractUpload: true,
     },
-    {
-      id: "P-802",
-      unitTitle: "One Serendra #802 (2BR Suite)",
-      condoName: "One Serendra BGC",
-      unitNumber: "#802",
-      tenantName: "Michael Chang",
-      tenantPhone: "+63 917 333 0802",
-      landlordName: "Elena Rossi",
-      landlordPhone: "+63 917 777 0802",
-      monthlyRent: 95000,
-      rentPaymentStatus: "PENDING",
-      duesStatus: "PAID",
-      contractPeriod: "2026.01 ~ 2027.01 (Year 1)",
-      activeCareCount: 0,
-      hasContractDoc: true,
-      hasLoiDoc: true,
+    orderBy: { startDate: "desc" },
+  });
+
+  const formatContractDate = (d: Date) =>
+    `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+  const managedPortfolioItems: ManagedPortfolioItem[] = activeLeases.map((lease) => {
+    const latestPayment = [...lease.paymentSchedules].sort(
+      (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
+    )[0];
+
+    return {
+      id: String(lease.id),
+      unitTitle: lease.unit.title,
+      condoName: lease.unit.condo?.condoName ?? "—",
+      unitNumber: "—", // Unit 모델에 전용 필드 없음 — 가짜 값 생성 금지
+      tenantName: lease.tenant?.name ?? "—",
+      tenantPhone: lease.tenant?.phone ?? "—",
+      landlordName: lease.landlord?.name ?? "—",
+      landlordPhone: lease.landlord?.phone ?? "—",
+      monthlyRent: Number(lease.monthlyRent),
+      rentPaymentStatus: latestPayment ? latestPayment.status : "—",
+      duesStatus: "—", // 관리비(dues) 모델 자체가 스키마에 없음 — 계산 시도하지 않음
+      contractPeriod: `${formatContractDate(lease.startDate)} ~ ${formatContractDate(lease.endDate)}`,
+      activeCareCount: lease.careRequests.filter((c) =>
+        (ACTIVE_CARE_STATUSES as readonly string[]).includes(c.status)
+      ).length,
+      hasContractDoc: !!lease.contractUpload,
+      hasLoiDoc: lease.unit.loiDocuments.length > 0,
+    };
+  });
+
+  // 3. Metrics 카드 — Care & Repair Queue count, Monthly Rent Roll sum (mock 제거)
+  const activeCareRequestsCount = await prisma.careServiceRequest.count({
+    where: {
+      status: { in: [...ACTIVE_CARE_STATUSES] },
+      ...careContractScope,
     },
-    {
-      id: "P-1505",
-      unitTitle: "The Proscenium Rockwell Studio",
-      condoName: "The Proscenium Makati",
-      unitNumber: "#1505",
-      tenantName: "Kevin Lee",
-      tenantPhone: "+63 917 222 1505",
-      landlordName: "David Tan",
-      landlordPhone: "+63 917 999 1505",
-      monthlyRent: 60000,
-      rentPaymentStatus: "PAID",
-      duesStatus: "PAID",
-      contractPeriod: "2025.12 ~ 2026.12 (Year 1)",
-      activeCareCount: 0,
-      hasContractDoc: true,
-      hasLoiDoc: false,
+  });
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const monthlyRentRollAgg = await prisma.paymentSchedule.aggregate({
+    _sum: { amountDue: true },
+    where: {
+      status: "PAID",
+      dueDate: { gte: monthStart, lte: monthEnd },
+      contract: leaseUnitScope,
     },
-    {
-      id: "P-2201",
-      unitTitle: "Grand Hyatt Residences 3BR",
-      condoName: "Grand Hyatt Taguig",
-      unitNumber: "#2201",
-      tenantName: "Emily Vance",
-      tenantPhone: "+63 917 444 2201",
-      landlordName: "Roberto Gomez",
-      landlordPhone: "+63 917 666 2201",
-      monthlyRent: 180000,
-      rentPaymentStatus: "PAID",
-      duesStatus: "PAID",
-      contractPeriod: "2026.03 ~ 2028.03 (Year 1 of 2)",
-      activeCareCount: 0,
-      hasContractDoc: true,
-      hasLoiDoc: true,
+  });
+  const monthlyRentRoll = Number(monthlyRentRollAgg._sum.amountDue ?? 0);
+
+  // 4. SECTION 2 Action Queue — 실제 CareServiceRequest 조회로 대체 (Tax OR 카드는 대응 모델 없어 완전 삭제)
+  const actionQueueRequests = await prisma.careServiceRequest.findMany({
+    where: {
+      status: { in: ["PENDING", "PENDING_OWNER_APPROVAL"] },
+      ...careContractScope,
     },
-  ];
+    include: {
+      contract: {
+        include: { unit: true, tenant: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-zinc-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -336,7 +354,7 @@ export default async function StaffDashboardPage() {
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm sm:text-xs font-black px-4 py-2.5 rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               <MessageSquare className="w-4 h-4 text-slate-950" />
-              <span>Tenant Inquiries (3)</span>
+              <span>Tenant Inquiries</span>
             </a>
             <Link
               href="/dashboard/contracts"
@@ -372,8 +390,8 @@ export default async function StaffDashboardPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200/80 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-zinc-500 block mb-1">Care & Repair Queue</span>
-              <span className="text-2xl font-black text-amber-600">1 In Progress</span>
-              <span className="text-[10px] text-amber-700 font-bold block mt-0.5">Plumbing Quotation Auth</span>
+              <span className="text-2xl font-black text-amber-600">{activeCareRequestsCount} Active</span>
+              <span className="text-[10px] text-amber-700 font-bold block mt-0.5">Across Managed Units</span>
             </div>
             <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-2xs">
               <Wrench className="w-5 h-5" />
@@ -394,8 +412,8 @@ export default async function StaffDashboardPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200/80 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-zinc-500 block mb-1">Monthly Rent Roll</span>
-              <span className="text-2xl font-black text-purple-900">₱380,000</span>
-              <span className="text-[10px] text-purple-600 font-bold block mt-0.5">Total Managed Collection</span>
+              <span className="text-2xl font-black text-purple-900">₱{monthlyRentRoll.toLocaleString()}</span>
+              <span className="text-[10px] text-purple-600 font-bold block mt-0.5">Paid This Month</span>
             </div>
             <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-2xs">
               <DollarSign className="w-5 h-5" />
@@ -437,73 +455,59 @@ export default async function StaffDashboardPage() {
                   <p className="text-xs text-zinc-500 mt-0.5">Direct requests received from residents requiring coordinator action</p>
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800">
-                  2 Actions Required
+                  {actionQueueRequests.length} Actions Required
                 </span>
               </div>
 
-              {/* Action Item 1: Plumbing Quotation */}
-              <div className="border border-amber-200/80 bg-amber-50/40 rounded-2xl p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0">
-                      <Wrench className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">Two Serendra #1204 · Kitchen Plumbing & Gasket</span>
-                      <span className="text-[11px] text-zinc-500 font-medium">Tenant: Sophia Martinez · Estimated Cost: ₱6,500</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900">
-                    Awaiting Owner Auth
-                  </span>
+              {actionQueueRequests.length === 0 ? (
+                <div className="text-center py-8 text-xs text-zinc-400">
+                  No pending care requests requiring action right now.
                 </div>
-
-                <p className="text-xs text-zinc-700 bg-white/90 p-2.5 rounded-xl border border-zinc-200/60 leading-relaxed">
-                  Technician inspected copper fittings. Formal quotation ₱6,500 is archived in Contracts Vault and ready for Owner (Arthur Pendelton) approval.
-                </p>
-
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <Link
-                    href="/dashboard/contracts"
-                    className="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:bg-white transition-colors"
-                  >
-                    View Quotation in Vault
-                  </Link>
-                  <button
-                    type="button"
-                    className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1"
-                  >
-                    <span>Forward to Owner for Authorization →</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Action Item 2: Tax OR Request */}
-              <div className="border border-purple-200/80 bg-purple-50/40 rounded-2xl p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                      <FileText className="w-4 h-4" />
+              ) : (
+                actionQueueRequests.map((req) => (
+                  <div key={req.id} className="border border-amber-200/80 bg-amber-50/40 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0">
+                          <Wrench className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">
+                            {req.contract.unit.title} · {req.serviceType}
+                          </span>
+                          <span className="text-[11px] text-zinc-500 font-medium">
+                            Tenant: {req.contract.tenant?.name ?? "—"} · Estimated Cost: {req.price ? `₱${Number(req.price).toLocaleString()}` : "—"}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200/80 text-amber-900 whitespace-nowrap">
+                        {req.status === "PENDING_OWNER_APPROVAL" ? "Awaiting Owner Auth" : "Awaiting Review"}
+                      </span>
                     </div>
-                    <div>
-                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">BIR 2307 Official Receipt Issuance</span>
-                      <span className="text-[11px] text-zinc-500 font-medium">Tenant: Sophia Martinez · May 2026 Rent (₱45,000)</span>
+
+                    {req.description && (
+                      <p className="text-xs text-zinc-700 bg-white/90 p-2.5 rounded-xl border border-zinc-200/60 leading-relaxed">
+                        {req.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <Link
+                        href="/dashboard/contracts"
+                        className="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:bg-white transition-colors"
+                      >
+                        View Quotation in Vault
+                      </Link>
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1"
+                      >
+                        <span>Forward to Owner for Authorization →</span>
+                      </button>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-200/80 text-purple-900">
-                    Pending Issue
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <Link
-                    href="/dashboard/contracts"
-                    className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1"
-                  >
-                    <span>Upload & Archive OR PDF</span>
-                  </Link>
-                </div>
-              </div>
+                ))
+              )}
             </div>
           </div>
 
