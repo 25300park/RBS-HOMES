@@ -8,7 +8,7 @@ import prisma from "@/lib/prisma";
 // 케어 서비스 상태 변경 시 관련자에게 알림 생성
 const careStatusNotifications: Record<
   string,
-  { recipient: "landlord" | "tenant"; title: string; content: (unitTitle: string) => string }
+  { recipient: "landlord" | "tenant" | "staff"; title: string; content: (unitTitle: string) => string }
 > = {
   "PENDING->PENDING_OWNER_APPROVAL": {
     recipient: "landlord",
@@ -33,41 +33,150 @@ const careStatusNotifications: Record<
   },
 };
 
+type CareRequestContext = {
+  status: string;
+  contract: {
+    tenantId: number | null;
+    landlordId: number | null;
+    unit: { title: string; agentId: number | null; adminId: number | null };
+  };
+};
+
+// recipient 종류별 수신자 id 목록 결정 — staff는 담당 agent/admin, 둘 다 없으면 총괄매니저 전원
+async function resolveRecipientIds(
+  recipient: "landlord" | "tenant" | "staff",
+  existing: CareRequestContext
+): Promise<number[]> {
+  if (recipient === "landlord") {
+    return existing.contract.landlordId ? [existing.contract.landlordId] : [];
+  }
+  if (recipient === "tenant") {
+    return existing.contract.tenantId ? [existing.contract.tenantId] : [];
+  }
+
+  // staff
+  const { agentId, adminId } = existing.contract.unit;
+  if (agentId) return [agentId];
+  if (adminId) return [adminId];
+
+  const superAdmins = await prisma.user.findMany({
+    where: { isSuperAdmin: true },
+    select: { id: true },
+  });
+  return superAdmins.map((u) => u.id);
+}
+
+async function sendCareNotification(
+  recipientIds: number[],
+  title: string,
+  content: string,
+  senderId: number
+) {
+  for (const recipientId of recipientIds) {
+    if (recipientId === senderId) continue;
+    const message = await prisma.message.create({
+      data: { senderId, recipientId, title, content, type: 1 },
+    });
+    await prisma.notification.create({
+      data: { messageId: message.id, userId: recipientId, type: 1 },
+    });
+  }
+}
+
 async function notifyCareStatusChange(
-  existing: {
-    status: string;
-    contract: { tenantId: number | null; landlordId: number | null; unit: { title: string } };
-  },
+  existing: CareRequestContext,
   newStatus: string,
   actorId: number
 ) {
   const transition = careStatusNotifications[`${existing.status}->${newStatus}`];
   if (!transition) return;
 
-  const recipientId =
-    transition.recipient === "landlord" ? existing.contract.landlordId : existing.contract.tenantId;
-  if (!recipientId) return;
+  const recipientIds = await resolveRecipientIds(transition.recipient, existing);
+  if (recipientIds.length === 0) return;
 
-  const message = await prisma.message.create({
+  await sendCareNotification(
+    recipientIds,
+    transition.title,
+    transition.content(existing.contract.unit.title),
+    actorId
+  );
+}
+
+// PENDING_OWNER_APPROVAL→SCHEDULED 승인 시, 승인 안 한 반대쪽(landlord/agent)에게 별도 확정 통보
+// (recipient가 승인 주체에 따라 달라져 고정 매핑 테이블로 표현 불가 — 호출부에서 직접 처리)
+async function notifyOtherApprovalParty(
+  existing: CareRequestContext,
+  approvedByRole: "LANDLORD" | "AGENT",
+  actorId: number
+) {
+  const unitTitle = existing.contract.unit.title;
+  if (approvedByRole === "LANDLORD") {
+    const agentId = existing.contract.unit.agentId;
+    if (!agentId || agentId === actorId) return;
+    await sendCareNotification(
+      [agentId],
+      "Care Service Confirmed by Owner",
+      `The owner has approved and scheduled the care service for ${unitTitle}.`,
+      actorId
+    );
+  } else {
+    const landlordId = existing.contract.landlordId;
+    if (!landlordId || landlordId === actorId) return;
+    await sendCareNotification(
+      [landlordId],
+      "Care Service Confirmed by Agent",
+      `The assigned agent has approved and scheduled the care service for ${unitTitle}.`,
+      actorId
+    );
+  }
+}
+
+// PENDING_OWNER_APPROVAL → SCHEDULED 승인을 경쟁 조건 없이 처리 — updateMany의 where에 현재 상태를
+// 걸어 동시에 두 요청(랜드로드/에이전트)이 들어와도 DB 레벨에서 하나만 성공하도록 함
+async function tryApproveSchedule(
+  careId: number,
+  scheduledAtInput: string | undefined,
+  approvedByRole: "LANDLORD" | "AGENT",
+  approverId: number
+) {
+  const result = await prisma.careServiceRequest.updateMany({
+    where: { id: careId, status: "PENDING_OWNER_APPROVAL" },
     data: {
-      senderId: actorId,
-      recipientId,
-      title: transition.title,
-      content: transition.content(existing.contract.unit.title),
-      type: 1,
+      status: "SCHEDULED",
+      scheduledAt: scheduledAtInput ? new Date(scheduledAtInput) : new Date(),
+      approvedByRole,
+      approvedByUserId: approverId,
     },
   });
 
-  await prisma.notification.create({
-    data: {
-      messageId: message.id,
-      userId: recipientId,
-      type: 1,
-    },
-  });
+  if (result.count === 0) {
+    const current = await prisma.careServiceRequest.findUnique({
+      where: { id: careId },
+      select: { status: true, approvedByRole: true },
+    });
+
+    if (current && current.status !== "PENDING") {
+      // PENDING_OWNER_APPROVAL을 지나 이미 SCHEDULED(또는 그 이후)로 넘어간 경우 — 경쟁에서 진 쪽
+      return {
+        ok: false as const,
+        status: 409,
+        body: { error: "already_approved", approvedByRole: current.approvedByRole },
+      };
+    }
+
+    return {
+      ok: false as const,
+      status: 403,
+      body: { error: "Care request is not awaiting owner approval" },
+    };
+  }
+
+  const updated = await prisma.careServiceRequest.findUnique({ where: { id: careId } });
+  return { ok: true as const, updated };
 }
 
 // level 0: 전체 수정 / level 20,30: PENDING → PENDING_OWNER_APPROVAL 에스컬레이션(status, staffMemo만)만 가능
+// level 2,3: 본인 담당 매물(unit.agentId)의 케어만, PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 4: 본인 유닛 케어의 PENDING_OWNER_APPROVAL → SCHEDULED 승인만 가능
 // level 5: 본인 계약의 케어만, 취소 또는 완료 확인(AWAITING_TENANT_CONFIRMATION → COMPLETED)만 가능
 export async function PATCH(
@@ -88,7 +197,11 @@ export async function PATCH(
       where: { id: careId },
       include: {
         contract: {
-          select: { tenantId: true, landlordId: true, unit: { select: { title: true } } },
+          select: {
+            tenantId: true,
+            landlordId: true,
+            unit: { select: { title: true, agentId: true, adminId: true } },
+          },
         },
       },
     });
@@ -137,24 +250,46 @@ export async function PATCH(
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
 
-      if (existing.status !== "PENDING_OWNER_APPROVAL" || body.status !== "SCHEDULED") {
+      if (body.status !== "SCHEDULED") {
         return NextResponse.json(
           { error: "Owner can only approve a care request awaiting approval" },
           { status: 403 }
         );
       }
 
-      const updated = await prisma.careServiceRequest.update({
-        where: { id: careId },
-        data: {
-          status: "SCHEDULED",
-          scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : new Date(),
-        },
-      });
+      const result = await tryApproveSchedule(careId, body.scheduledAt, "LANDLORD", userId);
+      if (!result.ok) {
+        return NextResponse.json(result.body, { status: result.status });
+      }
 
       await notifyCareStatusChange(existing, "SCHEDULED", userId);
+      await notifyOtherApprovalParty(existing, "LANDLORD", userId);
 
-      return NextResponse.json({ careRequest: updated });
+      return NextResponse.json({ careRequest: result.updated });
+    }
+
+    if (level === 2 || level === 3) {
+      // 외부 에이전트/브로커: 본인이 담당(unit.agentId)하는 매물의 케어만, 승인만 가능
+      if (existing.contract.unit.agentId !== userId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      if (body.status !== "SCHEDULED") {
+        return NextResponse.json(
+          { error: "Agent can only approve a care request awaiting approval" },
+          { status: 403 }
+        );
+      }
+
+      const result = await tryApproveSchedule(careId, body.scheduledAt, "AGENT", userId);
+      if (!result.ok) {
+        return NextResponse.json(result.body, { status: result.status });
+      }
+
+      await notifyCareStatusChange(existing, "SCHEDULED", userId);
+      await notifyOtherApprovalParty(existing, "AGENT", userId);
+
+      return NextResponse.json({ careRequest: result.updated });
     }
 
     if (level === 20 || level === 30) {

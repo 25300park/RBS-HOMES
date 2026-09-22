@@ -30,6 +30,7 @@ import PropertyUnitsTable from "@/app/dashboard/agent/components/property-units-
 import StaffPortfolioTable, { ManagedPortfolioItem } from "./components/staff-portfolio-table";
 import StaffManagement from "./components/staff-management";
 import StaffEscalateCareForm from "./components/staff-escalate-care-form";
+import { ACTIVE_CARE_STATUSES } from "@/lib/constants/care-status";
 
 function getUserRoleInfo(level: number) {
   if (level === 0 || level === 20 || level === 30) {
@@ -69,13 +70,6 @@ export default async function StaffDashboardPage() {
   // 1번: leaseContract/careServiceRequest 쿼리용 스코프 — unitWhere를 관계 경유로 재사용
   const leaseUnitScope = { unit: unitWhere };
   const careContractScope = { contract: { unit: unitWhere } };
-  const ACTIVE_CARE_STATUSES = [
-    "PENDING",
-    "PENDING_OWNER_APPROVAL",
-    "SCHEDULED",
-    "IN_PROGRESS",
-    "AWAITING_TENANT_CONFIRMATION",
-  ] as const;
 
   // 총괄매니저 전용: Agent/Broker → Staff 승격 대상 목록
   const promotionCandidates = isSuperAdmin

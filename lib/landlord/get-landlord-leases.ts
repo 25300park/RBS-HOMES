@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { ContractStatus } from "@prisma/client";
+import { ACTIVE_CARE_STATUSES } from "@/lib/constants/care-status";
 
 export async function getLandlordLeaseData(landlordId: number) {
   const now = new Date();
@@ -23,15 +24,7 @@ export async function getLandlordLeaseData(landlordId: number) {
       },
       careRequests: {
         where: {
-          status: {
-            in: [
-              "PENDING",
-              "PENDING_OWNER_APPROVAL",
-              "SCHEDULED",
-              "IN_PROGRESS",
-              "AWAITING_TENANT_CONFIRMATION",
-            ],
-          },
+          status: { in: [...ACTIVE_CARE_STATUSES] },
         },
         orderBy: { createdAt: "desc" },
         take: 3,

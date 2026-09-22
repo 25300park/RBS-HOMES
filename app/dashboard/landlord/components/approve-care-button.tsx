@@ -36,7 +36,16 @@ export default function ApproveCareButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: targetStatus, ...extraBody }),
       });
-      if (!res.ok) throw new Error("Failed to update care request.");
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 409 && data.error === "already_approved") {
+          throw new Error(
+            `Already approved by ${data.approvedByRole === "LANDLORD" ? "the owner" : "the agent"}.`
+          );
+        }
+        throw new Error(data.error ?? "Failed to update care request.");
+      }
 
       setApproved(true);
       onSuccess?.();

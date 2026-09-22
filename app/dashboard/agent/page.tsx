@@ -3,12 +3,13 @@ export const dynamic = "force-dynamic";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Bell, Building2, Plus, CalendarDays, ChevronRight } from "lucide-react";
+import { Bell, Building2, Plus, CalendarDays, ChevronRight, Wrench } from "lucide-react";
 import LogoutButton from "./components/logout-button";
 import BottomNav from "./components/bottom-nav";
 import PropertyUnitsTable from "./components/property-units-table";
 import RoleAccessPlaceholder from "@/components/dashboard/role-access-placeholder";
 import { ConciergeMessageWidget } from "@/components/dashboard/concierge-message-widget";
+import ApproveCareButton from "@/app/dashboard/landlord/components/approve-care-button";
 import prisma from "@/lib/prisma";
 
 function getUserRoleInfo(level: number) {
@@ -248,6 +249,18 @@ export default async function AgentDashboardPage() {
     contracted: units.filter((u: any) => u.status === 2).length || 2,
     negotiation: units.filter((u: any) => u.status === 3).length || 1,
   };
+
+  // 본인이 담당(unit.agentId)하는 매물 중 오너 승인 대기 중인 케어 요청 — 실쿼리, mock 없음
+  const pendingApprovals = await prisma.careServiceRequest.findMany({
+    where: {
+      status: "PENDING_OWNER_APPROVAL",
+      contract: { unit: { agentId: currentUserId } },
+    },
+    include: {
+      contract: { include: { unit: true, tenant: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-zinc-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -556,9 +569,53 @@ export default async function AgentDashboardPage() {
 
         </div>
 
+        {/* ── Care Requests Awaiting Owner Approval (real query, agent's assigned units only) ── */}
+        {pendingApprovals.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <div>
+                <h2 className="text-lg sm:text-base font-black text-zinc-900">Care Approvals Pending</h2>
+                <p className="text-xs text-zinc-500">
+                  Care requests on your assigned units awaiting owner or agent approval
+                </p>
+              </div>
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800">
+                {pendingApprovals.length} Pending
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {pendingApprovals.map((req) => (
+                <div key={req.id} className="bg-white border border-amber-200/80 bg-amber-50/40 rounded-2xl p-4 flex items-start justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0">
+                      <Wrench className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">
+                        {req.contract.unit.title} · {req.serviceType}
+                      </span>
+                      <span className="text-[11px] text-zinc-500 font-medium">
+                        Tenant: {req.contract.tenant?.name ?? "—"} · Estimated Cost: {req.price ? `₱${Number(req.price).toLocaleString()}` : "—"}
+                      </span>
+                    </div>
+                  </div>
+                  <ApproveCareButton
+                    careId={req.id}
+                    targetStatus="SCHEDULED"
+                    label="Approve"
+                    doneLabel="Approved"
+                    extraBody={{ approvedByRole: "AGENT" }}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* ── Collapsible Property Units Management Section (#1, #2, #3) ── */}
         <section className="pt-2">
-          <PropertyUnitsTable 
+          <PropertyUnitsTable
             initialUnits={units} 
             agentName={session?.user?.name ?? undefined}
             isCollapsible={true}
