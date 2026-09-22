@@ -20,6 +20,17 @@ export function parseImages(images: unknown): string[] {
   return [];
 }
 
+// Popup/Banner 이미지용 — 원소가 { url: string } 객체 또는 순수 문자열 둘 다 올 수 있어 정규화한다.
+export function parsePopupImages(images: unknown): string[] {
+  if (!images) return [];
+  try {
+    const parsed = Array.isArray(images) ? images : JSON.parse(images as string);
+    return Array.isArray(parsed) ? parsed.map((img: any) => img.url || img) : [];
+  } catch {
+    return [];
+  }
+}
+
 export const saveToLocalStorage = (key: string, data: any) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem(key, JSON.stringify(data));

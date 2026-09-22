@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getActivePopups } from '@/app/(route)/(dashboard)/action';
+import { parsePopupImages } from '@/lib/utils';
 
 interface PopupData {
   id: number;
@@ -224,20 +225,9 @@ const PopupManager: React.FC<PopupManagerProps> = ({
     closePopup();
   };
 
-  // 이미지 파싱
-  const parseImages = (imagesJson: string | null): string[] => {
-    if (!imagesJson) return [];
-    try {
-      const images = Array.isArray(imagesJson) ? imagesJson : JSON.parse(imagesJson);
-      return Array.isArray(images) ? images.map(img => img.url || img) : [];
-    } catch (e) {
-      return [];
-    }
-  };
-
   if (!activePopup) return null;
 
-  const images = parseImages(activePopup.images);
+  const images = parsePopupImages(activePopup.images);
 
   return (
     <>
