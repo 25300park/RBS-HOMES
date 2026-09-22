@@ -19,6 +19,7 @@ import {
 import prisma from "@/lib/prisma";
 import { ContractStatus } from "@prisma/client";
 import CareRequestForm from "./components/care-request-form";
+import CareCompletionForm from "./components/care-completion-form";
 import { getLandlordCareRequests } from "@/lib/landlord/get-landlord-care-requests";
 import ApproveCareButton from "../../landlord/components/approve-care-button";
 import LogoutButton from "../components/logout-button";
@@ -31,6 +32,7 @@ const careStatusLabel: Record<string, { label: string; cls: string }> = {
   SCHEDULED: { label: "● Scheduled", cls: "bg-indigo-50 text-indigo-700 border border-indigo-200/80" },
   IN_PROGRESS: { label: "● In Progress", cls: "bg-purple-50 text-purple-700 border border-purple-200/80" },
   AWAITING_TENANT_CONFIRMATION: { label: "● Awaiting Your Confirmation", cls: "bg-amber-100 text-amber-900 border border-amber-300" },
+  PENDING_STAFF_REVIEW: { label: "● Under Staff Review", cls: "bg-sky-50 text-sky-700 border border-sky-200/80" },
   COMPLETED: { label: "✓ Completed", cls: "bg-emerald-50 text-emerald-700 border border-emerald-200/80" },
   CANCELLED: { label: "Cancelled", cls: "bg-zinc-100 text-zinc-600" },
 };
@@ -216,14 +218,19 @@ export default async function CareRequestPage() {
               {activeLease.careRequests.map((req) => {
                 const cfg = careStatusLabel[req.status] || { label: req.status, cls: "bg-zinc-100 text-zinc-600" };
                 return (
-                  <div key={req.id} className="py-3.5 flex items-center justify-between gap-3">
-                    <div>
-                      <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">{req.serviceType} Service</span>
-                      <span className="text-[11px] text-zinc-500 font-medium">Scheduled for {new Date(req.preferredDate).toLocaleDateString("en-US")}</span>
+                  <div key={req.id} className="py-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <span className="font-extrabold text-zinc-900 text-xs sm:text-sm block">{req.serviceType} Service</span>
+                        <span className="text-[11px] text-zinc-500 font-medium">Scheduled for {new Date(req.preferredDate).toLocaleDateString("en-US")}</span>
+                      </div>
+                      <span className={`text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md ${cfg.cls}`}>
+                        {cfg.label}
+                      </span>
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-md ${cfg.cls}`}>
-                      {cfg.label}
-                    </span>
+                    {req.status === "AWAITING_TENANT_CONFIRMATION" && (
+                      <CareCompletionForm careId={req.id} />
+                    )}
                   </div>
                 );
               })}

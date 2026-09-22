@@ -274,7 +274,7 @@ export default async function StaffDashboardPage() {
   // 4. SECTION 2 Action Queue — 실제 CareServiceRequest 조회로 대체 (Tax OR 카드는 대응 모델 없어 완전 삭제)
   const actionQueueRequests = await prisma.careServiceRequest.findMany({
     where: {
-      status: { in: ["PENDING", "PENDING_OWNER_APPROVAL", "SCHEDULED", "IN_PROGRESS"] },
+      status: { in: [...ACTIVE_CARE_STATUSES] },
       ...careContractScope,
     },
     include: {

@@ -37,6 +37,11 @@ const careStatusNotifications: Record<
     title: "Work Has Started",
     content: (unitTitle) => `Work on your care request for ${unitTitle} has started.`,
   },
+  "AWAITING_TENANT_CONFIRMATION->PENDING_STAFF_REVIEW": {
+    recipient: "staff",
+    title: "Tenant Submitted Completion Report",
+    content: (unitTitle) => `Tenant reported work complete for ${unitTitle} — needs your review.`,
+  },
 };
 
 type CareRequestContext = {
@@ -284,19 +289,44 @@ export async function PATCH(
         return NextResponse.json({ careRequest: updated });
       }
 
-      if (existing.status === "AWAITING_TENANT_CONFIRMATION" && body.status === "COMPLETED") {
-        const updated = await prisma.careServiceRequest.update({
-          where: { id: careId },
-          data: { status: "COMPLETED", completedAt: new Date() },
+      if (existing.status === "AWAITING_TENANT_CONFIRMATION" && body.status === "PENDING_STAFF_REVIEW") {
+        const completionNote = typeof body.completionNote === "string" ? body.completionNote.trim() : "";
+        if (!completionNote) {
+          return NextResponse.json(
+            { error: "completionNote is required" },
+            { status: 400 }
+          );
+        }
+
+        const result = await prisma.careServiceRequest.updateMany({
+          where: { id: careId, status: "AWAITING_TENANT_CONFIRMATION" },
+          data: {
+            status: "PENDING_STAFF_REVIEW",
+            completionNote,
+            ...(body.completionProofUrl ? { completionProofUrl: body.completionProofUrl } : {}),
+          },
         });
 
-        await notifyCareStatusChange(existing, "COMPLETED", userId);
+        if (result.count === 0) {
+          const current = await prisma.careServiceRequest.findUnique({
+            where: { id: careId },
+            select: { status: true },
+          });
+          return NextResponse.json(
+            { error: "already_transitioned", currentStatus: current?.status ?? null },
+            { status: 409 }
+          );
+        }
+
+        const updated = await prisma.careServiceRequest.findUnique({ where: { id: careId } });
+
+        await notifyCareStatusChange(existing, "PENDING_STAFF_REVIEW", userId);
 
         return NextResponse.json({ careRequest: updated });
       }
 
       return NextResponse.json(
-        { error: "Tenant can only cancel a care request or confirm its completion" },
+        { error: "Tenant can only cancel a care request or submit a completion report" },
         { status: 403 }
       );
     }
