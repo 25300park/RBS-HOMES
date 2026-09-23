@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/ui/submit-btn";
 import { useModalStore } from "@/store/use-modal-store";
+import { useImageCompression } from "@/hooks/use-image-compression";
 
 export interface EditInformationFormProps {
   session: any;
@@ -19,6 +20,7 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
   const { update } = useSession();
   const { toast } = useToast();
   const { openModal } = useModalStore();
+  const { compressImage } = useImageCompression();
   const [name, setName] = useState(session?.user.name || "");
   const [level, setLevel] = useState(String(session?.user.level || 1));
   const [phone, setPhone] = useState(session?.user.phone || "");
@@ -34,8 +36,9 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
     let uploadedImageUrl = imageUrl;
 
     if (selectedImage) {
+      const compressedImage = await compressImage(selectedImage);
       const formData = new FormData();
-      formData.append("file", selectedImage);
+      formData.append("file", compressedImage);
 
       try {
         const response = await fetch("/api/image-upload/profile", {
@@ -133,7 +136,7 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
                   e.preventDefault();
                   openModal("editPassword");
                 }}
-                className="py-2 px-4  rounded-md text-white bg-orange-400"
+                className="py-2.5 px-4 rounded-xl text-zinc-800 font-bold bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-xs sm:text-sm transition-all shadow-2xs active:scale-95"
               >
                 Change Password
               </button>
@@ -143,10 +146,10 @@ const EditInformationForm = ({ session }: EditInformationFormProps) => {
       </section>
 
       {session?.user.level === 0 ? (
-        "Admin User"
+        <div className="p-4 bg-zinc-50 rounded-xl text-sm font-bold text-zinc-600">Admin User</div>
       ) : (
-        <section className="py-8 md:py-6 border-t">
-          <h2 className="text-xl font-bold mb-4 md:mb-3">
+        <section className="py-6 border-t border-zinc-100">
+          <h2 className="text-lg sm:text-xl font-extrabold text-zinc-900 mb-4">
             Contact Information
           </h2>
           <div className="my-6 md:my-4">

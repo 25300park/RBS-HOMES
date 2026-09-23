@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Loader2, Check } from "lucide-react";
+import { useImageCompression } from "@/hooks/use-image-compression";
 
 interface CareCompletionFormProps {
   careId: number;
@@ -11,6 +12,7 @@ interface CareCompletionFormProps {
 export default function CareCompletionForm({ careId }: CareCompletionFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { compressImage } = useImageCompression();
 
   const [completionNote, setCompletionNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -29,8 +31,9 @@ export default function CareCompletionForm({ careId }: CareCompletionFormProps) 
       let completionProofUrl: string | null = null;
 
       if (file) {
+        const compressedFile = await compressImage(file);
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
         formData.append("careRequestId", String(careId));
         const uploadRes = await fetch("/api/image-upload/care-completion", {
           method: "POST",

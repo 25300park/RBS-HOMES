@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, Loader2 } from "lucide-react";
+import { useImageCompression } from "@/hooks/use-image-compression";
 
 interface ReceiptUploadButtonProps {
   paymentId: number;
@@ -12,6 +13,7 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { compressImage } = useImageCompression();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -22,8 +24,9 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
 
     try {
       // 1. Upload image to Cloudflare R2
+      const compressedFile = await compressImage(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       const uploadRes = await fetch("/api/image-upload/profile", {
         method: "POST",
         body: formData,

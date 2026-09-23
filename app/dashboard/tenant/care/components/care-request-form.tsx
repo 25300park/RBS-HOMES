@@ -17,6 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useImageCompression } from "@/hooks/use-image-compression";
 
 interface CareRequestFormProps {
   contractId: number;
@@ -66,6 +67,7 @@ export default function CareRequestForm({
 }: CareRequestFormProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { compressImage } = useImageCompression();
   const [selectedService, setSelectedService] = useState("AIRCON");
   const [preferredDate, setPreferredDate] = useState(
     new Date(Date.now() + 86400000).toISOString().split("T")[0]
@@ -84,8 +86,11 @@ export default function CareRequestForm({
       let reportImageUrl: string | null = null;
 
       if (attachedFile) {
+        const fileToUpload = attachedFile.type.startsWith("image/")
+          ? await compressImage(attachedFile)
+          : attachedFile;
         const formData = new FormData();
-        formData.append("file", attachedFile);
+        formData.append("file", fileToUpload);
         formData.append("contractId", String(contractId));
         const uploadRes = await fetch("/api/image-upload/care-request", {
           method: "POST",

@@ -27,6 +27,14 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const files = formData.getAll('files') as File[];
 
+    const oversizedFile = files.find((file) => file.size > 10 * 1024 * 1024);
+    if (oversizedFile) {
+      return NextResponse.json(
+        { error: `File exceeds the 10MB limit: ${oversizedFile.name}` },
+        { status: 400 }
+      );
+    }
+
     const uploadedUrls: string[] = [];
 
     const uploadPromises = files.map(async (file) => {
