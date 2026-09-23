@@ -139,11 +139,10 @@ export default function CareRequestForm({
       router.refresh();
     } catch (err: any) {
       toast({
-        title: "Booking Submitted",
-        description: "Your service request has been queued for contractor dispatch.",
+        title: "Request Failed",
+        variant: "destructive",
+        description: "Failed to submit your request. Please try again.",
       });
-      router.push("/dashboard/tenant");
-      router.refresh();
     } finally {
       setSubmitting(false);
     }
