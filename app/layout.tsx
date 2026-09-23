@@ -7,9 +7,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { VisitorTracker } from "@/components/visitor-tracker";
 import Script from "next/script";
+import ServiceWorkerUnregister from "@/components/pwa/sw-unregister";
+import PWAInstallButton from "@/components/ui/pwa-btn";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rbs-homes.com"),
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "RBS Homes",
+  },
   title: {
     default: "Apartments, Condos and Houses For Rent, Sale | RBS Homes",
     template: "%s | RBS Homes",
@@ -94,6 +102,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: "cover",
   userScalable: false,
+  themeColor: "#0E5246",
 };
 
 export default async function RootLayout({
@@ -108,8 +117,10 @@ export default async function RootLayout({
       <head />
       <body className={` md:h-[100dvh]`}>
         <AuthProvider session={session}>
+          <ServiceWorkerUnregister />
           <ModalProvider />
           <VisitorTracker />
+          <PWAInstallButton />
           {children}
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=AW-16798772282"
@@ -129,3 +140,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

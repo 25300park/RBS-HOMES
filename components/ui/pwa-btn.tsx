@@ -286,7 +286,7 @@ const PWAInstallButton = () => {
 
   // 상단 설치 배너
   return (
-    <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white p-4 z-[9999] shadow-lg">
+    <div className="relative bg-orange-500 text-white p-4 z-[9999] shadow-lg">
       <div className="flex items-center justify-between max-w-4xl mx-auto">
         <div className="flex items-center gap-3">
           <Download className="h-5 w-5 flex-shrink-0" />
