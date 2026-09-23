@@ -8,13 +8,14 @@ import { useSession } from "next-auth/react";
 import { 
   Home, Building2, Store, Landmark, Briefcase, Warehouse,
   Search, MapPin, ChevronDown, ChevronRight, ChevronLeft,
-  Heart, BedDouble, Bath, Square, ArrowRight, PhoneCall,
+  ArrowRight, PhoneCall,
   Users, Award, ShieldCheck, Sparkles, Loader2, List, Map, Bell, User
 } from "lucide-react";
 import YouTubeSection from "./youtube-section";
 import HeaderUserProfile from "@/components/ui/header-user-profile";
 import HeaderGuestProfile from "@/components/ui/header-guest-profile";
 import MobileFooterNav from "@/components/ui/mob-footer-nav";
+import ListCard from "@/components/ui/list-card";
 
 export interface HomelandProperty {
   id: number;
@@ -107,22 +108,6 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
   const [activeTab, setActiveTab] = useState<"ai" | "rent" | "buy" | "presale">("ai");
   const [aiQuery, setAiQuery] = useState("");
   const [isAiSearching, setIsAiSearching] = useState(false);
-
-  // 23. Interactive Favorites state
-  const [favoritedIds, setFavoritedIds] = useState<Set<number>>(new Set());
-
-  const toggleFavorite = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation();
-    setFavoritedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
 
   // Category Carousel scroll ref
   const categoryScrollRef = useRef<HTMLDivElement>(null);
@@ -544,94 +529,25 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
 
           {/* 30. 4 Columns on Desktop, 2 Columns on Mobile */}
           <div className="grid grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-5">
-            {initialProperties.map((prop) => {
-              const isFav = favoritedIds.has(prop.id);
-              const [areaValue, ...areaUnitParts] = prop.area.split(" ");
-              const areaUnit = areaUnitParts.join(" ");
-              return (
-                <div
-                  key={prop.id}
-                  onClick={() => router.push(`/properties/${prop.slug}`)}
-                  className="bg-white rounded-2xl p-2 sm:p-2.5 border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between overflow-hidden"
-                >
-                  <div>
-                    {/* Image & Badges */}
-                    <div className="relative h-32 sm:h-48 rounded-xl overflow-hidden bg-zinc-100 mb-2.5">
-                      <Image
-                        src={prop.imgUrl}
-                        alt={prop.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      
-                      {/* Status Tag */}
-                      <div className={`absolute top-2 left-2 ${prop.tagColor} text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md`}>
-                        {prop.tag}
-                      </div>
-
-                      {/* 23. Transparent Background Heart Button */}
-                      <button
-                        onClick={(e) => toggleFavorite(e, prop.id)}
-                        className="absolute top-2 right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-xs flex items-center justify-center transition-all active:scale-90"
-                        aria-label="Favorite"
-                      >
-                        <Heart 
-                          className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 transition-colors drop-shadow-md ${
-                            isFav 
-                              ? "text-red-500 fill-red-500 stroke-red-500" 
-                              : "text-white fill-transparent stroke-[2.2]"
-                          }`} 
-                        />
-                      </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="px-1 pb-1">
-                      <div className="text-xl lg:text-lg sm:text-sm font-black text-blue-600 mb-0.5 truncate">
-                        {prop.price}{" "}
-                        {prop.period && (
-                          <span className="text-[11px] sm:text-[10px] text-zinc-400 font-semibold">{prop.period}</span>
-                        )}
-                      </div>
-
-                      <h3 className="text-xs sm:text-sm font-extrabold text-zinc-900 group-hover:text-blue-600 transition-colors truncate">
-                        {prop.title}
-                      </h3>
-
-                      <div className="flex items-center gap-1 text-zinc-400 text-[10px] sm:text-xs mt-0.5 mb-2">
-                        <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
-                        <span className="truncate">{prop.location}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Specs Bar */}
-                  <div className="flex flex-nowrap items-center justify-between gap-1 xs:gap-0.5 text-zinc-500 text-xs sm:text-[10px] font-semibold border-t border-zinc-100 pt-1.5 sm:pt-2 px-1 overflow-hidden">
-                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
-                      <BedDouble className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">
-                        {prop.beds}
-                        <span className="not-sr-only xs:sr-only"> Beds</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
-                      <Bath className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">
-                        {prop.baths}
-                        <span className="not-sr-only xs:sr-only"> Bath</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 sm:gap-0.5 whitespace-nowrap min-w-0">
-                      <Square className="w-3 h-3 2lg:w-2.5 2lg:h-2.5 xs:w-2 xs:h-2 text-zinc-400 shrink-0" />
-                      <span className="truncate">
-                        {areaValue}
-                        <span className="not-sr-only xs:sr-only"> {areaUnit}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {initialProperties.map((prop, idx) => (
+              <ListCard
+                key={prop.id}
+                unitId={prop.id}
+                title={prop.title}
+                price={prop.price}
+                area={prop.area}
+                location={prop.location}
+                imageUrl={prop.imgUrl}
+                bed={prop.beds}
+                bath={prop.baths}
+                isFavorited={false}
+                priority={idx < 4}
+                tag={prop.tag}
+                tagColor={prop.tagColor}
+                period={prop.period}
+                onClick={() => router.push(`/properties/${prop.slug}`)}
+              />
+            ))}
           </div>
 
         </div>
