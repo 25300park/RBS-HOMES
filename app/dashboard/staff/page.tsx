@@ -210,13 +210,31 @@ export default async function StaffDashboardPage() {
   // 2. Multi-Tenant & Multi-Landlord Managed Portfolio Items — 실제 LeaseContract 조회로 대체
   const activeLeases = await prisma.leaseContract.findMany({
     where: { status: "ACTIVE", ...leaseUnitScope },
-    include: {
-      unit: { include: { condo: true, loiDocuments: true } },
-      tenant: true,
-      landlord: true,
-      careRequests: true,
-      paymentSchedules: true,
-      contractUpload: true,
+    select: {
+      id: true,
+      monthlyRent: true,
+      startDate: true,
+      endDate: true,
+      unit: {
+        select: {
+          title: true,
+          condo: { select: { condoName: true } },
+          loiDocuments: { select: { id: true }, take: 1 },
+        },
+      },
+      tenant: { select: { name: true, phone: true } },
+      landlord: { select: { name: true, phone: true } },
+      paymentSchedules: {
+        select: { status: true },
+        orderBy: { dueDate: "desc" },
+        take: 1,
+      },
+      contractUpload: { select: { id: true } },
+      _count: {
+        select: {
+          careRequests: { where: { status: { in: [...ACTIVE_CARE_STATUSES] } } },
+        },
+      },
     },
     orderBy: { startDate: "desc" },
   });
@@ -225,9 +243,7 @@ export default async function StaffDashboardPage() {
     `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
 
   const managedPortfolioItems: ManagedPortfolioItem[] = activeLeases.map((lease) => {
-    const latestPayment = [...lease.paymentSchedules].sort(
-      (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
-    )[0];
+    const latestPayment = lease.paymentSchedules[0];
 
     return {
       id: String(lease.id),
@@ -242,9 +258,7 @@ export default async function StaffDashboardPage() {
       rentPaymentStatus: latestPayment ? latestPayment.status : "—",
       duesStatus: "—", // 관리비(dues) 모델 자체가 스키마에 없음 — 계산 시도하지 않음
       contractPeriod: `${formatContractDate(lease.startDate)} ~ ${formatContractDate(lease.endDate)}`,
-      activeCareCount: lease.careRequests.filter((c) =>
-        (ACTIVE_CARE_STATUSES as readonly string[]).includes(c.status)
-      ).length,
+      activeCareCount: lease._count.careRequests,
       hasContractDoc: !!lease.contractUpload,
       hasLoiDoc: lease.unit.loiDocuments.length > 0,
     };
