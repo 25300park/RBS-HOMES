@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import * as maptilersdk from "@maptiler/sdk";
 
 type SheetPosition = 'minimized' | 'half' | 'full';
 
@@ -27,7 +26,7 @@ interface MapState {
   setMapCenterAndZoom: (coordinates: [number, number], zoom: number) => void;
   setMapInstance: (mapInstance: any) => void;
   clearSelectedUnit: () => void;
-  showPopup: (unit: any) => void;
+  showPopup: (unit: any) => Promise<void>;
   clearPopup: () => void;
   setLoading: (loading: boolean) => void;
   setHoverUnitId: (unitId: number | null) => void;
@@ -74,46 +73,50 @@ export const useMapStore = create<MapState>((set, get) => ({
     }),
     
   setHoverUnitId: (unitId) => set({ hoverUnitId: unitId }),
-  showPopup: (unit) =>
-    set((state) => {
-      if (state.map && unit) {
-        if (state.popup) state.popup.remove();
-        const popup = new maptilersdk.Popup({
-          offset: 25,
-          closeButton: false,
-          closeOnClick: false,
-        })
-          .setLngLat([unit.longitude, unit.latitude])
-          .setHTML(
-            `
-          <div>
-            <img src="${unit.images && unit.images[0] ? unit.images[0] : '/images/placeholder.jpg'}" alt="${
-              unit.title || "Property"
-            }" style="width: 100%; min-width: 400px; height: 150px; object-fit: cover;" />
-            <div style="padding: 10px;">
-              <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${
-                unit.address2 +
-                " " +
-                unit.address3 +
-                " " +
-                unit.address4 +
-                " " +
-                unit.address1
-              }</h3>
-              <div style="font-size: 14px; color: #666; margin-bottom: 5px;">${
-                unit.description ? unit.description : "no memo"
-              }</div>
-              <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.price ? unit.price.toLocaleString() : "0"} $</div>
-            </div>
-          </div>
-        `
-          )
-          .addTo(state.map);
+  showPopup: async (unit) => {
+    const state = get();
+    if (!state.map || !unit) return;
 
-        return { popup };
-      }
-      return {};
-    }),
+    // 지도 SDK는 실제로 팝업을 띄우는 이 시점에만 로드 — mob-footer-nav 등
+    // 이 스토어를 상태 참조 용도로만 쓰는 소비자까지 maplibre-gl(~200KB)을
+    // 번들에 끌고 들어오지 않도록 함
+    const { Popup } = await import("@maptiler/sdk");
+
+    if (state.popup) state.popup.remove();
+    const popup = new Popup({
+      offset: 25,
+      closeButton: false,
+      closeOnClick: false,
+    })
+      .setLngLat([unit.longitude, unit.latitude])
+      .setHTML(
+        `
+      <div>
+        <img src="${unit.images && unit.images[0] ? unit.images[0] : '/images/placeholder.jpg'}" alt="${
+          unit.title || "Property"
+        }" style="width: 100%; min-width: 400px; height: 150px; object-fit: cover;" />
+        <div style="padding: 10px;">
+          <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${
+            unit.address2 +
+            " " +
+            unit.address3 +
+            " " +
+            unit.address4 +
+            " " +
+            unit.address1
+          }</h3>
+          <div style="font-size: 14px; color: #666; margin-bottom: 5px;">${
+            unit.description ? unit.description : "no memo"
+          }</div>
+          <div style="font-size: 14px; color: #333; font-weight: bold; margin-bottom: 5px;">${unit.price ? unit.price.toLocaleString() : "0"} $</div>
+        </div>
+      </div>
+    `
+      )
+      .addTo(state.map);
+
+    set({ popup });
+  },
 
   clearPopup: () =>
     set((state) => {
