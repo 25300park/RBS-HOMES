@@ -326,7 +326,7 @@ export default function AgentSchedulePlannerClient({
                         return (
                           <div
                             key={s.id}
-                            className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate border leading-tight ${
+                            className={`text-[10px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded truncate border leading-tight ${
                               s.sourceScheduleId
                                 ? "bg-blue-600 text-white border-blue-600"
                                 : "bg-emerald-50 text-emerald-800 border-emerald-200"

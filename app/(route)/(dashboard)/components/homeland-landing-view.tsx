@@ -41,13 +41,6 @@ interface HomelandLandingViewProps {
   };
 }
 
-const EXAMPLE_AI_CHIPS = [
-  "BGC studio for rent",
-  "Serendra 2-bedroom for rent",
-  "Makati property under ₱5M",
-  "Makati studio under ₱30k",
-];
-
 // 20. 부동산 유형: Condominiums, Pre-sale Projects, Commercial, Office, House & Lot, Warehouse, Lots & Land
 const PROPERTY_TYPES = [
   {
@@ -247,8 +240,8 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
       {/* ── 2. Hero Section (22. Adjusted padding and alignment to prevent overlapping with search console) ── */}
       <section className="relative pt-8 pb-20 lg:pt-10 lg:pb-24 overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-white border-b border-zinc-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-zinc-900/10 border-4 border-white min-h-[420px] sm:min-h-[360px] flex items-center mb-6">
-            {/* Background Hero Image */}
+          <div className="relative left-1/2 -ml-[50vw] w-screen overflow-hidden min-h-[560px] sm:min-h-[420px] flex items-center -mb-32 sm:-mb-20">
+            {/* Background Hero Image — full-bleed across the viewport */}
             <Image
               src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
               alt="Modern Luxury RBS Home"
@@ -259,49 +252,51 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
             {/* Left-to-Right Dark Gradient Scrim for text legibility */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none" />
 
-            {/* Overlaid Text Content */}
-            <div className="relative z-10 flex flex-col space-y-5 w-full max-w-xl px-6 sm:px-10 py-10">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200/60 px-3.5 py-1.5 rounded-full mb-3">
-                  <span className="text-amber-500 text-xs">✨</span>
-                  <span className="text-xs font-bold text-amber-900 tracking-wide">
-                    Find Your Perfect Space in Manila
-                  </span>
+            {/* Overlaid Text Content — realigned to the page's max-w-7xl column */}
+            <div className="relative z-10 w-full max-w-7xl mx-auto">
+              <div className="flex flex-col space-y-5 w-full max-w-xl px-6 sm:px-10 py-10">
+                <div>
+                  <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200/60 px-3.5 py-1.5 rounded-full mb-3">
+                    <span className="text-amber-500 text-xs">✨</span>
+                    <span className="text-xs font-bold text-amber-900 tracking-wide">
+                      Find Your Perfect Space in Manila
+                    </span>
+                  </div>
+
+                  <h1 className="text-4xl lg:text-3xl sm:text-2xl font-black text-white tracking-tight leading-[1.12] w-full">
+                    Find Your Dream <span className="text-white">Home in BGC & Makati</span>
+                  </h1>
+
+                  <p className="text-zinc-200 text-sm sm:text-base leading-relaxed font-medium mt-3 w-full">
+                    Explore premium condos, modern villas, and prime commercial spaces verified by RBS Homes.
+                  </p>
                 </div>
 
-                <h1 className="text-4xl lg:text-3xl sm:text-2xl font-black text-white tracking-tight leading-[1.12] w-full">
-                  Find Your Dream <span className="text-white">Home in BGC & Makati</span>
-                </h1>
+                {/* 21, 22 & 18. Full-width 2-column Grid Buttons lifted cleanly above the search console */}
+                <div className="w-full grid grid-cols-2 gap-3.5 pt-1">
+                  <Link
+                    href="/list"
+                    className="w-full min-h-[44px] bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all active:scale-98 text-center"
+                  >
+                    <List className="w-4 h-4 shrink-0" />
+                    <span>View as List</span>
+                    <ArrowRight className="w-4 h-4 shrink-0 sm:hidden" />
+                  </Link>
 
-                <p className="text-zinc-200 text-sm sm:text-base leading-relaxed font-medium mt-3 w-full">
-                  Explore premium condos, modern villas, and prime commercial spaces verified by RBS Homes.
-                </p>
-              </div>
-
-              {/* 21, 22 & 18. Full-width 2-column Grid Buttons lifted cleanly above the search console */}
-              <div className="w-full grid grid-cols-2 gap-3.5 pt-1">
-                <Link
-                  href="/list"
-                  className="w-full min-h-[44px] bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all active:scale-98 text-center"
-                >
-                  <List className="w-4 h-4 shrink-0" />
-                  <span>View as List</span>
-                  <ArrowRight className="w-4 h-4 shrink-0 sm:hidden" />
-                </Link>
-
-                <Link
-                  href="/map"
-                  className="w-full min-h-[44px] bg-white/90 hover:bg-white text-zinc-800 border border-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:text-blue-600 active:scale-98 text-center"
-                >
-                  <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>View on Map</span>
-                </Link>
+                  <Link
+                    href="/map"
+                    className="w-full min-h-[44px] bg-white/90 hover:bg-white text-zinc-800 border border-white font-bold text-sm sm:text-xs px-4 py-3.5 rounded-xl shadow-sm hover:shadow-md flex items-center justify-center gap-2 transition-all hover:text-blue-600 active:scale-98 text-center"
+                  >
+                    <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>View on Map</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
 
           {/* ── Floating Unified Search Console (22. Clean separation with no overlap) ── */}
-          <div className="relative mt-2 lg:mt-4 z-20 max-w-5xl mx-auto">
+          <div className="relative mt-2 lg:mt-4 z-20 max-w-7xl mx-auto">
             <div className="bg-white rounded-2xl shadow-xl shadow-zinc-200/60 border border-zinc-100 p-5 sm:p-6">
               
               {/* Top Tabs */}
@@ -362,24 +357,6 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                       <Search className="w-4 h-4" />
                       <span>AI Search</span>
                     </button>
-                  </div>
-
-                  {/* AI Example Chips */}
-                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    <span className="text-xs font-semibold text-zinc-400">Try:</span>
-                    {EXAMPLE_AI_CHIPS.map((chip) => (
-                      <button
-                        key={chip}
-                        onClick={() => {
-                          setAiQuery(chip);
-                          handleAiSearch(chip);
-                        }}
-                        disabled={isAiSearching}
-                        className="text-xs font-medium bg-zinc-50 hover:bg-blue-50 hover:text-blue-600 border border-zinc-200/80 hover:border-blue-200 text-zinc-600 px-3 py-1 rounded-full transition-colors"
-                      >
-                        {chip}
-                      </button>
-                    ))}
                   </div>
                 </div>
               ) : (
@@ -549,7 +526,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
                 FEATURED PROPERTIES
               </span>
               {/* 41. Single Line Title with no awkward break */}
-              <h2 className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-zinc-950 tracking-tight whitespace-nowrap">
+              <h2 className="text-3xl lg:text-2xl sm:text-lg font-extrabold text-zinc-950 tracking-tight whitespace-nowrap">
                 Handpicked Properties <span className="text-blue-600">Just For You</span>
               </h2>
             </div>
@@ -610,10 +587,10 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
 
                     {/* Content */}
                     <div className="px-1 pb-1">
-                      <div className="text-sm sm:text-lg lg:text-xl font-black text-blue-600 mb-0.5 truncate">
+                      <div className="text-xl lg:text-lg sm:text-sm font-black text-blue-600 mb-0.5 truncate">
                         {prop.price}{" "}
                         {prop.period && (
-                          <span className="text-[10px] sm:text-[11px] text-zinc-400 font-semibold">{prop.period}</span>
+                          <span className="text-[11px] sm:text-[10px] text-zinc-400 font-semibold">{prop.period}</span>
                         )}
                       </div>
 
@@ -671,7 +648,7 @@ export default function HomelandLandingView({ initialProperties, stats }: Homela
       <section className="py-10 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-[#1d4ed8] rounded-2xl p-7 sm:p-9 text-white shadow-xl shadow-blue-600/20">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-blue-400/30">
+            <div className="grid grid-cols-4 lg:grid-cols-2 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-blue-400/30">
               
               <div className="flex items-center gap-3.5 pt-3 sm:pt-0 sm:px-3">
                 <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
