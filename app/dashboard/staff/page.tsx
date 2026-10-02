@@ -32,7 +32,9 @@ import StaffManagement from "./components/staff-management";
 import StaffEscalateCareForm from "./components/staff-escalate-care-form";
 import StaffReviewDecisionForm from "./components/staff-review-decision-form";
 import ApproveCareButton from "@/app/dashboard/landlord/components/approve-care-button";
+import VerifyPaymentButton from "./components/verify-payment-button";
 import { ACTIVE_CARE_STATUSES } from "@/lib/constants/care-status";
+import { getPendingPaymentVerifications } from "@/lib/staff/get-pending-payment-verifications";
 
 function getUserRoleInfo(level: number) {
   if (level === 0 || level === 20 || level === 30) {
@@ -299,6 +301,9 @@ export default async function StaffDashboardPage() {
     },
     orderBy: { createdAt: "desc" },
   });
+
+  // 5. Payment Verification Queue — AWAITING_APPROVAL 건을 담당 유닛 스코프로 조회
+  const pendingPaymentVerifications = await getPendingPaymentVerifications(unitWhere);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-zinc-900 font-sans selection:bg-blue-600 selection:text-white">
@@ -598,6 +603,57 @@ export default async function StaffDashboardPage() {
             />
           </div>
         </div>
+
+        {/* ── SECTION 2.5: Payment Verification Queue ── */}
+        <section className="space-y-3">
+          <div className="bg-white rounded-3xl shadow-sm border border-zinc-200/80 p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-extrabold text-zinc-900">Payment Verification Queue</h3>
+                <p className="text-xs text-zinc-500 mt-0.5">Tenant-submitted receipts awaiting confirmation</p>
+              </div>
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-100 text-blue-800">
+                {pendingPaymentVerifications.length} Pending
+              </span>
+            </div>
+
+            {pendingPaymentVerifications.length === 0 ? (
+              <div className="text-center py-8 text-xs text-zinc-400">
+                No payment receipts awaiting verification right now.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingPaymentVerifications.map((payment) => (
+                  <div key={payment.id} className="border border-blue-200/80 bg-blue-50/40 rounded-2xl p-4 flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-2xs shrink-0">
+                        <DollarSign className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="font-extrabold text-zinc-900 text-xs sm:text-sm">
+                          {payment.contract.unit.title} · ₱{Number(payment.amountDue).toLocaleString()}
+                        </span>
+                        <span className="text-[11px] text-zinc-500 font-medium block">
+                          Tenant: {payment.contract.tenant?.name ?? "—"} · Due {new Date(payment.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </span>
+                        {payment.receiptImageUrl && (
+                          <a href={payment.receiptImageUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-1.5">
+                            <img
+                              src={payment.receiptImageUrl}
+                              alt="Receipt"
+                              className="h-14 w-14 object-cover rounded-lg border border-zinc-200"
+                            />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <VerifyPaymentButton paymentId={payment.id} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* ── SECTION 3: My Uploaded Property Inventory (Same as Agent / Broker) ── */}
         <section className="space-y-4 pt-4">

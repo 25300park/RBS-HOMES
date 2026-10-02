@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Upload, Loader2 } from "lucide-react";
 import { useImageCompression } from "@/hooks/use-image-compression";
 
 interface ReceiptUploadButtonProps {
   paymentId: number;
+  initialDone?: boolean;
 }
 
-export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonProps) {
+export default function ReceiptUploadButton({ paymentId, initialDone = false }: ReceiptUploadButtonProps) {
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(initialDone);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { compressImage } = useImageCompression();
@@ -43,6 +46,7 @@ export default function ReceiptUploadButton({ paymentId }: ReceiptUploadButtonPr
       if (!patchRes.ok) throw new Error("Failed to update payment information.");
 
       setDone(true);
+      router.refresh();
     } catch (err: any) {
       setError(err.message ?? "An error occurred.");
     } finally {

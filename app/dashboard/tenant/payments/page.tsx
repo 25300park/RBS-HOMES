@@ -20,6 +20,7 @@ import {
 import { getTenantPaymentHistory } from "@/lib/tenant/get-tenant-payment-history";
 import LogoutButton from "@/app/dashboard/tenant/components/logout-button";
 import BottomNav from "@/app/dashboard/tenant/components/bottom-nav";
+import ReceiptUploadButton from "@/app/dashboard/tenant/components/receipt-upload-button";
 import { DashboardSubnav } from "@/components/dashboard/dashboard-subnav";
 
 export default async function TenantPaymentsPage() {
@@ -214,13 +215,14 @@ export default async function TenantPaymentsPage() {
                               <span>Official Receipt</span>
                               <ArrowUpRight className="w-3.5 h-3.5" />
                             </span>
+                          ) : p.status === "AWAITING_APPROVAL" ? (
+                            <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                              Receipt submitted — pending approval
+                            </span>
                           ) : (
-                            <Link
-                              href="/dashboard/tenant"
-                              className="inline-flex items-center gap-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg shadow-xs transition-all"
-                            >
-                              <span>Pay Now</span>
-                            </Link>
+                            <div className="flex justify-end">
+                              <ReceiptUploadButton paymentId={p.id} initialDone={!!p.receiptImageUrl} />
+                            </div>
                           )}
                         </td>
                       </tr>

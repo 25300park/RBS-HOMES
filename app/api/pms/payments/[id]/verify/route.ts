@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
-// 관리자(level 0)가 납부 확인 → PAID
+// level 0: 전체 승인 가능, level 20/30: 본인 담당 매물(unit.agentId/adminId)의 납부만 승인 가능
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
@@ -16,20 +16,31 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = Number(session.user.id);
     const level = Number(session.user.level ?? 1);
-    if (level !== 0) {
+    if (level !== 0 && level !== 20 && level !== 30) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const verifiedById = Number(session.user.id);
+    const verifiedById = userId;
     const paymentId = Number(params.id);
 
     const payment = await prisma.paymentSchedule.findUnique({
       where: { id: paymentId },
+      include: {
+        contract: { select: { unit: { select: { agentId: true, adminId: true } } } },
+      },
     });
 
     if (!payment) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    if (level === 20 || level === 30) {
+      const { agentId, adminId } = payment.contract.unit;
+      if (agentId !== userId && adminId !== userId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     if (payment.status === "PAID") {
