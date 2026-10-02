@@ -32,10 +32,26 @@ export function DashboardSubnav({ role = "tenant" }: DashboardSubnavProps) {
     { label: "Contracts & LOI Vault", href: "/dashboard/contracts", icon: FileText },
   ];
 
-  const links = role === "landlord" ? landlordLinks : tenantLinks;
+  const staffLinks = [
+    { label: "Contracts & LOI Vault", href: "/dashboard/contracts", icon: FileText },
+  ];
+
+  const linkSets: Record<string, typeof tenantLinks> = {
+    tenant: tenantLinks,
+    landlord: landlordLinks,
+    staff: staffLinks,
+  };
+  const links = linkSets[role] ?? tenantLinks;
+
+  const footerLabel =
+    role === "staff"
+      ? "Staff Operations Navigation"
+      : role === "tenant"
+      ? "Resident Portal Navigation"
+      : "Owner Asset Navigation";
 
   return (
-    <div className="hidden md:flex items-center justify-between bg-white border border-zinc-200/80 rounded-2xl p-2 shadow-sm mb-6">
+    <div className="flex md:hidden items-center justify-between bg-white border border-zinc-200/80 rounded-2xl p-2 shadow-sm mb-6">
       <div className="flex items-center gap-1.5 sm:gap-2">
         {links.map((link) => {
           const Icon = link.icon;
@@ -59,7 +75,7 @@ export function DashboardSubnav({ role = "tenant" }: DashboardSubnavProps) {
       </div>
 
       <div className="text-[11px] font-semibold text-zinc-400 pr-3">
-        {role === "tenant" ? "Resident Portal Navigation" : "Owner Asset Navigation"}
+        {footerLabel}
       </div>
     </div>
   );
