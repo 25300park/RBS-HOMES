@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { CareStatus } from "@prisma/client";
+import { apiError } from "@/lib/api-response";
 
 // 케어 서비스 상태 변경 시 관련자에게 알림 생성
 const careStatusNotifications: Record<
@@ -510,7 +511,6 @@ export async function PATCH(
 
     return NextResponse.json({ careRequest: updated });
   } catch (error) {
-    console.error("[PATCH /api/pms/care/[id]]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiError(error, "Failed to update the care request.");
   }
 }

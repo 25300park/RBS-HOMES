@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { apiError } from "@/lib/api-response";
 
 const AGENT_LEVELS = [2, 3];
 
@@ -46,9 +47,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Already processed" }, { status: 409 });
     }
 
-    // 이 투어가 에이전트 담당 매물에 속하는지 확인
+    // 이 투어가 에이전트 담당 매물 또는 업로드 매물에 속하는지 확인
     const unit = await prisma.unit.findFirst({
-      where: { id: schedule.unitId, agentId },
+      where: {
+        id: schedule.unitId ?? undefined,
+        OR: [{ agentId }, { adminId: agentId }],
+      },
       select: { id: true, title: true },
     });
 
@@ -180,7 +184,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    console.error("[POST /api/pms/tour-action]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiError(error, "Failed to process the tour request.");
   }
 }

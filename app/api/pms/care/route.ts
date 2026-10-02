@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { apiError } from "@/lib/api-response";
 
 const careServiceTypeLabel: Record<string, string> = {
   AIRCON: "Air Conditioning",
@@ -106,8 +107,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ careRequests });
   } catch (error) {
-    console.error("[GET /api/pms/care]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiError(error, "Failed to load care requests.");
   }
 }
 
@@ -170,7 +170,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ careRequest }, { status: 201 });
   } catch (error) {
-    console.error("[POST /api/pms/care]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiError(error, "Failed to process your care request.");
   }
 }

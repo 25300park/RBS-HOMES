@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { apiError } from "@/lib/api-response";
 
 export async function POST(req: Request) {
   try {
@@ -37,7 +38,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ schedule });
   } catch (error) {
-    console.error("[POST /api/pms/agent-schedule]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiError(error, "Failed to add schedule.");
   }
 }
