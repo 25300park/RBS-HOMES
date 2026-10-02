@@ -6,48 +6,8 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ContractStatus } from "@prisma/client";
 
-export async function GET(req: Request) {
-  try {
-    const session: any = await getServerSession(authOptions as any);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const userId = Number(session.user.id);
-    const level = Number(session.user.level ?? 1);
-
-    let where: any = {};
-
-    if (level === 4) {
-      // Landlord: 본인 소유 유닛의 계약
-      where = { landlordId: userId };
-    } else if (level === 5) {
-      // Tenant: 본인이 임차인인 계약
-      where = { tenantId: userId };
-    } else if (level === 0) {
-      // Admin: 전체 (where 조건 없음)
-    } else {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const leases = await prisma.leaseContract.findMany({
-      where,
-      include: {
-        unit: { select: { id: true, title: true, address2: true, address3: true, fullAddress: true } },
-        condo: { select: { id: true, condoName: true } },
-        landlord: { select: { id: true, name: true, email: true, phone: true } },
-        tenant: { select: { id: true, name: true, email: true, phone: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ leases });
-  } catch (error) {
-    console.error("[GET /api/pms/leases]", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
-  }
-}
-
+// GET 제거됨 (호출부 없음 — /dashboard/landlord/leases 등은 getLandlordLeaseData로 직접 조회).
+// POST는 RBS_SYNC_SECRET 기반 외부 CRM 연동 설계 흔적이 있어 외부 확인 전까지 유지.
 export async function POST(req: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
