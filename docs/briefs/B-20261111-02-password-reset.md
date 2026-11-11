@@ -30,12 +30,12 @@
 5. 수정 계획 (되돌림 방식, 변경 파일 목록)
 
 ## 6. 수용 기준
-- [ ] AC-1: 트랜잭션 콜백 안에 sendEmail 호출이 없다. (검색 결과와 테스트)
-- [ ] AC-2: 성공 시 해시가 갱신되고 메일은 커밋 후 한 번 호출된다.
-- [ ] AC-3: 메일 발송이 예외를 던지면 해시가 이전 값으로 복원되고, 사용자 응답은 고정 오류 문구다.
-- [ ] AC-4: sendEmail이 skipped를 돌려주면 AC-3과 같이 처리한다.
-- [ ] AC-5: 모든 경로에서 로그에 비밀번호, 해시, 토큰, 전체 이메일이 없다.
-- [ ] AC-6: CI / verify 통과, 기존 테스트 통과
+- [x] AC-1: 트랜잭션 콜백 안에 sendEmail 호출이 없다. (검색 결과와 테스트)
+- [x] AC-2: 성공 시 해시가 갱신되고 메일은 커밋 후 한 번 호출된다.
+- [x] AC-3: 메일 발송이 예외를 던지면 해시가 이전 값으로 복원되고, 사용자 응답은 고정 오류 문구다.
+- [x] AC-4: sendEmail이 skipped를 돌려주면 AC-3과 같이 처리한다.
+- [x] AC-5: 모든 경로에서 로그에 비밀번호, 해시, 토큰, 전체 이메일이 없다.
+- [x] AC-6: CI / verify 통과, 기존 테스트 통과 (로컬 클린 설치 기준으로 확인, 10번 참고)
 
 ## 7. 테스트
 - AC-2~5를 vitest로 검증한다. 운영 DB와 실제 메일 발송은 쓰지 않는다.
@@ -98,7 +98,42 @@ PR 되돌리기. 환경변수 변경 없음.
   4. `vitest.config.ts` — **추가로 필요한 변경**: 현재 `resolve.alias` 설정이 없어 `@/*` import(`lib/action.ts`가 쓰는 `@/lib/prisma`, `@/lib/email`, `@/lib/auth`, `@/lib/utils`, `@/types/schema` 등)가 vitest에서 해석되지 않는다 (tsconfig의 `paths`는 TypeScript 타입체크에만 쓰이고 vitest/vite 번들링에는 적용되지 않음, 별도 플러그인 없음). `lib/action.ts`를 테스트에서 직접 import하려면 `vitest.config.ts`에 `resolve: { alias: { "@": path.resolve(__dirname, ".") } }`를 추가해야 한다. 이 변경이 없으면 AC-6(기존 테스트 포함 CI 통과)도 새 테스트 자체가 모듈 해석 오류로 실패한다.
 - **AC-5(로그 무노출) 확인 방법**: 코드 리뷰(그렙으로 `console.` 호출 전부 확인) + 테스트에서 `console.error`/`console.log` spy를 걸어 호출 인자에 평문 비밀번호·해시·전체 이메일 문자열이 없는지 assert.
 
-위 계획대로 코드를 수정해도 될지 확인 부탁합니다. 승인 전까지 `lib/action.ts`, `lib/email.ts`, `vitest.config.ts`, 테스트 파일 중 아무것도 바꾸지 않았습니다.
+### 구현 (승인 후)
+
+대표가 계획을 승인하면서 되돌림 조건을 명시했다: `updateMany({ where: { id, password: 방금 저장한 새 해시 }, data: { password: 이전 해시 } })` 형태로, 되돌릴 때 그 사이 해시가 바뀌었으면(비교 대상 불일치) 덮어쓰지 않고 마스킹 로그만 남긴다. 이 조건은 이미 5번 계획에 compare-and-swap 형태로 반영되어 있었고, 구현에서 그대로 적용했다.
+
+- `lib/action.ts` — `resetPassword()` 재구성:
+  - 트랜잭션은 `findUnique`(이전 해시 보관) → `user.update`(새 해시) → `passwordResetLog.create`까지만 하고 커밋.
+  - 커밋 후 트랜잭션 밖에서 `sendEmail()` 호출.
+  - `sendEmail()`이 예외를 던지거나 `{ success: true, skipped: true }`를 돌려주면(둘 다 "메일이 실제로 안 나간 것"으로 취급): `prisma.user.updateMany({ where: { id: userId, password: newHashedPassword }, data: { password: previousHashedPassword } })`로 조건부 복원.
+    - `restored.count === 0`이면(그 사이 해시가 바뀜) 덮어쓰지 않고 `maskEmail()`로 마스킹한 이메일만 `console.error`에 남김.
+    - `updateMany` 자체가 예외를 던지면 마스킹 이메일 + 에러 객체로 로그, 사용자 응답은 동일한 고정 오류 문구.
+  - 모든 실패 경로가 같은 고정 문구(`RESET_PASSWORD_FAILURE`, "An error occurred while resetting your password. Please try again.")를 반환 — 복원 성공/스킵/실패 여부와 무관하게 사용자에게 보이는 메시지는 동일.
+  - `passwordResetLog` 행은 되돌리지 않음(계획대로).
+- `lib/email.ts` — `maskEmail`을 `export`로 변경(로직 불변). `sendEmail`/`sendViaResend`에 `Promise<{ success: boolean; skipped?: boolean }>` 반환형 명시(타입만 추가, 동작 불변) — `action.ts`에서 `sendResult.skipped`를 안전하게 읽기 위해 필요했음.
+- `vitest.config.ts` — `resolve.alias`에 `"@"` → 프로젝트 루트 추가(계획대로, `@/*` import 해석용).
+- `lib/action.test.ts` (신규) — 8개 테스트: 계정 없음(404, 쓰기 없음), AC-1/AC-2(트랜잭션 콜백 안에 sendEmail 없음 + 커밋 후 1회 호출, `invocationCallOrder`로 순서 확인), AC-3(예외 시 복원 + 고정 오류), AC-4(skipped 시 동일 처리), 복원 조건 충족 시 되돌림 확인, **복원 대상 0건(그 사이 해시 변경) 시 덮어쓰지 않고 마스킹 로그만 남는지 확인**, AC-5(모든 `console.error` 호출 인자에 평문 해시·전체 이메일 없음).
+
+### 검증 결과
+
+로컬에서 `tsconfig.tsbuildinfo`와 `.next` 캐시를 삭제한 뒤 순서대로 실행:
+
+1. `npm ci` — 성공 (906 packages). `allow-scripts` 정책으로 postinstall 스크립트 일부가 자동 실행되지 않아 `npx prisma generate`를 별도로 실행함(기존 CI 단계와 동일한 순서라 CI에는 영향 없음). `bcrypt` 네이티브 모듈은 기존 빌드 산물로 정상 동작 확인(`require('bcrypt').hash(...)` 직접 테스트).
+2. `npx prisma generate` — 성공.
+3. `npx tsc --noEmit` — 통과(에러 0). 테스트 파일 작성 중 `TS18048`(possibly undefined)과 `TS7006`(implicit any) 두 종류 에러가 있었고, optional chaining과 명시적 타입 어노테이션으로 수정 후 통과.
+4. `npm run lint` — 경고만 있음(전부 이번 변경과 무관한 기존 파일: `<img>` 최적화 권고, `useEffect` 의존성 배열 등). 에러 없음.
+5. `npm test` (vitest run) — **Test Files 2 passed (2), Tests 15 passed (15)** (`lib/email.test.ts` 기존 7개 + `lib/action.test.ts` 신규 8개). 실행 시간 약 5.5초.
+6. `npm run build` — 성공, 61페이지 전부 생성. `docs/ci.md`에 적어둔 대로 `/account/messages`의 "Dynamic server usage(headers)" 에러 로그가 보이지만 이는 기존에도 내부에서 잡아 넘기는 로그이고 빌드 자체는 실패하지 않음(기존 알려진 패턴).
+
+CI(GitHub Actions)는 아직 실행하지 않음 — 이 보고는 로컬 클린 실행 기준. PR 푸시 후 실제 CI 결과가 다르면 다시 보고할 것.
+
+### 미해결과 확인이 필요한 것
+
+1. 새 비밀번호를 메일 본문에 평문으로 보내는 방식(`lib/email.ts:80`, `getPasswordResetEmailTemplate`)은 이번 범위에서 바꾸지 않았다. 재설정 링크와 토큰 방식으로 바꾸는 것이 더 안전하다 — 별도 브리프 대상.
+2. 계정 존재 여부가 응답 메시지로 그대로 드러난다(`lib/action.ts`의 404 메시지 "No account found..."가 `auth-modal.tsx`에서 그대로 toast로 노출). 이번 범위에서 다루지 않음.
+3. `EMAIL_MODE`가 `off`인 환경(로컬 개발, CI, 그리고 운영 EC2 — `docs/approval-policy.md`의 발송 스위치 표 기준)에서는 `sendEmail()`이 항상 `skipped: true`를 돌려주므로, 이번 수정이 들어가면 그런 환경에서 비밀번호 재설정은 **항상 실패(고정 오류 문구)**로 동작한다. 이것은 "메일 안 나갔는데 비밀번호만 바뀌는" 버그를 막기 위한 **의도된 동작**이지만, 운영에서 `EMAIL_MODE=live`가 아닌 상태로 배포되면 비밀번호 찾기 기능 자체가 막힌다는 뜻이다. 배포 전에 운영 `EMAIL_MODE` 값을 확인해야 한다.
+
+위 변경은 PR #14에 새 커밋으로 올렸고 머지하지 않았습니다.
 
 ## 11. 승인 기록 (사람이 채움)
 (작성 대기)

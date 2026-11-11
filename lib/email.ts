@@ -17,13 +17,18 @@ interface EmailOptions {
 }
 
 // 수신자 이메일을 로그용으로 마스킹한다 (예: a***@domain.com)
-function maskEmail(email: string): string {
+export function maskEmail(email: string): string {
   const atIndex = email.indexOf('@');
   if (atIndex <= 0) return '***';
   return `${email[0]}***${email.slice(atIndex)}`;
 }
 
-export async function sendEmail({ to, subject, html }: EmailOptions) {
+interface SendEmailResult {
+  success: boolean;
+  skipped?: boolean;
+}
+
+export async function sendEmail({ to, subject, html }: EmailOptions): Promise<SendEmailResult> {
   const mode = process.env.EMAIL_MODE;
 
   if (mode === 'redirect') {
@@ -54,7 +59,7 @@ export async function sendEmail({ to, subject, html }: EmailOptions) {
   return { success: true, skipped: true };
 }
 
-async function sendViaResend({ to, subject, html }: EmailOptions) {
+async function sendViaResend({ to, subject, html }: EmailOptions): Promise<SendEmailResult> {
   try {
     await getResendClient().emails.send({ from: FROM_ADDRESS, to, subject, html });
     return { success: true };
