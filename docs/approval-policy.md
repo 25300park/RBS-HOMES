@@ -9,6 +9,10 @@
 3. 등급이 불확실하면 한 단계 위로 올린다.
 4. "완료"의 기준은 에이전트의 보고가 아니라 PR diff와 CI 결과다.
 5. 이 문서를 바꾸는 변경은 3등급이다.
+6. 에이전트는 PR을 머지하지 않는다. 머지는 대표만 한다.
+7. 필수 검사의 이름은 CI / verify다.
+8. 혼자 운영이므로 필수 승인 수는 0이고, 대표의 머지 클릭이 승인이다.
+9. 규칙 우회 머지는 예외에만 쓰고, 쓰면 PR에 사유를 남긴다.
 
 ## 등급
 
@@ -27,7 +31,7 @@
 - 이메일과 푸시 발송 코드, 발송 스위치 설정: `lib/email.ts`, `lib/message-action.ts`, `lib/message-text.tsx` (주의: `EMAIL_MODE` 스위치는 이 레포에 아직 구현되어 있지 않음 — 새로 추가하는 코드 자체가 3등급 대상)
 - 개인정보의 조회·저장·전달과 채팅/대화방 접근 규칙: `app/(route)/account/(auth)/messages/**`, `components/chat/**`, `components/chatbot/**`, `components/dashboard/concierge-message-widget.tsx`, `app/api/chatbot/**`, `lib/chatbot/**`
 - AI 호출 구조 — 프롬프트, 레드라인, 모델 이름, 비용 상한: `lib/chatbot/handle-message.ts`(시스템 프롬프트·모델명), `lib/chatbot/search-units-tool.ts`, `lib/ai-search/**`, `app/api/ai/extract-listing/route.ts`, `app/api/ai-search/route.ts`
-- 환경변수, 배포 설정, CI 설정: `.github/workflows/deploy.yml`, `next.config.mjs`, `middleware.ts` (이 레포에는 `vercel.json` 없음 — 생기면 바로 3등급 목록에 추가)
+- 환경변수, 배포 설정, CI 설정: `.github/workflows/deploy.yml`, `.github/workflows/ci.yml`, `next.config.mjs`, `middleware.ts` (이 레포에는 `vercel.json` 없음 — 생기면 바로 3등급 목록에 추가)
 - 납부 승인과 계약 생성 로직: `app/api/pms/payments/[id]/verify/route.ts`, `app/api/pms/payments/[id]/route.ts`, `app/api/pms/leases/route.ts`, `app/api/pms/leases/[id]/route.ts`, `app/api/cron/expire-leases/route.ts`, `lib/landlord/get-landlord-payments.ts`, `lib/tenant/get-tenant-payment-history.ts`, `lib/staff/get-pending-payment-verifications.ts`
 - admin-rbs-homes 저장소의 모든 변경 (별도 GitHub 저장소 — 이 레포의 하위 경로 아님)
 - 이 문서 (`docs/approval-policy.md`)
