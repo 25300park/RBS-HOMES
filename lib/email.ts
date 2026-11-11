@@ -2,7 +2,13 @@ import { Resend } from 'resend';
 
 const FROM_ADDRESS = 'RBS HOMES <noreply@mail.rbs-homes.com>';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null = null;
+function getResendClient(): Resend {
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 interface EmailOptions {
   to: string;
@@ -10,9 +16,47 @@ interface EmailOptions {
   html: string;
 }
 
+// 수신자 이메일을 로그용으로 마스킹한다 (예: a***@domain.com)
+function maskEmail(email: string): string {
+  const atIndex = email.indexOf('@');
+  if (atIndex <= 0) return '***';
+  return `${email[0]}***${email.slice(atIndex)}`;
+}
+
 export async function sendEmail({ to, subject, html }: EmailOptions) {
+  const mode = process.env.EMAIL_MODE;
+
+  if (mode === 'redirect') {
+    const redirectTo = process.env.EMAIL_REDIRECT_TO;
+    if (!redirectTo) {
+      console.log(`[email:off] (redirect without EMAIL_REDIRECT_TO) to=${maskEmail(to)} subject="${subject}"`);
+      return { success: true, skipped: true };
+    }
+    console.log(`[email:redirect] original_to=${maskEmail(to)} redirected_to=${maskEmail(redirectTo)} subject="${subject}"`);
+    return sendViaResend({
+      to: redirectTo,
+      subject: `[To: ${to}] ${subject}`,
+      html,
+    });
+  }
+
+  if (mode === 'live') {
+    if (process.env.VERCEL_ENV !== 'production') {
+      console.log(`[email:off] (live outside production) to=${maskEmail(to)} subject="${subject}"`);
+      return { success: true, skipped: true };
+    }
+    console.log(`[email:live] to=${maskEmail(to)} subject="${subject}"`);
+    return sendViaResend({ to, subject, html });
+  }
+
+  // off, 값 없음, 알 수 없는 값
+  console.log(`[email:off] to=${maskEmail(to)} subject="${subject}"`);
+  return { success: true, skipped: true };
+}
+
+async function sendViaResend({ to, subject, html }: EmailOptions) {
   try {
-    await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+    await getResendClient().emails.send({ from: FROM_ADDRESS, to, subject, html });
     return { success: true };
   } catch (error) {
     console.error('Failed to send email:', error);
