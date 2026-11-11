@@ -13,7 +13,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { generateTemporaryPassword } from "@/lib/utils";
-import { sendEmail, getPasswordResetEmailTemplate } from "@/lib/email";
+import { sendEmail, getPasswordResetEmailTemplate, maskEmail } from "@/lib/email";
 import { headers } from "next/headers";
 
 // 기본값 상수 정의
@@ -21,36 +21,43 @@ const DEFAULT_ACTIVE_TYPES = ["rent"];
 const DEFAULT_AMENITIES:any = [];
 const DEFAULT_STATUS = [0, 1, 3]; // 기본적으로 진행 중(0)과 협상 중(3) 상태만 표시
 
+const RESET_PASSWORD_FAILURE: FormState = {
+  status: 500,
+  message: "An error occurred while resetting your password. Please try again.",
+};
+
 //비밀번호 찾기
 export async function resetPassword(state: FormState, formData: FormData) {
   const email = formData.get("email") as string;
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    // DB 변경(해시 갱신, 재설정 로그)만 트랜잭션 안에서 처리하고, 메일 발송은
+    // 커밋 뒤로 미룬다. 콜백 안에서 외부 메일 API를 부르면 발송 성공 이후
+    // 트랜잭션이 실패해도 사용자가 이미 저장되지 않은 비밀번호를 받을 수 있다.
+    const prepared = await prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { email },
       });
 
       if (!user) {
         return {
-          status: 404,
+          status: 404 as const,
           message: "No account found with this email address.",
         };
       }
 
       const tempPassword = generateTemporaryPassword();
-      const hashedPassword = await hash(tempPassword, 10);
+      const newHashedPassword = await hash(tempPassword, 10);
+      const previousHashedPassword = user.password;
 
-      // 비밀번호 업데이트
       await tx.user.update({
-        where: { email },
+        where: { id: user.id },
         data: {
-          password: hashedPassword,
+          password: newHashedPassword,
           lastUpdate: new Date(),
-          },
+        },
       });
 
-      // 비밀번호 재설정 로그 생성
       await tx.passwordResetLog.create({
         data: {
           email,
@@ -58,27 +65,64 @@ export async function resetPassword(state: FormState, formData: FormData) {
         },
       });
 
-      // 이메일 발송
-      await sendEmail({
+      return {
+        status: 200 as const,
+        userId: user.id,
+        tempPassword,
+        newHashedPassword,
+        previousHashedPassword,
+      };
+    });
+
+    if (prepared.status === 404) {
+      return { status: prepared.status, message: prepared.message };
+    }
+
+    const { userId, tempPassword, newHashedPassword, previousHashedPassword } =
+      prepared;
+
+    let emailDelivered = false;
+    try {
+      const sendResult = await sendEmail({
         to: email,
         subject: "RBS HOME - Temporary Password Notice",
         html: getPasswordResetEmailTemplate(tempPassword),
       });
+      emailDelivered = sendResult.success && !sendResult.skipped;
+    } catch (sendError) {
+      console.error("Reset password email error:", sendError);
+    }
 
-      return {
-        status: 200,
-        message: "A temporary password has been sent to your email.",
-      };
-    });
+    if (!emailDelivered) {
+      // 방금 이 요청이 저장한 해시일 때만 되돌린다. 그 사이 다른 재설정이나
+      // 로그인 시 비밀번호 변경이 끼어들었으면 그 값을 덮어쓰지 않는다.
+      try {
+        const restored = await prisma.user.updateMany({
+          where: { id: userId, password: newHashedPassword },
+          data: { password: previousHashedPassword },
+        });
+        if (restored.count === 0) {
+          console.error(
+            `Reset password restore skipped (hash changed since reset): ${maskEmail(email)}`
+          );
+        }
+      } catch (restoreError) {
+        console.error(
+          `Reset password restore failed: ${maskEmail(email)}`,
+          restoreError
+        );
+      }
 
-    return result;
+      return RESET_PASSWORD_FAILURE;
+    }
+
+    return {
+      status: 200,
+      message: "A temporary password has been sent to your email.",
+    };
   } catch (error) {
     console.error("Reset password error:", error);
-    return {
-      status: 500,
-      message:
-        "An error occurred while resetting your password. Please try again.",
-    };
+    return RESET_PASSWORD_FAILURE;
   }
 }
 export async function signup(
