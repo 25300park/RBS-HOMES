@@ -1,7 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
+const { isAllowedLocalHost } = require('../scripts/guard-local-db');
 const prisma = new PrismaClient();
 
 async function main() {
+  // 이 스크립트는 전체 Unit을 삭제하고 다시 채운다. DATABASE_URL이 로컬이
+  // 아니면(예: 운영 Railway) 절대 실행하지 않는다.
+  if (!isAllowedLocalHost(process.env.DATABASE_URL)) {
+    console.error(
+      '[guard-local-db] 거부: DATABASE_URL 호스트가 로컬이 아닙니다. localhost, 127.0.0.1, host.docker.internal만 허용됩니다. 이 스크립트는 전체 Unit을 삭제하므로 중단합니다.'
+    );
+    process.exit(1);
+  }
+
   await prisma.unit.deleteMany();
   console.log('All existing units deleted.');
   const unitPromises = [];

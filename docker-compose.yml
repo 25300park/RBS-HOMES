@@ -1,0 +1,21 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rbs-homes-local-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: localpass
+      MYSQL_DATABASE: rbs_local
+    volumes:
+      - rbs_local_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-plocalpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  rbs_local_mysql_data:
+    name: rbs_local_mysql_data

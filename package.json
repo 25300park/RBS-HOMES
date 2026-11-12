@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "node prisma/seed.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:local:up": "node scripts/with-local-db.js docker compose up -d",
+    "db:local:schema": "node scripts/with-local-db.js npx prisma db push --skip-generate",
+    "db:local:seed": "node scripts/with-local-db.js node prisma/seed-local.js",
+    "db:local:reset": "node scripts/with-local-db.js node scripts/reset-local-db.js",
+    "dev:local": "node scripts/with-local-db.js next dev",
+    "build:local": "node scripts/with-local-db.js node scripts/build-local.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.651.1",
