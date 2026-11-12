@@ -4,11 +4,12 @@
 ```
 cp local.env.example .env.local
 npm run db:local:up        # 로컬 MySQL 컨테이너(포트 3307) 기동
-npm run db:local:migrate    # prisma migrate deploy
+npm run db:local:schema     # prisma db push --skip-generate (마이그레이션 아님, 아래 참고)
 npm run db:local:seed       # 가짜 데이터 채우기
 npm run dev:local            # next dev (localhost:3000)
 ```
-초기화하고 싶으면 `npm run db:local:reset` (컨테이너 DB만 지우고 다시 만듦, 운영 영향 없음).
+초기화하려면 `npm run db:local:reset`(컨테이너 DB만 지우고 `db:local:schema`까지 재실행, 운영 영향 없음).
+`migrate deploy` 대신 `db push`를 쓰는 이유: `account` 테이블 CREATE 기록이 `prisma/migrations/`에 없어 빈 DB에서 순서대로 적용하면 실패한다(별도 브리프 필요, 보류). `db push`는 항상 `scripts/with-local-db.js`를 거쳐서만 실행한다.
 
 ## 로컬 계정 (전부 가짜, @example.invalid, 비밀번호 전부 `LocalDev!2026`)
 | 이메일 | level | 역할 |

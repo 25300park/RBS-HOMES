@@ -29,7 +29,8 @@ function main() {
 
   run("docker", ["compose", "down", "-v"]);
   run("docker", ["compose", "up", "-d", "--wait"]);
-  run("npx", ["prisma", "migrate", "deploy"]);
+  // prisma db push는 항상 with-local-db.js(가드)를 거쳐서만 실행한다.
+  run("node", ["scripts/with-local-db.js", "npx", "prisma", "db", "push", "--skip-generate"]);
   run("node", ["prisma/seed-local.js"]);
 
   console.log("[reset-local-db] 완료.");

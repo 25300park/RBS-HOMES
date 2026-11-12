@@ -10,7 +10,7 @@
     "seed": "node prisma/seed.js",
     "test": "vitest run",
     "db:local:up": "node scripts/with-local-db.js docker compose up -d",
-    "db:local:migrate": "node scripts/with-local-db.js npx prisma migrate deploy",
+    "db:local:schema": "node scripts/with-local-db.js npx prisma db push --skip-generate",
     "db:local:seed": "node scripts/with-local-db.js node prisma/seed-local.js",
     "db:local:reset": "node scripts/with-local-db.js node scripts/reset-local-db.js",
     "dev:local": "node scripts/with-local-db.js next dev",
