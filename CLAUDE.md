@@ -9,6 +9,7 @@
 - PowerShell에서 괄호가 든 경로는 반드시 따옴표로 감쌀 것 (예: `"app/(route)/..."`).
 - PowerShell 경로 이동은 `Set-Location -LiteralPath` 사용.
 - 파일 쓰기는 BOM 없이 (UTF-8 no BOM).
+- **로컬 검증은 `npm run build:local`/`npm run dev:local`만 쓴다. 로컬에서 `npm run build`와 `npm run dev`를 실행하지 않는다.** (`.env.local`의 `DATABASE_URL`이 로컬이 아닌 값일 때 `npm run build`/`dev`를 그대로 돌리면 가드 없이 실제 DB에 연결된다 — 2026-11-12 `docs/briefs/B-20261111-02-password-reset.md`, `docs/briefs/B-20261111-03-local-env.md`에서 로컬 빌드가 운영 DB를 읽기 전용으로 조회한 사고 기록 참고. `npm run build`/`dev` 자체는 Vercel/EC2/CI가 그대로 쓰므로 바꾸지 않는다.)
 
 ## 프로젝트 정보
 - Next.js 14, Railway MySQL, Prisma.
