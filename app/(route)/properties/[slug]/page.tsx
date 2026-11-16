@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { getUnitDetail } from "@/app/(route)/unit/action";
 import DetailWrap from "@/app/(route)/unit/components/detail-wrap";
 import { generatePropertySlug, extractIdFromSlug, parseImages } from "@/lib/utils";
@@ -7,6 +7,12 @@ import { generatePropertySlug, extractIdFromSlug, parseImages } from "@/lib/util
 export interface UnitDetailProps {
   params: { slug: string };
 }
+
+// generateMetadata와 페이지 컴포넌트가 같은 요청에서 각각 getUnitDetail을 호출하던
+// 것을 React.cache로 묶어 한 요청당 한 번만 조회·조회기록을 남기게 한다.
+// getUnitDetail 자체(app/(route)/unit/action.ts)는 'use server' 서버 액션이라
+// 그대로 두고, 호출 쪽에서만 감싼다.
+const getCachedUnitDetail = cache(getUnitDetail);
 
 // 로딩 컴포넌트
 function PropertyLoading() {
@@ -107,7 +113,7 @@ export async function generateMetadata(
   }
 
   try {
-    const { unitDetail } = await getUnitDetail(unitId)
+    const { unitDetail } = await getCachedUnitDetail(unitId)
 
     if (!unitDetail) {
       return {
@@ -256,7 +262,7 @@ const UnitDetail = async ({ params }: UnitDetailProps) => {
   }
 
   try {
-    const { unitDetail } = await getUnitDetail(unitId)
+    const { unitDetail } = await getCachedUnitDetail(unitId)
 
     if (!unitDetail) {
       return <PropertyError message="The requested property listing could not be found or has been removed." />
