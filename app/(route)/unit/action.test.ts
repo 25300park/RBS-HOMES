@@ -43,11 +43,14 @@ vi.mock("next/headers", () => ({
   headers: () => ({ get: () => null }),
 }));
 
+// action.ts의 getUnitDetail은 price/outstandingPayment가 Prisma Decimal
+// (toNumber()를 가진 객체)이라고 가정하므로, 평범한 숫자가 아니라 그 형태를
+// 흉내낸 값을 줘야 실제 코드 경로와 맞는다.
 const SAMPLE_UNIT = {
   id: 1,
   title: "Sample Unit",
-  price: 25000,
-  outstandingPayment: 0,
+  price: { toNumber: () => 25000 },
+  outstandingPayment: { toNumber: () => 0 },
   admin: { id: 1, email: "admin@example.invalid" },
 };
 

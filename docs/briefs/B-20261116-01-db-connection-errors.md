@@ -113,6 +113,8 @@
 
 - **AC-5 실측 결과**: unit id 71로 세 경로(`/properties/test-id71`, `/list`, `/api/units?limit=5`)를 변경 전/후 각각 `curl`로 받아 파일로 저장한 뒤 `diff`로 비교. `next dev`가 재기동마다 바꾸는 정적 자산 캐시버스터(`?v=<timestamp>`)만 다르고, 그 부분을 정규화(`?v=X`로 치환)한 뒤에는 **세 경로 모두 바이트 단위로 100% 동일**했다(`diff` 결과 줄 수 0).
 
+- **GitHub Actions CI**: Draft PR #18의 첫 실행(`43801217580`)이 `app/(route)/unit/action.test.ts`의 AC-3 테스트 2개에서 실패했다. 원인은 로컬 디스크의 `app/(route)/unit/action.ts`에 남아있던, 이 브리프와 무관한 미커밋 변경(아래 "미해결" 5번) 때문에 로컬에서는 통과했지만 실제 `origin/main`에 커밋된 버전(`price`를 Prisma `Decimal`로 가정하고 `.toNumber()`를 그대로 호출)에서는 내 테스트의 평범한 숫자 목(`price: 25000`)이 `TypeError: unitDetail.price?.toNumber is not a function`로 터진 것이었다. `SAMPLE_UNIT`의 `price`/`outstandingPayment`를 `{ toNumber: () => N }` 형태로 고쳐 재현·수정했고, 다시 push해 CI가 통과했다(아래 참고).
+
 - **수용 기준별 결과**: 위 6번 표에 반영함 — **AC-1~AC-7 전부 통과.**
 
 - **쿼리 수 변화 (AC-6, 실측)**:
@@ -134,6 +136,7 @@
   2. **SiteVisitorLog**: `app/api/visitor/**`도 건드리지 않았다(지시대로).
   3. **연결 풀 계산식의 두 입력값**(Railway `max_connections`, Vercel 최대 동시 인스턴스 수)은 대표가 직접 확인해야 실제 숫자를 계산식에 넣을 수 있다.
   4. 측정에 쓴 로컬 MySQL 컨테이너/`dev:local` 서버는 모두 멈춘 상태로 남겨뒀다(작업 디렉터리의 코드는 고친 버전으로 정확히 복원함).
+  5. **(새로 발견) `app/(route)/unit/action.ts`에 이 브리프와 무관한 미커밋 변경이 로컬 디스크에 남아 있다.** `origin/main`에 커밋된 버전은 `transformedUnitDetail`에서 `price`/`outstandingPayment`를 `unitDetail.price?.toNumber() ?? null`처럼 Prisma `Decimal`이라고 가정하고 그대로 호출하는데, 로컬 디스크 버전은 `typeof (...)?.toNumber === "function" ? ... : Number(...) || null`로 더 방어적으로 바뀌어 있다. 이 PR은 `action.ts`를 전혀 건드리지 않았으니 이번 범위와는 무관하지만, 다른 AI 도구가 만든 미커밋 수정으로 보이므로 따로 검토가 필요하다(어떤 상황에서 `price`가 Decimal이 아닌 값이 될 수 있는지 확인 후 커밋할지 판단).
 
 - **범위 밖이라 손대지 않았지만 발견한 것**:
   - `Unit.viewCount` 필드는 어디서도 증가(update)되지 않는 죽은 칼럼으로 보임(1단계 조사에서 이미 보고함, 재확인).
