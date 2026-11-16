@@ -23,52 +23,6 @@ const authOptions: AuthOptions = {
           throw new Error("Missing credentials");
         }
 
-        // Demo Login Helper for Local Development & Instant Preview
-        if (credentials.password === "demo" || credentials.email.endsWith("@demo.com")) {
-          const roleLevels: Record<string, { name: string; level: number }> = {
-            "landlord@demo.com": { name: "Landlord Demo", level: 4 },
-            "tenant@demo.com": { name: "Tenant Demo", level: 5 },
-            "agent@demo.com": { name: "Agent Demo", level: 2 },
-            "buyer@demo.com": { name: "Buyer Demo", level: 1 },
-          };
-
-          const roleInfo = roleLevels[credentials.email] || { name: "Demo User", level: 1 };
-          
-          let demoUser = await prisma.user.findUnique({
-            where: { email: credentials.email },
-          });
-
-          if (!demoUser) {
-            demoUser = await prisma.user.create({
-              data: {
-                email: credentials.email,
-                name: roleInfo.name,
-                level: roleInfo.level,
-                phone: "+63 917 123 4567",
-                image: "/assets/images/default-avatar.png",
-                password: await bcrypt.hash("demo", 10),
-              },
-            });
-          } else if (!demoUser.phone) {
-            demoUser = await prisma.user.update({
-              where: { id: demoUser.id },
-              data: { phone: "+63 917 123 4567" },
-            });
-          }
-
-          return {
-            id: demoUser.id,
-            email: demoUser.email,
-            name: demoUser.name,
-            level: demoUser.level,
-            phone: demoUser.phone,
-            image: demoUser.image,
-            status: demoUser.status,
-            license: demoUser.license,
-            isSuperAdmin: demoUser.isSuperAdmin,
-          } as any;
-        }
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
