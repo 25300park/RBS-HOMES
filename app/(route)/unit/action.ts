@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { headers } from 'next/headers';
+import { waitUntil } from "@vercel/functions";
 
 // DTO 함수 정의
 const unitWithAdminDTO = (unit: any) => ({
@@ -136,12 +137,6 @@ export async function getUnitsWithAdmin(
  */
 const getClientIp = (): string => {
   const headersList = headers();
-  
-  console.log("Headers received:", {
-    'x-forwarded-for': headersList.get('x-forwarded-for'),
-    'x-real-ip': headersList.get('x-real-ip'),
-    'cf-connecting-ip': headersList.get('cf-connecting-ip'),
-  });
 
   const cleanIp = (ip: string | null): string => {
     if (!ip || ip.trim() === '') return 'unknown';
@@ -176,30 +171,38 @@ const getClientIp = (): string => {
   // 1. Cloudflare
   let ip = headersList.get('cf-connecting-ip');
   if (ip) {
-    const cleaned = cleanIp(ip);
-    console.log("Using cf-connecting-ip:", cleaned);
-    return cleaned;
+    return cleanIp(ip);
   }
 
   // 2. x-forwarded-for (프록시)
   ip = headersList.get('x-forwarded-for');
   if (ip) {
     const ips = ip.split(",");
-    const cleaned = cleanIp(ips[0].trim());
-    console.log("Using x-forwarded-for:", cleaned);
-    return cleaned;
+    return cleanIp(ips[0].trim());
   }
 
   // 3. x-real-ip (nginx)
   ip = headersList.get('x-real-ip');
   if (ip) {
-    const cleaned = cleanIp(ip);
-    console.log("Using x-real-ip:", cleaned);
-    return cleaned;
+    return cleanIp(ip);
   }
 
-  console.log("No IP header found, returning 'unknown'");
   return 'unknown';
+};
+
+// 서버 액션(POST)이 재검증을 일으키면 Next.js가 액션을 호출한 페이지를 같은
+// 응답 안에서 다시 렌더링한다. 그 재렌더링은 새 방문이 아니므로 열람 기록을
+// 남기지 않는다. Next.js는 서버 액션 요청에 Next-Action 헤더를 붙인다.
+const isServerActionRequest = (): boolean => headers().has("next-action");
+
+// Prisma 검증 오류 메시지에는 호출 인자(IP, userId)가 그대로 들어가므로
+// 오류 로그에는 이름과 코드만 남긴다.
+const errorSummary = (error: unknown) => {
+  const e = (error ?? {}) as { name?: unknown; code?: unknown };
+  return {
+    name: typeof e.name === "string" ? e.name : "UnknownError",
+    code: typeof e.code === "string" ? e.code : undefined,
+  };
 };
 
 async function recordUnitViewSimple(
@@ -223,7 +226,6 @@ async function recordUnitViewSimple(
     });
 
     if (existingLog) {
-      console.log("Recent view log already exists, skipping:", { unitId, userId, ip });
       return;
     }
 
@@ -235,19 +237,14 @@ async function recordUnitViewSimple(
         ip: ip,
       },
     });
-
-    console.log("View log created:", { unitId, userId, ip });
   } catch (error) {
-    console.error("Error recording view:", error);
+    console.error("Error recording view:", errorSummary(error));
   }
 }
 
 export const getUnitDetail = async (unitId: number) => {
   try {
     const session: any = await getServerSession(authOptions as any);
-    const ip = getClientIp();
-
-    console.log("getUnitDetail called:", { unitId, userId: session?.user?.id, ip });
 
     const unitDetail = await prisma.unit.findUnique({
       where: {
@@ -276,10 +273,17 @@ export const getUnitDetail = async (unitId: number) => {
       isFavorited = !!favorite;
     }
 
-    // 조회 로그 기록 (비동기 - 페이지 로드 블로킹 안 함)
-    recordUnitViewSimple(unitId, session?.user?.id || null, ip).catch((error) => {
-      console.error("View log error (non-blocking):", error);
-    });
+    // 조회 로그 기록. 응답은 기다리지 않고 보내되, waitUntil로 Vercel이 응답 뒤
+    // 함수를 멈추지 않고 쓰기가 끝날 때까지 기다리게 한다(Vercel 밖에서는 no-op이지만
+    // EC2·로컬은 함수가 멈추지 않으므로 그대로 완료된다).
+    if (!isServerActionRequest()) {
+      const ip = getClientIp();
+      waitUntil(
+        recordUnitViewSimple(unitId, session?.user?.id || null, ip).catch((error) => {
+          console.error("View log error (non-blocking):", errorSummary(error));
+        })
+      );
+    }
 
     const transformedUnitDetail = {
       ...unitDetail,
@@ -293,7 +297,7 @@ export const getUnitDetail = async (unitId: number) => {
       status: 200,
     };
   } catch (error) {
-    console.error("Error fetching unit detail:", error);
+    console.error("Error fetching unit detail:", errorSummary(error));
     return {
       error: "Failed to fetch unit details",
       status: 500,
