@@ -113,7 +113,7 @@
 
 - **AC-5 실측 결과**: unit id 71로 세 경로(`/properties/test-id71`, `/list`, `/api/units?limit=5`)를 변경 전/후 각각 `curl`로 받아 파일로 저장한 뒤 `diff`로 비교. `next dev`가 재기동마다 바꾸는 정적 자산 캐시버스터(`?v=<timestamp>`)만 다르고, 그 부분을 정규화(`?v=X`로 치환)한 뒤에는 **세 경로 모두 바이트 단위로 100% 동일**했다(`diff` 결과 줄 수 0).
 
-- **GitHub Actions CI**: Draft PR #18의 첫 실행(`43801217580`)이 `app/(route)/unit/action.test.ts`의 AC-3 테스트 2개에서 실패했다. 원인은 로컬 디스크의 `app/(route)/unit/action.ts`에 남아있던, 이 브리프와 무관한 미커밋 변경(아래 "미해결" 5번) 때문에 로컬에서는 통과했지만 실제 `origin/main`에 커밋된 버전(`price`를 Prisma `Decimal`로 가정하고 `.toNumber()`를 그대로 호출)에서는 내 테스트의 평범한 숫자 목(`price: 25000`)이 `TypeError: unitDetail.price?.toNumber is not a function`로 터진 것이었다. `SAMPLE_UNIT`의 `price`/`outstandingPayment`를 `{ toNumber: () => N }` 형태로 고쳐 재현·수정했고, 다시 push해 CI가 통과했다(아래 참고).
+- **GitHub Actions CI**: Draft PR #18의 첫 실행(`43801217580`)이 `app/(route)/unit/action.test.ts`의 AC-3 테스트 2개에서 실패했다. 원인은 로컬 디스크의 `app/(route)/unit/action.ts`에 남아있던, 이 브리프와 무관한 미커밋 변경(아래 "미해결" 5번) 때문에 로컬에서는 통과했지만 실제 `origin/main`에 커밋된 버전(`price`를 Prisma `Decimal`로 가정하고 `.toNumber()`를 그대로 호출)에서는 내 테스트의 평범한 숫자 목(`price: 25000`)이 `TypeError: unitDetail.price?.toNumber is not a function`로 터진 것이었다. `SAMPLE_UNIT`의 `price`/`outstandingPayment`를 `{ toNumber: () => N }` 형태로 고쳐 재현·수정했고, 다시 push한 두 번째 실행(`43801611251`)이 **2분 31초에 통과**했다.
 
 - **수용 기준별 결과**: 위 6번 표에 반영함 — **AC-1~AC-7 전부 통과.**
 
