@@ -134,6 +134,7 @@
   - `npm test`: **4파일/33개 통과**.
   - `npm run build:local`(가드 경유, 로컬 DB) **성공**. 사이트맵이 `매물 페이지: 12개`로 로컬 DB를 읽었다.
 - 새 테스트가 헛돌지 않는지 확인했다: worktree에서 `action.ts`만 `origin/main`으로 잠깐 되돌리면 새 테스트 5개가 **전부 실패**하고, 다시 적용하면 전부 통과한다.
+- GitHub Actions `CI / verify`: Draft PR #19 첫 실행(`43824066184`)이 **3분 6초에 통과**했다(Type check, Lint, Test, Build 전부 성공).
 
 ### 로컬 DB 실측 (`dev:local`, 매물별 열람 기록 행 수)
 
