@@ -33,8 +33,7 @@ app.prepare().then(() => {
       // auth 관련 요청 로깅
       if (parsedUrl.pathname?.includes('/api/auth')) {
         console.log('Auth request:', {
-          pathname: parsedUrl.pathname,
-          query: parsedUrl.query
+          pathname: parsedUrl.pathname
         });
       }
 
