@@ -10,6 +10,10 @@ const handle = app.getRequestHandler()
  
 app.prepare().then(() => {
   createServer(async (req, res) => {
+    // CVE-2025-29927 완화: 외부 요청이 보낸 x-middleware-subrequest 헤더로
+    // middleware(인증 검사)를 건너뛰지 못하도록 요청 처리 맨 앞에서 제거한다.
+    delete req.headers['x-middleware-subrequest']
+
     try {
       // 프로덕션 환경에서 호스트 헤더 설정
       if (!dev) {
@@ -23,16 +27,13 @@ app.prepare().then(() => {
 
       // 요청 정보 로깅
       console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-      console.log('Headers:', req.headers);
 
       const parsedUrl = parse(req.url, true)
       
       // auth 관련 요청 로깅
       if (parsedUrl.pathname?.includes('/api/auth')) {
         console.log('Auth request:', {
-          pathname: parsedUrl.pathname,
-          query: parsedUrl.query,
-          headers: req.headers
+          pathname: parsedUrl.pathname
         });
       }
 
