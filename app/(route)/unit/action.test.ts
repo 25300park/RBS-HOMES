@@ -24,6 +24,8 @@ const unitViewLogFindFirst = vi.fn();
 const unitViewLogCreate = vi.fn();
 const getServerSessionMock = vi.fn();
 const waitUntilMock = vi.fn();
+const scheduleCreate = vi.fn();
+const revalidatePathMock = vi.fn();
 
 // 요청 헤더. 테스트마다 바꿔 끼운다(next-action 유무, IP 헤더).
 let requestHeaders = new Map<string, string>();
@@ -33,7 +35,12 @@ vi.mock("@/lib/prisma", () => ({
     unit: { findUnique: unitFindUnique },
     favorite: { findFirst: favoriteFindFirst },
     unitViewLog: { findFirst: unitViewLogFindFirst, create: unitViewLogCreate },
+    schedule: { create: scheduleCreate },
   },
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: revalidatePathMock,
 }));
 
 vi.mock("next-auth", () => ({
@@ -242,5 +249,88 @@ describe("getUnitDetail", () => {
     expect(favoriteFindFirst).not.toHaveBeenCalled();
     expect(unitViewLogFindFirst).toHaveBeenCalledTimes(1);
     expect(unitViewLogCreate).toHaveBeenCalledTimes(1);
+  });
+});
+
+// B-20261116-04: 투어 신청 오류 로그에 신청자 개인정보가 남지 않는지 확인한다.
+describe("requestSchedule", () => {
+  const APPLICANT_EMAIL = "fake.applicant@example.invalid";
+  const APPLICANT_PHONE = "09000000005";
+  const APPLICANT_NAME = "Fake Applicant";
+
+  const formData = () => ({
+    name: APPLICANT_NAME,
+    email: APPLICANT_EMAIL,
+    phone: APPLICANT_PHONE,
+    message: "Fake tour message",
+    date: new Date("2026-12-02T09:00:00Z"),
+    needsDiscussion: false,
+    unitId: 1,
+    userId: Number(FAKE_USER_ID),
+  });
+
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    scheduleCreate.mockResolvedValue({});
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
+  it("AC-3: 정상 신청은 같은 값으로 1건 저장하고 성공을 돌려준다", async () => {
+    const { requestSchedule } = await import("./action");
+
+    const result = await requestSchedule(formData());
+
+    expect(result).toEqual({ success: true });
+    expect(scheduleCreate).toHaveBeenCalledWith({
+      data: {
+        unitId: 1,
+        userId: Number(FAKE_USER_ID),
+        username: APPLICANT_NAME,
+        email: APPLICANT_EMAIL,
+        mobile: APPLICANT_PHONE,
+        requestDate: new Date("2026-12-02T09:00:00Z"),
+        message: "Fake tour message",
+        status: 0,
+      },
+    });
+    expect(revalidatePathMock).toHaveBeenCalledWith("/account/unit/my-list");
+  });
+
+  it("AC-4, AC-6: 저장 오류 로그는 남되 이름과 코드만 있고 이메일, 전화번호, 이름, userId가 없다", async () => {
+    const err = Object.assign(
+      new Error(
+        `Invalid \`prisma.schedule.create()\` invocation: { data: { userId: ${FAKE_USER_ID}, username: "${APPLICANT_NAME}", email: "${APPLICANT_EMAIL}", mobile: "${APPLICANT_PHONE}" } }`
+      ),
+      { name: "PrismaClientKnownRequestError", code: "P2003" }
+    );
+    scheduleCreate.mockRejectedValue(err);
+    const { requestSchedule } = await import("./action");
+
+    const result = await requestSchedule(formData());
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Failed to create schedule");
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith("Schedule creation error:", {
+      name: "PrismaClientKnownRequestError",
+      code: "P2003",
+    });
+    const logs = loggedText(logSpy, errorSpy, warnSpy);
+    expect(logs).not.toContain(APPLICANT_EMAIL);
+    expect(logs).not.toContain(APPLICANT_PHONE);
+    expect(logs).not.toContain(APPLICANT_NAME);
+    expect(logs).not.toContain(FAKE_USER_ID);
   });
 });
