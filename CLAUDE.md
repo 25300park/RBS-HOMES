@@ -21,20 +21,21 @@
 
 ## 주의 (반복 함정)
 - Unit 주소 필드: front는 **fullAddress (d 두 개)** 사용. (admin은 fullAdress d 하나 — 레포마다 다르니 혼동 주의)
-- `RBS_SYNC_SECRET=rbs-crm-sync-2026`
+- `RBS_SYNC_SECRET=<set-in-env>` (실제 값은 EC2 `.env`와 Vercel 환경변수에만 둔다)
 
 ## 배포 (자동)
 - main에 push → GitHub Actions 자동배포 → EC2 자동 pull/build/restart → Telegram 알림.
 - EC2에 커밋 안 된 잔여 변경이 있으면 자동 pull이 충돌로 실패할 수 있음.
 
 ## 테스트 계정 (level / ID)
-- tenant@test.com / test1234 (level 5, ID 180)
-- owner@test.com / test1234 (level 4, ID 181)
-- agent@test.com / test1234 (level 2, ID 182)
+- `<임차인 테스트 계정 이메일>` / `<비밀번호>` (level 5, ID 180)
+- `<임대인 테스트 계정 이메일>` / `<비밀번호>` (level 4, ID 181)
+- `<에이전트 테스트 계정 이메일>` / `<비밀번호>` (level 2, ID 182)
+- 계정 이메일과 비밀번호는 이 파일에 쓰지 않는다. 로컬 시드 계정은 `prisma/seed-local.js`를 참조한다.
 
 ## ⚠️ 이중 서버 아키텍처 (2026-07-21 확정, 매우 중요)
 - rbs-homes.com은 **EC2와 Vercel 두 서버가 동시에 운영 중**이다. 둘 다 같은 GitHub 레포에서 자동배포됨.
-  - EC2: `54.254.24.249:3000`, PM2 `front-rbs`, GitHub Actions가 push마다 pull+build+restart.
+  - EC2: `<EC2 공인 IP>:<포트>`, PM2 `front-rbs`, GitHub Actions가 push마다 pull+build+restart.
   - Vercel: 같은 레포를 GitHub 연동으로 자동배포.
 - **실제 사용자 트래픽(rbs-homes.com 도메인)은 Vercel이 처리한다.** EC2는 봇/스캐너만 직접 IP로 찍힐 뿐, 실사용자 요청 로그가 거의 안 남는다.
 - **디버깅 시 EC2 pm2 logs보다 Vercel 대시보드(Deployments → Logs/Functions)를 먼저 확인할 것.** "코드는 맞는데 왜 로그가 안 찍히지?"의 실제 원인이 대부분 여기다.
@@ -89,6 +90,7 @@ tailwind.config.ts는 리버스(max-width) breakpoint를 씁니다.
 
 - 개발은 로컬 DB만 쓴다. 운영 DB 주소로 접속하지 않는다.
 - `.env*`는 읽거나 수정하거나 출력하지 않는다. 비밀값은 로그, 커밋, PR에 남기지 않는다.
+- 비밀값은 이 파일에 쓰지 않는다. 변수 이름과 설명만 쓰고, 값은 `<set-in-env>` 같은 자리표시자로 둔다.
 - 로컬과 CI에서 `EMAIL_MODE`는 `off`다. 실제 사용자에게 메일이나 푸시를 보내지 않는다.
 - 새 환경변수가 필요하면 브리프에 적고, Vercel(Production과 Preview 구분)과 EC2에 등록한 뒤 코드를 올린다. 모듈 최상단에서 환경변수가 없을 때 예외를 던지면 빌드 전체가 깨진다.
 - 운영 서버 배포와 운영 마이그레이션 실행은 하지 않는다.
