@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { headers } from 'next/headers';
 import { waitUntil } from "@vercel/functions";
+import { errorSummary } from "@/lib/api-response";
 
 // DTO 함수 정의
 const unitWithAdminDTO = (unit: any) => ({
@@ -195,16 +196,6 @@ const getClientIp = (): string => {
 // 남기지 않는다. Next.js는 서버 액션 요청에 Next-Action 헤더를 붙인다.
 const isServerActionRequest = (): boolean => headers().has("next-action");
 
-// Prisma 검증 오류 메시지에는 호출 인자(IP, userId)가 그대로 들어가므로
-// 오류 로그에는 이름과 코드만 남긴다.
-const errorSummary = (error: unknown) => {
-  const e = (error ?? {}) as { name?: unknown; code?: unknown };
-  return {
-    name: typeof e.name === "string" ? e.name : "UnknownError",
-    code: typeof e.code === "string" ? e.code : undefined,
-  };
-};
-
 async function recordUnitViewSimple(
   unitId: number,
   userId: string | null,
@@ -354,7 +345,7 @@ export async function requestSchedule(formData: ScheduleRequest) {
       };
     }
 
-    console.error("Schedule creation error:", error);
+    console.error("Schedule creation error:", errorSummary(error));
     return {
       success: false,
       error: "Failed to create schedule",

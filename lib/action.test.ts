@@ -181,3 +181,37 @@ describe("resetPassword", () => {
     }
   });
 });
+
+// B-20261116-04: getGoogleReviews 오류 로그는 남되 이름과 코드만 남는지 확인한다.
+describe("getGoogleReviews error logging", () => {
+  const FAKE_DETAIL = "fake-detail-should-not-be-logged-0001";
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    errorSpy.mockRestore();
+  });
+
+  it("AC-6: 조회 실패 시 null을 돌려주고, 오류 로그에는 이름과 코드만 남는다", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(Object.assign(new TypeError(`fetch failed ${FAKE_DETAIL}`), { code: "ECONNREFUSED" }))
+    );
+    const { getGoogleReviews } = await import("./action");
+
+    const result = await getGoogleReviews();
+
+    expect(result).toBeNull();
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith("리뷰 조회 에러:", { name: "TypeError", code: "ECONNREFUSED" });
+    const logs = errorSpy.mock.calls
+      .flat()
+      .map((arg: unknown) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
+      .join("\n");
+    expect(logs).not.toContain(FAKE_DETAIL);
+  });
+});

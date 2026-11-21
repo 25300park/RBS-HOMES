@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { errorSummary } from '@/lib/api-response';
 
 const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24시간 
@@ -86,7 +87,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(reviewsData);
   } catch (error) {
-    console.error('리뷰 조회 에러:', error);
+    console.error('리뷰 조회 에러:', errorSummary(error));
     return NextResponse.json(
       { error: error instanceof Error ? error.message : '리뷰 조회 실패' },
       { status: 500 }

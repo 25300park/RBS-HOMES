@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from "vitest";
 import bcrypt from "bcryptjs";
 
 const userFindUnique = vi.fn();
@@ -123,5 +123,109 @@ describe("credentials authorize", () => {
 
     await expect(authorize({ email: "", password: "" }, {})).rejects.toThrow("Missing credentials");
     expect(userFindUnique).not.toHaveBeenCalled();
+  });
+});
+
+// B-20261116-04: 로그인 콜백이 사용자 정보와 계정 번호를 로그에 남기지 않는지 확인한다.
+// 아래 값은 전부 가짜이며, 로그 어디에도 나오면 안 된다.
+const PII_USER_ID = 987123;
+const PII_EMAIL = "fake.login@example.invalid";
+const PII_PHONE = "09000000002";
+const PII_LICENSE = "LIC-FAKE-777";
+const PII_NAME = "Fake Login Person";
+
+function consoleText(...spies: Array<ReturnType<typeof vi.spyOn>>) {
+  return spies
+    .flatMap((spy) => spy.mock.calls.flat())
+    .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
+    .join("\n");
+}
+
+function expectNoPii(text: string) {
+  expect(text).not.toContain(String(PII_USER_ID));
+  expect(text).not.toContain(PII_EMAIL);
+  expect(text).not.toContain(PII_PHONE);
+  expect(text).not.toContain(PII_LICENSE);
+  expect(text).not.toContain(PII_NAME);
+}
+
+describe("login callbacks logging (B-20261116-04)", () => {
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
+    infoSpy.mockRestore();
+  });
+
+  it("AC-4: jwt 콜백은 사용자 객체와 userId를 로그에 남기지 않고, 토큰 구성은 그대로다", async () => {
+    const { authOptions } = await import("./auth");
+    const user = {
+      id: PII_USER_ID,
+      email: PII_EMAIL,
+      name: PII_NAME,
+      level: 4,
+      phone: PII_PHONE,
+      image: null,
+      status: 1,
+      license: PII_LICENSE,
+      isSuperAdmin: false,
+    };
+
+    const token = await (authOptions.callbacks!.jwt as any)({ token: {}, user });
+
+    expect(token).toEqual({
+      id: PII_USER_ID,
+      email: PII_EMAIL,
+      level: 4,
+      phone: PII_PHONE,
+      image: null,
+      status: 1,
+      license: PII_LICENSE,
+      isSuperAdmin: false,
+    });
+    expectNoPii(consoleText(logSpy, errorSpy, warnSpy, infoSpy));
+  });
+
+  it("AC-4: Google 로그인 signIn 콜백은 userId를 로그에 남기지 않고, DB 사용자 정보로 교체하는 동작은 그대로다", async () => {
+    userFindUnique.mockResolvedValue({
+      id: PII_USER_ID,
+      email: PII_EMAIL,
+      name: PII_NAME,
+      level: 4,
+      phone: PII_PHONE,
+      image: null,
+      status: 1,
+      license: PII_LICENSE,
+      isSuperAdmin: false,
+    });
+    const { authOptions } = await import("./auth");
+    const user: Record<string, unknown> = { id: "google-sub-fake", email: PII_EMAIL, name: PII_NAME };
+
+    const allowed = await (authOptions.callbacks!.signIn as any)({ user, account: { provider: "google" } });
+
+    expect(allowed).toBe(true);
+    expect(user).toMatchObject({
+      id: PII_USER_ID,
+      level: 4,
+      phone: PII_PHONE,
+      status: 1,
+      license: PII_LICENSE,
+      isSuperAdmin: false,
+    });
+    expect(userCreate).not.toHaveBeenCalled();
+    expectNoPii(consoleText(logSpy, errorSpy, warnSpy, infoSpy));
   });
 });

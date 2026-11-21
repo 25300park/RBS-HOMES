@@ -15,6 +15,7 @@ import { revalidatePath } from "next/cache";
 import { generateTemporaryPassword } from "@/lib/utils";
 import { sendEmail, getPasswordResetEmailTemplate, maskEmail } from "@/lib/email";
 import { headers } from "next/headers";
+import { errorSummary } from "@/lib/api-response";
 
 // 기본값 상수 정의
 const DEFAULT_ACTIVE_TYPES = ["rent"];
@@ -784,7 +785,7 @@ export async function getGoogleReviews(): Promise<any> {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('리뷰 조회 에러:', error);
+    console.error('리뷰 조회 에러:', errorSummary(error));
     return null;
   }
 }
